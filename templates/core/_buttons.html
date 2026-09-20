@@ -1,0 +1,10 @@
+{% for b in buttons %}
+  {% if b.post %}
+  <form method="post" action="{{ b.url }}" class="d-inline" {% if b.bestaetigung %}onsubmit="return confirm('{{ b.bestaetigung|escapejs }}')"{% endif %}>{% csrf_token %}
+    {% for k, v in b.felder.items %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+    <button class="btn btn-sm btn-{{ b.stil|default:'secondary' }}">{{ b.label }}</button>
+  </form>
+  {% else %}
+  <a class="btn btn-sm btn-{{ b.stil|default:'outline-secondary' }}" href="{{ b.url }}">{{ b.label }}</a>
+  {% endif %}
+{% endfor %}

@@ -1,0 +1,18 @@
+# Aufruf im Ordner deploy/:  docker compose --env-file ../.env -f docker-compose.proxy.yml up -d
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    network_mode: host        # erreicht 127.0.0.1:8000 (Vereinsverwaltung) und 127.0.0.1:9000 (OpenSlides)
+    environment:
+      VEREIN_DOMAIN: ${VEREIN_DOMAIN:?in .env setzen}
+      OPENSLIDES_DOMAIN: ${OPENSLIDES_DOMAIN:?in .env setzen}
+      ACME_EMAIL: ${ACME_EMAIL:?in .env setzen}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

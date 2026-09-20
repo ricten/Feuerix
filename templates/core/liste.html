@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <h3 class="mb-0">{{ cfg.label_plural }}</h3>
+  <div class="d-flex gap-2 flex-wrap">
+    {% include "core/_buttons.html" with buttons=aktionen %}
+    <a class="btn btn-sm btn-outline-secondary" href="?{{ export_qs }}&export=csv">CSV</a>
+    <a class="btn btn-sm btn-outline-secondary" href="?{{ export_qs }}&export=xlsx">Excel</a>
+    {% if can_add %}<a class="btn btn-sm btn-primary" href="{{ add_url }}">+ Neu</a>{% endif %}
+  </div>
+</div>
+<form method="get" class="row g-2 mb-3" hx-get="" hx-target="#tabelle" hx-select="#tabelle" hx-trigger="keyup changed delay:300ms from:input[name=q], change from:select" hx-push-url="true">
+  {% if cfg.suche %}<div class="col-md-4"><input name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Suchen …" autocomplete="off"></div>{% endif %}
+  {% for f in filterfelder %}
+    {% if f.select %}
+    <div class="col-auto"><select name="{{ f.name }}" class="form-select form-select-sm" title="{{ f.label }}">
+      <option value="">{{ f.label }}: alle</option>
+      {% for k, l in f.optionen %}<option value="{{ k }}" {% if k|stringformat:"s" == f.wert %}selected{% endif %}>{{ l }}</option>{% endfor %}
+    </select></div>
+    {% else %}
+    <input type="hidden" name="{{ f.name }}" value="{{ f.wert }}">
+    <div class="col-auto"><a class="badge text-bg-secondary text-decoration-none" href="?">Filter {{ f.name }}={{ f.wert }} ✕</a></div>
+    {% endif %}
+  {% endfor %}
+  <div class="col-auto"><button class="btn btn-sm btn-outline-primary">Filtern</button></div>
+</form>
+<div id="tabelle">
+<div class="card shadow-sm"><div class="table-responsive">
+<table class="table table-hover table-sm mb-0 tabelle">
+  <thead class="table-light"><tr>{% for s in spalten %}<th>{{ s }}</th>{% endfor %}</tr></thead>
+  <tbody>
+  {% for z in zeilen %}
+    <tr>{% for c in z.zellen %}<td>{% if forloop.first and z.url %}<a href="{{ z.url }}">{{ c }}</a>{% else %}{{ c }}{% endif %}</td>{% endfor %}</tr>
+  {% empty %}<tr><td colspan="{{ spalten|length }}" class="text-muted p-3">Keine Einträge.</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div></div>
+{% if is_paginated %}
+<nav class="mt-3"><ul class="pagination pagination-sm">
+  {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?{{ qs_ohne_seite }}&page={{ page_obj.previous_page_number }}">‹</a></li>{% endif %}
+  <li class="page-item disabled"><span class="page-link">Seite {{ page_obj.number }} / {{ paginator.num_pages }} ({{ paginator.count }} Einträge)</span></li>
+  {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?{{ qs_ohne_seite }}&page={{ page_obj.next_page_number }}">›</a></li>{% endif %}
+</ul></nav>
+{% endif %}
+</div>
+{% endblock %}

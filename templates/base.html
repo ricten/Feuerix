@@ -1,0 +1,53 @@
+{% load static verein_tags %}
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ titel|default:"Vereinsverwaltung" }}{% endblock %} – Vereinsverwaltung</title>
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'app.css' %}">
+  <script src="{% static 'vendor/htmx.min.js' %}" defer></script>
+  <script src="{% static 'vendor/bootstrap.bundle.min.js' %}" defer></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'dashboard' %}">{% if verein.logo %}<img src="{% url 'verein_logo' %}" alt="" style="height:30px;background:#fff;border-radius:4px;padding:2px">{% endif %}{{ verein.name|default:"Vereinsverwaltung" }}</a>
+    {% if user.is_authenticated %}
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav me-auto">
+        {% for gruppe, punkte in navigation %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">{{ gruppe }}</a>
+          <ul class="dropdown-menu">
+            {% for label, url in punkte %}<li><a class="dropdown-item" href="{{ url }}">{{ label }}</a></li>{% endfor %}
+          </ul>
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="d-flex align-items-center gap-2 text-light">
+        {% if vereine|length > 1 %}
+        <form method="post" action="{% url 'verein_waehlen' %}" class="d-flex">{% csrf_token %}
+          <select name="verein" class="form-select form-select-sm" onchange="this.form.submit()" title="Verein wechseln">
+            {% for v in vereine %}<option value="{{ v.pk }}" {% if v.pk == verein.pk %}selected{% endif %}>{{ v.name }}</option>{% endfor %}
+          </select>
+        </form>
+        {% endif %}
+        <span class="small">{{ user.get_username }}</span>
+        <a class="btn btn-sm btn-outline-light" href="{% url 'password_change' %}">Passwort</a>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-light">Abmelden</button></form>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</nav>
+<main class="container-fluid px-4 pb-5">
+  {% for m in messages %}
+  <div class="alert alert-{% if m.level_tag == 'error' %}danger{% else %}{{ m.level_tag }}{% endif %} alert-dismissible fade show">{{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

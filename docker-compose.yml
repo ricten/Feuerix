@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-vereinsverwaltung}
+      POSTGRES_USER: ${POSTGRES_USER:-verein}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?bitte in .env setzen}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-verein}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - media:/data/media
+      - backups:/data/backups
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8000}:8000"
+
+  worker:
+    build: .
+    restart: unless-stopped
+    command: celery -A config worker -l info
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - web
+      - redis
+    volumes:
+      - media:/data/media
+
+volumes:
+  pgdata:
+  media:
+  backups:

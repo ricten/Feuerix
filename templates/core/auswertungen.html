@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="mb-3">Auswertungen</h3>
+{% for titel, spalten, zeilen, hinweis in abschnitte %}
+<div class="card shadow-sm mb-3"><div class="card-header"><strong>{{ titel }}</strong></div>
+<div class="table-responsive"><table class="table table-sm mb-0 tabelle">
+  <thead class="table-light"><tr>{% for s in spalten %}<th>{{ s }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for z in zeilen %}<tr>{% for c in z %}<td>{{ c }}</td>{% endfor %}</tr>{% empty %}<tr><td class="text-muted" colspan="{{ spalten|length }}">Keine Daten.</td></tr>{% endfor %}</tbody>
+</table></div>{% if hinweis %}<div class="card-footer small text-muted">{{ hinweis }}</div>{% endif %}</div>
+{% endfor %}
+<p class="text-muted small">Detailauswertungen lassen sich in den jeweiligen Listen als CSV oder Excel exportieren.</p>
+{% endblock %}

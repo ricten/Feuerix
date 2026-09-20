@@ -1,0 +1,16 @@
+# Reverse Proxy mit automatischem HTTPS (Let's Encrypt) für beide Anwendungen
+{
+	email {$ACME_EMAIL}
+}
+
+{$VEREIN_DOMAIN} {
+	encode gzip
+	reverse_proxy 127.0.0.1:8000
+}
+
+{$OPENSLIDES_DOMAIN} {
+	# OpenSlides nutzt Streaming (Autoupdate) - deshalb kein Puffern
+	reverse_proxy 127.0.0.1:9000 {
+		flush_interval -1
+	}
+}

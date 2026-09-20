@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+staticfiles/
+static/vendor/
+openslides/secrets/
+openslides/osmanage
+openslides/docker-compose.yml
+openslides/docker-compose.yml.tmpl
+openslides/*.crt
+openslides/*.key

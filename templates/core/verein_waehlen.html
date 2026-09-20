@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center mt-4"><div class="col-md-5">
+  <h4>Verein wählen</h4>
+  {% if vereine %}
+  <form method="post">{% csrf_token %}
+    <div class="list-group">
+      {% for v in vereine %}<button name="verein" value="{{ v.pk }}" class="list-group-item list-group-item-action">{{ v.name }}</button>{% endfor %}
+    </div>
+  </form>
+  {% else %}
+  <div class="alert alert-warning">Ihrem Benutzer ist noch kein Verein zugeordnet. Bitte wenden Sie sich an einen Administrator.</div>
+  {% endif %}
+</div></div>
+{% endblock %}

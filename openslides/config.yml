@@ -1,0 +1,7 @@
+# Setup-Konfiguration für OpenSlides 4 hinter dem Reverse Proxy (Caddy) der Vereinsverwaltung.
+# Wird von install.sh an "osmanage setup" übergeben.
+host: 127.0.0.1        # nur lokal erreichbar - der öffentliche Zugriff läuft über den Proxy
+port: 9000             # 8000 ist für die Vereinsverwaltung reserviert
+enableLocalHTTPS: false  # HTTPS übernimmt der Reverse Proxy (Caddy)
+defaults:
+  tag: 4.3.0           # feste Version! Aktuelle Version prüfen: https://github.com/OpenSlides/OpenSlides/releases

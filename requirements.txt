@@ -1,0 +1,14 @@
+Django>=5.2,<7.0
+psycopg[binary]>=3.2
+gunicorn>=22.0
+whitenoise>=6.7
+celery>=5.4
+redis>=5.0
+reportlab>=4.2
+openpyxl>=3.1
+cryptography>=43.0
+num2words>=0.5.13
+Pillow>=10.4
+python-fints>=4.2
+python-docx>=1.1
+requests>=2.32

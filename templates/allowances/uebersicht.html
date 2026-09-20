@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">{{ titel }}</h3>
+  <form method="get" class="d-flex gap-2"><input type="number" name="jahr" value="{{ jahr }}" class="form-control form-control-sm" style="width:6rem"><button class="btn btn-sm btn-outline-primary">Anzeigen</button></form>
+</div>
+<p class="text-muted">Freibeträge laut Vereinseinstellungen: Ehrenamt {{ grenzen.0 }}, Übungsleiter {{ grenzen.1 }} je Person und Jahr. Berücksichtigt werden genehmigte und ausgezahlte Beträge. Ob der Freibetrag bei anderen Auftraggebern bereits verbraucht wurde, kann das System nicht wissen (Erklärung des Empfängers einholen).</p>
+<div class="card shadow-sm"><table class="table table-sm mb-0 tabelle">
+  <thead class="table-light"><tr><th>Empfänger</th><th>Ehrenamtspauschale</th><th>Übungsleiterpauschale</th><th>Aufwandsersatz</th><th>Sonstige</th><th>Hinweis</th></tr></thead>
+  <tbody>{% for z in zeilen %}<tr {% if z.warn %}class="table-warning"{% endif %}><td><a href="{% url 'mitglied_detail' z.mitglied.pk %}">{{ z.mitglied.name }}</a></td><td>{{ z.ea }}</td><td>{{ z.ul }}</td><td>{{ z.ersatz }}</td><td>{{ z.sonst }}</td><td>{{ z.warn }}</td></tr>
+  {% empty %}<tr><td colspan="6" class="text-muted p-3">Keine Einträge.</td></tr>{% endfor %}</tbody>
+</table></div>
+{% endblock %}

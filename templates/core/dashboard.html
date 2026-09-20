@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load verein_tags %}
+{% block content %}
+<h3 class="mb-3">Übersicht {{ jahr }}</h3>
+<div class="row g-3 mb-3">
+  {% for label, wert in kennzahlen %}
+  <div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
+  {% endfor %}
+  {% if request.rechte|darf:"beitraege.view" %}
+  {% for label, wert in finanzen %}
+  <div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
+  {% endfor %}
+  {% endif %}
+  <div class="col-6 col-lg-3"><a class="text-decoration-none text-reset" href="{% url 'jubilaeen' %}"><div class="card card-kennzahl shadow-sm"><div class="card-body"><div class="text-muted small">Jubiläen {{ jahr }}</div><div class="zahl">{{ jubilaeen }}</div></div></div></a></div>
+  <div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm"><div class="card-body"><div class="text-muted small">Ehrungen {{ jahr }}</div><div class="zahl">{{ ehrungen }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm {% if ueberfaellig %}border-danger{% endif %}"><div class="card-body"><div class="text-muted small">Überfällige Verleihe</div><div class="zahl">{{ ueberfaellig }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm"><div class="card-body"><div class="text-muted small">Offene Aufgaben (Veranstaltungen)</div><div class="zahl">{{ offene_aufgaben }}</div></div></div></div>
+  {% if aufwand_offen %}<div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm border-warning"><div class="card-body"><div class="text-muted small">Aufwandsanträge zur Genehmigung</div><div class="zahl">{{ aufwand_offen }}</div></div></div></div>{% endif %}
+</div>
+<div class="card shadow-sm"><div class="card-header"><strong>Nächste Veranstaltungen</strong></div>
+  <ul class="list-group list-group-flush">
+  {% for v in kommende %}<li class="list-group-item"><a href="{% url 'veranstaltung_detail' v.pk %}">{{ v.beginn|date:"d.m.Y H:i" }} – {{ v.titel }}</a> <span class="text-muted">{{ v.ort }}</span></li>
+  {% empty %}<li class="list-group-item text-muted">Keine anstehenden Veranstaltungen.</li>{% endfor %}
+  </ul></div>
+{% endblock %}

@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: verein
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: vereinsverwaltung
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U verein"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      SECRET_KEY: ci-nur-fuer-tests
+      POSTGRES_HOST: localhost
+      POSTGRES_USER: verein
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: vereinsverwaltung
+      CELERY_EAGER: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Schlüssel für verschlüsselte Felder erzeugen (nur CI)
+        run: echo "FIELD_ENCRYPTION_KEY=$(python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')" >> "$GITHUB_ENV"
+      - run: python manage.py check
+      # Solange noch keine Migrationen eingecheckt sind, werden sie hier erzeugt. Danach fällt "makemigrations" bei
+      # unverändertem Modell nicht mehr ins Gewicht.
+      - run: python manage.py makemigrations --noinput
+      - run: python manage.py migrate --noinput
+      - run: python manage.py test --verbosity 2
