@@ -14,6 +14,7 @@ from django.views.decorators.http import require_POST
 from . import audit
 from .crud import REGISTRY, wert
 from .forms import VereinForm
+from .models import Zugang
 from .util import geld
 
 
@@ -21,6 +22,16 @@ def _vorbereiten(request):
     if request.verein is None:
         return redirect("verein_waehlen")
     return None
+
+
+@login_required
+def nach_login(request):
+    """Leitet Mitarbeiter (mit Zugang) zum Dashboard, Mitglieder mit Selbstdienst-Konto zu 'Meine Daten'."""
+    if request.user.is_superuser or Zugang.objects.filter(user=request.user, aktiv=True).exists():
+        return redirect("dashboard")
+    if hasattr(request.user, "mitglied_zugang"):
+        return redirect("mein_konto")
+    return redirect("dashboard")
 
 
 @login_required
@@ -107,9 +118,13 @@ def datei(request, app_label, modell, pk, feld):
 
 @login_required
 def verein_logo(request):
-    if request.verein is None or not request.verein.logo:
+    verein = request.verein
+    if verein is None:
+        m = getattr(request.user, "mitglied_zugang", None)
+        verein = m.verein if m is not None else None
+    if verein is None or not verein.logo:
         raise Http404
-    return FileResponse(request.verein.logo.open("rb"))
+    return FileResponse(verein.logo.open("rb"))
 
 
 @login_required

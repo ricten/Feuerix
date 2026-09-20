@@ -26,6 +26,17 @@ def mitglied_kontext(request, m):
     aktionen, abschnitte = [], []
     if r.darf("mitglieder", "view"):
         aktionen.append(knopf("Datenauskunft (JSON)", reverse("mitglied_export", args=[m.pk])))
+    if r.darf("selbstdienst", "change"):
+        if not m.benutzer_id or not m.benutzer.is_active:
+            aktionen.append(knopf("Zugangsdaten für Selbstdatenpflege senden", reverse("mitglied_zugang_einrichten", args=[m.pk]),
+                                  post=True, stil="outline-primary",
+                                  bestaetigung=f"Zugangsdaten per E-Mail an {m.email or '(keine E-Mail-Adresse hinterlegt!)'} senden?"))
+        else:
+            aktionen.append(knopf("Zugang zur Selbstdatenpflege sperren", reverse("mitglied_zugang_sperren", args=[m.pk]),
+                                  post=True, stil="outline-danger", bestaetigung="Zugang sperren?"))
+        if m.selbstdienst_initialpasswort:
+            aktionen.append(knopf("Gespeichertes Startpasswort löschen", reverse("mitglied_startpasswort_loeschen", args=[m.pk]),
+                                  post=True))
     if r.darf("mitglieder", "delete") and m.status != "verstorben" and m.vorname != "Anonymisiert":
         aktionen.append(knopf("Anonymisieren (DSGVO)", reverse("mitglied_anonymisieren", args=[m.pk]), post=True,
                               stil="outline-danger",

@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.conf import settings
 from django.db import models
 from django.db.models import Max
 
@@ -101,8 +102,12 @@ class Mitglied(TenantModel):
     openslides_user_id = models.PositiveIntegerField("OpenSlides-Konto-ID", null=True, blank=True, editable=False)
     openslides_username = models.CharField("OpenSlides-Benutzername", max_length=150, blank=True, editable=False)
     openslides_initialpasswort = VerschluesseltesTextField("OpenSlides-Startpasswort", blank=True, editable=False)
+    benutzer = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+                                    editable=False, related_name="mitglied_zugang",
+                                    verbose_name="Zugang (Selbstdatenpflege)")
+    selbstdienst_initialpasswort = VerschluesseltesTextField("Selbstdienst-Startpasswort", blank=True, editable=False)
 
-    AUDIT_MASK = ("iban", "openslides_initialpasswort")
+    AUDIT_MASK = ("iban", "openslides_initialpasswort", "selbstdienst_initialpasswort")
 
     class Meta:
         verbose_name = "Mitglied"

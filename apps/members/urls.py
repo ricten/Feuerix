@@ -2,7 +2,7 @@ from django.urls import path
 
 from apps.core.crud import crud, knopf
 
-from . import views
+from . import selbstdienst, views
 from .models import Abteilung, Dokument, Familie, Funktion, Mitglied, MitgliedFunktion, Mitgliedsart
 
 urlpatterns = [
@@ -11,6 +11,11 @@ urlpatterns = [
     path("mitglieder/export/", views.mitglieder_export, name="mitglieder_export"),
     path("mitglieder/<int:pk>/auskunft/", views.mitglied_export, name="mitglied_export"),
     path("mitglieder/<int:pk>/anonymisieren/", views.mitglied_anonymisieren, name="mitglied_anonymisieren"),
+    path("mein-konto/", selbstdienst.mein_konto, name="mein_konto"),
+    path("mitglieder/<int:pk>/zugang/einrichten/", selbstdienst.zugang_einrichten, name="mitglied_zugang_einrichten"),
+    path("mitglieder/<int:pk>/zugang/sperren/", selbstdienst.zugang_sperren, name="mitglied_zugang_sperren"),
+    path("mitglieder/<int:pk>/zugang/startpasswort-loeschen/", selbstdienst.startpasswort_loeschen,
+        name="mitglied_startpasswort_loeschen"),
 ]
 def mitglieder_listen_aktionen(request):
     from django.urls import reverse
@@ -28,7 +33,7 @@ urlpatterns += crud(
     list_display=("mitgliedsnummer", "nachname", "vorname", "mitgliedsart", "status", "eintrittsdatum", "ort"),
     suche=("nachname", "vorname", "email", "ort", "mitgliedsnummer"), filter=("status", "mitgliedsart", "familie"),
     select_related=("mitgliedsart",), ordering=("nachname", "vorname"), kontext=views.mitglied_kontext,
-    detail_ausblenden=("openslides_initialpasswort",))
+    detail_ausblenden=("openslides_initialpasswort", "selbstdienst_initialpasswort"))
 urlpatterns += crud("mitgliedsarten", Mitgliedsart, "beitraege", list_display=("name", "jahresbeitrag", "beschreibung"))
 urlpatterns += crud("familien", Familie, "mitglieder", list_display=("name",))
 urlpatterns += crud("abteilungen", Abteilung, "mitglieder", list_display=("name",))

@@ -75,4 +75,9 @@ def mandant(request):
                     pass
         if punkte:
             navigation.append((gruppe, punkte))
-    return {"verein": request.verein, "vereine": request.vereine, "navigation": navigation}
+    verein = request.verein
+    if verein is None:
+        m = getattr(request.user, "mitglied_zugang", None)
+        if m is not None:
+            verein = m.verein
+    return {"verein": verein, "vereine": request.vereine, "navigation": navigation}

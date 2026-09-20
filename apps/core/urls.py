@@ -15,6 +15,7 @@ def audit_kontext(request, obj):
 
 urlpatterns = [
     path("", views.dashboard, name="dashboard"),
+    path("nach-anmeldung/", views.nach_login, name="nach_login"),
     path("verein/waehlen/", views.verein_waehlen, name="verein_waehlen"),
     path("verein/logo/", views.verein_logo, name="verein_logo"),
     path("verein/einstellungen/", views.verein_einstellungen, name="verein_einstellungen"),

@@ -1,6 +1,9 @@
+from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase
+from django.urls import reverse
 
-from apps.core.models import Verein
+from apps.core.models import Rolle, Verein, Zugang
 from apps.members import importer
 from apps.members.models import Mitglied
 
@@ -40,3 +43,60 @@ class ImportTests(TestCase):
         self.assertEqual(len(importer.importieren(self.v, "a.csv", daten, testlauf=True)["fehler"]), 1)
         b = importer.importieren(self.v, "a.csv", daten, testlauf=False, neu_anlegen=True)
         self.assertEqual((b["neu"], len(b["fehler"])), (1, 0))
+
+
+class SelbstdienstTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.vorstand = User.objects.create_user("vorstand", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.vorstand, rolle=Rolle.objects.get(verein=self.v, name="Vorstand"))
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Muster", email="erika@example.org")
+
+    def test_zugang_einrichten_sendet_mail_und_verknuepft_benutzer(self):
+        self.client.login(username="vorstand", password="pw-Test-12345")
+        r = self.client.post(reverse("mitglied_zugang_einrichten", args=[self.m.pk]))
+        self.assertRedirects(r, reverse("mitglied_detail", args=[self.m.pk]))
+        self.m.refresh_from_db()
+        self.assertEqual(self.m.benutzer.username, "erika@example.org")
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn(self.m.benutzer.username, mail.outbox[0].body)
+
+    def test_ohne_email_keine_einrichtung(self):
+        m2 = Mitglied.objects.create(verein=self.v, vorname="Ohne", nachname="Mail")
+        self.client.login(username="vorstand", password="pw-Test-12345")
+        self.client.post(reverse("mitglied_zugang_einrichten", args=[m2.pk]))
+        m2.refresh_from_db()
+        self.assertIsNone(m2.benutzer_id)
+
+    def test_lesebenutzer_darf_keinen_zugang_einrichten(self):
+        User = get_user_model()
+        leser = User.objects.create_user("leser", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=leser, rolle=Rolle.objects.get(verein=self.v, name="Lesebenutzer"))
+        self.client.login(username="leser", password="pw-Test-12345")
+        r = self.client.post(reverse("mitglied_zugang_einrichten", args=[self.m.pk]))
+        self.assertEqual(r.status_code, 403)
+
+    def test_mitglied_kann_eigene_daten_pflegen(self):
+        self.client.login(username="vorstand", password="pw-Test-12345")
+        self.client.post(reverse("mitglied_zugang_einrichten", args=[self.m.pk]))
+        self.m.refresh_from_db()
+        passwort, username = self.m.selbstdienst_initialpasswort, self.m.benutzer.username
+        self.client.logout()
+        self.assertTrue(self.client.login(username=username, password=passwort))
+        self.assertRedirects(self.client.get(reverse("nach_login")), reverse("mein_konto"))
+        r = self.client.post(reverse("mein_konto"), {"strasse": "Neue Str. 1", "plz": "35683", "ort": "Dillenburg",
+                                                      "email": "erika@example.org", "telefon": "", "mobil": "",
+                                                      "kontoinhaber": "", "iban": "", "bic": ""})
+        self.assertRedirects(r, reverse("mein_konto"))
+        self.m.refresh_from_db()
+        self.assertEqual(self.m.strasse, "Neue Str. 1")
+
+    def test_gesperrter_zugang_kann_sich_nicht_mehr_anmelden(self):
+        self.client.login(username="vorstand", password="pw-Test-12345")
+        self.client.post(reverse("mitglied_zugang_einrichten", args=[self.m.pk]))
+        self.m.refresh_from_db()
+        passwort, username = self.m.selbstdienst_initialpasswort, self.m.benutzer.username
+        self.client.post(reverse("mitglied_zugang_sperren", args=[self.m.pk]))
+        self.client.logout()
+        self.assertFalse(self.client.login(username=username, password=passwort))

@@ -1,5 +1,6 @@
 MODULE = {
     "mitglieder": "Mitglieder",
+    "selbstdienst": "Selbstdatenpflege (Zugänge der Mitglieder verwalten)",
     "dokumente": "Dokumente",
     "ehrungen": "Ehrungen & Jubiläen",
     "beitraege": "Beiträge",
@@ -38,6 +39,7 @@ STANDARDROLLEN = {
             BEARBEITEN)
         + _r(["zahlungen", "spenden", "aufwand", "inventar", "verleih", "inventur", "auswertungen", "openslides",
                 "kassenbuch"], LESEN)
+        + _r(["selbstdienst"], ALLES)
         + ["aufwand.change"])},
     "Kassenwart": {"ist_superadmin": False, "rechte": (
         _r(["beitraege", "rechnungen", "zahlungen", "bank", "spenden", "aufwand", "kassenbuch"], BEARBEITEN)
@@ -51,8 +53,11 @@ STANDARDROLLEN = {
         _r(["inventar", "verleih", "inventur"], BEARBEITEN) + _r(["mitglieder", "veranstaltungen"], LESEN))},
     "Veranstaltungsplaner": {"ist_superadmin": False, "rechte": (
         _r(["veranstaltungen", "verleih"], BEARBEITEN) + _r(["mitglieder", "inventar"], LESEN))},
+    "Mitgliederverwaltung": {"ist_superadmin": False, "rechte": (
+        _r(["selbstdienst"], ALLES) + _r(["mitglieder"], LESEN))},
     "Lesebenutzer": {"ist_superadmin": False, "rechte": _r(
-        [m for m in MODULE if m not in ("verwaltung", "audit", "bank", "aufwand", "spenden", "openslides", "kassenbuch")], LESEN)},
+        [m for m in MODULE if m not in ("verwaltung", "audit", "bank", "aufwand", "spenden", "openslides", "kassenbuch",
+                                        "selbstdienst")], LESEN)},
 }
 
 
