@@ -1,15 +1,21 @@
-# Reverse Proxy mit automatischem HTTPS (Let's Encrypt) für beide Anwendungen
+# Reverse Proxy für beide Anwendungen.
+# HTTPS-Zertifikat je Domain: standardmäßig automatisch über Let's Encrypt.
+# Ein eigenes/hinterlegtes Zertifikat wird stattdessen verwendet, sobald in der .env
+# VEREIN_TLS_CERT/_KEY bzw. OPENSLIDES_TLS_CERT/_KEY gesetzt sind (Dateien unter deploy/certs/,
+# siehe INSTALL.md Abschnitt 6). Das Einfügen der passenden "tls"-Zeile übernimmt entrypoint.sh.
 {
 	email {$ACME_EMAIL}
 }
 
 {$VEREIN_DOMAIN} {
 	encode gzip
+	@@VEREIN_TLS@@
 	reverse_proxy 127.0.0.1:8000
 }
 
 {$OPENSLIDES_DOMAIN} {
 	# OpenSlides nutzt Streaming (Autoupdate) - deshalb kein Puffern
+	@@OPENSLIDES_TLS@@
 	reverse_proxy 127.0.0.1:9000 {
 		flush_interval -1
 	}

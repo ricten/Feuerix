@@ -4,12 +4,21 @@ services:
     image: caddy:2
     restart: unless-stopped
     network_mode: host        # erreicht 127.0.0.1:8000 (Vereinsverwaltung) und 127.0.0.1:9000 (OpenSlides)
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
     environment:
       VEREIN_DOMAIN: ${VEREIN_DOMAIN:?in .env setzen}
       OPENSLIDES_DOMAIN: ${OPENSLIDES_DOMAIN:?in .env setzen}
       ACME_EMAIL: ${ACME_EMAIL:?in .env setzen}
+      # Eigenes Zertifikat statt automatischem Let's Encrypt (optional, siehe INSTALL.md):
+      # Dateinamen (nicht Pfad) von Zertifikat/Schluessel unter deploy/certs/.
+      VEREIN_TLS_CERT: ${VEREIN_TLS_CERT:-}
+      VEREIN_TLS_KEY: ${VEREIN_TLS_KEY:-}
+      OPENSLIDES_TLS_CERT: ${OPENSLIDES_TLS_CERT:-}
+      OPENSLIDES_TLS_KEY: ${OPENSLIDES_TLS_KEY:-}
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile.tmpl:ro
+      - ./entrypoint.sh:/entrypoint.sh:ro
+      - ./certs:/certs:ro
       - caddy_data:/data
       - caddy_config:/config
 

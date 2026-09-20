@@ -118,6 +118,21 @@ docker compose -f docker-compose.proxy.yml logs -f      # Zertifikate werden aut
 Danach: `https://verein.example.org` (Vereinsverwaltung) und `https://versammlung.example.org` (OpenSlides).
 OpenSlides **benötigt HTTPS** (der Browser-Client funktioniert nicht ohne Verschlüsselung).
 
+**Zertifikat: automatisch (Let's Encrypt) oder eigenes hinterlegtes Zertifikat.** Ohne weitere Einrichtung
+holt Caddy für beide Domains automatisch ein Let's-Encrypt-Zertifikat (Voraussetzung: Domain zeigt per DNS
+auf den Server, Ports 80/443 offen). Alternativ kann ein eigenes Zertifikat verwendet werden (z. B. von einer
+kommunalen/eigenen Zertifizierungsstelle):
+
+1. Zertifikat (PEM) und privaten Schlüssel (PEM, unverschlüsselt) nach `deploy/certs/` legen (siehe
+   `deploy/certs/README.md`).
+2. In der `.env` die Dateinamen eintragen, z. B. `VEREIN_TLS_CERT=verein.crt`, `VEREIN_TLS_KEY=verein.key`
+   (entsprechend `OPENSLIDES_TLS_CERT`/`OPENSLIDES_TLS_KEY` für die zweite Domain).
+3. Proxy neu erzeugen: `docker compose -f docker-compose.proxy.yml up -d --force-recreate`.
+
+Beide Wege lassen sich je Domain unabhängig wählen (z. B. eigenes Zertifikat für die Vereinsverwaltung,
+Let's Encrypt für OpenSlides). Bei leeren `*_TLS_CERT`/`*_TLS_KEY`-Variablen bleibt es beim automatischen
+Zertifikat.
+
 ## 7. Erste Schritte in der Vereinsverwaltung
 
 1. **Verwaltung › Verein / Einstellungen / Logo:** Vereinsdaten ausfüllen, **Logo hochladen** (PNG oder JPG, am besten mit
