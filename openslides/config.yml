@@ -4,4 +4,5 @@ host: 127.0.0.1        # nur lokal erreichbar - der öffentliche Zugriff läuft 
 port: 9000             # 8000 ist für die Vereinsverwaltung reserviert
 enableLocalHTTPS: false  # HTTPS übernimmt der Reverse Proxy (Caddy)
 defaults:
+  containerRegistry: ghcr.io/openslides   # offizielle Container-Registry von OpenSlides 4
   tag: 4.3.0           # feste Version! Aktuelle Version prüfen: https://github.com/OpenSlides/OpenSlides/releases
