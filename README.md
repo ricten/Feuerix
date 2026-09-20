@@ -76,3 +76,8 @@ Tests: `python manage.py test` (benötigt PostgreSQL-Zugang wie in `.env`). GitH
 
 FinTS-Live-Abruf (nur experimentelles Kommando `fints_abruf`, ungetestet, ohne TAN-Verfahren), SEPA-Lastschrift-XML-Export,
 Abstimmungsergebnisse aus OpenSlides zurück ins Protokoll, REST-API (DRF), anteilige Beiträge, Update-/Restore-Oberfläche.
+
+## Lizenz
+
+[GNU Affero General Public License v3.0](LICENSE). Wird der Code (auch verändert) als Netzwerkdienst betrieben, muss der
+Quellcode dieser Version den Nutzern zugänglich gemacht werden (§ 13 AGPL).
