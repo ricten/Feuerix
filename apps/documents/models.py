@@ -47,7 +47,7 @@ class Ordner(TenantModel):
 
 class Ablagedokument(TenantModel):
     titel = models.CharField("Titel", max_length=200)
-    kategorie = models.CharField("Kategorie", max_length=12, choices=KATEGORIEN, default="sonstiges")
+    kategorie = models.CharField("Kategorie", max_length=13, choices=KATEGORIEN, default="sonstiges")
     ordner = models.ForeignKey(Ordner, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Ordner")
     datum = models.DateField("Datum des Dokuments", default=date.today)
     datei = models.FileField("Datei", upload_to=upload_pfad)
