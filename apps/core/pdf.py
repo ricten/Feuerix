@@ -38,16 +38,35 @@ def _akzentfarbe(verein):
         return colors.HexColor(STANDARD_AKZENTFARBE)
 
 
-def _logo_zeichnen(canvas, verein):
-    pfad = logo_datei(verein)
-    if not pfad:
-        return
+def _akzentfarbe_fuss(verein):
+    """Zweite Akzentfarbe für die Linie über der Fußzeile; ohne eigene Farbe wie oben."""
+    try:
+        return colors.HexColor(verein.akzentfarbe_fuss or verein.akzentfarbe or STANDARD_AKZENTFARBE)
+    except Exception:
+        return _akzentfarbe(verein)
+
+
+def _logo_groesse(pfad):
+    """-> (Breite, Höhe) in Punkten, seitenverhältnistreu in die CI-Logobox eingepasst, oder None."""
     try:
         bild = ImageReader(pfad)
         iw, ih = bild.getSize()
         s = min(LOGO_BREITE / iw, LOGO_HOEHE / ih)
-        w, h = iw * s, ih * s
-        canvas.drawImage(bild, A4[0] - 20 * mm - w, A4[1] - 12 * mm - h, width=w, height=h, mask="auto")
+        return iw * s, ih * s
+    except Exception:
+        return None
+
+
+def _logo_zeichnen(canvas, verein):
+    pfad = logo_datei(verein)
+    if not pfad:
+        return
+    groesse = _logo_groesse(pfad)
+    if not groesse:
+        return
+    w, h = groesse
+    try:
+        canvas.drawImage(ImageReader(pfad), A4[0] - 20 * mm - w, A4[1] - 12 * mm - h, width=w, height=h, mask="auto")
     except Exception:
         pass
 
@@ -67,14 +86,19 @@ def _briefkopf_zeichnen(canvas, verein, kopf_p, kopf_hoehe, linie_y):
     kopf_top_y = A4[1] - 15 * mm
     kopf_p.drawOn(canvas, 25 * mm, kopf_top_y - kopf_hoehe)
     _logo_zeichnen(canvas, verein)
+    linie_ende = A4[0] - 20 * mm
+    pfad = logo_datei(verein)
+    groesse = _logo_groesse(pfad) if pfad else None
+    if groesse:
+        linie_ende = min(linie_ende, A4[0] - 20 * mm - groesse[0] - 4 * mm)
     canvas.setStrokeColor(_akzentfarbe(verein))
     canvas.setLineWidth(1.1)
-    canvas.line(25 * mm, linie_y, A4[0] - 20 * mm, linie_y)
+    canvas.line(25 * mm, linie_y, linie_ende, linie_y)
 
 
 def _fuss(canvas, verein, seitenzahl, doc):
     canvas.saveState()
-    canvas.setStrokeColor(_akzentfarbe(verein))
+    canvas.setStrokeColor(_akzentfarbe_fuss(verein))
     canvas.setLineWidth(0.6)
     canvas.line(25 * mm, 23 * mm, A4[0] - 20 * mm, 23 * mm)
     canvas.setFont("Helvetica", 8.5)

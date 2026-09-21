@@ -59,6 +59,7 @@ class VereinForm(TenantModelForm):
         super().__init__(*args, **kwargs)
         self.fields["akzentfarbe"].widget = forms.TextInput(attrs={"type": "color",
                                                                    "class": "form-control form-control-color"})
+        self.fields["akzentfarbe_fuss"].widget.attrs["placeholder"] = "z. B. #005199 (leer = wie oben)"
 
 
 class RechteFelderMixin:

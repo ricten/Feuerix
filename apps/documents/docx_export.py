@@ -23,6 +23,16 @@ def _farbe(verein):
         return RGBColor.from_string(STANDARD_AKZENTFARBE)
 
 
+def _farbe_fuss(verein):
+    """Zweite Akzentfarbe für die Linie über der Fußzeile; ohne eigene Farbe wie oben."""
+    from docx.shared import RGBColor
+    hex_ = (verein.akzentfarbe_fuss or "").lstrip("#")
+    try:
+        return RGBColor.from_string(hex_)
+    except ValueError:
+        return _farbe(verein)
+
+
 def _trennlinie(paragraph, farbe):
     """Fügt dem Absatz einen unteren Rahmen hinzu (python-docx kennt keine Linie/HR direkt)."""
     from docx.oxml import OxmlElement
@@ -91,12 +101,12 @@ def _als_schwebend(bild_shape):
     drawing.replace(inline, anchor)
 
 
-def _fusszeile(doc, verein, farbe):
+def _fusszeile(doc, verein):
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.shared import Pt, RGBColor
     linie = doc.sections[0].footer.paragraphs[0]
     linie.paragraph_format.space_after = Pt(6)
-    _trennlinie(linie, farbe)
+    _trennlinie(linie, _farbe_fuss(verein))
     absatz = doc.sections[0].footer.add_paragraph()
     absatz.alignment = WD_ALIGN_PARAGRAPH.CENTER
     zeilen = [z for z in (
@@ -161,6 +171,8 @@ def schriftstueck_docx(s):
     linie = doc.add_paragraph()
     linie.paragraph_format.space_before = Pt(2)
     linie.paragraph_format.space_after = Pt(10)
+    if logo_pfad:
+        linie.paragraph_format.right_indent = logo_breite + Cm(0.4)
     _trennlinie(linie, farbe)
 
     absender = ", ".join(x for x in (v.name, v.anschrift, f"{v.plz} {v.ort}".strip()) if x)
@@ -174,7 +186,7 @@ def schriftstueck_docx(s):
     for a in absaetze(ersetzen(s.text, ctx)):
         doc.add_paragraph(a)
 
-    _fusszeile(doc, v, farbe)
+    _fusszeile(doc, v)
 
     buf = BytesIO()
     doc.save(buf)

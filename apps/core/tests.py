@@ -111,3 +111,17 @@ class MandantenTests(TestCase):
         self.v1.akzentfarbe = "keine-farbe"
         pdf = brief_pdf(self.v1, ["Empfänger"], "Testbrief")
         self.assertTrue(pdf.startswith(b"%PDF"))
+
+    def test_fusslinie_verwendet_eigene_akzentfarbe(self):
+        from reportlab.lib import colors
+        from apps.core.pdf import _akzentfarbe_fuss
+        self.v1.akzentfarbe = "#EA580C"
+        self.v1.akzentfarbe_fuss = "#005199"
+        self.assertEqual(_akzentfarbe_fuss(self.v1), colors.HexColor("#005199"))
+
+    def test_fusslinie_faellt_ohne_eigene_farbe_auf_hauptfarbe_zurueck(self):
+        from reportlab.lib import colors
+        from apps.core.pdf import _akzentfarbe_fuss
+        self.v1.akzentfarbe = "#EA580C"
+        self.v1.akzentfarbe_fuss = ""
+        self.assertEqual(_akzentfarbe_fuss(self.v1), colors.HexColor("#EA580C"))
