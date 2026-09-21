@@ -19,6 +19,9 @@ urlpatterns = [
     path("inventar/<int:pk>/etikett/", views.gegenstand_etikett, name="gegenstand_etikett"),
     path("inventar/scan/<str:inventarnummer>/", views.gegenstand_scan, name="gegenstand_scan"),
     path("verleih/mehrere/", views.verleih_sammel_add, name="verleih_sammel_add"),
+    path("verleih/warenkorb/", views.verleih_warenkorb, name="verleih_warenkorb"),
+    path("verleih/warenkorb/<int:pk>/entfernen/", views.verleih_warenkorb_entfernen, name="verleih_warenkorb_entfernen"),
+    path("verleih/warenkorb/leeren/", views.verleih_warenkorb_leeren, name="verleih_warenkorb_leeren"),
     path("verleih/vorgang/<uuid:vorgang>/", views.verleih_vorgang_detail, name="verleih_vorgang_detail"),
     path("verleih/vorgang/<uuid:vorgang>/ausgeben/", views.verleih_vorgang_ausgeben, name="verleih_vorgang_ausgeben"),
     path("verleih/vorgang/<uuid:vorgang>/rueckgabe/", views.verleih_vorgang_rueckgabe, name="verleih_vorgang_rueckgabe"),
@@ -42,6 +45,9 @@ def verleih_listen_aktionen(request):
     a = []
     if request.rechte.darf("verleih", "add"):
         a.append(knopf("Mehrere Gegenstände verleihen", reverse("verleih_sammel_add"), stil="outline-primary"))
+        korb = request.session.get(f"verleih_warenkorb_{request.verein.pk}", []) if request.verein else []
+        if korb:
+            a.append(knopf(f"Warenkorb ({len(korb)})", reverse("verleih_warenkorb")))
     return a
 
 

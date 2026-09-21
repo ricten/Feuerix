@@ -167,12 +167,14 @@ def verleih_sammel_add(request):
                     fehler.append(f"{g}: {'; '.join(getattr(e, 'messages', [str(e)]))}")
             if angelegt:
                 messages.success(request, f"{angelegt} Gegenstände als Vorgang angelegt.")
+                request.session.pop(_warenkorb_key(request), None)
             for f in fehler:
                 messages.warning(request, f)
             if angelegt:
                 return redirect("verleih_vorgang_detail", vorgang=vorgang)
     else:
-        form = SammelverleihForm(verein=request.verein)
+        korb = request.session.get(_warenkorb_key(request), [])
+        form = SammelverleihForm(verein=request.verein, initial={"gegenstaende": korb} if korb else None)
     return render(request, "core/formular.html", {"form": form, "titel": "Mehrere Gegenstände verleihen",
                                                   "abbrechen_url": reverse("verleih_list")})
 
@@ -373,9 +375,14 @@ def gegenstand_etiketten(request):
 
 
 @login_required
+def _warenkorb_key(request):
+    return f"verleih_warenkorb_{request.verein.pk}"
+
+
 def gegenstand_scan(request, inventarnummer):
-    """Ziel des QR-Codes auf dem Etikett: findet den Gegenstand über die Inventarnummer und führt direkt in den
-    (vorausgefüllten) Verleih-Start - z. B. wenn beim Ausleihen per Handy gescannt wird."""
+    """Ziel des QR-Codes auf dem Etikett: legt den Gegenstand über die Inventarnummer in den Verleih-Warenkorb
+    (Session) - so lassen sich beim Ausleihen mehrere Etiketten nacheinander scannen, bevor der Verleih für alle
+    gescannten Gegenstände auf einmal gestartet wird."""
     if request.verein is None:
         return redirect("verein_waehlen")
     g = get_object_or_404(Gegenstand, verein=request.verein, inventarnummer=inventarnummer)
@@ -386,4 +393,39 @@ def gegenstand_scan(request, inventarnummer):
         return redirect("gegenstand_detail", pk=g.pk)
     if not request.rechte.darf("verleih", "add"):
         return redirect("gegenstand_detail", pk=g.pk)
-    return redirect(reverse("verleih_add") + f"?gegenstand={g.pk}")
+    key = _warenkorb_key(request)
+    korb = set(request.session.get(key, []))
+    if g.pk in korb:
+        messages.info(request, f"„{g}“ ist schon im Warenkorb.")
+    else:
+        korb.add(g.pk)
+        request.session[key] = list(korb)
+        messages.success(request, f"„{g}“ zum Verleih-Warenkorb hinzugefügt.")
+    return redirect("verleih_warenkorb")
+
+
+@login_required
+def verleih_warenkorb(request):
+    _pruefen(request, "verleih", "add")
+    pks = request.session.get(_warenkorb_key(request), [])
+    gegenstaende = list(Gegenstand.objects.filter(verein=request.verein, pk__in=pks).order_by("bezeichnung"))
+    return render(request, "inventory/warenkorb.html", {"titel": "Verleih-Warenkorb", "gegenstaende": gegenstaende})
+
+
+@login_required
+@require_POST
+def verleih_warenkorb_entfernen(request, pk):
+    _pruefen(request, "verleih", "add")
+    key = _warenkorb_key(request)
+    korb = set(request.session.get(key, []))
+    korb.discard(pk)
+    request.session[key] = list(korb)
+    return redirect("verleih_warenkorb")
+
+
+@login_required
+@require_POST
+def verleih_warenkorb_leeren(request):
+    _pruefen(request, "verleih", "add")
+    request.session.pop(_warenkorb_key(request), None)
+    return redirect("verleih_warenkorb")

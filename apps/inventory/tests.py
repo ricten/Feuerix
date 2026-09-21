@@ -84,10 +84,18 @@ class ScanTests(TestCase):
                               rolle=Rolle.objects.get(verein=self.v, name="Inventarverwalter"))
         self.client.login(username="verwalter", password="pw-Test-12345")
 
-    def test_scan_leitet_zum_vorausgefuellten_verleih_start(self):
+    def test_scan_legt_gegenstand_in_den_warenkorb(self):
         g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", verleihbar=True)
-        r = self.client.get(reverse("gegenstand_scan", args=[g.inventarnummer]))
-        self.assertRedirects(r, reverse("verleih_add") + f"?gegenstand={g.pk}")
+        r = self.client.get(reverse("gegenstand_scan", args=[g.inventarnummer]), follow=True)
+        self.assertRedirects(r, reverse("verleih_warenkorb"))
+        self.assertContains(r, "Beamer")
+
+    def test_scan_desselben_gegenstands_zweimal_dupliziert_nicht(self):
+        g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", verleihbar=True)
+        self.client.get(reverse("gegenstand_scan", args=[g.inventarnummer]))
+        self.client.get(reverse("gegenstand_scan", args=[g.inventarnummer]))
+        korb = self.client.session.get(f"verleih_warenkorb_{self.v.pk}", [])
+        self.assertEqual(korb, [g.pk])
 
     def test_scan_nicht_verleihbarer_gegenstand_zeigt_hinweis(self):
         g = Gegenstand.objects.create(verein=self.v, bezeichnung="Stuhl", verleihbar=False)
@@ -100,6 +108,50 @@ class ScanTests(TestCase):
         g = Gegenstand.objects.create(verein=anderer, bezeichnung="Beamer", verleihbar=True)
         r = self.client.get(reverse("gegenstand_scan", args=[g.inventarnummer]))
         self.assertEqual(r.status_code, 404)
+
+
+class WarenkorbTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.verwalter = User.objects.create_user("verwalter", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.verwalter,
+                              rolle=Rolle.objects.get(verein=self.v, name="Inventarverwalter"))
+        self.client.login(username="verwalter", password="pw-Test-12345")
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster")
+        self.g1 = Gegenstand.objects.create(verein=self.v, bezeichnung="Faltpavillon", verleihbar=True)
+        self.g2 = Gegenstand.objects.create(verein=self.v, bezeichnung="Biertischgarnitur", verleihbar=True)
+
+    def test_mehrfach_scannen_sammelt_im_warenkorb(self):
+        self.client.get(reverse("gegenstand_scan", args=[self.g1.inventarnummer]))
+        r = self.client.get(reverse("gegenstand_scan", args=[self.g2.inventarnummer]), follow=True)
+        self.assertContains(r, "Faltpavillon")
+        self.assertContains(r, "Biertischgarnitur")
+
+    def test_aus_warenkorb_entfernen(self):
+        self.client.get(reverse("gegenstand_scan", args=[self.g1.inventarnummer]))
+        self.client.get(reverse("gegenstand_scan", args=[self.g2.inventarnummer]))
+        self.client.post(reverse("verleih_warenkorb_entfernen", args=[self.g1.pk]))
+        korb = self.client.session.get(f"verleih_warenkorb_{self.v.pk}", [])
+        self.assertEqual(korb, [self.g2.pk])
+
+    def test_warenkorb_leeren(self):
+        self.client.get(reverse("gegenstand_scan", args=[self.g1.inventarnummer]))
+        self.client.post(reverse("verleih_warenkorb_leeren"))
+        self.assertNotIn(f"verleih_warenkorb_{self.v.pk}", self.client.session)
+
+    def test_sammelverleih_formular_ist_mit_warenkorb_vorbelegt(self):
+        self.client.get(reverse("gegenstand_scan", args=[self.g1.inventarnummer]))
+        self.client.get(reverse("gegenstand_scan", args=[self.g2.inventarnummer]))
+        r = self.client.get(reverse("verleih_sammel_add"))
+        self.assertEqual(set(r.context["form"].initial["gegenstaende"]), {self.g1.pk, self.g2.pk})
+
+    def test_warenkorb_wird_nach_abgeschlossenem_sammelverleih_geleert(self):
+        self.client.get(reverse("gegenstand_scan", args=[self.g1.inventarnummer]))
+        heute = date.today()
+        self.client.post(reverse("verleih_sammel_add"), {
+            "gegenstaende": [self.g1.pk], "entleiher": self.m.pk, "von": heute, "bis": heute + timedelta(days=2)})
+        self.assertNotIn(f"verleih_warenkorb_{self.v.pk}", self.client.session)
 
 
 class SammelverleihTests(TestCase):

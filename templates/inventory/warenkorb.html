@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-xl-8">
+<h3 class="mb-3">{{ titel }}</h3>
+<div class="card shadow-sm"><div class="card-body">
+{% if gegenstaende %}
+  <table class="table table-sm tabelle mb-3">
+    <thead><tr><th>Gegenstand</th><th>Inventarnr.</th><th></th></tr></thead>
+    <tbody>
+    {% for g in gegenstaende %}
+      <tr>
+        <td>{{ g.bezeichnung }}</td>
+        <td>{{ g.inventarnummer }}</td>
+        <td class="text-end">
+          <form method="post" action="{% url 'verleih_warenkorb_entfernen' g.pk %}" class="d-inline">{% csrf_token %}
+            <button class="btn btn-sm btn-outline-danger">Entfernen</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="{% url 'verleih_sammel_add' %}" class="btn btn-primary">Verleih starten ({{ gegenstaende|length }} Gegenstände)</a>
+    <form method="post" action="{% url 'verleih_warenkorb_leeren' %}">{% csrf_token %}
+      <button class="btn btn-outline-secondary">Warenkorb leeren</button>
+    </form>
+  </div>
+{% else %}
+  <p class="text-muted mb-0">Noch keine Gegenstände gescannt. Etikett am Gegenstand mit dem Handy scannen, um ihn
+    hier hinzuzufügen - danach lässt sich der nächste Aufkleber scannen, bevor der Verleih für alle gescannten
+    Gegenstände auf einmal gestartet wird.</p>
+{% endif %}
+</div></div>
+</div></div>
+{% endblock %}
