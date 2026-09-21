@@ -120,8 +120,9 @@ def tagesordnung_uebertragen(v, veranstaltung, client=None):
         c.login()
     n = 0
     for t in veranstaltung.tagesordnung.filter(openslides_topic_id__isnull=True):
+        # "topic.create" legt für jedes Thema immer automatisch einen Tagesordnungspunkt an - kein "agenda_create"-Feld nötig
         tid = c.erstelle("topic.create", {"meeting_id": veranstaltung.openslides_meeting_id, "title": t.titel[:250],
-                                          "text": t.beschreibung.replace("\n", "<br>"), "agenda_create": True})
+                                          "text": t.beschreibung.replace("\n", "<br>")})
         t.openslides_topic_id = tid
         t.save(update_fields=["openslides_topic_id", "geaendert"])
         n += 1
