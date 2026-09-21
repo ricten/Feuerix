@@ -40,6 +40,15 @@ class MandantenTests(TestCase):
         self.assertEqual(self.client.get(reverse("mitglied_detail", args=[self.m1.pk])).status_code, 200)
         self.assertEqual(self.client.get(reverse("mitglied_detail", args=[self.m2.pk])).status_code, 404)
 
+    def test_detail_zeigt_many_to_many_feld(self):
+        from apps.members.models import Abteilung
+        a = Abteilung.objects.create(verein=self.v1, name="Löschzug 1")
+        self.m1.abteilungen.add(a)
+        self.client.login(username="anna", password="pw-Test-12345")
+        r = self.client.get(reverse("mitglied_detail", args=[self.m1.pk]))
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Löschzug 1")
+
     def test_rechte_werden_geprueft(self):
         self.client.login(username="leser", password="pw-Test-12345")
         self.assertEqual(self.client.get(reverse("mitglied_list")).status_code, 200)

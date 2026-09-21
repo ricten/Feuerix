@@ -34,10 +34,10 @@ def wert(obj, name):
     except FieldDoesNotExist:
         feld = None
     v = getattr(obj, name)
-    if callable(v):
-        v = v()
     if feld is not None and feld.many_to_many:
         return ", ".join(map(str, v.all())) or "–"
+    if callable(v):
+        v = v()
     if isinstance(v, FieldFile):
         return os.path.basename(v.name) if v else "–"
     if v is None or v == "":
