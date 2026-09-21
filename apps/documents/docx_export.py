@@ -143,8 +143,9 @@ def schriftstueck_docx(s):
     doc.styles["Normal"].font.name = "Calibri"
     doc.styles["Normal"].font.size = Pt(11)
     sec = doc.sections[0]
-    sec.left_margin = sec.top_margin = sec.bottom_margin = Cm(2.5)
+    sec.left_margin = sec.bottom_margin = Cm(2.5)
     sec.right_margin = Cm(1)
+    sec.top_margin = Cm(1)
 
     # Briefkopf: Vereinsname (groß, neutrales Grau), Logo frei oben rechts positioniert (keine Tabelle,
     # sonst zeigt Word beim Bearbeiten Rahmenlinien); die Akzentfarbe wird nur für die Trennlinien verwendet.
