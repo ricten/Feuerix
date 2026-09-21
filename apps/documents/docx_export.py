@@ -44,7 +44,7 @@ def _trennlinie(paragraph, farbe):
     pbdr = OxmlElement("w:pBdr")
     unten = OxmlElement("w:bottom")
     unten.set(qn("w:val"), "single")
-    unten.set(qn("w:sz"), "18")
+    unten.set(qn("w:sz"), "4")
     unten.set(qn("w:space"), "1")
     unten.set(qn("w:color"), "%02X%02X%02X" % (farbe[0], farbe[1], farbe[2]))
     pbdr.append(unten)

@@ -59,7 +59,12 @@ class VereinForm(TenantModelForm):
         super().__init__(*args, **kwargs)
         self.fields["akzentfarbe"].widget = forms.TextInput(attrs={"type": "color",
                                                                    "class": "form-control form-control-color"})
-        self.fields["akzentfarbe_fuss"].widget.attrs["placeholder"] = "z. B. #005199 (leer = wie oben)"
+        self.fields["akzentfarbe_fuss"].widget = forms.TextInput(attrs={"type": "color",
+                                                                        "class": "form-control form-control-color"})
+        # Farbfeld kann technisch keinen leeren Wert anzeigen - ohne eigene Farbe die Hauptfarbe vorbelegen
+        # (entspricht dem tatsächlichen Fallback-Verhalten beim Drucken).
+        if not self.initial.get("akzentfarbe_fuss"):
+            self.initial["akzentfarbe_fuss"] = self.instance.akzentfarbe or "#1F4E79"
 
 
 class RechteFelderMixin:

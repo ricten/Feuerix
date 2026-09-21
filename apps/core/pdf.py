@@ -92,14 +92,14 @@ def _briefkopf_zeichnen(canvas, verein, kopf_p, kopf_hoehe, linie_y):
     if groesse:
         linie_ende = min(linie_ende, A4[0] - 20 * mm - groesse[0] - 4 * mm)
     canvas.setStrokeColor(_akzentfarbe(verein))
-    canvas.setLineWidth(1.1)
+    canvas.setLineWidth(0.6)
     canvas.line(25 * mm, linie_y, linie_ende, linie_y)
 
 
 def _fuss(canvas, verein, seitenzahl, doc):
     canvas.saveState()
     canvas.setStrokeColor(_akzentfarbe_fuss(verein))
-    canvas.setLineWidth(0.6)
+    canvas.setLineWidth(0.4)
     canvas.line(25 * mm, 23 * mm, A4[0] - 20 * mm, 23 * mm)
     canvas.setFont("Helvetica", 8.5)
     canvas.setFillColor(colors.HexColor(BRIEFKOPF_TEXTFARBE))
