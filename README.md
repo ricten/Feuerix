@@ -72,9 +72,10 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
 
 Tests: `python manage.py test` (benötigt PostgreSQL-Zugang wie in `.env`). GitHub-Ablage und CI: [docs/GITHUB.md](docs/GITHUB.md).
 
-**Testdaten:** `python manage.py beispieldaten --verein <kuerzel> [--anzahl 40]` legt für einen bestehenden Verein
-fiktive Mitglieder sowie einen Beitragsjahr-Rechnungslauf mit realistischer Zahlungsverteilung an (vollständig
-bezahlt / teilbezahlt mit Mahnung / offen und überfällig) – nur für Test-/Demoinstallationen, nicht für den
+**Testdaten:** `python manage.py beispieldaten --verein <kuerzel> [--anzahl 40] [--ohne-inventar]` legt für einen
+bestehenden Verein fiktive Mitglieder sowie einen Beitragsjahr-Rechnungslauf mit realistischer Zahlungsverteilung an
+(vollständig bezahlt / teilbezahlt mit Mahnung / offen und überfällig) und ein Beispiel-Inventar (Feuerwehrausrüstung
+und Veranstaltungstechnik mit Kategorien/Standorten) – nur für Test-/Demoinstallationen, nicht für den
 Produktivbetrieb gedacht.
 
 ## Noch nicht enthalten
