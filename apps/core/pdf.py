@@ -144,7 +144,12 @@ def _seite(verein, s, stile):
     t.setStyle(TableStyle([("LEFTPADDING", (0, 0), (-1, -1), 0), ("BOTTOMPADDING", (0, 0), (-1, -1), 0)]))
     story = [t, Spacer(1, 8 * mm)]
     story += [_p("\n".join(z for z in s.get("empfaenger", []) if z), normal), Spacer(1, 10 * mm)]
-    if s.get("meta"):
+    if s.get("datum"):
+        # Einfache Briefe (Serienbrief u. ä.) brauchen nur eine Zeile - die zweispaltige Meta-Tabelle
+        # unten (für Rechnungen/Mahnungen mit mehreren Angaben) sähe hier mit nur einem kurzen Wert
+        # unschön aus (breiter Leerraum bis zum rechten Rand).
+        story += [_p(s["datum"], rechts), Spacer(1, 6 * mm)]
+    elif s.get("meta"):
         m = Table([[_p(k, normal), _p(v, normal)] for k, v in s["meta"]], colWidths=[40 * mm, 55 * mm], hAlign="RIGHT")
         m.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"), ("BOTTOMPADDING", (0, 0), (-1, -1), 1)]))
         story += [m, Spacer(1, 6 * mm)]

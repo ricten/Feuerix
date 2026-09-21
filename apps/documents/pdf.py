@@ -14,7 +14,7 @@ def _seite(verein, betreff, text, mitglied, datum, ctx, mit_empfaenger=True, was
     return {
         "empfaenger": mitglied.anschrift_zeilen() if (mitglied is not None and mit_empfaenger) else [],
         "betreff": ersetzen(betreff, ctx) or "Schreiben",
-        "meta": [("Datum", ctx["datum"])],
+        "datum": f"Datum: {ctx['datum']}",
         "vor": absaetze(ersetzen(text, ctx)),
         "wasserzeichen": wasserzeichen,
     }
