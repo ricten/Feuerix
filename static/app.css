@@ -3,7 +3,5 @@ body { background: #f6f7f9; }
 .card-kennzahl .zahl { font-size: 1.8rem; font-weight: 600; line-height: 1.1; }
 table.tabelle td, table.tabelle th { vertical-align: middle; }
 .form-check-input { margin-right: .35rem; }
-ul.checkbox-liste, #id_r_mitglieder { list-style: none; padding-left: 0; }
-form div > div > label { margin-right: 1rem; }
 dl.felder dt { font-weight: 500; color: #555; }
 .kopf-aktionen form { display: inline; }
