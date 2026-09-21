@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.core.crud import crud
+from apps.core.crud import crud, knopf
 
 from . import views
 from .forms import VerleihForm
@@ -13,11 +13,29 @@ urlpatterns = [
     path("verleih/<int:pk>/leihschein/", views.verleih_leihschein, name="verleih_leihschein"),
     path("inventur/position/<int:pk>/setzen/", views.inventurposition_setzen, name="inventurposition_setzen"),
     path("inventur/<int:pk>/abschliessen/", views.inventur_abschliessen, name="inventur_abschliessen"),
+    path("inventar/import/", views.gegenstand_import, name="gegenstand_import"),
+    path("inventar/import/vorlage/", views.gegenstand_import_vorlage, name="gegenstand_import_vorlage"),
+    path("inventar/etiketten/", views.gegenstand_etiketten, name="gegenstand_etiketten"),
+    path("inventar/<int:pk>/etikett/", views.gegenstand_etikett, name="gegenstand_etikett"),
+    path("inventar/scan/<str:inventarnummer>/", views.gegenstand_scan, name="gegenstand_scan"),
 ]
+
+
+def gegenstand_listen_aktionen(request):
+    from django.urls import reverse
+    a = []
+    if request.rechte.darf("inventar", "add"):
+        a.append(knopf("Import (Excel/CSV)", reverse("gegenstand_import"), stil="outline-primary"))
+    if request.rechte.darf("inventar", "view"):
+        a.append(knopf("Etiketten drucken (alle)", reverse("gegenstand_etiketten")))
+    return a
+
+
 urlpatterns += crud("inventar", Gegenstand, "inventar", list_display=("inventarnummer", "bezeichnung", "kategorie",
                     "standort", "zustand", "verleihbar", "aktueller_wert"), suche=("inventarnummer", "bezeichnung",
                     "seriennummer", "hersteller", "modell"), filter=("kategorie", "standort", "zustand", "verleihbar"),
-                    select_related=("kategorie", "standort"), kontext=views.gegenstand_kontext)
+                    select_related=("kategorie", "standort"), kontext=views.gegenstand_kontext,
+                    listen_aktionen=gegenstand_listen_aktionen)
 urlpatterns += crud("inventar-kategorien", Kategorie, "inventar", list_display=("name",))
 urlpatterns += crud("inventar-standorte", Standort, "inventar", list_display=("name", "beschreibung"))
 urlpatterns += crud("verleih", Verleih, "verleih", form=VerleihForm, list_display=("gegenstand", ("wer", "Entleiher"), "von", "bis",

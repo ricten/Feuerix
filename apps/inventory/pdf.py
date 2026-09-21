@@ -1,5 +1,62 @@
+from io import BytesIO
+
+from reportlab.graphics import renderPDF
+from reportlab.graphics.barcode.qr import QrCodeWidget
+from reportlab.graphics.shapes import Drawing
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas
+
 from apps.core.pdf import brief_pdf
 from apps.core.util import geld
+
+ETIKETT_SPALTEN = 3
+ETIKETT_ZEILEN = 6
+ETIKETT_BREITE = 58 * mm
+ETIKETT_HOEHE = 40 * mm
+ETIKETT_QR_GROESSE = 24 * mm
+
+
+def _qr_zeichnen(c, url, x, y, groesse):
+    widget = QrCodeWidget(url)
+    x0, y0, x1, y1 = widget.getBounds()
+    breite, hoehe = x1 - x0, y1 - y0
+    d = Drawing(groesse, groesse, transform=[groesse / breite, 0, 0, groesse / hoehe, -x0 * groesse / breite,
+                                             -y0 * groesse / hoehe])
+    d.add(widget)
+    renderPDF.draw(d, c, x, y)
+
+
+def etiketten_pdf(gegenstaende, scan_url):
+    """Etikettenbogen (A4, mehrspaltig) mit QR-Code je Gegenstand - der QR-Code verweist auf `scan_url(inventarnummer)`,
+    darüber im System zum Scannen per Handy z. B. beim Verleih-Start. `gegenstaende` darf auch Duplikate enthalten
+    (mehrere Etiketten desselben Gegenstands)."""
+    buf = BytesIO()
+    c = canvas.Canvas(buf, pagesize=A4)
+    rand_x = (A4[0] - ETIKETT_SPALTEN * ETIKETT_BREITE) / 2
+    rand_y = (A4[1] - ETIKETT_ZEILEN * ETIKETT_HOEHE) / 2
+    pro_seite = ETIKETT_SPALTEN * ETIKETT_ZEILEN
+    for i, g in enumerate(gegenstaende):
+        pos = i % pro_seite
+        if i and pos == 0:
+            c.showPage()
+        spalte, zeile = pos % ETIKETT_SPALTEN, pos // ETIKETT_SPALTEN
+        x = rand_x + spalte * ETIKETT_BREITE
+        y = A4[1] - rand_y - (zeile + 1) * ETIKETT_HOEHE
+        c.saveState()
+        c.setDash(2, 2)
+        c.setStrokeColor(colors.lightgrey)
+        c.rect(x, y, ETIKETT_BREITE, ETIKETT_HOEHE)
+        c.restoreState()
+        _qr_zeichnen(c, scan_url(g.inventarnummer), x + (ETIKETT_BREITE - ETIKETT_QR_GROESSE) / 2,
+                    y + ETIKETT_HOEHE - ETIKETT_QR_GROESSE - 3 * mm, ETIKETT_QR_GROESSE)
+        c.setFont("Helvetica-Bold", 11)
+        c.drawCentredString(x + ETIKETT_BREITE / 2, y + 6.5 * mm, g.inventarnummer)
+        c.setFont("Helvetica", 7)
+        c.drawCentredString(x + ETIKETT_BREITE / 2, y + 2 * mm, g.bezeichnung[:30])
+    c.save()
+    return buf.getvalue()
 
 
 def leihschein_pdf(v):
