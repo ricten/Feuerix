@@ -117,6 +117,9 @@ class Verleih(TenantModel):
     zurueckgegeben_am = models.DateTimeField("Zurückgegeben am", null=True, blank=True, editable=False)
     zustand_bei_rueckgabe = models.CharField("Zustand bei Rückgabe", max_length=15, choices=Gegenstand.ZUSTAND,
                                              blank=True, editable=False)
+    rechnung = models.ForeignKey("finance.Rechnung", on_delete=models.SET_NULL, null=True, blank=True,
+                                 editable=False, related_name="verleih_positionen",
+                                 verbose_name="Rechnung (Leihgebühr)")
     notizen = models.TextField("Notizen", blank=True)
 
     class Meta:

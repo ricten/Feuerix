@@ -9,6 +9,8 @@ from .models import Gegenstand, Inventur, Kategorie, Standort, Verleih
 urlpatterns = [
     path("verleih/<int:pk>/ausgeben/", views.verleih_ausgeben, name="verleih_ausgeben"),
     path("verleih/<int:pk>/rueckgabe/", views.verleih_rueckgabe, name="verleih_rueckgabe"),
+    path("verleih/<int:pk>/kaution-zurueckgezahlt/", views.verleih_kaution_zurueckgezahlt,
+        name="verleih_kaution_zurueckgezahlt"),
     path("verleih/<int:pk>/stornieren/", views.verleih_stornieren, name="verleih_stornieren"),
     path("verleih/<int:pk>/leihschein/", views.verleih_leihschein, name="verleih_leihschein"),
     path("inventur/position/<int:pk>/setzen/", views.inventurposition_setzen, name="inventurposition_setzen"),
@@ -25,6 +27,8 @@ urlpatterns = [
     path("verleih/vorgang/<uuid:vorgang>/", views.verleih_vorgang_detail, name="verleih_vorgang_detail"),
     path("verleih/vorgang/<uuid:vorgang>/ausgeben/", views.verleih_vorgang_ausgeben, name="verleih_vorgang_ausgeben"),
     path("verleih/vorgang/<uuid:vorgang>/rueckgabe/", views.verleih_vorgang_rueckgabe, name="verleih_vorgang_rueckgabe"),
+    path("verleih/vorgang/<uuid:vorgang>/kaution-zurueckgezahlt/", views.verleih_vorgang_kaution_zurueckgezahlt,
+        name="verleih_vorgang_kaution_zurueckgezahlt"),
     path("verleih/vorgang/<uuid:vorgang>/leihschein/", views.verleih_vorgang_leihschein,
         name="verleih_vorgang_leihschein"),
 ]

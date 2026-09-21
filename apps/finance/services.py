@@ -117,6 +117,19 @@ def gutschrift(rechnung, betrag, text):
     return g
 
 
+@transaction.atomic
+def rechnung_erstellen(verein, positionen, mitglied=None, empfaenger_name="", empfaenger_anschrift="", bemerkung=""):
+    """Erzeugt sofort eine offene Rechnung (kein Entwurf) für sonstige Leistungen außerhalb des Beitragswesens
+    (z. B. Leihgebühren) - positionen: Liste von (text, menge, einzelpreis)."""
+    r = Rechnung.objects.create(verein=verein, typ="individuell", status="offen", mitglied=mitglied,
+                                empfaenger_name=empfaenger_name, empfaenger_anschrift=empfaenger_anschrift,
+                                datum=date.today(), bemerkung=bemerkung)
+    for text, menge, einzelpreis in positionen:
+        Rechnungsposition.objects.create(verein=verein, rechnung=r, text=text, menge=menge, einzelpreis=einzelpreis)
+    r.refresh_from_db()
+    return r
+
+
 def mahnung_erstellen(rechnung, gebuehr=Decimal("0"), frist_tage=14):
     letzte = rechnung.mahnungen.order_by("-stufe").first()
     stufe = min((letzte.stufe if letzte else 0) + 1, 3)
