@@ -1,12 +1,14 @@
 """Word-Export (.docx) - damit Schriftstücke außerhalb des Systems weiterbearbeitet werden können.
-Briefkopf/Fuß folgen dem gleichen CI wie die PDF-Erzeugung (apps/core/pdf.py): großer Vereinsname in der
-Akzentfarbe mit Trennlinie, Logo rechts, Fußzeile mit Vertretungsberechtigtem und Bankverbindung."""
+Briefkopf/Fuß folgen dem gleichen CI wie die PDF-Erzeugung (apps/core/pdf.py): großer Vereinsname in
+neutralem Grau mit Trennlinie in der Akzentfarbe, Logo rechts, Fußzeile mit Vertretungsberechtigtem und
+Bankverbindung."""
 from io import BytesIO
 
 from .pdf import absaetze
 from .platzhalter import ersetzen
 
 STANDARD_AKZENTFARBE = "1F4E79"
+BRIEFKOPF_TEXTFARBE = "646363"
 
 
 def _farbe(verein):
@@ -47,8 +49,8 @@ def _fusszeile(doc, verein):
     ) if z]
     for i, z in enumerate(zeilen):
         lauf = absatz.add_run(z)
-        lauf.font.size = Pt(7.5)
-        lauf.font.color.rgb = RGBColor(0x80, 0x80, 0x80)
+        lauf.font.size = Pt(10)
+        lauf.font.color.rgb = RGBColor.from_string(BRIEFKOPF_TEXTFARBE)
         if i < len(zeilen) - 1:
             lauf.add_break()
 
@@ -57,7 +59,8 @@ def schriftstueck_docx(s):
     from docx import Document
     from docx.enum.table import WD_ALIGN_VERTICAL
     from docx.enum.text import WD_ALIGN_PARAGRAPH
-    from docx.shared import Cm, Pt
+    from docx.oxml.ns import qn
+    from docx.shared import Cm, Pt, RGBColor
 
     ctx = s.kontext()
     v = s.verein
@@ -67,7 +70,8 @@ def schriftstueck_docx(s):
     doc.styles["Normal"].font.name = "Calibri"
     doc.styles["Normal"].font.size = Pt(11)
 
-    # Briefkopf: Vereinsname (groß, Akzentfarbe) links, Logo rechts, in einer randlosen Tabelle
+    # Briefkopf: Vereinsname (groß, neutrales Grau) links, Logo rechts, in einer randlosen Tabelle;
+    # die Akzentfarbe des Vereins wird nur für die Trennlinie darunter verwendet.
     kopf = doc.add_table(rows=1, cols=2)
     kopf.columns[0].width = Cm(11)
     kopf.columns[1].width = Cm(5)
@@ -75,9 +79,10 @@ def schriftstueck_docx(s):
     name_zelle.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
     logo_zelle.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
     lauf = name_zelle.paragraphs[0].add_run(v.name)
-    lauf.font.size = Pt(18)
-    lauf.font.bold = True
-    lauf.font.color.rgb = farbe
+    lauf.font.size = Pt(24)
+    lauf.font.color.rgb = RGBColor.from_string(BRIEFKOPF_TEXTFARBE)
+    lauf.font.name = "Montserrat"
+    lauf._element.rPr.rFonts.set(qn("w:hAnsi"), "Montserrat")
     logo_absatz = logo_zelle.paragraphs[0]
     logo_absatz.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     try:

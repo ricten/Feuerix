@@ -15,6 +15,7 @@ from reportlab.platypus import (BaseDocTemplate, Frame, NextPageTemplate, PageBr
 LOGO_BREITE = 55 * mm
 LOGO_HOEHE = 28 * mm
 STANDARD_AKZENTFARBE = "#1F4E79"
+BRIEFKOPF_TEXTFARBE = "#646363"
 
 
 def _p(text, stil):
@@ -52,9 +53,11 @@ def _logo_zeichnen(canvas, verein):
 
 
 def _briefkopf_hoehe(verein):
-    """-> (Paragraph, Höhe in Punkten) für den Vereinsnamen als Briefkopf-Überschrift (links neben dem Logo)."""
+    """-> (Paragraph, Höhe in Punkten) für den Vereinsnamen als Briefkopf-Überschrift (links neben dem Logo).
+    Textfarbe bewusst neutral grau (nicht die Akzentfarbe) - die Akzentfarbe ist nur für die Trennlinie."""
     breite = A4[0] - 25 * mm - 20 * mm - LOGO_BREITE - 8 * mm
-    stil = ParagraphStyle("briefkopf", fontName="Helvetica-Bold", fontSize=18, leading=21, textColor=_akzentfarbe(verein))
+    stil = ParagraphStyle("briefkopf", fontName="Helvetica", fontSize=22, leading=25,
+                          textColor=colors.HexColor(BRIEFKOPF_TEXTFARBE))
     p = Paragraph(escape(verein.name), stil)
     _, hoehe = p.wrap(breite, 60 * mm)
     return p, hoehe
@@ -71,11 +74,11 @@ def _briefkopf_zeichnen(canvas, verein, kopf_p, kopf_hoehe, linie_y):
 
 def _fuss(canvas, verein, seitenzahl, doc):
     canvas.saveState()
-    canvas.setStrokeColor(colors.HexColor("#bbbbbb"))
-    canvas.setLineWidth(0.4)
-    canvas.line(25 * mm, 21 * mm, A4[0] - 20 * mm, 21 * mm)
-    canvas.setFont("Helvetica", 7.5)
-    canvas.setFillColor(colors.grey)
+    canvas.setStrokeColor(_akzentfarbe(verein))
+    canvas.setLineWidth(0.6)
+    canvas.line(25 * mm, 23 * mm, A4[0] - 20 * mm, 23 * mm)
+    canvas.setFont("Helvetica", 8.5)
+    canvas.setFillColor(colors.HexColor(BRIEFKOPF_TEXTFARBE))
     vertretung = ", ".join(x for x in (verein.unterschrift_1, verein.adresszeile) if x)
     zeilen = [
         " | ".join(x for x in (verein.name, verein.vereinsregister, verein.email) if x),
@@ -86,11 +89,11 @@ def _fuss(canvas, verein, seitenzahl, doc):
             f"BIC: {verein.bic}" if verein.bic else "",
             f"Steuernr.: {verein.steuernummer}" if verein.steuernummer else "") if x),
     ]
-    y = 17 * mm
+    y = 18.5 * mm
     for z in zeilen:
         if z:
             canvas.drawCentredString(A4[0] / 2, y, z)
-            y -= 3.5 * mm
+            y -= 4 * mm
     if seitenzahl:
         canvas.drawRightString(A4[0] - 20 * mm, 8 * mm, f"Seite {doc.page}")
     canvas.restoreState()
