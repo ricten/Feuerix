@@ -12,6 +12,10 @@ STANDARD_AKZENTFARBE = "1F4E79"
 BRIEFKOPF_TEXTFARBE = "646363"
 LOGO_BREITE_CM = 5.5
 LOGO_HOEHE_CM = 2.8
+# Exakte Zeilenhöhe der Namenszeile (statt der natürlichen Zeilenhöhe der Schrift), damit sich die
+# Trennlinie unabhängig von der (evtl. auf dem PC des Betrachters fehlenden) Schriftart Montserrat exakt
+# an der Logo-Unterkante ausrichten lässt.
+KOPF_ZEILE_PT = 28
 
 
 def _farbe(verein):
@@ -127,9 +131,9 @@ def _fusszeile(doc, verein):
 
 def schriftstueck_docx(s):
     from docx import Document
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
     from docx.oxml.ns import qn
-    from docx.shared import Cm, Pt, RGBColor
+    from docx.shared import Cm, Emu, Pt, RGBColor
 
     ctx = s.kontext()
     v = s.verein
@@ -154,6 +158,8 @@ def schriftstueck_docx(s):
         logo_breite, logo_hoehe = _logo_masse(logo_pfad)
 
     kopf = doc.add_paragraph()
+    kopf.paragraph_format.line_spacing_rule = WD_LINE_SPACING.EXACTLY
+    kopf.paragraph_format.line_spacing = Pt(KOPF_ZEILE_PT)
     if logo_pfad:
         kopf.paragraph_format.right_indent = logo_breite + Cm(0.4)
     lauf = kopf.add_run(v.name)
@@ -168,11 +174,18 @@ def schriftstueck_docx(s):
         except Exception:
             pass
 
+    # Trennlinie: bei vorhandenem Logo erst an dessen Unterkante (sonst liefe sie mitten durchs Logo) -
+    # über die exakte Zeilenhöhe dieses (leeren) Absatzes statt fester Werte, damit es zu jeder Logogröße passt.
     linie = doc.add_paragraph()
-    linie.paragraph_format.space_before = Pt(2)
     linie.paragraph_format.space_after = Pt(10)
     if logo_pfad:
         linie.paragraph_format.right_indent = logo_breite + Cm(0.4)
+        luecke = max(0, int(logo_hoehe) - int(Pt(KOPF_ZEILE_PT)))
+        if luecke:
+            linie.paragraph_format.line_spacing_rule = WD_LINE_SPACING.EXACTLY
+            linie.paragraph_format.line_spacing = Emu(luecke)
+    else:
+        linie.paragraph_format.space_before = Pt(2)
     _trennlinie(linie, farbe)
 
     absender = ", ".join(x for x in (v.name, v.anschrift, f"{v.plz} {v.ort}".strip()) if x)

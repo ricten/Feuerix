@@ -191,7 +191,12 @@ def seiten_pdf(verein, seiten, titel="Dokument", seitenzahl=True):
     buf = BytesIO()
     kopf_p, kopf_hoehe = _briefkopf_hoehe(verein)
     kopf_top_y = A4[1] - 15 * mm
-    linie_y = min(kopf_top_y - kopf_hoehe - 4 * mm, A4[1] - 12 * mm - LOGO_HOEHE - 3 * mm)
+    linie_y = kopf_top_y - kopf_hoehe - 4 * mm
+    logo_groesse = _logo_groesse(logo_datei(verein)) if logo_datei(verein) else None
+    if logo_groesse:
+        # Linie endet an der Logo-Unterkante (nicht an der festen Logobox), sonst könnte sie bei
+        # schmalen/hochformatigen Logos zu weit oben oder unten landen.
+        linie_y = min(linie_y, A4[1] - 12 * mm - logo_groesse[1] - 3 * mm)
     erste_topmargin = A4[1] - linie_y + 6 * mm
 
     doc = BaseDocTemplate(buf, pagesize=A4, title=titel, author=verein.name, leftMargin=25 * mm, rightMargin=20 * mm,
