@@ -1,7 +1,8 @@
 """Word-Export (.docx) - damit Schriftstücke außerhalb des Systems weiterbearbeitet werden können.
-Briefkopf/Fuß folgen dem gleichen CI wie die PDF-Erzeugung (apps/core/pdf.py): großer Vereinsname in
-neutralem Grau mit Trennlinie in der Akzentfarbe, Logo rechts, Fußzeile mit Vertretungsberechtigtem und
-Bankverbindung."""
+Briefkopf/Fuß folgen dem gleichen CI wie die PDF-Erzeugung (apps/core/pdf.py) und der Original-Vorlage:
+großer Vereinsname in neutralem Grau, Logo oben rechts frei positioniert (keine Tabelle - die erzeugt
+in Word beim Bearbeiten störende Rahmen-/Gitternetzlinien), Trennlinie in der Akzentfarbe, Fußzeile mit
+Vertretungsberechtigtem und Bankverbindung."""
 from io import BytesIO
 
 from .pdf import absaetze
@@ -9,6 +10,8 @@ from .platzhalter import ersetzen
 
 STANDARD_AKZENTFARBE = "1F4E79"
 BRIEFKOPF_TEXTFARBE = "646363"
+LOGO_BREITE_CM = 5.5
+LOGO_HOEHE_CM = 2.8
 
 
 def _farbe(verein):
@@ -34,10 +37,67 @@ def _trennlinie(paragraph, farbe):
     paragraph._p.get_or_add_pPr().append(pbdr)
 
 
-def _fusszeile(doc, verein):
+def _logo_masse(pfad):
+    """-> (Breite, Höhe) als docx.shared.Cm, seitenverhältnistreu in die CI-Logobox eingepasst."""
+    from docx.shared import Cm
+    try:
+        from PIL import Image
+        with Image.open(pfad) as bild:
+            iw, ih = bild.size
+        skala = min(LOGO_BREITE_CM / iw, LOGO_HOEHE_CM / ih)
+        return Cm(iw * skala), Cm(ih * skala)
+    except Exception:
+        return Cm(LOGO_BREITE_CM), Cm(LOGO_HOEHE_CM)
+
+
+def _als_schwebend(bild_shape):
+    """Wandelt ein inline eingefügtes Bild in ein frei positioniertes Objekt oben rechts am Seitenrand um -
+    wie im Original-Briefkopf, der Logo und Trennlinie ebenfalls frei positioniert statt in einer Tabelle
+    platziert (eine Tabelle zeigt beim Bearbeiten in Word sonst störende Rahmenlinien)."""
+    from docx.oxml import OxmlElement
+    from docx.oxml.ns import qn
+    inline = bild_shape._inline
+    drawing = inline.getparent()
+    anchor = OxmlElement("wp:anchor")
+    for attr, wert in (("distT", "0"), ("distB", "0"), ("distL", "114300"), ("distR", "114300"),
+                       ("simplePos", "0"), ("relativeHeight", "251658240"), ("behindDoc", "0"),
+                       ("locked", "0"), ("layoutInCell", "1"), ("allowOverlap", "1")):
+        anchor.set(attr, wert)
+    simplepos = OxmlElement("wp:simplePos")
+    simplepos.set("x", "0")
+    simplepos.set("y", "0")
+    anchor.append(simplepos)
+    posh = OxmlElement("wp:positionH")
+    posh.set("relativeFrom", "margin")
+    ah = OxmlElement("wp:align")
+    ah.text = "right"
+    posh.append(ah)
+    anchor.append(posh)
+    posv = OxmlElement("wp:positionV")
+    posv.set("relativeFrom", "margin")
+    av = OxmlElement("wp:align")
+    av.text = "top"
+    posv.append(av)
+    anchor.append(posv)
+    for tag in ("wp:extent", "wp:effectExtent"):
+        el = inline.find(qn(tag))
+        if el is not None:
+            anchor.append(el)
+    anchor.append(OxmlElement("wp:wrapNone"))
+    for tag in ("wp:docPr", "wp:cNvGraphicFramePr", "a:graphic"):
+        el = inline.find(qn(tag))
+        if el is not None:
+            anchor.append(el)
+    drawing.replace(inline, anchor)
+
+
+def _fusszeile(doc, verein, farbe):
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.shared import Pt, RGBColor
-    absatz = doc.sections[0].footer.paragraphs[0]
+    linie = doc.sections[0].footer.paragraphs[0]
+    linie.paragraph_format.space_after = Pt(6)
+    _trennlinie(linie, farbe)
+    absatz = doc.sections[0].footer.add_paragraph()
     absatz.alignment = WD_ALIGN_PARAGRAPH.CENTER
     zeilen = [z for z in (
         " | ".join(x for x in (verein.name, verein.vereinsregister, verein.email) if x),
@@ -57,7 +117,6 @@ def _fusszeile(doc, verein):
 
 def schriftstueck_docx(s):
     from docx import Document
-    from docx.enum.table import WD_ALIGN_VERTICAL
     from docx.enum.text import WD_ALIGN_PARAGRAPH
     from docx.oxml.ns import qn
     from docx.shared import Cm, Pt, RGBColor
@@ -69,27 +128,35 @@ def schriftstueck_docx(s):
     doc = Document()
     doc.styles["Normal"].font.name = "Calibri"
     doc.styles["Normal"].font.size = Pt(11)
+    sec = doc.sections[0]
+    sec.left_margin = sec.right_margin = sec.top_margin = sec.bottom_margin = Cm(2.5)
 
-    # Briefkopf: Vereinsname (groß, neutrales Grau) links, Logo rechts, in einer randlosen Tabelle;
-    # die Akzentfarbe des Vereins wird nur für die Trennlinie darunter verwendet.
-    kopf = doc.add_table(rows=1, cols=2)
-    kopf.columns[0].width = Cm(11)
-    kopf.columns[1].width = Cm(5)
-    name_zelle, logo_zelle = kopf.rows[0].cells
-    name_zelle.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    logo_zelle.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    lauf = name_zelle.paragraphs[0].add_run(v.name)
+    # Briefkopf: Vereinsname (groß, neutrales Grau), Logo frei oben rechts positioniert (keine Tabelle,
+    # sonst zeigt Word beim Bearbeiten Rahmenlinien); die Akzentfarbe wird nur für die Trennlinien verwendet.
+    logo_pfad = None
+    try:
+        if v.logo:
+            logo_pfad = v.logo.path
+    except Exception:
+        pass
+    logo_breite = logo_hoehe = None
+    if logo_pfad:
+        logo_breite, logo_hoehe = _logo_masse(logo_pfad)
+
+    kopf = doc.add_paragraph()
+    if logo_pfad:
+        kopf.paragraph_format.right_indent = logo_breite + Cm(0.4)
+    lauf = kopf.add_run(v.name)
     lauf.font.size = Pt(24)
     lauf.font.color.rgb = RGBColor.from_string(BRIEFKOPF_TEXTFARBE)
     lauf.font.name = "Montserrat"
     lauf._element.rPr.rFonts.set(qn("w:hAnsi"), "Montserrat")
-    logo_absatz = logo_zelle.paragraphs[0]
-    logo_absatz.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    try:
-        if v.logo:
-            logo_absatz.add_run().add_picture(v.logo.path, width=Cm(4.5))
-    except Exception:
-        pass
+    if logo_pfad:
+        try:
+            bild = kopf.add_run().add_picture(logo_pfad, width=logo_breite, height=logo_hoehe)
+            _als_schwebend(bild)
+        except Exception:
+            pass
 
     linie = doc.add_paragraph()
     linie.paragraph_format.space_before = Pt(2)
@@ -107,7 +174,7 @@ def schriftstueck_docx(s):
     for a in absaetze(ersetzen(s.text, ctx)):
         doc.add_paragraph(a)
 
-    _fusszeile(doc, v)
+    _fusszeile(doc, v, farbe)
 
     buf = BytesIO()
     doc.save(buf)
