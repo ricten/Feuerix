@@ -143,7 +143,8 @@ def schriftstueck_docx(s):
     doc.styles["Normal"].font.name = "Calibri"
     doc.styles["Normal"].font.size = Pt(11)
     sec = doc.sections[0]
-    sec.left_margin = sec.right_margin = sec.top_margin = sec.bottom_margin = Cm(2.5)
+    sec.left_margin = sec.top_margin = sec.bottom_margin = Cm(2.5)
+    sec.right_margin = Cm(1)
 
     # Briefkopf: Vereinsname (groß, neutrales Grau), Logo frei oben rechts positioniert (keine Tabelle,
     # sonst zeigt Word beim Bearbeiten Rahmenlinien); die Akzentfarbe wird nur für die Trennlinien verwendet.
@@ -180,7 +181,7 @@ def schriftstueck_docx(s):
     linie.paragraph_format.space_after = Pt(10)
     if logo_pfad:
         linie.paragraph_format.right_indent = logo_breite + Cm(0.4)
-        luecke = max(0, int(logo_hoehe) - int(Pt(KOPF_ZEILE_PT)))
+        luecke = max(0, int(logo_hoehe) - int(Cm(0.2)) - int(Pt(KOPF_ZEILE_PT)))
         if luecke:
             linie.paragraph_format.line_spacing_rule = WD_LINE_SPACING.EXACTLY
             linie.paragraph_format.line_spacing = Emu(luecke)

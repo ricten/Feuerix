@@ -16,6 +16,8 @@ LOGO_BREITE = 55 * mm
 LOGO_HOEHE = 28 * mm
 STANDARD_AKZENTFARBE = "#1F4E79"
 BRIEFKOPF_TEXTFARBE = "#646363"
+RAND_LINKS = 25 * mm
+RAND_RECHTS = 10 * mm
 
 
 def _p(text, stil):
@@ -66,7 +68,8 @@ def _logo_zeichnen(canvas, verein):
         return
     w, h = groesse
     try:
-        canvas.drawImage(ImageReader(pfad), A4[0] - 20 * mm - w, A4[1] - 12 * mm - h, width=w, height=h, mask="auto")
+        canvas.drawImage(ImageReader(pfad), A4[0] - RAND_RECHTS - w, A4[1] - 12 * mm - h, width=w, height=h,
+                         mask="auto")
     except Exception:
         pass
 
@@ -74,7 +77,7 @@ def _logo_zeichnen(canvas, verein):
 def _briefkopf_hoehe(verein):
     """-> (Paragraph, Höhe in Punkten) für den Vereinsnamen als Briefkopf-Überschrift (links neben dem Logo).
     Textfarbe bewusst neutral grau (nicht die Akzentfarbe) - die Akzentfarbe ist nur für die Trennlinie."""
-    breite = A4[0] - 25 * mm - 20 * mm - LOGO_BREITE - 8 * mm
+    breite = A4[0] - RAND_LINKS - RAND_RECHTS - LOGO_BREITE - 8 * mm
     stil = ParagraphStyle("briefkopf", fontName="Helvetica", fontSize=22, leading=25,
                           textColor=colors.HexColor(BRIEFKOPF_TEXTFARBE))
     p = Paragraph(escape(verein.name), stil)
@@ -84,23 +87,23 @@ def _briefkopf_hoehe(verein):
 
 def _briefkopf_zeichnen(canvas, verein, kopf_p, kopf_hoehe, linie_y):
     kopf_top_y = A4[1] - 15 * mm
-    kopf_p.drawOn(canvas, 25 * mm, kopf_top_y - kopf_hoehe)
+    kopf_p.drawOn(canvas, RAND_LINKS, kopf_top_y - kopf_hoehe)
     _logo_zeichnen(canvas, verein)
-    linie_ende = A4[0] - 20 * mm
+    linie_ende = A4[0] - RAND_RECHTS
     pfad = logo_datei(verein)
     groesse = _logo_groesse(pfad) if pfad else None
     if groesse:
-        linie_ende = min(linie_ende, A4[0] - 20 * mm - groesse[0] - 4 * mm)
+        linie_ende = min(linie_ende, A4[0] - RAND_RECHTS - groesse[0] - 4 * mm)
     canvas.setStrokeColor(_akzentfarbe(verein))
     canvas.setLineWidth(0.6)
-    canvas.line(25 * mm, linie_y, linie_ende, linie_y)
+    canvas.line(RAND_LINKS, linie_y, linie_ende, linie_y)
 
 
 def _fuss(canvas, verein, seitenzahl, doc):
     canvas.saveState()
     canvas.setStrokeColor(_akzentfarbe_fuss(verein))
     canvas.setLineWidth(0.4)
-    canvas.line(25 * mm, 23 * mm, A4[0] - 20 * mm, 23 * mm)
+    canvas.line(RAND_LINKS, 23 * mm, A4[0] - RAND_RECHTS, 23 * mm)
     canvas.setFont("Helvetica", 8.5)
     canvas.setFillColor(colors.HexColor(BRIEFKOPF_TEXTFARBE))
     vertretung = ", ".join(x for x in (verein.unterschrift_1, verein.adresszeile) if x)
@@ -119,7 +122,7 @@ def _fuss(canvas, verein, seitenzahl, doc):
             canvas.drawCentredString(A4[0] / 2, y, z)
             y -= 4 * mm
     if seitenzahl:
-        canvas.drawRightString(A4[0] - 20 * mm, 8 * mm, f"Seite {doc.page}")
+        canvas.drawRightString(A4[0] - RAND_RECHTS, 8 * mm, f"Seite {doc.page}")
     canvas.restoreState()
 
 
@@ -197,13 +200,15 @@ def seiten_pdf(verein, seiten, titel="Dokument", seitenzahl=True):
         # Linie endet an der Logo-Unterkante (nicht an der festen Logobox), sonst könnte sie bei
         # schmalen/hochformatigen Logos zu weit oben oder unten landen.
         linie_y = min(linie_y, A4[1] - 12 * mm - logo_groesse[1] - 3 * mm)
+    linie_y += 2 * mm
     erste_topmargin = A4[1] - linie_y + 6 * mm
 
-    doc = BaseDocTemplate(buf, pagesize=A4, title=titel, author=verein.name, leftMargin=25 * mm, rightMargin=20 * mm,
-                          topMargin=erste_topmargin, bottomMargin=28 * mm)
-    frame_erste = Frame(25 * mm, 28 * mm, A4[0] - 45 * mm, A4[1] - erste_topmargin - 28 * mm, id="f_erste",
+    rand = RAND_LINKS + RAND_RECHTS
+    doc = BaseDocTemplate(buf, pagesize=A4, title=titel, author=verein.name, leftMargin=RAND_LINKS,
+                          rightMargin=RAND_RECHTS, topMargin=erste_topmargin, bottomMargin=28 * mm)
+    frame_erste = Frame(RAND_LINKS, 28 * mm, A4[0] - rand, A4[1] - erste_topmargin - 28 * mm, id="f_erste",
                         leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
-    frame_folge = Frame(25 * mm, 28 * mm, A4[0] - 45 * mm, A4[1] - 46 * mm, id="f_folge", leftPadding=0,
+    frame_folge = Frame(RAND_LINKS, 28 * mm, A4[0] - rand, A4[1] - 46 * mm, id="f_folge", leftPadding=0,
                         rightPadding=0, topPadding=0, bottomPadding=0)
 
     def erste(canvas, d):
