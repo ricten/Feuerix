@@ -87,6 +87,8 @@ class MandantenTests(TestCase):
 
     def test_logo_bleibt_beim_speichern_ohne_neue_datei_erhalten(self):
         from django.core.files.uploadedfile import SimpleUploadedFile
+        self.anna.is_superuser = True  # "Verwaltung" (Vereinseinstellungen) hat regulär nur der Superadmin
+        self.anna.save()
         self.client.login(username="anna", password="pw-Test-12345")
         logo = SimpleUploadedFile("logo.png", b"\x89PNG\r\n\x1a\n" + b"0" * 20, content_type="image/png")
         self.v1.logo = logo
