@@ -82,61 +82,57 @@ def importieren(verein, dateiname, inhalt, testlauf=True, aktualisieren=True, ne
     with transaction.atomic():
         for nr, zeile in enumerate(zeilen, start=2):  # Zeile 1 = Kopf
             roh = {zuordnung[i]: (zeile[i] if i < len(zeile) else None) for i in zuordnung}
-            sp = transaction.savepoint()
             try:
-                d = _wandeln(roh, verein, neu_anlegen, bericht["warnungen"], nr)
-                m = _suche_bestehend(verein, d)
-                if m is not None and not aktualisieren:
-                    bericht["uebersprungen"] += 1
-                    transaction.savepoint_commit(sp)
-                    continue
-                neu = m is None
-                if neu:
-                    m = Mitglied(verein=verein)
-                # Felder setzen: leere Zellen überschreiben bestehende Werte NICHT
-                for feld, wert in d.items():
-                    if feld in ("mitgliedsart", "familie", "abteilungen", "mitgliedsnummer"):
+                with transaction.atomic():
+                    d = _wandeln(roh, verein, neu_anlegen, bericht["warnungen"], nr)
+                    m = _suche_bestehend(verein, d)
+                    if m is not None and not aktualisieren:
+                        bericht["uebersprungen"] += 1
                         continue
-                    if wert in (None, "") and not neu:
-                        continue
-                    setattr(m, feld, wert)
-                if neu and d.get("mitgliedsnummer"):
-                    m.mitgliedsnummer = d["mitgliedsnummer"]
-                if d.get("mitgliedsart"):
-                    a = arten.get(d["mitgliedsart"].lower())
-                    if a is None and neu_anlegen:
-                        a = Mitgliedsart.objects.create(verein=verein, name=d["mitgliedsart"])
-                        arten[a.name.lower()] = a
-                    if a is None:
-                        raise ZeilenFehler(f"Mitgliedsart „{d['mitgliedsart']}“ existiert nicht (Option „unbekannte anlegen“ oder "
-                                           "vorher unter Mitgliedsarten anlegen)")
-                    m.mitgliedsart = a
-                if d.get("familie"):
-                    f = fam.get(d["familie"].lower())
-                    if f is None:
-                        f = Familie.objects.create(verein=verein, name=d["familie"])
-                        fam[f.name.lower()] = f
-                    m.familie = f
-                m.full_clean(exclude=["verein", "mitgliedsnummer", "foto"])
-                m.save()
-                if d.get("abteilungen"):
-                    liste = []
-                    for name in [x.strip() for x in d["abteilungen"].replace(";", ",").split(",") if x.strip()]:
-                        a = abt.get(name.lower())
+                    neu = m is None
+                    if neu:
+                        m = Mitglied(verein=verein)
+                    # Felder setzen: leere Zellen überschreiben bestehende Werte NICHT
+                    for feld, wert in d.items():
+                        if feld in ("mitgliedsart", "familie", "abteilungen", "mitgliedsnummer"):
+                            continue
+                        if wert in (None, "") and not neu:
+                            continue
+                        setattr(m, feld, wert)
+                    if neu and d.get("mitgliedsnummer"):
+                        m.mitgliedsnummer = d["mitgliedsnummer"]
+                    if d.get("mitgliedsart"):
+                        a = arten.get(d["mitgliedsart"].lower())
+                        if a is None and neu_anlegen:
+                            a = Mitgliedsart.objects.create(verein=verein, name=d["mitgliedsart"])
+                            arten[a.name.lower()] = a
                         if a is None:
-                            if not neu_anlegen:
-                                raise ZeilenFehler(f"Abteilung „{name}“ existiert nicht")
-                            a = Abteilung.objects.create(verein=verein, name=name)
-                            abt[name.lower()] = a
-                        liste.append(a)
-                    m.abteilungen.add(*liste)
-                bericht["neu" if neu else "aktualisiert"] += 1
-                transaction.savepoint_commit(sp)
+                            raise ZeilenFehler(f"Mitgliedsart „{d['mitgliedsart']}“ existiert nicht (Option „unbekannte anlegen“ oder "
+                                               "vorher unter Mitgliedsarten anlegen)")
+                        m.mitgliedsart = a
+                    if d.get("familie"):
+                        f = fam.get(d["familie"].lower())
+                        if f is None:
+                            f = Familie.objects.create(verein=verein, name=d["familie"])
+                            fam[f.name.lower()] = f
+                        m.familie = f
+                    m.full_clean(exclude=["verein", "mitgliedsnummer", "foto"])
+                    m.save()
+                    if d.get("abteilungen"):
+                        liste = []
+                        for name in [x.strip() for x in d["abteilungen"].replace(";", ",").split(",") if x.strip()]:
+                            a = abt.get(name.lower())
+                            if a is None:
+                                if not neu_anlegen:
+                                    raise ZeilenFehler(f"Abteilung „{name}“ existiert nicht")
+                                a = Abteilung.objects.create(verein=verein, name=name)
+                                abt[name.lower()] = a
+                            liste.append(a)
+                        m.abteilungen.add(*liste)
+                    bericht["neu" if neu else "aktualisiert"] += 1
             except ZeilenFehler as e:
-                transaction.savepoint_rollback(sp)
                 bericht["fehler"].append((nr, str(e)))
             except Exception as e:  # Validierungs- oder Datenbankfehler einer Zeile
-                transaction.savepoint_rollback(sp)
                 msg = "; ".join(getattr(e, "messages", [str(e)]))
                 bericht["fehler"].append((nr, msg))
         if testlauf:

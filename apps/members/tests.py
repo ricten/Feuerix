@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import TestCase
@@ -43,6 +45,24 @@ class ImportTests(TestCase):
         self.assertEqual(len(importer.importieren(self.v, "a.csv", daten, testlauf=True)["fehler"]), 1)
         b = importer.importieren(self.v, "a.csv", daten, testlauf=False, neu_anlegen=True)
         self.assertEqual((b["neu"], len(b["fehler"])), (1, 0))
+
+    def test_datenbankfehler_in_einer_zeile_bricht_import_nicht_ab(self):
+        """Ein echter Fehler beim Speichern (z. B. defekter FIELD_ENCRYPTION_KEY) darf nur diese Zeile
+        überspringen - nachfolgende, gültige Zeilen müssen trotzdem gespeichert werden."""
+        daten = "Vorname;Nachname\nFehler;Fall\nOk;Person\n".encode("utf-8")
+        orig_save = Mitglied.save
+
+        def kaputt_bei_fehler(self, *a, **kw):
+            if self.vorname == "Fehler":
+                raise ValueError("simulierter Datenbankfehler")
+            return orig_save(self, *a, **kw)
+
+        with patch.object(Mitglied, "save", kaputt_bei_fehler):
+            b = importer.importieren(self.v, "x.csv", daten, testlauf=False)
+        self.assertEqual(b["neu"], 1)
+        self.assertEqual(len(b["fehler"]), 1)
+        self.assertTrue(Mitglied.objects.filter(verein=self.v, nachname="Person").exists())
+        self.assertFalse(Mitglied.objects.filter(verein=self.v, nachname="Fall").exists())
 
 
 class SelbstdienstTests(TestCase):
