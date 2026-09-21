@@ -2,7 +2,7 @@ from django.urls import path
 
 from apps.core.crud import crud, knopf
 
-from . import selbstdienst, views
+from . import selbstdienst, verwaltungszugang, views
 from .models import Abteilung, Dokument, Familie, Funktion, Mitglied, MitgliedFunktion, Mitgliedsart
 
 urlpatterns = [
@@ -16,6 +16,8 @@ urlpatterns = [
     path("mitglieder/<int:pk>/zugang/sperren/", selbstdienst.zugang_sperren, name="mitglied_zugang_sperren"),
     path("mitglieder/<int:pk>/zugang/startpasswort-loeschen/", selbstdienst.startpasswort_loeschen,
         name="mitglied_startpasswort_loeschen"),
+    path("mitglieder/<int:pk>/verwaltungszugang/einrichten/", verwaltungszugang.verwaltungszugang_einrichten,
+        name="mitglied_verwaltungszugang_einrichten"),
 ]
 def mitglieder_listen_aktionen(request):
     from django.urls import reverse

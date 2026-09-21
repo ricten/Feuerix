@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from apps.core.crud import abschnitt, knopf, wert
-from apps.core.models import AuditLog
+from apps.core.models import AuditLog, Zugang
 
 from .models import Mitglied
 
@@ -37,6 +37,15 @@ def mitglied_kontext(request, m):
         if m.selbstdienst_initialpasswort:
             aktionen.append(knopf("Gespeichertes Startpasswort löschen", reverse("mitglied_startpasswort_loeschen", args=[m.pk]),
                                   post=True))
+    verwaltungszugang = (Zugang.objects.filter(verein=request.verein, user_id=m.benutzer_id).select_related("rolle").first()
+                        if m.benutzer_id else None)
+    if verwaltungszugang and r.darf("verwaltung", "change"):
+        status = "" if verwaltungszugang.aktiv else ", gesperrt"
+        aktionen.append(knopf(f"Verwaltungszugang ({verwaltungszugang.rolle}{status}) bearbeiten",
+                              reverse("zugang_edit", args=[verwaltungszugang.pk])))
+    elif not verwaltungszugang and r.darf("verwaltung", "add"):
+        aktionen.append(knopf("Verwaltungszugang einrichten", reverse("mitglied_verwaltungszugang_einrichten", args=[m.pk]),
+                              stil="outline-primary"))
     if r.darf("mitglieder", "delete") and m.status != "verstorben" and m.vorname != "Anonymisiert":
         aktionen.append(knopf("Anonymisieren (DSGVO)", reverse("mitglied_anonymisieren", args=[m.pk]), post=True,
                               stil="outline-danger",

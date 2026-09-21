@@ -120,3 +120,41 @@ class SelbstdienstTests(TestCase):
         self.client.post(reverse("mitglied_zugang_sperren", args=[self.m.pk]))
         self.client.logout()
         self.assertFalse(self.client.login(username=username, password=passwort))
+
+
+class VerwaltungszugangTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.admin = User.objects.create_user("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin, rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Muster", email="erika@example.org")
+
+    def test_verwaltungszugang_einrichten(self):
+        self.client.login(username="admin", password="pw-Test-12345")
+        kassenwart = Rolle.objects.get(verein=self.v, name="Kassenwart")
+        r = self.client.post(reverse("mitglied_verwaltungszugang_einrichten", args=[self.m.pk]), {"rolle": kassenwart.pk})
+        self.assertRedirects(r, reverse("mitglied_detail", args=[self.m.pk]))
+        self.m.refresh_from_db()
+        self.assertIsNotNone(self.m.benutzer_id)
+        zugang = Zugang.objects.get(verein=self.v, user=self.m.benutzer)
+        self.assertEqual(zugang.rolle, kassenwart)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_bestehendes_selbstdienst_konto_wird_wiederverwendet(self):
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.client.post(reverse("mitglied_zugang_einrichten", args=[self.m.pk]))
+        self.m.refresh_from_db()
+        vorhandener_benutzer_id = self.m.benutzer_id
+        kassenwart = Rolle.objects.get(verein=self.v, name="Kassenwart")
+        self.client.post(reverse("mitglied_verwaltungszugang_einrichten", args=[self.m.pk]), {"rolle": kassenwart.pk})
+        self.m.refresh_from_db()
+        self.assertEqual(self.m.benutzer_id, vorhandener_benutzer_id)
+
+    def test_ohne_email_kein_verwaltungszugang(self):
+        m2 = Mitglied.objects.create(verein=self.v, vorname="Ohne", nachname="Mail")
+        self.client.login(username="admin", password="pw-Test-12345")
+        r = self.client.get(reverse("mitglied_verwaltungszugang_einrichten", args=[m2.pk]))
+        self.assertRedirects(r, reverse("mitglied_detail", args=[m2.pk]))
+        m2.refresh_from_db()
+        self.assertIsNone(m2.benutzer_id)
