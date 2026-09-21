@@ -85,6 +85,20 @@ class MandantenTests(TestCase):
         self.m1.refresh_from_db()
         self.assertEqual(self.m1.iban, "DE89370400440532013000")
 
+    def test_logo_bleibt_beim_speichern_ohne_neue_datei_erhalten(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        self.client.login(username="anna", password="pw-Test-12345")
+        logo = SimpleUploadedFile("logo.png", b"\x89PNG\r\n\x1a\n" + b"0" * 20, content_type="image/png")
+        self.v1.logo = logo
+        self.v1.save()
+        self.assertTrue(self.v1.logo)
+        daten = {"name": self.v1.name, "zahlungsziel_tage": 14, "uebungsleiter_freibetrag": "3300",
+                "ehrenamts_freibetrag": "960", "akzentfarbe": "#1F4E79", "bescheid_art": "freistellung"}
+        r = self.client.post(reverse("verein_einstellungen"), daten)
+        self.assertEqual(r.status_code, 302)
+        self.v1.refresh_from_db()
+        self.assertTrue(self.v1.logo)
+
     def test_briefkopf_pdf_wird_erzeugt(self):
         from apps.core.pdf import brief_pdf
         self.v1.unterschrift_1 = "Max Mustermann, 1. Vorsitzender"

@@ -133,7 +133,7 @@ def verein_einstellungen(request):
         return redirect("verein_waehlen")
     if not request.rechte.darf("verwaltung", "change"):
         raise PermissionDenied
-    form = VereinForm(request.POST or None, instance=request.verein)
+    form = VereinForm(request.POST or None, request.FILES or None, instance=request.verein)
     if request.method == "POST" and form.is_valid():
         audit.kontext_setzen(grund=form.cleaned_data.get("aenderungsgrund"))
         form.save()
