@@ -55,6 +55,11 @@ class VereinForm(TenantModelForm):
         model = Verein
         exclude = ("kuerzel", "aktiv")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["akzentfarbe"].widget = forms.TextInput(attrs={"type": "color",
+                                                                   "class": "form-control form-control-color"})
+
 
 class RechteFelderMixin:
     def rechte_felder(self, vorhanden):

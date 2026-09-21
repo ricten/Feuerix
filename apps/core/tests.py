@@ -84,3 +84,16 @@ class MandantenTests(TestCase):
         self.assertNotIn("DE89", roh)
         self.m1.refresh_from_db()
         self.assertEqual(self.m1.iban, "DE89370400440532013000")
+
+    def test_briefkopf_pdf_wird_erzeugt(self):
+        from apps.core.pdf import brief_pdf
+        self.v1.unterschrift_1 = "Max Mustermann, 1. Vorsitzender"
+        self.v1.akzentfarbe = "#C0392B"
+        pdf = brief_pdf(self.v1, ["Herr", "Max Mustermann", "Musterweg 1", "12345 Musterstadt"], "Testbrief")
+        self.assertTrue(pdf.startswith(b"%PDF"))
+
+    def test_ungueltige_akzentfarbe_faellt_auf_standard_zurueck(self):
+        from apps.core.pdf import brief_pdf
+        self.v1.akzentfarbe = "keine-farbe"
+        pdf = brief_pdf(self.v1, ["Empfänger"], "Testbrief")
+        self.assertTrue(pdf.startswith(b"%PDF"))
