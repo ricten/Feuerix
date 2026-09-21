@@ -110,6 +110,7 @@ class Verleih(TenantModel):
     leihgebuehr = models.DecimalField("Leihgebühr (€)", max_digits=8, decimal_places=2, null=True, blank=True)
     kaution = models.DecimalField("Kaution (€)", max_digits=8, decimal_places=2, null=True, blank=True)
     kaution_zurueckgezahlt = models.BooleanField("Kaution zurückgezahlt", default=False)
+    kaution_einbehalten = models.BooleanField("Kaution einbehalten (auf Rechnung)", default=False, editable=False)
     ausgegeben_am = models.DateTimeField("Ausgegeben am", null=True, blank=True, editable=False)
     ausgegeben_von = models.CharField("Ausgegeben durch", max_length=150, blank=True, editable=False)
     zustand_bei_ausgabe = models.CharField("Zustand bei Ausgabe", max_length=15, choices=Gegenstand.ZUSTAND,

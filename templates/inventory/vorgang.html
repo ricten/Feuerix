@@ -6,7 +6,7 @@
 </div>
 <div class="card shadow-sm mb-3">
   <div class="table-responsive"><table class="table table-sm table-hover mb-0 tabelle">
-    <thead class="table-light"><tr><th>Gegenstand</th><th>Inventarnr.</th><th>Von</th><th>Bis</th><th>Status</th><th></th></tr></thead>
+    <thead class="table-light"><tr><th>Gegenstand</th><th>Inventarnr.</th><th>Von</th><th>Bis</th><th>Status</th><th>Kaution</th><th></th></tr></thead>
     <tbody>
     {% for p in positionen %}
       <tr>
@@ -14,7 +14,14 @@
         <td>{{ p.gegenstand.inventarnummer }}</td>
         <td>{{ p.von|date:"d.m.Y" }}</td>
         <td>{{ p.bis|date:"d.m.Y" }}</td>
-        <td>{{ p.get_status_display }}</td>
+        <td>{{ p.get_status_display }}{% if p.zustand_bei_rueckgabe %} ({{ p.get_zustand_bei_rueckgabe_display }}){% endif %}</td>
+        <td>
+          {% if not p.kaution %}–
+          {% elif p.kaution_einbehalten %}einbehalten
+          {% elif p.kaution_zurueckgezahlt %}zurückgezahlt
+          {% elif p.status == "zurueckgegeben" %}noch offen
+          {% else %}–{% endif %}
+        </td>
         <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{% url 'verleih_detail' p.pk %}">Details</a></td>
       </tr>
     {% endfor %}

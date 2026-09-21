@@ -130,6 +130,17 @@ def rechnung_erstellen(verein, positionen, mitglied=None, empfaenger_name="", em
     return r
 
 
+@transaction.atomic
+def rechnung_positionen_hinzufuegen(rechnung, positionen):
+    """Ergänzt eine bereits bestehende Rechnung um weitere Positionen (z. B. wenn ein mehrteiliger Vorgang in
+    mehreren Schritten abgeschlossen wird und trotzdem alles auf einer Rechnung landen soll)."""
+    for text, menge, einzelpreis in positionen:
+        Rechnungsposition.objects.create(verein=rechnung.verein, rechnung=rechnung, text=text, menge=menge,
+                                         einzelpreis=einzelpreis)
+    rechnung.refresh_from_db()
+    return rechnung
+
+
 def mahnung_erstellen(rechnung, gebuehr=Decimal("0"), frist_tage=14):
     letzte = rechnung.mahnungen.order_by("-stufe").first()
     stufe = min((letzte.stufe if letzte else 0) + 1, 3)

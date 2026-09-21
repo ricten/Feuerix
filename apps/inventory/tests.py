@@ -200,7 +200,8 @@ class SammelverleihTests(TestCase):
         self.assertRedirects(r, reverse("verleih_vorgang_detail", args=[vorgang]))
         self.assertEqual(Verleih.objects.filter(vorgang=vorgang, status="ausgegeben").count(), 2)
 
-        r = self.client.post(reverse("verleih_vorgang_rueckgabe", args=[vorgang]))
+        daten = {f"zustand_{p.pk}": "gut" for p in Verleih.objects.filter(vorgang=vorgang)}
+        r = self.client.post(reverse("verleih_vorgang_rueckgabe", args=[vorgang]), daten)
         self.assertEqual(Verleih.objects.filter(vorgang=vorgang, status="zurueckgegeben").count(), 2)
 
     def test_vorgang_leihschein_pdf(self):
@@ -234,8 +235,16 @@ class RueckgabeTests(TestCase):
         self.verleih = Verleih.objects.create(verein=self.v, gegenstand=self.g, entleiher=self.m, von=date.today(),
                                               bis=date.today() + timedelta(days=2), status="ausgegeben")
 
+    def test_rueckgabeformular_wird_angezeigt(self):
+        r = self.client.get(reverse("verleih_rueckgabe", args=[self.verleih.pk]))
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Beamer")
+        self.assertContains(r, "Zurückzahlen")
+        self.assertContains(r, "Einbehalten")
+
     def test_rueckgabe_erstellt_rechnung_fuer_leihgebuehr(self):
-        r = self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]), {"zustand": "gut"}, follow=True)
+        r = self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]),
+                             {f"zustand_{self.verleih.pk}": "gut"}, follow=True)
         self.verleih.refresh_from_db()
         self.assertIsNotNone(self.verleih.rechnung_id)
         rechnung = self.verleih.rechnung
@@ -243,11 +252,23 @@ class RueckgabeTests(TestCase):
         self.assertEqual(rechnung.betrag, Decimal("25.00"))
         self.assertContains(r, f"Rechnung {rechnung.nummer}")
 
+    def test_rueckgabe_setzt_zustand_des_gegenstands_auf_defekt(self):
+        """Kommt ein Gegenstand defekt zurück, muss das auch am Gegenstand selbst (und damit in der
+        Inventar-Übersicht) hinterlegt sein - nicht nur am Verleih-Datensatz."""
+        self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]),
+                         {f"zustand_{self.verleih.pk}": "defekt", f"kaution_{self.verleih.pk}": "zurueckzahlen"})
+        self.g.refresh_from_db()
+        self.verleih.refresh_from_db()
+        self.assertEqual(self.g.zustand, "defekt")
+        self.assertEqual(self.verleih.zustand_bei_rueckgabe, "defekt")
+        # Kaution wird NICHT automatisch einbehalten, nur wenn das explizit gewählt wird
+        self.assertFalse(self.verleih.kaution_einbehalten)
+
     def test_rueckgabe_ohne_leihgebuehr_erstellt_keine_rechnung(self):
         g2 = Gegenstand.objects.create(verein=self.v, bezeichnung="Zelt", verleihbar=True, leihgebuehr=Decimal("0"))
         v2 = Verleih.objects.create(verein=self.v, gegenstand=g2, entleiher=self.m, von=date.today(),
                                     bis=date.today() + timedelta(days=1), status="ausgegeben")
-        self.client.post(reverse("verleih_rueckgabe", args=[v2.pk]), {"zustand": "gut"})
+        self.client.post(reverse("verleih_rueckgabe", args=[v2.pk]), {f"zustand_{v2.pk}": "gut"})
         v2.refresh_from_db()
         self.assertIsNone(v2.rechnung_id)
         self.assertEqual(Rechnung.objects.filter(verein=self.v).count(), 0)
@@ -256,14 +277,31 @@ class RueckgabeTests(TestCase):
         v3 = Verleih.objects.create(verein=self.v, gegenstand=self.g, entleiher_name="Externe Person",
                                     entleiher_kontakt="Musterstr. 1, 12345 Musterstadt", von=date.today(),
                                     bis=date.today() + timedelta(days=1), status="ausgegeben")
-        self.client.post(reverse("verleih_rueckgabe", args=[v3.pk]), {"zustand": "gut"})
+        self.client.post(reverse("verleih_rueckgabe", args=[v3.pk]), {f"zustand_{v3.pk}": "gut"})
         v3.refresh_from_db()
         self.assertIsNotNone(v3.rechnung_id)
         self.assertIsNone(v3.rechnung.mitglied_id)
         self.assertEqual(v3.rechnung.empfaenger_name, "Externe Person")
 
+    def test_kaution_einbehalten_landet_auf_der_rechnung(self):
+        r = self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]), {
+            f"zustand_{self.verleih.pk}": "defekt", f"kaution_{self.verleih.pk}": "einbehalten"}, follow=True)
+        self.verleih.refresh_from_db()
+        self.assertTrue(self.verleih.kaution_einbehalten)
+        self.assertFalse(self.verleih.kaution_zurueckgezahlt)
+        rechnung = self.verleih.rechnung
+        self.assertIsNotNone(rechnung)
+        # Leihgebühr (25) + einbehaltene Kaution (50)
+        self.assertEqual(rechnung.betrag, Decimal("75.00"))
+        self.assertEqual(rechnung.positionen.count(), 2)
+        self.assertContains(r, f"Rechnung {rechnung.nummer}")
+        # Hinweistext beschreibt jetzt "einbehalten", nicht mehr "noch nicht zurückgezahlt"
+        detail = self.client.get(reverse("verleih_detail", args=[self.verleih.pk]))
+        self.assertContains(detail, "einbehalten und in Rechnung gestellt")
+
     def test_kaution_als_zurueckgezahlt_markieren(self):
-        self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]), {"zustand": "gut"})
+        self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]),
+                         {f"zustand_{self.verleih.pk}": "gut", f"kaution_{self.verleih.pk}": "zurueckzahlen"})
         r = self.client.post(reverse("verleih_kaution_zurueckgezahlt", args=[self.verleih.pk]), follow=True)
         self.verleih.refresh_from_db()
         self.assertTrue(self.verleih.kaution_zurueckgezahlt)
@@ -276,10 +314,28 @@ class RueckgabeTests(TestCase):
                                     bis=date.today() + timedelta(days=1), status="ausgegeben")
         self.verleih.vorgang = vorgang
         self.verleih.save(update_fields=["vorgang"])
-        self.client.post(reverse("verleih_vorgang_rueckgabe", args=[vorgang]))
+        self.client.post(reverse("verleih_vorgang_rueckgabe", args=[vorgang]), {
+            f"zustand_{self.verleih.pk}": "gut", f"zustand_{v2.pk}": "gut"})
         self.verleih.refresh_from_db()
         v2.refresh_from_db()
         self.assertIsNotNone(self.verleih.rechnung_id)
+        self.assertEqual(self.verleih.rechnung_id, v2.rechnung_id)
+        self.assertEqual(self.verleih.rechnung.betrag, Decimal("35.00"))
+        self.assertEqual(self.verleih.rechnung.positionen.count(), 2)
+
+    def test_vorgang_rueckgabe_in_zwei_schritten_landet_auf_derselben_rechnung(self):
+        """Auch wenn die Positionen eines Vorgangs nacheinander (einzeln) statt gemeinsam zurückgenommen werden,
+        soll am Ende alles auf einer Rechnung stehen."""
+        vorgang = uuid.uuid4()
+        g2 = Gegenstand.objects.create(verein=self.v, bezeichnung="Zelt", verleihbar=True, leihgebuehr=Decimal("10"))
+        v2 = Verleih.objects.create(verein=self.v, vorgang=vorgang, gegenstand=g2, entleiher=self.m, von=date.today(),
+                                    bis=date.today() + timedelta(days=1), status="ausgegeben")
+        self.verleih.vorgang = vorgang
+        self.verleih.save(update_fields=["vorgang"])
+        self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]), {f"zustand_{self.verleih.pk}": "gut"})
+        self.client.post(reverse("verleih_rueckgabe", args=[v2.pk]), {f"zustand_{v2.pk}": "gut"})
+        self.verleih.refresh_from_db()
+        v2.refresh_from_db()
         self.assertEqual(self.verleih.rechnung_id, v2.rechnung_id)
         self.assertEqual(self.verleih.rechnung.betrag, Decimal("35.00"))
         self.assertEqual(self.verleih.rechnung.positionen.count(), 2)
@@ -288,7 +344,8 @@ class RueckgabeTests(TestCase):
         vorgang = uuid.uuid4()
         self.verleih.vorgang = vorgang
         self.verleih.save(update_fields=["vorgang"])
-        self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]), {"zustand": "gut"})
+        self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]),
+                         {f"zustand_{self.verleih.pk}": "gut", f"kaution_{self.verleih.pk}": "zurueckzahlen"})
         self.client.post(reverse("verleih_vorgang_kaution_zurueckgezahlt", args=[vorgang]))
         self.verleih.refresh_from_db()
         self.assertTrue(self.verleih.kaution_zurueckgezahlt)
@@ -296,8 +353,8 @@ class RueckgabeTests(TestCase):
     def test_inventarverwalter_ohne_rechnungsrecht_sieht_keinen_rechnung_link(self):
         """Inventarverwalter hat kein Recht auf "rechnungen" - der Link zur Rechnung darf ihm nicht angezeigt
         werden (er würde beim Klick nur auf einen 403 laufen)."""
-        self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]), {"zustand": "gut"})
+        self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]), {f"zustand_{self.verleih.pk}": "gut"})
         self.verleih.refresh_from_db()
         self.assertIsNotNone(self.verleih.rechnung_id)
         r = self.client.get(reverse("verleih_detail", args=[self.verleih.pk]))
-        self.assertNotContains(r, "Rechnung (Leihgebühr) ansehen")
+        self.assertNotContains(r, "Rechnung ansehen")

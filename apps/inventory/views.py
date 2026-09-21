@@ -55,21 +55,20 @@ def verleih_kontext(request, v):
             aktionen.append(knopf("Reservierung stornieren", reverse("verleih_stornieren", args=[v.pk]), post=True,
                                   stil="outline-danger", bestaetigung="Reservierung stornieren?"))
         if v.status == "ausgegeben":
-            aktionen.append(knopf("Rückgabe – in Ordnung", reverse("verleih_rueckgabe", args=[v.pk]), post=True,
-                                  stil="success", felder={"zustand": v.gegenstand.zustand}))
-            aktionen.append(knopf("Rückgabe – defekt", reverse("verleih_rueckgabe", args=[v.pk]), post=True,
-                                  stil="outline-danger", felder={"zustand": "defekt"},
-                                  bestaetigung="Gegenstand als defekt markieren?"))
-        if v.status == "zurueckgegeben" and v.kaution and not v.kaution_zurueckgezahlt:
+            aktionen.append(knopf("Rückgabe erfassen", reverse("verleih_rueckgabe", args=[v.pk]), stil="success"))
+        if v.status == "zurueckgegeben" and v.kaution and not v.kaution_zurueckgezahlt and not v.kaution_einbehalten:
             aktionen.append(knopf("Kaution zurückgezahlt", reverse("verleih_kaution_zurueckgezahlt", args=[v.pk]),
                                   post=True, stil="success"))
     if v.rechnung_id and rt.darf("rechnungen", "view"):
-        aktionen.append(knopf("Rechnung (Leihgebühr) ansehen", reverse("rechnung_detail", args=[v.rechnung_id])))
+        aktionen.append(knopf("Rechnung ansehen", reverse("rechnung_detail", args=[v.rechnung_id])))
     hinweise = []
     if v.ueberfaellig:
         hinweise.append("Rückgabe überfällig!")
-    if v.status == "zurueckgegeben" and v.kaution and not v.kaution_zurueckgezahlt:
-        hinweise.append(f"Kaution ({v.kaution} €) noch nicht als zurückgezahlt markiert.")
+    if v.status == "zurueckgegeben" and v.kaution:
+        if v.kaution_einbehalten:
+            hinweise.append(f"Kaution ({v.kaution} €) einbehalten und in Rechnung gestellt.")
+        elif not v.kaution_zurueckgezahlt:
+            hinweise.append(f"Kaution ({v.kaution} €) noch nicht als zurückgezahlt markiert.")
     return {"aktionen": aktionen, "hinweise": hinweise}
 
 
@@ -89,10 +88,15 @@ def _ausgeben(v, username):
     return True
 
 
-def _rueckgabe(v, zustand):
+def _rueckgabe(v, zustand, kaution_einbehalten=False):
+    """Bucht die Rückgabe; der Zustand wird auch am Gegenstand selbst hinterlegt, damit er in der Inventar-
+    Übersicht sofort als z. B. defekt erscheint. `kaution_einbehalten` ist eine bewusste Entscheidung beim
+    Zurücknehmen (unabhängig vom Zustand) - nicht automatisch aus "defekt" abgeleitet."""
     if v.status != "ausgegeben" or zustand not in dict(Gegenstand.ZUSTAND):
         return False
     v.status, v.zurueckgegeben_am, v.zustand_bei_rueckgabe = "zurueckgegeben", timezone.now(), zustand
+    if v.kaution and kaution_einbehalten:
+        v.kaution_einbehalten = True
     v.save()
     if v.gegenstand.zustand != zustand:
         v.gegenstand.zustand = zustand
@@ -100,24 +104,47 @@ def _rueckgabe(v, zustand):
     return True
 
 
-def _leihgebuehr_rechnung(verein, positionen):
-    """Erzeugt für die übergebenen, bereits zurückgenommenen Verleih-Datensätze mit Leihgebühr > 0 eine gemeinsame
-    Rechnung an den Entleiher (alle müssen zum selben Entleiher gehören, wie bei einem Vorgang der Fall)."""
-    zu_berechnen = [v for v in positionen if v.leihgebuehr and not v.rechnung_id]
-    if not zu_berechnen:
+def _bestehende_rechnung(verein, vorgang):
+    if not vorgang:
         return None
-    v0 = zu_berechnen[0]
-    zeilen = [(f"Leihgebühr: {v.gegenstand.bezeichnung} ({v.von:%d.%m.%Y} – {v.bis:%d.%m.%Y})", 1, v.leihgebuehr)
-             for v in zu_berechnen]
-    if v0.entleiher_id:
-        r = finance_services.rechnung_erstellen(verein, zeilen, mitglied=v0.entleiher)
+    v = Verleih.objects.filter(verein=verein, vorgang=vorgang, rechnung__isnull=False).select_related(
+        "rechnung").first()
+    return v.rechnung if v else None
+
+
+def _rechnung_fuer_rueckgabe(verein, positionen):
+    """Erzeugt/ergänzt eine Rechnung an den Entleiher für Leihgebühren und - falls beim Zurücknehmen so gewählt -
+    einbehaltene Kautionen. Gehören die Verleih-Datensätze zu einem Vorgang, landet der gesamte Vorgang (auch über
+    mehrere Rückgabe-Schritte hinweg) auf einer gemeinsamen Rechnung statt auf mehreren einzelnen."""
+    kandidaten = []
+    for v in positionen:
+        if v.rechnung_id:
+            continue
+        zeilen = []
+        if v.leihgebuehr:
+            zeilen.append((f"Leihgebühr: {v.gegenstand.bezeichnung} ({v.von:%d.%m.%Y} – {v.bis:%d.%m.%Y})", 1,
+                           v.leihgebuehr))
+        if v.kaution_einbehalten and v.kaution:
+            zeilen.append((f"Einbehaltene Kaution: {v.gegenstand.bezeichnung}", 1, v.kaution))
+        if zeilen:
+            kandidaten.append((v, zeilen))
+    if not kandidaten:
+        return None
+    v0 = kandidaten[0][0]
+    alle_zeilen = [z for _, zeilen in kandidaten for z in zeilen]
+    rechnung = _bestehende_rechnung(verein, v0.vorgang)
+    if rechnung is None:
+        if v0.entleiher_id:
+            rechnung = finance_services.rechnung_erstellen(verein, alle_zeilen, mitglied=v0.entleiher)
+        else:
+            rechnung = finance_services.rechnung_erstellen(verein, alle_zeilen, empfaenger_name=v0.entleiher_name,
+                                                           empfaenger_anschrift=v0.entleiher_kontakt)
     else:
-        r = finance_services.rechnung_erstellen(verein, zeilen, empfaenger_name=v0.entleiher_name,
-                                                empfaenger_anschrift=v0.entleiher_kontakt)
-    for v in zu_berechnen:
-        v.rechnung = r
+        finance_services.rechnung_positionen_hinzufuegen(rechnung, alle_zeilen)
+    for v, _ in kandidaten:
+        v.rechnung = rechnung
         v.save(update_fields=["rechnung", "geaendert"])
-    return r
+    return rechnung
 
 
 @login_required
@@ -134,30 +161,35 @@ def verleih_ausgeben(request, pk):
 
 
 @login_required
-@require_POST
 def verleih_rueckgabe(request, pk):
     v = _verleih(request, pk)
-    zustand = request.POST.get("zustand", "")
     if v.status != "ausgegeben":
         messages.error(request, "Nur ausgegebene Gegenstände können zurückgenommen werden.")
-    elif zustand not in dict(Gegenstand.ZUSTAND):
-        messages.error(request, "Ungültiger Zustand.")
-    elif _rueckgabe(v, zustand):
-        rechnung = _leihgebuehr_rechnung(request.verein, [v])
-        text = "Rückgabe gebucht."
-        if rechnung:
-            text += f" Rechnung {rechnung.nummer} über die Leihgebühr erstellt."
-        if v.kaution:
-            text += " Bitte Kaution zurückzahlen."
-        messages.success(request, text)
-    return redirect("verleih_detail", pk=v.pk)
+        return redirect("verleih_detail", pk=v.pk)
+    if request.method == "POST":
+        zustand = request.POST.get(f"zustand_{v.pk}", "")
+        kaution_einbehalten = request.POST.get(f"kaution_{v.pk}") == "einbehalten"
+        if zustand not in dict(Gegenstand.ZUSTAND):
+            messages.error(request, "Ungültiger Zustand.")
+        elif _rueckgabe(v, zustand, kaution_einbehalten):
+            rechnung = _rechnung_fuer_rueckgabe(request.verein, [v])
+            text = "Rückgabe gebucht."
+            if rechnung:
+                text += f" Rechnung {rechnung.nummer} erstellt/ergänzt."
+            if v.kaution and not v.kaution_einbehalten:
+                text += " Bitte Kaution zurückzahlen."
+            messages.success(request, text)
+        return redirect("verleih_detail", pk=v.pk)
+    return render(request, "inventory/rueckgabe.html", {
+        "titel": f"Rückgabe – {v.gegenstand}", "positionen": [v], "zustand_choices": Gegenstand.ZUSTAND,
+        "abbrechen_url": reverse("verleih_detail", args=[pk])})
 
 
 @login_required
 @require_POST
 def verleih_kaution_zurueckgezahlt(request, pk):
     v = _verleih(request, pk)
-    if v.status == "zurueckgegeben" and v.kaution and not v.kaution_zurueckgezahlt:
+    if v.status == "zurueckgegeben" and v.kaution and not v.kaution_zurueckgezahlt and not v.kaution_einbehalten:
         v.kaution_zurueckgezahlt = True
         v.save(update_fields=["kaution_zurueckgezahlt", "geaendert"])
         messages.success(request, "Kaution als zurückgezahlt markiert.")
@@ -232,9 +264,10 @@ def verleih_vorgang_detail(request, vorgang):
             aktionen.append(knopf("Alle ausgeben", reverse("verleih_vorgang_ausgeben", args=[vorgang]), post=True,
                                   stil="success"))
         if any(p.status == "ausgegeben" for p in positionen):
-            aktionen.append(knopf("Alle zurückgeben – in Ordnung", reverse("verleih_vorgang_rueckgabe", args=[vorgang]),
-                                  post=True, stil="success"))
-        if any(p.status == "zurueckgegeben" and p.kaution and not p.kaution_zurueckgezahlt for p in positionen):
+            aktionen.append(knopf("Rückgabe erfassen", reverse("verleih_vorgang_rueckgabe", args=[vorgang]),
+                                  stil="success"))
+        if any(p.status == "zurueckgegeben" and p.kaution and not p.kaution_zurueckgezahlt and not p.kaution_einbehalten
+              for p in positionen):
             aktionen.append(knopf("Alle Kautionen zurückgezahlt", reverse("verleih_vorgang_kaution_zurueckgezahlt",
                                   args=[vorgang]), post=True, stil="success"))
     aktionen.append(knopf("Leihschein (PDF, alle Positionen)", reverse("verleih_vorgang_leihschein", args=[vorgang])))
@@ -256,19 +289,31 @@ def verleih_vorgang_ausgeben(request, vorgang):
 
 
 @login_required
-@require_POST
 def verleih_vorgang_rueckgabe(request, vorgang):
     _pruefen(request, "verleih", "change")
     positionen = _vorgang_positionen(request, vorgang)
-    zurueckgenommen = [v for v in positionen if _rueckgabe(v, v.gegenstand.zustand)]
-    text = f"{len(zurueckgenommen)} von {len(positionen)} Gegenständen zurückgenommen."
-    rechnung = _leihgebuehr_rechnung(request.verein, zurueckgenommen)
-    if rechnung:
-        text += f" Rechnung {rechnung.nummer} über die Leihgebühren erstellt."
-    if any(v.kaution for v in positionen):
-        text += " Bitte Kautionen prüfen/zurückzahlen."
-    messages.success(request, text)
-    return redirect("verleih_vorgang_detail", vorgang=vorgang)
+    offene = [p for p in positionen if p.status == "ausgegeben"]
+    if not offene:
+        messages.error(request, "Keine ausgegebenen Gegenstände in diesem Vorgang.")
+        return redirect("verleih_vorgang_detail", vorgang=vorgang)
+    if request.method == "POST":
+        zurueckgenommen = []
+        for v in offene:
+            zustand = request.POST.get(f"zustand_{v.pk}", "")
+            kaution_einbehalten = request.POST.get(f"kaution_{v.pk}") == "einbehalten"
+            if _rueckgabe(v, zustand, kaution_einbehalten):
+                zurueckgenommen.append(v)
+        text = f"{len(zurueckgenommen)} von {len(offene)} Gegenständen zurückgenommen."
+        rechnung = _rechnung_fuer_rueckgabe(request.verein, zurueckgenommen)
+        if rechnung:
+            text += f" Rechnung {rechnung.nummer} erstellt/ergänzt."
+        if any(v.kaution and not v.kaution_einbehalten for v in zurueckgenommen):
+            text += " Bitte Kautionen prüfen/zurückzahlen."
+        messages.success(request, text)
+        return redirect("verleih_vorgang_detail", vorgang=vorgang)
+    return render(request, "inventory/rueckgabe.html", {
+        "titel": "Rückgabe erfassen", "positionen": offene, "zustand_choices": Gegenstand.ZUSTAND,
+        "abbrechen_url": reverse("verleih_vorgang_detail", args=[vorgang])})
 
 
 @login_required
