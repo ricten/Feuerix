@@ -1,18 +1,20 @@
+import uuid
 from datetime import date
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from apps.core.crud import abschnitt, knopf
 
+from .forms import SammelverleihForm
 from .models import Gegenstand, Inventur, Inventurposition, Verleih
-from .pdf import etiketten_pdf, leihschein_pdf
+from .pdf import etiketten_pdf, leihschein_pdf, leihschein_sammel_pdf
 
 
 def _pruefen(request, modul, aktion):
@@ -44,6 +46,8 @@ def gegenstand_kontext(request, g):
 # ---------------------------------------------------------------- Verleih
 def verleih_kontext(request, v):
     rt, aktionen = request.rechte, [knopf("Leihschein (PDF)", reverse("verleih_leihschein", args=[v.pk]))]
+    if v.vorgang:
+        aktionen.append(knopf("Zum gesamten Vorgang", reverse("verleih_vorgang_detail", args=[v.vorgang])))
     if rt.darf("verleih", "change"):
         if v.status == "reserviert":
             aktionen.append(knopf("Ausgeben", reverse("verleih_ausgeben", args=[v.pk]), post=True, stil="success"))
@@ -68,6 +72,28 @@ def _verleih(request, pk):
     return get_object_or_404(Verleih, pk=pk, verein=request.verein)
 
 
+def _ausgeben(v, username):
+    """-> True wenn ausgegeben, False wenn nicht möglich (falscher Status oder Gegenstand defekt/ausgesondert)."""
+    if v.status != "reserviert" or v.gegenstand.zustand in ("defekt", "ausgesondert"):
+        return False
+    v.status, v.ausgegeben_am = "ausgegeben", timezone.now()
+    v.ausgegeben_von = username
+    v.zustand_bei_ausgabe = v.gegenstand.zustand
+    v.save()
+    return True
+
+
+def _rueckgabe(v, zustand):
+    if v.status != "ausgegeben" or zustand not in dict(Gegenstand.ZUSTAND):
+        return False
+    v.status, v.zurueckgegeben_am, v.zustand_bei_rueckgabe = "zurueckgegeben", timezone.now(), zustand
+    v.save()
+    if v.gegenstand.zustand != zustand:
+        v.gegenstand.zustand = zustand
+        v.gegenstand.save()
+    return True
+
+
 @login_required
 @require_POST
 def verleih_ausgeben(request, pk):
@@ -76,11 +102,7 @@ def verleih_ausgeben(request, pk):
         messages.error(request, "Nur Reservierungen können ausgegeben werden.")
     elif v.gegenstand.zustand in ("defekt", "ausgesondert"):
         messages.error(request, "Gegenstand ist defekt bzw. ausgesondert.")
-    else:
-        v.status, v.ausgegeben_am = "ausgegeben", timezone.now()
-        v.ausgegeben_von = request.user.get_username()
-        v.zustand_bei_ausgabe = v.gegenstand.zustand
-        v.save()
+    elif _ausgeben(v, request.user.get_username()):
         messages.success(request, "Ausgegeben.")
     return redirect("verleih_detail", pk=v.pk)
 
@@ -94,12 +116,7 @@ def verleih_rueckgabe(request, pk):
         messages.error(request, "Nur ausgegebene Gegenstände können zurückgenommen werden.")
     elif zustand not in dict(Gegenstand.ZUSTAND):
         messages.error(request, "Ungültiger Zustand.")
-    else:
-        v.status, v.zurueckgegeben_am, v.zustand_bei_rueckgabe = "zurueckgegeben", timezone.now(), zustand
-        v.save()
-        if v.gegenstand.zustand != zustand:
-            v.gegenstand.zustand = zustand
-            v.gegenstand.save()
+    elif _rueckgabe(v, zustand):
         messages.success(request, "Rückgabe gebucht." + (" Bitte Kaution zurückzahlen." if v.kaution else ""))
     return redirect("verleih_detail", pk=v.pk)
 
@@ -120,6 +137,90 @@ def verleih_leihschein(request, pk):
     v = get_object_or_404(Verleih, pk=pk, verein=request.verein)
     r = HttpResponse(leihschein_pdf(v), content_type="application/pdf")
     r["Content-Disposition"] = f'inline; filename="leihschein-{v.pk}.pdf"'
+    return r
+
+
+# ---------------------------------------------------------------- Verleih-Vorgang (mehrere Gegenstände auf einmal)
+def _vorgang_positionen(request, vorgang):
+    positionen = list(Verleih.objects.filter(verein=request.verein, vorgang=vorgang)
+                      .select_related("gegenstand", "entleiher").order_by("gegenstand__bezeichnung"))
+    if not positionen:
+        raise Http404
+    return positionen
+
+
+@login_required
+def verleih_sammel_add(request):
+    _pruefen(request, "verleih", "add")
+    if request.method == "POST":
+        form = SammelverleihForm(request.POST, verein=request.verein)
+        if form.is_valid():
+            vorgang = uuid.uuid4()
+            angelegt, fehler = 0, []
+            for g in form.cleaned_data.pop("gegenstaende"):
+                v = Verleih(verein=request.verein, vorgang=vorgang, gegenstand=g, **form.cleaned_data)
+                try:
+                    v.full_clean()
+                    v.save()
+                    angelegt += 1
+                except Exception as e:
+                    fehler.append(f"{g}: {'; '.join(getattr(e, 'messages', [str(e)]))}")
+            if angelegt:
+                messages.success(request, f"{angelegt} Gegenstände als Vorgang angelegt.")
+            for f in fehler:
+                messages.warning(request, f)
+            if angelegt:
+                return redirect("verleih_vorgang_detail", vorgang=vorgang)
+    else:
+        form = SammelverleihForm(verein=request.verein)
+    return render(request, "core/formular.html", {"form": form, "titel": "Mehrere Gegenstände verleihen",
+                                                  "abbrechen_url": reverse("verleih_list")})
+
+
+@login_required
+def verleih_vorgang_detail(request, vorgang):
+    _pruefen(request, "verleih", "view")
+    positionen = _vorgang_positionen(request, vorgang)
+    rt, aktionen = request.rechte, []
+    if rt.darf("verleih", "change"):
+        if any(p.status == "reserviert" for p in positionen):
+            aktionen.append(knopf("Alle ausgeben", reverse("verleih_vorgang_ausgeben", args=[vorgang]), post=True,
+                                  stil="success"))
+        if any(p.status == "ausgegeben" for p in positionen):
+            aktionen.append(knopf("Alle zurückgeben – in Ordnung", reverse("verleih_vorgang_rueckgabe", args=[vorgang]),
+                                  post=True, stil="success"))
+    aktionen.append(knopf("Leihschein (PDF, alle Positionen)", reverse("verleih_vorgang_leihschein", args=[vorgang])))
+    return render(request, "inventory/vorgang.html", {
+        "titel": f"Verleih-Vorgang – {positionen[0].wer}", "positionen": positionen, "aktionen": aktionen})
+
+
+@login_required
+@require_POST
+def verleih_vorgang_ausgeben(request, vorgang):
+    _pruefen(request, "verleih", "change")
+    positionen = _vorgang_positionen(request, vorgang)
+    n = sum(_ausgeben(v, request.user.get_username()) for v in positionen)
+    messages.success(request, f"{n} von {len(positionen)} Gegenständen ausgegeben.")
+    return redirect("verleih_vorgang_detail", vorgang=vorgang)
+
+
+@login_required
+@require_POST
+def verleih_vorgang_rueckgabe(request, vorgang):
+    _pruefen(request, "verleih", "change")
+    positionen = _vorgang_positionen(request, vorgang)
+    n = sum(_rueckgabe(v, v.gegenstand.zustand) for v in positionen)
+    messages.success(request, f"{n} von {len(positionen)} Gegenständen zurückgenommen."
+                             + (" Bitte Kautionen prüfen/zurückzahlen." if any(v.kaution for v in positionen) else ""))
+    return redirect("verleih_vorgang_detail", vorgang=vorgang)
+
+
+@login_required
+def verleih_vorgang_leihschein(request, vorgang):
+    _pruefen(request, "verleih", "view")
+    positionen = _vorgang_positionen(request, vorgang)
+    r = HttpResponse(leihschein_sammel_pdf(positionen), content_type="application/pdf")
+    r["Content-Disposition"] = f'inline; filename="leihschein-{vorgang}.pdf"'
     return r
 
 

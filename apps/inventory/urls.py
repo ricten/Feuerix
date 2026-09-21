@@ -18,6 +18,12 @@ urlpatterns = [
     path("inventar/etiketten/", views.gegenstand_etiketten, name="gegenstand_etiketten"),
     path("inventar/<int:pk>/etikett/", views.gegenstand_etikett, name="gegenstand_etikett"),
     path("inventar/scan/<str:inventarnummer>/", views.gegenstand_scan, name="gegenstand_scan"),
+    path("verleih/mehrere/", views.verleih_sammel_add, name="verleih_sammel_add"),
+    path("verleih/vorgang/<uuid:vorgang>/", views.verleih_vorgang_detail, name="verleih_vorgang_detail"),
+    path("verleih/vorgang/<uuid:vorgang>/ausgeben/", views.verleih_vorgang_ausgeben, name="verleih_vorgang_ausgeben"),
+    path("verleih/vorgang/<uuid:vorgang>/rueckgabe/", views.verleih_vorgang_rueckgabe, name="verleih_vorgang_rueckgabe"),
+    path("verleih/vorgang/<uuid:vorgang>/leihschein/", views.verleih_vorgang_leihschein,
+        name="verleih_vorgang_leihschein"),
 ]
 
 
@@ -28,6 +34,14 @@ def gegenstand_listen_aktionen(request):
         a.append(knopf("Import (Excel/CSV)", reverse("gegenstand_import"), stil="outline-primary"))
     if request.rechte.darf("inventar", "view"):
         a.append(knopf("Etiketten drucken (alle)", reverse("gegenstand_etiketten")))
+    return a
+
+
+def verleih_listen_aktionen(request):
+    from django.urls import reverse
+    a = []
+    if request.rechte.darf("verleih", "add"):
+        a.append(knopf("Mehrere Gegenstände verleihen", reverse("verleih_sammel_add"), stil="outline-primary"))
     return a
 
 
@@ -44,6 +58,6 @@ urlpatterns += crud("verleih", Verleih, "verleih", form=VerleihForm, list_displa
                     suche=("gegenstand__bezeichnung", "gegenstand__inventarnummer", "entleiher_name",
                            "entleiher__nachname"), ordering=("-von",),
                     bearbeitbar=lambda v: v.status in ("reserviert", "ausgegeben"),
-                    loeschbar=lambda v: v.status in ("reserviert", "storniert"))
+                    loeschbar=lambda v: v.status in ("reserviert", "storniert"), listen_aktionen=verleih_listen_aktionen)
 urlpatterns += crud("inventuren", Inventur, "inventur", list_display=("name", "jahr", "status", "abgeschlossen_am"),
                     kontext=views.inventur_kontext, bearbeitbar=lambda i: i.status == "laufend", delete=False)

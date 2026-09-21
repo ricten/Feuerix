@@ -1,3 +1,4 @@
+import uuid
 from datetime import date
 
 from django.core.exceptions import ValidationError
@@ -94,6 +95,8 @@ class Verleih(TenantModel):
               ("storniert", "Storniert")]
     gegenstand = models.ForeignKey(Gegenstand, on_delete=models.PROTECT, related_name="verleihe",
                                    verbose_name="Gegenstand")
+    vorgang = models.UUIDField("Vorgang", null=True, blank=True, editable=False,
+                              help_text="Gruppiert mehrere gleichzeitig an denselben Entleiher verliehene Gegenstände.")
     entleiher = models.ForeignKey("members.Mitglied", on_delete=models.PROTECT, null=True, blank=True,
                                   related_name="+", verbose_name="Entleiher (Mitglied)")
     entleiher_name = models.CharField("Entleiher (extern)", max_length=150, blank=True)

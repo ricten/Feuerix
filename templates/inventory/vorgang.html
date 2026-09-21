@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <div><a href="{% url 'verleih_list' %}" class="text-decoration-none small">‹ Verleih</a><h3 class="mb-0">{{ titel }}</h3></div>
+  <div class="d-flex gap-2 flex-wrap">{% include "core/_buttons.html" with buttons=aktionen %}</div>
+</div>
+<div class="card shadow-sm mb-3">
+  <div class="table-responsive"><table class="table table-sm table-hover mb-0 tabelle">
+    <thead class="table-light"><tr><th>Gegenstand</th><th>Inventarnr.</th><th>Von</th><th>Bis</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for p in positionen %}
+      <tr>
+        <td>{{ p.gegenstand.bezeichnung }}</td>
+        <td>{{ p.gegenstand.inventarnummer }}</td>
+        <td>{{ p.von|date:"d.m.Y" }}</td>
+        <td>{{ p.bis|date:"d.m.Y" }}</td>
+        <td>{{ p.get_status_display }}</td>
+        <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{% url 'verleih_detail' p.pk %}">Details</a></td>
+      </tr>
+    {% endfor %}
+    </tbody></table></div>
+</div>
+{% endblock %}

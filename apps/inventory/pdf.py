@@ -1,3 +1,4 @@
+from decimal import Decimal
 from io import BytesIO
 
 from reportlab.graphics import renderPDF
@@ -81,3 +82,32 @@ def leihschein_pdf(v):
         text.append(f"Kaution: {geld(v.kaution)} (wird bei ordnungsgemäßer Rückgabe erstattet)")
     text += ["\n\nDatum, Unterschrift Entleiher: ______________________     Unterschrift Verein: ______________________"]
     return brief_pdf(verein, emp, "Leihschein", meta=[("Datum", f"{v.von:%d.%m.%Y}")], tabelle=tab, nach=text)
+
+
+def leihschein_sammel_pdf(positionen):
+    """Ein gemeinsamer Leihschein für mehrere gleichzeitig verliehene Gegenstände (Verleih-Vorgang)."""
+    v0, verein = positionen[0], positionen[0].verein
+    emp = [v0.wer]
+    if v0.entleiher_id:
+        emp = v0.entleiher.anschrift_zeilen()
+    elif v0.entleiher_kontakt:
+        emp.append(v0.entleiher_kontakt)
+    tab = [["Gegenstand", "Inventarnr.", "Zeitraum"]]
+    gebuehr_gesamt = kaution_gesamt = Decimal("0")
+    for v in positionen:
+        g = v.gegenstand
+        tab.append([f"{g.bezeichnung} {g.hersteller} {g.modell}".strip(), g.inventarnummer,
+                   f"{v.von:%d.%m.%Y} – {v.bis:%d.%m.%Y}"])
+        gebuehr_gesamt += v.leihgebuehr or 0
+        kaution_gesamt += v.kaution or 0
+    text = [f"Die oben genannten Gegenstände werden von {verein.name} an {v0.wer} ausgeliehen. "
+            "Der Entleiher verpflichtet sich, die Gegenstände pfleglich zu behandeln und bis zum genannten Termin "
+            "vollständig und in ordnungsgemäßem Zustand zurückzugeben. Für Verlust und Beschädigung haftet der Entleiher."]
+    if v0.zweck:
+        text.append(f"Zweck: {v0.zweck}")
+    if gebuehr_gesamt:
+        text.append(f"Leihgebühr gesamt: {geld(gebuehr_gesamt)}")
+    if kaution_gesamt:
+        text.append(f"Kaution gesamt: {geld(kaution_gesamt)} (wird bei ordnungsgemäßer Rückgabe erstattet)")
+    text += ["\n\nDatum, Unterschrift Entleiher: ______________________     Unterschrift Verein: ______________________"]
+    return brief_pdf(verein, emp, "Leihschein", meta=[("Datum", f"{v0.von:%d.%m.%Y}")], tabelle=tab, nach=text)

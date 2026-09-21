@@ -7,6 +7,27 @@ from .models import Rolle, Verein, Zugang
 from .rechte import AKTIONEN, MODULE
 
 
+def stilisieren_felder(fields):
+    """Bootstrap-Klassen und <input type=date/datetime-local> für Formularfelder - auch für einfache forms.Form
+    nutzbar (nicht nur ModelForm), z. B. bei mehreren Modellen in einem Formular."""
+    for f in fields.values():
+        w = f.widget
+        if isinstance(f, forms.DateTimeField) and w.attrs.get("type") != "datetime-local":
+            f.widget = w = forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M")
+            f.input_formats = ["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%d.%m.%Y %H:%M"]
+        elif isinstance(f, forms.DateField) and w.attrs.get("type") != "date":
+            f.widget = w = forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d")
+            f.input_formats = ["%Y-%m-%d", "%d.%m.%Y"]
+        if isinstance(w, (forms.CheckboxInput, forms.CheckboxSelectMultiple, forms.RadioSelect)):
+            css = "form-check-input"
+        elif isinstance(w, forms.Select):
+            css = "form-select"
+        else:
+            css = "form-control"
+        if css not in w.attrs.get("class", ""):
+            w.attrs["class"] = (w.attrs.get("class", "") + " " + css).strip()
+
+
 class TenantModelForm(forms.ModelForm):
     """Basisformular: Bootstrap-Klassen, Datumsfelder, Auswahllisten nur aus dem aktiven Verein."""
     aenderungsgrund = forms.CharField(label="Grund der Änderung (für das Protokoll)", required=False, max_length=200)
@@ -25,22 +46,7 @@ class TenantModelForm(forms.ModelForm):
         self.stilisieren()
 
     def stilisieren(self):
-        for f in self.fields.values():
-            w = f.widget
-            if isinstance(f, forms.DateTimeField) and w.attrs.get("type") != "datetime-local":
-                f.widget = w = forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M")
-                f.input_formats = ["%Y-%m-%dT%H:%M", "%Y-%m-%d %H:%M:%S", "%d.%m.%Y %H:%M"]
-            elif isinstance(f, forms.DateField) and w.attrs.get("type") != "date":
-                f.widget = w = forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d")
-                f.input_formats = ["%Y-%m-%d", "%d.%m.%Y"]
-            if isinstance(w, (forms.CheckboxInput, forms.CheckboxSelectMultiple, forms.RadioSelect)):
-                css = "form-check-input"
-            elif isinstance(w, forms.Select):
-                css = "form-select"
-            else:
-                css = "form-control"
-            if css not in w.attrs.get("class", ""):
-                w.attrs["class"] = (w.attrs.get("class", "") + " " + css).strip()
+        stilisieren_felder(self.fields)
 
     def _get_validation_exclusions(self):
         # damit unique_together (verein, ...) trotz ausgeblendetem Vereinsfeld geprueft wird
