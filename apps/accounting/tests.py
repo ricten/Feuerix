@@ -50,3 +50,14 @@ class KassenberichtTests(TestCase):
         z2 = uebernehmen(self.v, date(2026, 1, 1), date(2026, 12, 31))
         self.assertEqual((z1["zahlung"], z2["zahlung"]), (1, 0))
         self.assertEqual(Buchung.objects.filter(verein=self.v, quelle="zahlung").count(), 1)
+
+    def test_uebernahme_bucht_rueckzahlung_als_ausgabe(self):
+        from apps.finance.models import Rechnung, Zahlung
+        from apps.accounting.services import uebernehmen
+        s = Rechnung.objects.create(verein=self.v, typ="storno", status="verbucht", empfaenger_name="Max",
+                                    datum=date(2026, 3, 1))
+        Zahlung.objects.create(verein=self.v, rechnung=s, betrag=Decimal("60"), art="rueckzahlung",
+                               datum=date(2026, 3, 5))
+        uebernehmen(self.v, date(2026, 1, 1), date(2026, 12, 31))
+        b = Buchung.objects.get(verein=self.v, quelle="zahlung")
+        self.assertEqual((b.typ, b.betrag, b.kategorie.name), ("ausgabe", Decimal("60"), "Erstattungen / Rückzahlungen"))

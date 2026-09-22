@@ -15,7 +15,8 @@ STANDARD_KATEGORIEN = [  # (Name, Art, Sphäre, Sortierung)
     ("Verwaltung, Porto, Büro", "ausgabe", "ideell", 30), ("Versicherungen", "ausgabe", "ideell", 40),
     ("Beiträge an Verbände", "ausgabe", "ideell", 50), ("Anschaffungen / Ausstattung", "ausgabe", "ideell", 60),
     ("Raum- und Nebenkosten", "ausgabe", "ideell", 70), ("Bankgebühren", "ausgabe", "ideell", 80),
-    ("Rücklastschriften / Beitragskorrekturen", "ausgabe", "ideell", 85), ("Sonstige Ausgaben", "ausgabe", "ideell", 90),
+    ("Rücklastschriften / Beitragskorrekturen", "ausgabe", "ideell", 85),
+    ("Erstattungen / Rückzahlungen", "ausgabe", "ideell", 87), ("Sonstige Ausgaben", "ausgabe", "ideell", 90),
 ]
 
 
@@ -141,7 +142,10 @@ def uebernehmen(verein, von, bis):
     for z in Zahlung.objects.filter(verein=verein, datum__gte=von, datum__lte=bis).select_related("rechnung"):
         konto = bar if z.art == "bar" else bank
         wer = z.rechnung.empfaenger_name or ""
-        if z.ruecklastschrift:
+        if z.art == "rueckzahlung":
+            buche("zahlung", z.pk, z.datum, "ausgabe", abs(z.betrag), konto,
+                  _kat(verein, "Erstattungen / Rückzahlungen", "ausgabe"), f"Rückzahlung {z.rechnung.nummer} {wer}")
+        elif z.ruecklastschrift:
             buche("zahlung", z.pk, z.datum, "ausgabe", z.betrag, konto, _kat(verein, "Rücklastschriften / Beitragskorrekturen", "ausgabe"),
                   f"Rücklastschrift {z.rechnung.nummer} {wer}")
         else:

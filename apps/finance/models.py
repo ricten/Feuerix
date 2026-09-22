@@ -125,6 +125,22 @@ class Rechnung(TenantModel):
     def ueberfaellig(self):
         return self.status in ("offen", "teilbezahlt") and self.faellig_am and self.faellig_am < date.today()
 
+    @property
+    def rueckzahlung_noetig(self):
+        """Storno/Gutschrift auf eine bereits bezahlte Rechnung: der (negative) Betrag muss an den ursprünglichen
+        Zahler zurückerstattet werden."""
+        return self.typ in ("storno", "gutschrift") and self.betrag < 0
+
+    @property
+    def rueckzahlung_bereits_gebucht(self):
+        if not self.pk:
+            return Decimal("0")
+        return self.zahlungen.filter(art="rueckzahlung").aggregate(s=Sum("betrag"))["s"] or Decimal("0")
+
+    @property
+    def rueckzahlung_offen(self):
+        return -self.betrag - self.rueckzahlung_bereits_gebucht
+
     def neu_berechnen(self):
         s = self.positionen.aggregate(s=Sum(F("menge") * F("einzelpreis"),
                                             output_field=DecimalField(max_digits=12, decimal_places=2)))["s"]
@@ -201,7 +217,7 @@ class Bankumsatz(TenantModel):
 
 class Zahlung(TenantModel):
     ART = [("ueberweisung", "Überweisung"), ("lastschrift", "SEPA-Lastschrift"), ("bar", "Bar"),
-           ("sonstige", "Sonstige")]
+           ("rueckzahlung", "Rückzahlung"), ("sonstige", "Sonstige")]
     rechnung = models.ForeignKey(Rechnung, on_delete=models.PROTECT, related_name="zahlungen", verbose_name="Rechnung")
     datum = models.DateField("Zahlungsdatum", default=date.today)
     betrag = models.DecimalField("Betrag (€)", max_digits=10, decimal_places=2)
@@ -221,9 +237,15 @@ class Zahlung(TenantModel):
         return f"{'−' if self.ruecklastschrift else ''}{self.betrag} € auf {self.rechnung}"
 
     def clean(self):
-        if self.rechnung_id and self.rechnung.status in ("entwurf", "storniert", "verbucht"):
+        if not self.rechnung_id:
+            return
+        r = self.rechnung
+        # Rückzahlungen auf eine Storno-/Gutschrift-Rechnung sind der einzige Fall, in dem eine "verbuchte"
+        # Rechnung noch eine Zahlung erhalten darf - sie gleicht den einbehaltenen/erstatteten Betrag aus.
+        ist_rueckzahlung = self.art == "rueckzahlung" and r.typ in ("storno", "gutschrift")
+        if r.status == "entwurf" or (r.status in ("storniert", "verbucht") and not ist_rueckzahlung):
             raise ValidationError("Auf diese Rechnung kann keine Zahlung gebucht werden (Status: "
-                                  f"{self.rechnung.get_status_display()}).")
+                                  f"{r.get_status_display()}).")
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

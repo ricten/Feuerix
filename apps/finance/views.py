@@ -46,9 +46,15 @@ def rechnung_kontext(request, r):
         if r.status in ("offen", "teilbezahlt"):
             aktionen.append(knopf("Mahnung erzeugen", reverse("rechnung_mahnung", args=[r.pk]), post=True,
                                   stil="outline-warning"))
-    if rt.darf("zahlungen", "add") and r.status in ("offen", "teilbezahlt"):
-        aktionen.append(knopf("Zahlung erfassen", reverse("zahlung_add") + f"?rechnung={r.pk}&betrag={r.offen_betrag}"
-                              f"&next={reverse('rechnung_detail', args=[r.pk])}", stil="outline-primary"))
+    if rt.darf("zahlungen", "add"):
+        if r.status in ("offen", "teilbezahlt"):
+            aktionen.append(knopf("Zahlung erfassen", reverse("zahlung_add") +
+                                  f"?rechnung={r.pk}&betrag={r.offen_betrag}"
+                                  f"&next={reverse('rechnung_detail', args=[r.pk])}", stil="outline-primary"))
+        elif r.rueckzahlung_noetig and r.rueckzahlung_offen > 0:
+            aktionen.append(knopf("Rückzahlung buchen", reverse("zahlung_add") +
+                                  f"?rechnung={r.pk}&art=rueckzahlung&betrag={r.rueckzahlung_offen}"
+                                  f"&next={reverse('rechnung_detail', args=[r.pk])}", stil="outline-primary"))
     abschnitte = [
         abschnitt(request, "Positionen", r.positionen.all(), ("text", "menge", "einzelpreis", ("betrag", "Betrag")),
                   "rechnungsposition_add" if r.status == "entwurf" else None, {"rechnung": r.pk}),
@@ -59,6 +65,8 @@ def rechnung_kontext(request, r):
     hinweise = [f"Offener Betrag: {geld(r.offen_betrag)}"] if r.status in ("offen", "teilbezahlt") else []
     if r.ueberfaellig:
         hinweise.append("Die Rechnung ist überfällig.")
+    if r.rueckzahlung_noetig and r.rueckzahlung_offen > 0:
+        hinweise.append(f"Rückzahlung an den Zahler noch offen: {geld(r.rueckzahlung_offen)}.")
     return {"aktionen": aktionen, "abschnitte": abschnitte, "hinweise": hinweise}
 
 
@@ -93,8 +101,11 @@ def rechnung_storno(request, pk):
     r = _rechnung(request, pk)
     try:
         s = services.storniere(r)
-        messages.success(request, f"Storniert. Stornorechnung {s.nummer} erstellt."
-                         + (" Es liegen bereits Zahlungen vor – bitte Erstattung prüfen." if r.zahlungen.exists() else ""))
+        text = f"Storniert. Stornorechnung {s.nummer} erstellt."
+        if s.rueckzahlung_noetig and s.rueckzahlung_offen > 0:
+            text += (f" Es wurden bereits {geld(s.rueckzahlung_offen)} gezahlt – bitte über \"Rückzahlung buchen\" "
+                    "auf der Stornorechnung erstatten.")
+        messages.success(request, text)
     except ValueError as e:
         messages.error(request, str(e))
     return redirect("rechnung_detail", pk=r.pk)
