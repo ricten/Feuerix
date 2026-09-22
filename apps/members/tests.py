@@ -158,3 +158,73 @@ class VerwaltungszugangTests(TestCase):
         self.assertRedirects(r, reverse("mitglied_detail", args=[m2.pk]))
         m2.refresh_from_db()
         self.assertIsNone(m2.benutzer_id)
+
+
+class AnonymisierungTests(TestCase):
+    """DSGVO-Anonymisierung: personenbezogene Daten muessen auch bei einem verknuepften OpenSlides-Konto
+    tatsaechlich geloescht werden, nicht nur lokal - das Konto darf nicht mit echtem Namen aktiv/sichtbar bleiben."""
+
+    def setUp(self):
+        User = get_user_model()
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.admin = User.objects.create_user("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin, rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Muster", mitgliedsnummer=7,
+                                         email="erika@example.org", iban="DE89370400440532013000", status="aktiv")
+        self.client.login(username="admin", password="pw-Test-12345")
+
+    def test_anonymisieren_ohne_openslides_konto(self):
+        r = self.client.post(reverse("mitglied_anonymisieren", args=[self.m.pk]))
+        self.assertRedirects(r, reverse("mitglied_detail", args=[self.m.pk]))
+        self.m.refresh_from_db()
+        self.assertEqual((self.m.vorname, self.m.nachname), ("Anonymisiert", "#7"))
+        self.assertEqual((self.m.email, self.m.iban, self.m.status), ("", "", "ausgetreten"))
+
+    def test_openslides_konto_wird_mit_angepasst(self):
+        self.m.openslides_user_id = 42
+        self.m.openslides_username = "erika.muster"
+        self.m.openslides_initialpasswort = "geheim123"
+        self.m.save()
+        from apps.openslides.models import OpenSlidesVerbindung
+        OpenSlidesVerbindung.objects.create(verein=self.v, url="https://os.example.org", benutzername="sync",
+                                            passwort="geheim", aktiv=True)
+        with patch("apps.openslides.services.OSClient") as MockClient:
+            instanz = MockClient.return_value
+            r = self.client.post(reverse("mitglied_anonymisieren", args=[self.m.pk]), follow=True)
+        instanz.login.assert_called_once()
+        instanz.action.assert_called_once()
+        args = instanz.action.call_args.args
+        self.assertEqual(args[0], "user.update")
+        daten = args[1][0]
+        self.assertEqual(daten["id"], 42)
+        self.assertEqual(daten["last_name"], "#7")
+        self.assertEqual(daten["is_active"], False)
+        self.assertNotIn("Muster", daten["username"])
+        self.m.refresh_from_db()
+        self.assertEqual((self.m.openslides_username, self.m.openslides_initialpasswort), ("", ""))
+        self.assertNotContains(r, "konnte nicht angepasst")
+
+    def test_ohne_eingerichtete_anbindung_wird_gewarnt_aber_trotzdem_anonymisiert(self):
+        self.m.openslides_user_id = 42
+        self.m.openslides_username = "erika.muster"
+        self.m.save()
+        r = self.client.post(reverse("mitglied_anonymisieren", args=[self.m.pk]), follow=True)
+        self.assertContains(r, "Anbindung ist aber nicht")
+        self.m.refresh_from_db()
+        self.assertEqual(self.m.vorname, "Anonymisiert")
+        self.assertEqual(self.m.openslides_username, "")
+
+    def test_fehler_bei_openslides_blockiert_lokale_anonymisierung_nicht(self):
+        self.m.openslides_user_id = 42
+        self.m.save()
+        from apps.openslides.models import OpenSlidesVerbindung
+        OpenSlidesVerbindung.objects.create(verein=self.v, url="https://os.example.org", benutzername="sync",
+                                            passwort="geheim", aktiv=True)
+        from apps.openslides.client import OpenSlidesFehler
+        with patch("apps.openslides.services.OSClient") as MockClient:
+            MockClient.return_value.login.side_effect = OpenSlidesFehler("Server nicht erreichbar")
+            r = self.client.post(reverse("mitglied_anonymisieren", args=[self.m.pk]), follow=True)
+        self.assertContains(r, "konnte nicht angepasst")
+        self.m.refresh_from_db()
+        self.assertEqual(self.m.vorname, "Anonymisiert")
+        self.assertEqual(self.m.openslides_username, "")

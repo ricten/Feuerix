@@ -21,8 +21,8 @@ def _pruefen(request, aktion):
 
 
 def _verbindung(request):
-    v = OpenSlidesVerbindung.objects.filter(verein=request.verein).first()
-    if v is None or not v.url or not v.benutzername or not v.passwort:
+    v = services.verbindung_oder_none(request.verein)
+    if v is None:
         raise OpenSlidesFehler("Die OpenSlides-Anbindung ist noch nicht vollständig eingerichtet.")
     return v
 

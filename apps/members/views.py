@@ -128,6 +128,20 @@ def mitglied_anonymisieren(request, pk):
     if request.verein is None or not request.rechte.darf("mitglieder", "delete"):
         raise PermissionDenied
     m = get_object_or_404(Mitglied, pk=pk, verein=request.verein)
+    if m.openslides_user_id:
+        from apps.openslides import services as os_services
+        from apps.openslides.client import OpenSlidesFehler
+        v = os_services.verbindung_oder_none(request.verein)
+        if v is not None:
+            try:
+                os_services.mitglied_anonymisieren(v, m)
+            except OpenSlidesFehler as e:
+                messages.warning(request, f"OpenSlides-Konto konnte nicht angepasst werden ({e}) - bitte dort "
+                                          "Name/E-Mail manuell prüfen und löschen.")
+        else:
+            messages.warning(request, "Mitglied hat ein OpenSlides-Konto, die Anbindung ist aber nicht "
+                                      "eingerichtet - bitte Name/E-Mail dort manuell prüfen und löschen.")
+        m.openslides_username, m.openslides_initialpasswort = "", ""
     m.vorname, m.nachname = "Anonymisiert", f"#{m.mitgliedsnummer}"
     for f in ("anrede", "strasse", "plz", "ort", "email", "telefon", "mobil", "kontoinhaber", "iban", "bic",
               "mandatsreferenz", "notizen"):

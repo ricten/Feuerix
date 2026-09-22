@@ -9,6 +9,7 @@ from django.utils import timezone
 from apps.members.models import Mitglied
 
 from .client import OpenSlidesFehler, OSClient
+from .models import OpenSlidesVerbindung
 
 ALPHABET = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
@@ -28,10 +29,32 @@ def _passwort():
     return "".join(secrets.choice(ALPHABET) for _ in range(12))
 
 
+def verbindung_oder_none(verein):
+    v = OpenSlidesVerbindung.objects.filter(verein=verein).first()
+    if v is None or not v.url or not v.benutzername or not v.passwort:
+        return None
+    return v
+
+
 def verbindung_testen(v):
     c = OSClient(v)
     c.login()
     return "Anmeldung erfolgreich."
+
+
+def mitglied_anonymisieren(v, mitglied):
+    """Gleicht eine DSGVO-Anonymisierung (apps.members) auf das verknüpfte OpenSlides-Konto ab: Name, Benutzername
+    und E-Mail werden überschrieben und das Konto deaktiviert, statt nur zu deaktivieren und den echten Namen dort
+    stehen zu lassen."""
+    if not mitglied.openslides_user_id:
+        return
+    c = OSClient(v)
+    c.login()
+    kennung = mitglied.mitgliedsnummer or mitglied.pk
+    c.action("user.update", [{
+        "id": mitglied.openslides_user_id, "first_name": "Anonymisiert", "last_name": f"#{kennung}",
+        "username": f"anonym-{mitglied.openslides_user_id}", "email": "", "member_number": "", "is_active": False,
+    }])
 
 
 def _im_umfang(v):

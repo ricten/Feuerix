@@ -1,4 +1,4 @@
-# Handbuch – Vereinsverwaltung (Version 1.5.0)
+# Handbuch – Vereinsverwaltung (Version 1.6.0)
 
 Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
 alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
@@ -94,7 +94,11 @@ optional inkl. Bankdaten (nur mit Beitragsrecht).
 - „Datenauskunft (JSON)“ – vollständige DSGVO-Auskunft inkl. Rechnungen, Zahlungen, Spenden, Aufwand, Ehrungen,
   Dokumenten.
 - „Anonymisieren“ – löscht personenbezogene Daten, Foto und Dokumente unwiderruflich; Rechnungen bleiben aus
-  steuerlichen Aufbewahrungsgründen bestehen. Nur möglich mit Löschrecht auf Mitglieder.
+  steuerlichen Aufbewahrungsgründen bestehen. Nur möglich mit Löschrecht auf Mitglieder. Hat das Mitglied ein
+  verknüpftes **OpenSlides-Konto**, wird es dabei ebenfalls angepasst (Name/Benutzername/E-Mail überschrieben,
+  Konto deaktiviert) – nicht nur lokal deaktiviert. Ist die OpenSlides-Anbindung nicht erreichbar oder nicht
+  eingerichtet, erscheint eine Warnung mit der Bitte, das Konto dort manuell zu prüfen; die lokale Anonymisierung
+  wird davon unabhängig trotzdem durchgeführt.
 - „Zugangsdaten für Selbstdatenpflege senden“ / „Zugang sperren“ / „Startpasswort löschen“ – siehe
   [Selbstdatenpflege](SELBSTDATENPFLEGE.md).
 - „Verwaltungszugang einrichten“ – richtet direkt aus dem Mitglied heraus einen vollwertigen
