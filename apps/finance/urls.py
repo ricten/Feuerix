@@ -24,6 +24,7 @@ def _position_bearbeitbar(o):
 
 urlpatterns = [
     path("rechnungen/<int:pk>/pdf/", views.rechnung_pdf_view, name="rechnung_pdf"),
+    path("rechnungen/<int:pk>/e-rechnung/", views.rechnung_erechnung_view, name="rechnung_erechnung"),
     path("rechnungen/<int:pk>/ausstellen/", views.rechnung_ausstellen, name="rechnung_ausstellen"),
     path("rechnungen/<int:pk>/storno/", views.rechnung_storno, name="rechnung_storno"),
     path("rechnungen/<int:pk>/mail/", views.rechnung_mail, name="rechnung_mail"),

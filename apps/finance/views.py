@@ -13,7 +13,7 @@ from django.views.decorators.http import require_POST
 from apps.core.crud import abschnitt, knopf, wert
 from apps.core.util import geld
 
-from . import kontoauszug, sepa, services
+from . import erechnung, kontoauszug, sepa, services
 from .models import Bankumsatz, Beitragsjahr, Mahnung, Rechnung, SepaEinzug, SepaEinzugPosition, Zahlung, wirksame_summe
 from .pdf import mahnung_pdf, rechnung_pdf
 
@@ -35,6 +35,8 @@ def rechnung_kontext(request, r):
     rt, aktionen = request.rechte, []
     if rt.darf("rechnungen", "view"):
         aktionen.append(knopf("PDF", reverse("rechnung_pdf", args=[r.pk]), stil="primary"))
+        if r.status != "entwurf":
+            aktionen.append(knopf("E-Rechnung (XML)", reverse("rechnung_erechnung", args=[r.pk])))
     if rt.darf("rechnungen", "change"):
         if r.status == "entwurf":
             aktionen.append(knopf("Ausstellen (nicht mehr änderbar)", reverse("rechnung_ausstellen", args=[r.pk]),
@@ -76,6 +78,17 @@ def rechnung_pdf_view(request, pk):
     r = _rechnung(request, pk, "view")
     resp = HttpResponse(rechnung_pdf(r), content_type="application/pdf")
     resp["Content-Disposition"] = f'inline; filename="{r.nummer or "entwurf"}.pdf"'
+    return resp
+
+
+@login_required
+def rechnung_erechnung_view(request, pk):
+    r = _rechnung(request, pk, "view")
+    if r.status == "entwurf":
+        messages.error(request, "Entwürfe haben noch keine Rechnungsnummer - bitte zuerst ausstellen.")
+        return redirect("rechnung_detail", pk=r.pk)
+    resp = HttpResponse(erechnung.xrechnung_xml(r), content_type="application/xml")
+    resp["Content-Disposition"] = f'attachment; filename="{r.nummer}.xml"'
     return resp
 
 

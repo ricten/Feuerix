@@ -6,9 +6,10 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
+from apps.accounting import erechnung as erechnung_import
 from apps.core.models import Rolle, Verein, Zugang
-from apps.finance import kontoauszug, sepa, services
-from apps.finance.models import Bankumsatz, Beitragsjahr, Rechnung, SepaEinzug, Zahlung
+from apps.finance import erechnung, kontoauszug, sepa, services
+from apps.finance.models import Bankumsatz, Beitragsjahr, Rechnung, Rechnungsposition, SepaEinzug, Zahlung
 from apps.members.models import Mitglied, Mitgliedsart
 
 MT940_BEISPIEL = (
@@ -391,3 +392,90 @@ class BankImportViewTests(TestCase):
         r = self.client.post(reverse("bank_import"), {"datei": datei}, follow=True)
         self.assertContains(r, "CAMT.053")
         self.assertEqual(Bankumsatz.objects.filter(verein=self.v).count(), 2)
+
+
+class ErechnungExportTests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Freiwillige Feuerwehr Test e.V.", kuerzel="test",
+                                       anschrift="Feuerwehrstraße 1", plz="12345", ort="Testhausen",
+                                       steuernummer="123/456/78901", iban="DE02120300000000202051",
+                                       bankname="Musterbank")
+        self.r = Rechnung.objects.create(verein=self.v, typ="individuell", status="offen",
+                                         empfaenger_name="Beispiel Handwerk GmbH",
+                                         empfaenger_anschrift="Handwerkerweg 3\n54321 Musterstadt",
+                                         datum=date(2026, 3, 1), faellig_am=date(2026, 3, 15))
+        Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Saalmiete", menge=1,
+                                         einzelpreis=Decimal("150.00"))
+        Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Reinigung", menge=2,
+                                         einzelpreis=Decimal("25.00"))
+        self.r.refresh_from_db()
+
+    def test_xml_enthaelt_kernfelder(self):
+        xml_bytes = erechnung.xrechnung_xml(self.r)
+        root = ET.fromstring(xml_bytes)
+        self.assertTrue(root.tag.endswith("Invoice"))
+        ns = {"cbc": erechnung.CBC_NS, "cac": erechnung.CAC_NS}
+        self.assertEqual(root.find("cbc:ID", ns).text, self.r.nummer)
+        self.assertEqual(root.find("cbc:IssueDate", ns).text, "2026-03-01")
+        self.assertEqual(root.find("cac:LegalMonetaryTotal/cbc:PayableAmount", ns).text, f"{self.r.betrag:.2f}")
+        zeilen = root.findall("cac:InvoiceLine", ns)
+        self.assertEqual(len(zeilen), 2)
+        self.assertEqual(root.find("cac:AccountingSupplierParty//cbc:RegistrationName", ns).text, self.v.name)
+        self.assertEqual(root.find("cac:AccountingCustomerParty//cbc:RegistrationName", ns).text,
+                         "Beispiel Handwerk GmbH")
+        self.assertEqual(root.find("cac:PaymentMeans/cac:PayeeFinancialAccount/cbc:ID", ns).text, self.v.iban)
+
+    def test_entwurf_ohne_nummer_bekommt_platzhalter(self):
+        entwurf = Rechnung.objects.create(verein=self.v, typ="individuell", status="entwurf",
+                                          empfaenger_name="Max Muster", datum=date(2026, 3, 1))
+        xml_bytes = erechnung.xrechnung_xml(entwurf)
+        root = ET.fromstring(xml_bytes)
+        ns = {"cbc": erechnung.CBC_NS}
+        self.assertEqual(root.find("cbc:ID", ns).text, f"ENTWURF-{entwurf.pk}")
+
+    def test_roundtrip_mit_dem_e_rechnung_importer_lesbar(self):
+        """Die eigene Ausgabe muss vom bestehenden E-Rechnung-Import (apps.accounting.erechnung) wieder
+        korrekt eingelesen werden koennen - Symmetrie zwischen Erstellen und Lesen."""
+        xml_bytes = erechnung.xrechnung_xml(self.r)
+        d = erechnung_import.parse_rechnung(xml_bytes)
+        self.assertEqual(d["format"], "XRechnung (UBL)")
+        self.assertEqual(d["nummer"], self.r.nummer)
+        self.assertEqual(d["datum"], date(2026, 3, 1))
+        self.assertEqual(d["betrag"], self.r.betrag)
+        self.assertEqual(d["verkaeufer"], self.v.name)
+        self.assertEqual(d["waehrung"], "EUR")
+
+
+class ErechnungViewTests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test", iban="DE02120300000000202051")
+        self.r = Rechnung.objects.create(verein=self.v, typ="individuell", status="offen",
+                                         empfaenger_name="Max Muster", datum=date(2026, 3, 1))
+        Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Posten", menge=1,
+                                         einzelpreis=Decimal("42.00"))
+        self.r.refresh_from_db()
+        User = get_user_model()
+        self.user = User.objects.create_user("kasse", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        self.client.login(username="kasse", password="pw-Test-12345")
+
+    def test_download_liefert_xml(self):
+        r = self.client.get(reverse("rechnung_erechnung", args=[self.r.pk]))
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Content-Type"], "application/xml")
+        self.assertIn(self.r.nummer, r["Content-Disposition"])
+        self.assertIn(self.r.nummer.encode(), r.content)
+
+    def test_entwurf_wird_abgelehnt(self):
+        entwurf = Rechnung.objects.create(verein=self.v, typ="individuell", status="entwurf",
+                                          empfaenger_name="Max Muster", datum=date(2026, 3, 1))
+        r = self.client.get(reverse("rechnung_erechnung", args=[entwurf.pk]), follow=True)
+        self.assertContains(r, "noch keine Rechnungsnummer")
+
+    def test_detailseite_zeigt_knopf_nur_bei_ausgestellter_rechnung(self):
+        entwurf = Rechnung.objects.create(verein=self.v, typ="individuell", status="entwurf",
+                                          empfaenger_name="Max Muster", datum=date(2026, 3, 1))
+        r1 = self.client.get(reverse("rechnung_detail", args=[entwurf.pk]))
+        self.assertNotContains(r1, "E-Rechnung (XML)")
+        r2 = self.client.get(reverse("rechnung_detail", args=[self.r.pk]))
+        self.assertContains(r2, "E-Rechnung (XML)")

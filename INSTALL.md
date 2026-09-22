@@ -10,7 +10,7 @@ Internet ──► Caddy (Ports 80/443, automatisches HTTPS)
 
 > **Hinweis zum Stand:** Eine automatisierte Testsuite und GitHub-Actions-CI prüfen die Vereinsverwaltung bei jeder
 > Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine laufende Instanz geprüft ist ausschließlich die
-> OpenSlides-Anbindung (nach offizieller Dokumentation umgesetzt) – planen Sie dafür eine Testphase ein (Abschnitt 9).
+> OpenSlides-Anbindung (nach offizieller Dokumentation umgesetzt) – planen Sie dafür eine Testphase ein (Abschnitt 10).
 > Die OpenSlides-Installationsschritte entsprechen der offiziellen `INSTALL.md` (OpenSlides 4.x, Werkzeug `osmanage`).
 
 ---
@@ -163,12 +163,30 @@ Eine ausführliche Bedienungsanleitung für alle Module steht in **[docs/HANDBUC
 7. In einer **Veranstaltung** (Mitgliederversammlung) Tagesordnung pflegen → **„In OpenSlides anlegen“**. Die Teilnehmer
    werden anschließend in OpenSlides der Versammlung zugeordnet (Teilnehmer › vorhandene Konten hinzufügen).
 
-## 9. Testphase (dringend empfohlen)
+## 9. Paperless-ngx verbinden (optional)
+
+Anders als OpenSlides wird Paperless-ngx **nicht** von diesem Docker-Compose-Stack mitinstalliert – vorausgesetzt wird
+eine bereits laufende, separate Paperless-ngx-Instanz (eigener Server oder vorhandene Installation).
+
+1. In Paperless-ngx anmelden, unter **Mein Profil › API-Token** einen Token erzeugen.
+2. In der Vereinsverwaltung **Verwaltung › Paperless-Anbindung:** Adresse der Paperless-Instanz
+   (z. B. `https://paperless.example.org`, ohne `/` am Ende) und den API-Token eintragen. Optional einen
+   Standard-Korrespondenten, -Dokumenttyp und/oder Tags festlegen – diese werden in Paperless automatisch angelegt,
+   falls sie dort noch nicht existieren.
+3. „Anbindung aktiv“ setzen, speichern → **Verbindung testen**.
+4. Danach erscheint bei jedem Dokument in der **Ablage** der Knopf „An Paperless senden“ sowie ein Sammelversand für
+   mehrere Dokumente gleichzeitig (*Ablage › Sammelversand an Paperless*).
+
+**Hinweis:** Der Versand ist reines Hochladen (Einweg) – Status oder Metadaten, die anschließend in Paperless
+geändert werden, fließen nicht in die Vereinsverwaltung zurück.
+
+## 10. Testphase (dringend empfohlen)
 
 Bevor echte Mitgliederdaten eingegeben werden: Testverein anlegen und prüfen – Beitragsrechnung erzeugen und als PDF ansehen,
-Serienbrief-Vorschau, Ablage, OpenSlides-Verbindungstest, Backup **und Wiederherstellung** auf einem zweiten Rechner.
+Serienbrief-Vorschau, Ablage, OpenSlides-Verbindungstest, Paperless-Verbindungstest (falls genutzt), Backup **und
+Wiederherstellung** auf einem zweiten Rechner.
 
-## 10. Datensicherung
+## 11. Datensicherung
 
 ```bash
 # Vereinsverwaltung (Datenbank + hochgeladene Dateien)
@@ -188,7 +206,7 @@ Außerdem sichern: `.env` (enthält `FIELD_ENCRYPTION_KEY`!) und `openslides/sec
 Wiederherstellung: `scripts/restore.sh` (Vereinsverwaltung) bzw. laut OpenSlides-Anleitung
 (`docker compose up --detach postgres`, dann `psql < dump.sql`).
 
-## 11. Updates
+## 12. Updates
 
 * **Vereinsverwaltung:** neue Projektdateien einspielen (`.env` und `apps/*/migrations` behalten), dann
   `docker compose build && docker compose run --rm --no-deps --user root -v "$PWD/apps:/app/apps" web python manage.py makemigrations && docker compose up -d`
@@ -198,7 +216,7 @@ Wiederherstellung: `scripts/restore.sh` (Vereinsverwaltung) bzw. laut OpenSlides
   bei Bedarf `./osmanage migrations stats|migrate|finalize`. Versionshinweise in der offiziellen INSTALL.md lesen (bei
   einzelnen Versionen sind manuelle Schritte nötig).
 
-## 12. Fehlersuche
+## 13. Fehlersuche
 
 | Problem | Lösung |
 |---|---|
@@ -207,10 +225,11 @@ Wiederherstellung: `scripts/restore.sh` (Vereinsverwaltung) bzw. laut OpenSlides
 | Keine E-Mails | `EMAIL_HOST…` prüfen; ohne `EMAIL_HOST` werden Mails nur ins Log geschrieben (`docker compose logs worker`) |
 | Serienbrief-Versand/OpenSlides-Abgleich tut nichts | Worker läuft? `docker compose ps`, `docker compose logs worker` |
 | OpenSlides-Verbindungstest schlägt fehl | Adresse mit `https://`, Benutzer/Passwort, `docker compose logs` im OpenSlides-Ordner; Zertifikat gültig? |
+| Paperless-Verbindungstest/Versand schlägt fehl | Adresse mit `https://` (ohne `/` am Ende), API-Token korrekt kopiert, Paperless-Instanz vom Server aus erreichbar (`docker compose exec web curl -I https://paperless.example.org`) |
 | Port 8000/9000 belegt | Ports in `.env` (`WEB_PORT`) bzw. `openslides/config.yml` ändern und Caddyfile anpassen |
 | Logo erscheint nicht im PDF | Nur PNG/JPG; Datei nicht beschädigt; im PDF oben rechts (ca. max. 55 × 28 mm) |
 
-## 13. Datenschutz-Hinweise (kurz)
+## 14. Datenschutz-Hinweise (kurz)
 
 Mit Mitglieds- und Bankdaten gelten DSGVO-Pflichten: Auftragsverarbeitungsvertrag mit dem Hoster, Verzeichnis von
 Verarbeitungstätigkeiten, Zugriffsrechte über Rollen (bereits eingebaut), Datenauskunft/Anonymisierung pro Mitglied

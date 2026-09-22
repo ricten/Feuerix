@@ -1,4 +1,4 @@
-# Handbuch – Vereinsverwaltung (Version 1.4.0)
+# Handbuch – Vereinsverwaltung (Version 1.5.0)
 
 Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
 alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
@@ -117,8 +117,18 @@ anteilige Berechnung bei unterjährigem Eintritt.
 
 **Rechnungen** (auch einzeln/individuell oder als Sammelrechnung anlegbar) durchlaufen die Stationen *Entwurf* →
 *Ausstellen* (vergibt die endgültige Nummer `RE-JJJJ-000001`, danach unveränderbar) → *Offen* → *Teilbezahlt/
-Bezahlt*. Auf der Rechnung stehen je nach Status und Recht: „PDF“, „Ausstellen“, „Per E-Mail senden“, „Storno“,
-„Mahnung erzeugen“, „Zahlung erfassen“ (Betrag ist mit dem offenen Betrag vorbelegt).
+Bezahlt*. Auf der Rechnung stehen je nach Status und Recht: „PDF“, „E-Rechnung (XML)“ (nur bei ausgestellten
+Rechnungen), „Ausstellen“, „Per E-Mail senden“, „Storno“, „Mahnung erzeugen“, „Zahlung erfassen“ (Betrag ist mit
+dem offenen Betrag vorbelegt).
+
+**E-Rechnung (XML)**: erzeugt aus der Rechnung eine XRechnung-Datei (UBL-Invoice-XML) zum Download – für den
+seltenen Fall, dass eine Rechnung an eine Stelle mit E-Rechnungspflicht (z. B. eine Behörde oder ein Unternehmen)
+geht. **Kein zertifizierter/vollständig validierter EN16931-Generator:** Da diese Software keine Umsatzsteuersätze
+je Position führt, wird pauschal Steuerbefreiung nach § 4 UStG (ideeller Bereich) angenommen und in der Datei so
+vermerkt. Bei tatsächlich umsatzsteuerpflichtigen Vorgängen (wirtschaftlicher Geschäftsbetrieb, z. B. Vermietung an
+gewerbliche Dritte) vor dem Versand unbedingt prüfen (lassen) und die Datei gegen ein offizielles Prüfwerkzeug
+(z. B. den KoSIT-XRechnung-Validator) laufen lassen. Für gewöhnliche Mitgliedsrechnungen ist das in aller Regel
+nicht nötig, da Mitglieder keine Unternehmer sind.
 
 **Storno und Rückzahlung**: „Storno“ erzeugt eine Stornorechnung mit umgekehrtem Vorzeichen; die Originalrechnung
 wird als *storniert* markiert. War die Rechnung bereits (teil-)bezahlt, zeigt die Stornorechnung einen Hinweis
