@@ -1,3 +1,4 @@
+from datetime import date, timedelta
 from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
@@ -12,8 +13,8 @@ from django.views.decorators.http import require_POST
 from apps.core.crud import abschnitt, knopf, wert
 from apps.core.util import geld
 
-from . import services
-from .models import Bankumsatz, Beitragsjahr, Mahnung, Rechnung, Zahlung, wirksame_summe
+from . import sepa, services
+from .models import Bankumsatz, Beitragsjahr, Mahnung, Rechnung, SepaEinzug, SepaEinzugPosition, Zahlung, wirksame_summe
 from .pdf import mahnung_pdf, rechnung_pdf
 
 
@@ -269,3 +270,47 @@ def bankumsatz_ignorieren(request, pk):
     u.status = "ignoriert"
     u.save(update_fields=["status", "geaendert"])
     return redirect("bankumsatz_detail", pk=u.pk)
+
+
+# ---------------------------------------------------------------- SEPA-Einzug
+def sepa_einzug_kontext(request, e):
+    return {"abschnitte": [abschnitt(request, "Positionen", e.positionen.all(),
+                                     ("mitglied", "rechnung", "betrag", "sequenztyp"))]}
+
+
+def sepa_einzuege_listen_aktionen(request):
+    a = []
+    if request.rechte.darf("zahlungen", "add"):
+        a.append(knopf("Neuen Einzug erstellen", reverse("sepa_einzug_neu"), stil="success"))
+    return a
+
+
+@login_required
+def sepa_einzug_neu(request):
+    _pruefen(request, "zahlungen", "add")
+    v = request.verein
+    rechnungen = list(sepa.eligible_rechnungen(v))
+    bereits_eingezogen = set(SepaEinzugPosition.objects.filter(verein=v).values_list("mitglied_id", flat=True))
+    if request.method == "POST":
+        try:
+            faelligkeitsdatum = date.fromisoformat(request.POST.get("faelligkeitsdatum", ""))
+        except ValueError:
+            messages.error(request, "Bitte ein gültiges Fälligkeitsdatum angeben.")
+            return redirect("sepa_einzug_neu")
+        ids = [int(pk) for pk in request.POST.getlist("rechnungen") if pk.isdigit()]
+        if not ids:
+            messages.error(request, "Bitte mindestens eine Rechnung auswählen.")
+            return redirect("sepa_einzug_neu")
+        try:
+            e = sepa.einzug_erstellen(v, faelligkeitsdatum, ids)
+        except ValueError as ex:
+            messages.error(request, str(ex))
+            return redirect("sepa_einzug_neu")
+        messages.success(request, f"SEPA-Einzug {e.nummer} mit {e.anzahl} Lastschrift(en) über {geld(e.summe)} "
+                                  "erstellt.")
+        return redirect("sepaeinzug_detail", pk=e.pk)
+    zeilen = [{"r": r, "sequenztyp": "RCUR" if r.mitglied_id in bereits_eingezogen else "FRST"} for r in rechnungen]
+    return render(request, "finance/sepa_einzug_neu.html", {
+        "titel": "Neuen SEPA-Einzug erstellen", "zeilen": zeilen,
+        "vorschlag_datum": date.today() + timedelta(days=6),
+        "verein_unvollstaendig": not (v.iban and v.glaeubiger_id)})

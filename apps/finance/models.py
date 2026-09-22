@@ -7,6 +7,7 @@ from django.db.models import Case, DecimalField, F, Sum, When
 
 from apps.core.fields import VerschluesseltesTextField
 from apps.core.models import TenantModel, naechste_nummer
+from apps.core.util import upload_pfad
 
 
 def wirksame_summe(rechnungen_qs):
@@ -255,6 +256,44 @@ class Zahlung(TenantModel):
         r = self.rechnung
         super().delete(*args, **kwargs)
         r.aktualisiere_status()
+
+
+class SepaEinzug(TenantModel):
+    nummer = models.CharField("Nummer", max_length=30, editable=False)
+    faelligkeitsdatum = models.DateField("Fälligkeitsdatum (Einzugstermin)")
+    anzahl = models.PositiveIntegerField("Anzahl Lastschriften", default=0, editable=False)
+    summe = models.DecimalField("Summe (€)", max_digits=10, decimal_places=2, default=0, editable=False)
+    datei = models.FileField("SEPA-XML-Datei", upload_to=upload_pfad, editable=False)
+
+    class Meta:
+        verbose_name = "SEPA-Einzug"
+        verbose_name_plural = "SEPA-Einzüge"
+        unique_together = [("verein", "nummer")]
+        ordering = ["-erstellt"]
+
+    def __str__(self):
+        return f"{self.nummer} ({self.faelligkeitsdatum:%d.%m.%Y})"
+
+
+class SepaEinzugPosition(TenantModel):
+    SEQUENZTYP = [("FRST", "Erstlastschrift (FRST)"), ("RCUR", "Folgelastschrift (RCUR)")]
+    einzug = models.ForeignKey(SepaEinzug, on_delete=models.CASCADE, related_name="positionen", verbose_name="Einzug")
+    rechnung = models.ForeignKey(Rechnung, on_delete=models.PROTECT, related_name="sepa_positionen",
+                                 verbose_name="Rechnung")
+    mitglied = models.ForeignKey("members.Mitglied", on_delete=models.PROTECT, related_name="+",
+                                 verbose_name="Mitglied")
+    betrag = models.DecimalField("Betrag (€)", max_digits=10, decimal_places=2)
+    mandatsreferenz = models.CharField("SEPA-Mandatsreferenz", max_length=35)
+    mandatsdatum = models.DateField("Datum des SEPA-Mandats")
+    sequenztyp = models.CharField("Sequenztyp", max_length=4, choices=SEQUENZTYP)
+
+    class Meta:
+        verbose_name = "SEPA-Einzugsposition"
+        verbose_name_plural = "SEPA-Einzugspositionen"
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"{self.mitglied.name}: {self.betrag} € ({self.rechnung})"
 
 
 class Mahnung(TenantModel):

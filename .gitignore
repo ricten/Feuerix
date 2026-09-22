@@ -11,3 +11,5 @@ openslides/*.crt
 openslides/*.key
 deploy/certs/*
 !deploy/certs/README.md
+config/settings_sqlite.py
+_test_media/

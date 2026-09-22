@@ -16,6 +16,7 @@ MODULE = {
     "schriftverkehr": "Schriftverkehr (Vorlagen, Serienbriefe, Protokolle)",
     "ablage": "Ablage (Dokumentenarchiv)",
     "openslides": "OpenSlides-Anbindung",
+    "paperless": "Paperless-Anbindung",
     "kassenbuch": "Kassenbuch & Kassenbericht",
     "auswertungen": "Auswertungen",
     "audit": "Änderungsprotokoll",
@@ -38,7 +39,7 @@ STANDARDROLLEN = {
         _r(["mitglieder", "ehrungen", "dokumente", "beitraege", "rechnungen", "veranstaltungen", "schriftverkehr", "ablage"],
             BEARBEITEN)
         + _r(["zahlungen", "spenden", "aufwand", "inventar", "verleih", "inventur", "auswertungen", "openslides",
-                "kassenbuch"], LESEN)
+                "paperless", "kassenbuch"], LESEN)
         + _r(["selbstdienst"], ALLES)
         + ["aufwand.change"])},
     "Kassenwart": {"ist_superadmin": False, "rechte": (
@@ -56,8 +57,8 @@ STANDARDROLLEN = {
     "Mitgliederverwaltung": {"ist_superadmin": False, "rechte": (
         _r(["selbstdienst"], ALLES) + _r(["mitglieder"], LESEN))},
     "Lesebenutzer": {"ist_superadmin": False, "rechte": _r(
-        [m for m in MODULE if m not in ("verwaltung", "audit", "bank", "aufwand", "spenden", "openslides", "kassenbuch",
-                                        "selbstdienst")], LESEN)},
+        [m for m in MODULE if m not in ("verwaltung", "audit", "bank", "aufwand", "spenden", "openslides", "paperless",
+                                        "kassenbuch", "selbstdienst")], LESEN)},
 }
 
 

@@ -17,5 +17,6 @@ urlpatterns = [
     path("", include("apps.events.urls")),
     path("", include("apps.documents.urls")),
     path("", include("apps.openslides.urls")),
+    path("", include("apps.paperless.urls")),
     path("", include("apps.accounting.urls")),
 ]

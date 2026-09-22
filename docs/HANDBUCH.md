@@ -1,4 +1,4 @@
-# Handbuch – Vereinsverwaltung (Version 1.0.0)
+# Handbuch – Vereinsverwaltung (Version 1.3.0)
 
 Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
 alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
@@ -26,10 +26,11 @@ Support eine Fehlermeldung schildern.
 10. [Ehrungen und Jubiläen](#10-ehrungen-und-jubiläen)
 11. [Schriftverkehr, Vorlagen, Ablage und Corporate Design](#11-schriftverkehr-vorlagen-ablage-und-corporate-design)
 12. [OpenSlides-Anbindung](#12-openslides-anbindung)
-13. [Auswertungen und Änderungsprotokoll](#13-auswertungen-und-änderungsprotokoll)
-14. [Vereinseinstellungen](#14-vereinseinstellungen)
-15. [Datenschutz und Sicherheit](#15-datenschutz-und-sicherheit)
-16. [Bekannte Grenzen](#16-bekannte-grenzen)
+13. [Paperless-ngx-Anbindung](#13-paperless-ngx-anbindung)
+14. [Auswertungen und Änderungsprotokoll](#14-auswertungen-und-änderungsprotokoll)
+15. [Vereinseinstellungen](#15-vereinseinstellungen)
+16. [Datenschutz und Sicherheit](#16-datenschutz-und-sicherheit)
+17. [Bekannte Grenzen](#17-bekannte-grenzen)
 
 ---
 
@@ -130,6 +131,16 @@ automatisch übersprungen), danach „Automatisch zuordnen“ – die Zuordnung 
 Verwendungszweck, sonst über Mitgliedsnummer, sonst über eine eindeutige IBAN-Übereinstimmung. Rücklastschriften
 (negative Beträge) werden nur automatisch zugeordnet, wenn der Text erkennbar danach klingt; sonst „manuell“ zur
 Nachbearbeitung markiert.
+
+**SEPA-Einzüge**: Unter *Finanzen › SEPA-Einzüge* → „Neuen Einzug erstellen“ werden alle offenen/teilbezahlten
+Rechnungen von Mitgliedern mit Zahlungsart „SEPA-Lastschrift“ und vollständigem Mandat (IBAN, Mandatsreferenz,
+Mandatsdatum) zur Auswahl angezeigt (Betrag = jeweils offener Restbetrag). Nach Angabe des Fälligkeitsdatums
+erzeugt die Software eine SEPA-Sammellastschriftdatei (`pain.008`, Format CORE) zum Hochladen ins Online-Banking
+der Vereinsbank – dafür müssen IBAN und Gläubiger-ID des Vereins unter *Verwaltung › Verein* hinterlegt sein. Ob
+ein Mitglied als Erst- (FRST) oder Folgelastschrift (RCUR) eingezogen wird, ermittelt die Software automatisch
+danach, ob es bereits in einem früheren Einzug enthalten war. **Wichtig:** Die Datei enthält nur den Einzugsauftrag
+– ob das Geld tatsächlich eingegangen ist (oder als Rücklastschrift zurückkommt), zeigt erst der spätere
+Kontoauszug-Import; die Software bucht keine Zahlung automatisch, nur weil ein Einzug erstellt wurde.
 
 ## 5. Kassenbuch und Kassenbericht
 
@@ -266,7 +277,21 @@ Diese Anbindung ist praktisch nur für den Superadministrator nutzbar, da das Mo
 außer beim Vorstand (nur lesend) keiner Rolle zugewiesen ist. Ein automatischer Rückfluss (Anwesenheit/Abstimmungen
 aus OpenSlides zurück in die Vereinsverwaltung) ist nicht enthalten.
 
-## 13. Auswertungen und Änderungsprotokoll
+## 13. Paperless-ngx-Anbindung
+
+Unter *Verwaltung › Paperless-Anbindung* wird einmal pro Verein die Verbindung zu einer bestehenden
+Paperless-ngx-Instanz hinterlegt (Adresse, API-Token – wird verschlüsselt gespeichert; optional ein
+Standard-Korrespondent, -Dokumenttyp und Tags). „Verbindung testen“ prüft Adresse und Token. Nach dem Aktivieren
+erscheint bei jedem Dokument in der **Ablage** (Kapitel 11) der Knopf „An Paperless senden“; auf der Ablage-Liste
+steht zusätzlich „Sammelversand an Paperless“ für mehrere Dokumente gleichzeitig zur Verfügung. Ein fehlender
+Korrespondent/Dokumenttyp/Tag wird bei Paperless automatisch neu angelegt. Der Versand läuft im Hintergrund;
+Ergebnis bzw. Fehlermeldung erscheinen am jeweiligen Dokument (Seite ggf. neu laden).
+
+Diese Anbindung ist praktisch nur für den Superadministrator einrichtbar, da das Modul `paperless` standardmäßig
+außer beim Vorstand (nur lesend) keiner Rolle zugewiesen ist; den Versandknopf selbst können alle Rollen mit
+Ablage-Bearbeitungsrecht nutzen (z. B. Schriftführer).
+
+## 14. Auswertungen und Änderungsprotokoll
 
 *Auswertungen* zeigt Mitgliederentwicklung (Ein-/Austritte je Jahr, kumulierter Bestand), Altersstruktur,
 Beitragsaufkommen je Jahr (Soll/Ist/Offen), Rücklastschriften je Jahr, Inventarwert, Spenden je Jahr und (mit
@@ -274,7 +299,7 @@ Aufwandsrecht) Aufwandsentschädigungen je Jahr. Das **Änderungsprotokoll** (*A
 nur mit eigenem Recht `audit` einsehbar) verzeichnet automatisch jede Anlage/Änderung/Löschung mit Benutzer,
 Zeitpunkt, IP-Adresse und geänderten Feldern; sensible Felder wie IBAN oder Passwörter werden dabei maskiert.
 
-## 14. Vereinseinstellungen
+## 15. Vereinseinstellungen
 
 Unter *Verwaltung › Verein/Einstellungen* (nur mit Recht `verwaltung`, siehe Kapitel 2) werden gepflegt:
 Vereinsname/-anschrift/-kontakt, Registereintrag, Bankverbindung inkl. Gläubiger-ID, Finanzamt/Steuernummer und
@@ -282,10 +307,10 @@ Angaben zum Gemeinnützigkeitsbescheid (für Spendenquittungen), Zahlungsziel un
 Freibeträge für Aufwandsentschädigungen, sowie Logo, Akzentfarbe(n) und die Unterschriftszeilen für den
 Briefkopf (Kapitel 11).
 
-## 15. Datenschutz und Sicherheit
+## 16. Datenschutz und Sicherheit
 
 - IBANs (Mitglieder wie Verein) werden verschlüsselt in der Datenbank gespeichert, nicht im Klartext.
-- Jede Änderung wird im Änderungsprotokoll nachvollziehbar erfasst (siehe Kapitel 13).
+- Jede Änderung wird im Änderungsprotokoll nachvollziehbar erfasst (siehe Kapitel 14).
 - Mitgliederdaten lassen sich jederzeit als vollständige DSGVO-Auskunft exportieren oder anonymisieren
   (Kapitel 3).
 - Jeder Verein sieht ausschließlich seine eigenen Daten; es gibt keine Möglichkeit, versehentlich Daten eines
@@ -293,11 +318,15 @@ Briefkopf (Kapitel 11).
 - Rechteprüfung erfolgt konsequent serverseitig je Modul und Aktion (Anzeigen/Erstellen/Bearbeiten/Löschen) –
   nicht nur durch Ausblenden von Menüpunkten.
 
-## 16. Bekannte Grenzen
+## 17. Bekannte Grenzen
 
-Aktuell (Version 1.0.0) **nicht** enthalten: Live-Abruf von Kontoumsätzen per FinTS (nur ein experimentelles,
-ungetestetes Kommando ohne TAN-Verfahren), SEPA-Lastschrift-XML-Export, automatischer Rückfluss von
-OpenSlides-Abstimmungsergebnissen ins Protokoll, eine REST-API, anteilige Beitragsberechnung bei
-unterjährigem Ein-/Austritt, sowie eine Oberfläche für Datenbank-Wiederherstellung (Restore geschieht über die
-Kommandozeile, siehe INSTALL.md). Die OpenSlides-Anbindung folgt der offiziellen Dokumentation, wurde aber nicht
-gegen eine produktive Instanz verifiziert – bitte im Testbetrieb prüfen, bevor Sie sich darauf verlassen.
+Aktuell **nicht** enthalten: Live-Abruf von Kontoumsätzen per FinTS (nur ein experimentelles,
+ungetestetes Kommando ohne TAN-Verfahren), automatischer Rückfluss von OpenSlides-Abstimmungsergebnissen ins
+Protokoll, eine REST-API, anteilige Beitragsberechnung bei unterjährigem Ein-/Austritt, sowie eine Oberfläche für
+Datenbank-Wiederherstellung (Restore geschieht über die Kommandozeile, siehe INSTALL.md). Der SEPA-Einzug
+(Kapitel 4) erzeugt nur die Einzugsdatei; ein Rückkanal, der eine tatsächlich eingegangene oder zurückgebuchte
+Lastschrift automatisch erkennt, existiert nicht – das läuft weiterhin über den normalen Kontoauszug-Import. Die
+OpenSlides-Anbindung folgt der offiziellen Dokumentation, wurde aber nicht gegen eine produktive Instanz
+verifiziert – bitte im Testbetrieb prüfen, bevor Sie sich darauf verlassen. Die Paperless-ngx-Anbindung wurde nach
+der offiziellen REST-API-Dokumentation umgesetzt, aber ebenfalls nicht gegen eine laufende Instanz getestet – vor
+dem produktiven Einsatz mit „Verbindung testen“ und einem echten Testdokument prüfen.

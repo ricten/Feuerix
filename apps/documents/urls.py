@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, reverse
 
 from apps.core.crud import abschnitt, crud, knopf
 
@@ -8,16 +8,28 @@ from .models import Ablagedokument, Ordner, Schriftstueck, Serienbrief, Vorlage
 
 
 def ablage_kontext(request, d):
-    from django.urls import reverse
+    from apps.paperless.models import PaperlessVerbindung
     a = []
     if d.datei:
         a.append(knopf("Herunterladen", reverse("datei", args=["documents", "ablagedokument", d.pk, "datei"]), stil="primary"))
     if request.rechte.darf("ablage", "add"):
         a.append(knopf("Neue Version hochladen", reverse("ablagedokument_add") + f"?titel={d.titel}&kategorie={d.kategorie}"
                        + (f"&ordner={d.ordner_id}" if d.ordner_id else "")))
+    verbindung = PaperlessVerbindung.objects.filter(verein=request.verein, aktiv=True).first()
+    if d.datei and verbindung and request.rechte.darf("ablage", "change"):
+        a.append(knopf("An Paperless senden", reverse("ablagedokument_paperless_senden", args=[d.pk]), post=True))
     frueher = Ablagedokument.objects.filter(verein=request.verein, ordner=d.ordner, titel=d.titel).exclude(pk=d.pk)
     return {"aktionen": a, "abschnitte": [abschnitt(request, "Weitere Versionen", frueher.order_by("-version"),
                                                     ("titel", "version", "datum"))] if frueher.exists() else []}
+
+
+def ablage_listen_aktionen(request):
+    from apps.paperless.models import PaperlessVerbindung
+    a = []
+    if request.rechte.darf("ablage", "change") and PaperlessVerbindung.objects.filter(
+            verein=request.verein, aktiv=True).exists():
+        a.append(knopf("Sammelversand an Paperless", reverse("ablage_paperless_sammelversand")))
+    return a
 
 
 urlpatterns = [
@@ -45,6 +57,7 @@ urlpatterns += crud("vorlagen", Vorlage, "schriftverkehr", form=VorlageForm,
 urlpatterns += crud("ablage", Ablagedokument, "ablage", form=AblageForm,
                     list_display=("datum", "titel", "kategorie", "ordner", "version", ("dateiname", "Datei")),
                     select_related=("ordner",), suche=("titel", "beschreibung"), filter=("kategorie", "ordner", "veranstaltung"),
-                    kontext=ablage_kontext, ordering=("-datum", "-id"))
+                    kontext=ablage_kontext, listen_aktionen=ablage_listen_aktionen, ordering=("-datum", "-id"),
+                    detail_ausblenden=("paperless_task_id",))
 urlpatterns += crud("ablage-ordner", Ordner, "ablage", list_display=(("pfad", "Ordner"),), select_related=("uebergeordnet",),
                     ordering=("name",))

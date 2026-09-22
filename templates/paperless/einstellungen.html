@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h3 class="mb-3">Paperless-Anbindung</h3>
+<div class="row g-3">
+  <div class="col-xl-7">
+    <div class="card shadow-sm"><div class="card-body">
+      <form method="post">{% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+          <div class="mb-3 {% if field.widget_type == 'checkbox' %}form-check{% endif %}">
+            {% if field.widget_type == 'checkbox' %}{{ field }} <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% else %}<label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endif %}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+          </div>
+        {% endfor %}
+        {% if kann %}<button class="btn btn-primary">Speichern</button>{% endif %}
+      </form>
+    </div></div>
+  </div>
+  <div class="col-xl-5">
+    <div class="card shadow-sm mb-3"><div class="card-body">
+      <h6>Status</h6>
+      <p class="mb-2">Letzter Verbindungstest: <strong>{{ inst.letzter_test|default:"noch nicht durchgeführt" }}</strong></p>
+      {% if kann and inst %}
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        <form method="post" action="{% url 'paperless_test' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary">Verbindung testen</button></form>
+      </div>{% endif %}
+    </div></div>
+    <div class="alert alert-secondary small">
+      <strong>So läuft es ab:</strong>
+      <ol class="mb-0 ps-3">
+        <li>Adresse und API-Token (Paperless: Mein Profil › API-Token) eintragen, Verbindung testen.</li>
+        <li>Optional Standard-Korrespondent/-Dokumenttyp/-Tags festlegen – werden in Paperless automatisch angelegt,
+          falls sie dort noch nicht existieren.</li>
+        <li>Anbindung aktivieren – danach erscheint bei jedem Dokument in der Ablage der Knopf „An Paperless senden“
+          sowie ein Sammelversand für mehrere Dokumente gleichzeitig.</li>
+        <li>Der Versand läuft im Hintergrund; das Ergebnis erscheint am Dokument (ggf. Seite neu laden).</li>
+      </ol>
+    </div>
+  </div>
+</div>
+{% endblock %}

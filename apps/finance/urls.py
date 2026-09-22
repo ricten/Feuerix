@@ -6,7 +6,8 @@ from apps.core.crud import crud
 
 from . import views
 from .forms import RechnungForm
-from .models import (Bankumsatz, Beitragsjahr, Beitragsregel, Mahnung, Rechnung, Rechnungsposition, Zahlung)
+from .models import (Bankumsatz, Beitragsjahr, Beitragsregel, Mahnung, Rechnung, Rechnungsposition, SepaEinzug,
+                     SepaEinzugPosition, Zahlung)
 
 
 def _rechnung_nach_speichern(request, obj, neu):
@@ -34,6 +35,7 @@ urlpatterns = [
     path("bank/zuordnen/", views.bank_zuordnen, name="bank_zuordnen"),
     path("bank/<int:pk>/zuweisen/", views.bankumsatz_zuweisen, name="bankumsatz_zuweisen"),
     path("bank/<int:pk>/ignorieren/", views.bankumsatz_ignorieren, name="bankumsatz_ignorieren"),
+    path("sepa-einzuege/neu/", views.sepa_einzug_neu, name="sepa_einzug_neu"),
 ]
 urlpatterns += crud("beitragsjahre", Beitragsjahr, "beitraege", list_display=("jahr", "faelligkeit", "alters_stichtag",
                     "abgerechnet_am"), kontext=views.beitragsjahr_kontext, ordering=("-jahr",))
@@ -57,3 +59,10 @@ urlpatterns += crud("bankumsaetze", Bankumsatz, "bank", list_display=("buchungsd
                     "verwendungszweck", "status"), suche=("gegenkonto_name", "verwendungszweck"), filter=("status",),
                     kontext=views.bankumsatz_kontext, listen_aktionen=views.bank_listen_aktionen, delete=False,
                     ordering=("-buchungsdatum", "-id"))
+urlpatterns += crud("sepa-einzuege", SepaEinzug, "zahlungen", list_display=("nummer", "faelligkeitsdatum", "anzahl",
+                    "summe", "erstellt"), kontext=views.sepa_einzug_kontext,
+                    listen_aktionen=views.sepa_einzuege_listen_aktionen, add=False, edit=False, delete=False,
+                    ordering=("-erstellt",))
+urlpatterns += crud("sepa-einzugspositionen", SepaEinzugPosition, "zahlungen", list_display=("einzug", "mitglied",
+                    "rechnung", "betrag", "sequenztyp"), select_related=("einzug", "mitglied", "rechnung"),
+                    add=False, edit=False, delete=False)

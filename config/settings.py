@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "apps.events",
     "apps.documents",
     "apps.openslides",
+    "apps.paperless",
     "apps.accounting",
 ]
 

@@ -4,10 +4,10 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~80 Tests) und eine GitHub-Actions-CI prüfen
-> bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz verifiziert ist
-> ausschließlich die OpenSlides-Anbindung (nach offizieller Dokumentation umgesetzt) – dafür vor dem Verlass
-> darauf eine Testphase einplanen.
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~120 Tests) und eine GitHub-Actions-CI prüfen
+> bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz verifiziert sind
+> die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – dafür vor dem
+> Verlass darauf eine Testphase einplanen.
 
 **Handbuch:** Eine ausführliche Bedienungsanleitung für Vorstand, Kassenwart, Schriftführer & Co. steht in
 **[docs/HANDBUCH.md](docs/HANDBUCH.md)**.
@@ -50,7 +50,7 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
 | Ehrungen | Ehrungsarten, Ehrungen, konfigurierbare Jubiläumsregeln, Jubiläumsliste mit Direktanlage |
 | Beiträge | Mitgliedsarten, Regeln (Alter, Familie, Gültigkeitsjahre, Priorität), individuelle Beiträge, Beitragsjahre mit Rechnungslauf; Beträge werden in der Rechnung eingefroren |
 | Rechnungen | Nummernkreis `RE-JJJJ-000001`, Entwurf → Ausstellen (danach unveränderbar), PDF, E-Mail, Storno (mit buchbarer **Rückzahlung** bei bereits bezahlten Rechnungen), Gutschrift, Mahnstufen mit PDF |
-| Zahlungen/Bank | Zahlungen je Rechnung inkl. Rücklastschrift, CSV-Import mit Dublettenerkennung, automatische Zuordnung (Rechnungsnr. → Mitgliedsnr. → IBAN), Liste „manuelle Zuordnung erforderlich“ |
+| Zahlungen/Bank | Zahlungen je Rechnung inkl. Rücklastschrift, CSV-Import mit Dublettenerkennung, automatische Zuordnung (Rechnungsnr. → Mitgliedsnr. → IBAN), Liste „manuelle Zuordnung erforderlich“; **SEPA-Sammellastschrift-Export** (pain.008/CORE) für offene Rechnungen mit SEPA-Mandat, automatische Erst-/Folgelastschrift-Erkennung |
 | Kassenbuch | Konten (Bank/Bar), Buchungskategorien mit steuerlicher Sphäre, Buchungen mit Belegnummer und Belegupload, Übernahme aus Zahlungen/Spenden/Aufwandsentschädigungen/Veranstaltungen (idempotent), **E-Rechnung importieren** (XRechnung/ZUGFeRD einlesen und als vorausgefüllte Ausgabe mit Beleg ablegen) |
 | Kassenbericht | Zeitraumbericht mit Kontenübersicht, Einnahmen/Ausgaben je Kategorie und Sphäre, Vorjahresvergleich, Soll/Ist-Abgleich, Prüfungsbemerkung, Unterschriftszeilen, Kassenbuch-Anlage; PDF + Excel; Abschluss sperrt den Zeitraum und legt das PDF in der Ablage ab |
 | Inventar | Inventarnummern `INV-000001`, Kategorien, Standorte, Zustand, Garantie, Fotos/Dokumente, **Import** aus Excel/CSV (wie Mitglieder), Etikettendruck mit **QR-Code** je Gegenstand |
@@ -60,8 +60,9 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
 | Aufwandsentschädigungen | Ehrenamts-/Übungsleiterpauschale, Aufwandsersatz, Genehmigungsworkflow, Freibetragsübersicht je Person/Jahr, Aufwandsverzicht → Spende |
 | Veranstaltungen | Planung, Aufgaben, Schichtplan mit Besetzung, Anmeldungen, Budget (Plan/Ist), Inventarreservierung, iCal-Export |
 | Schriftverkehr | Vereinslogo (auf allen PDFs), bearbeitbare Vorlagen (Einladung, Protokoll, Serienbrief …) mit Platzhaltern, Einzelschriftstücke mit PDF- und Word-Export, Serienbriefe mit Empfängerfilter (PDF-Sammeldatei oder E-Mail mit PDF-Anhang) – siehe [docs/SCHRIFTVERKEHR.md](docs/SCHRIFTVERKEHR.md) |
-| Ablage | Ordnerstruktur (Kategorie/Jahr), versionierte Dokumente, Zuordnung zu Veranstaltungen, geschützter Dateizugriff; erzeugte PDFs werden automatisch abgelegt |
+| Ablage | Ordnerstruktur (Kategorie/Jahr), versionierte Dokumente, Zuordnung zu Veranstaltungen, geschützter Dateizugriff; erzeugte PDFs werden automatisch abgelegt; optionaler Versand an **Paperless-ngx** (einzeln oder gesammelt) |
 | OpenSlides | Anbindung an OpenSlides 4: Konten der Mitglieder anlegen/abgleichen, Versammlung + Tagesordnung aus der Veranstaltung anlegen (nach Dokumentation umgesetzt, ungetestet) |
+| Paperless-ngx | Verbindung je Verein (Adresse, API-Token verschlüsselt gespeichert, Verbindungstest); Ablage-Dokumente per Knopf oder gesammelt an eine bestehende Paperless-Instanz senden (Korrespondent/Dokumenttyp/Tags werden dort bei Bedarf automatisch angelegt) |
 | Protokoll | Jede Änderung: wer, wann, IP, Feld alt → neu, optionaler Grund; sensible Felder maskiert |
 
 ## Wichtige Hinweise
@@ -92,8 +93,10 @@ Produktivbetrieb gedacht.
 
 ## Noch nicht enthalten
 
-FinTS-Live-Abruf (nur experimentelles Kommando `fints_abruf`, ungetestet, ohne TAN-Verfahren), SEPA-Lastschrift-XML-Export,
+FinTS-Live-Abruf (nur experimentelles Kommando `fints_abruf`, ungetestet, ohne TAN-Verfahren),
 Abstimmungsergebnisse aus OpenSlides zurück ins Protokoll, REST-API (DRF), anteilige Beiträge, Update-/Restore-Oberfläche.
+Der SEPA-Einzug erzeugt nur die Einzugsdatei (pain.008) – der Rückkanal (eingegangen/zurückgebucht) läuft weiterhin
+über den normalen Kontoauszug-Import.
 
 ## Lizenz
 

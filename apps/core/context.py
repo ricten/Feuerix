@@ -22,6 +22,7 @@ NAV = [
         ("Rechnungen", "rechnung_list", "rechnungen"),
         ("Zahlungen", "zahlung_list", "zahlungen"),
         ("Bankumsätze", "bankumsatz_list", "bank"),
+        ("SEPA-Einzüge", "sepaeinzug_list", "zahlungen"),
         ("Spenden", "spende_list", "spenden"),
         ("Spendenquittungen", "zuwendungsbestaetigung_list", "spenden"),
         ("Aufwandsentschädigungen", "aufwandsentschaedigung_list", "aufwand"),
@@ -47,6 +48,7 @@ NAV = [
     ("Verwaltung", [
         ("Verein / Einstellungen / Logo", "verein_einstellungen", "verwaltung"),
         ("OpenSlides-Anbindung", "openslides_einstellungen", "openslides"),
+        ("Paperless-Anbindung", "paperless_einstellungen", "paperless"),
         ("Benutzer", "zugang_list", "verwaltung"),
         ("Rollen", "rolle_list", "verwaltung"),
         ("Beitragsregeln", "beitragsregel_list", "beitraege"),
