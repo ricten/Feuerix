@@ -1,4 +1,4 @@
-# Handbuch – Vereinsverwaltung (Version 1.3.0)
+# Handbuch – Vereinsverwaltung (Version 1.4.0)
 
 Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
 alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
@@ -126,11 +126,15 @@ wird als *storniert* markiert. War die Rechnung bereits (teil-)bezahlt, zeigt di
 Erstattung an das Mitglied/den externen Zahler als eigene Zahlungsart „Rückzahlung“ erfasst. Diese Buchung landet
 später korrekt als **Ausgabe** (nicht als negative Einnahme) im Kassenbuch.
 
-**Bankumsätze**: CSV-Kontoauszug importieren (übliche deutsche Bank-Exportformate werden erkannt, Duplikate werden
-automatisch übersprungen), danach „Automatisch zuordnen“ – die Zuordnung erfolgt über Rechnungsnummer im
-Verwendungszweck, sonst über Mitgliedsnummer, sonst über eine eindeutige IBAN-Übereinstimmung. Rücklastschriften
-(negative Beträge) werden nur automatisch zugeordnet, wenn der Text erkennbar danach klingt; sonst „manuell“ zur
-Nachbearbeitung markiert.
+**Bankumsätze**: Kontoauszug importieren – erkannt werden automatisch **CSV** (übliche deutsche
+Bank-Exportformate), **MT940** (SWIFT-Kontoauszug, meist `.sta`) und **CAMT.053** (ISO-20022-XML); Duplikate werden
+anhand Datum/Betrag/IBAN/Verwendungszweck erkannt und übersprungen. Danach „Automatisch zuordnen“ – die Zuordnung
+erfolgt über Rechnungsnummer im Verwendungszweck, sonst über Mitgliedsnummer, sonst über eine eindeutige
+IBAN-Übereinstimmung. Rücklastschriften (negative Beträge) werden nur automatisch zugeordnet, wenn der Text
+erkennbar danach klingt; sonst „manuell“ zur Nachbearbeitung markiert. **Hinweis:** Bei MT940 wird der
+Verwendungszweck (Feld `:86:`) nach den seit der SEPA-Umstellung üblichen deutschen Feldkennungen durchsucht
+(`SVWZ+`, `ABWA+`/`ABWE+`, `IBAN+`); weicht eine Bank davon ab, landet der komplette Text unverändert im
+Verwendungszweck statt in Einzelfeldern.
 
 **SEPA-Einzüge**: Unter *Finanzen › SEPA-Einzüge* → „Neuen Einzug erstellen“ werden alle offenen/teilbezahlten
 Rechnungen von Mitgliedern mit Zahlungsart „SEPA-Lastschrift“ und vollständigem Mandat (IBAN, Mandatsreferenz,

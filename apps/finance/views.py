@@ -13,7 +13,7 @@ from django.views.decorators.http import require_POST
 from apps.core.crud import abschnitt, knopf, wert
 from apps.core.util import geld
 
-from . import sepa, services
+from . import kontoauszug, sepa, services
 from .models import Bankumsatz, Beitragsjahr, Mahnung, Rechnung, SepaEinzug, SepaEinzugPosition, Zahlung, wirksame_summe
 from .pdf import mahnung_pdf, rechnung_pdf
 
@@ -209,7 +209,7 @@ def bankumsatz_kontext(request, u):
 def bank_listen_aktionen(request):
     a = []
     if request.rechte.darf("bank", "add"):
-        a.append(knopf("CSV importieren", reverse("bank_import"), stil="primary"))
+        a.append(knopf("Kontoauszug importieren", reverse("bank_import"), stil="primary"))
     if request.rechte.darf("bank", "change"):
         a.append(knopf("Automatisch zuordnen", reverse("bank_zuordnen"), post=True, stil="success"))
     return a
@@ -219,10 +219,11 @@ def bank_listen_aktionen(request):
 def bank_import(request):
     _pruefen(request, "bank", "add")
     if request.method == "POST" and request.FILES.get("datei"):
+        datei = request.FILES["datei"]
         try:
-            neu, doppelt = services.csv_import(request.verein, request.FILES["datei"].read())
+            neu, doppelt, format_ = kontoauszug.importieren(request.verein, datei.name, datei.read())
             ok, manuell = services.zuordnen(request.verein)
-            messages.success(request, f"{neu} Umsätze importiert ({doppelt} Duplikate übersprungen). "
+            messages.success(request, f"{format_}: {neu} Umsätze importiert ({doppelt} Duplikate übersprungen). "
                                       f"Automatisch zugeordnet: {ok}, manuell erforderlich: {manuell}.")
             return redirect("bankumsatz_list")
         except ValueError as e:

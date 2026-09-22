@@ -1,14 +1,62 @@
 import xml.etree.ElementTree as ET
 from datetime import date
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
 from apps.core.models import Rolle, Verein, Zugang
-from apps.finance import sepa, services
-from apps.finance.models import Beitragsjahr, Rechnung, SepaEinzug, Zahlung
+from apps.finance import kontoauszug, sepa, services
+from apps.finance.models import Bankumsatz, Beitragsjahr, Rechnung, SepaEinzug, Zahlung
 from apps.members.models import Mitglied, Mitgliedsart
+
+MT940_BEISPIEL = (
+    ":20:STARTUMSMT940\n"
+    ":25:DE02120300000000202051\n"
+    ":28C:1/1\n"
+    ":60F:C260301EUR1000,00\n"
+    ":61:2603150315C60,00NMSCNONREF\n"
+    ":86:EREF+RG2026-1 MREF+MREF-001 CRED+DE98ZZZ09999999999 SVWZ+Mitgliedsbeitrag 2026 ABWA+Max Muster\n"
+    ":61:2603160316D25,50NTRFNONREF\n"
+    ":86:SVWZ+Vereinsbedarf Rechnung 123\n"
+    ":62F:C260316EUR1034,50\n"
+).encode("utf-8")
+
+CAMT053_BEISPIEL = """<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02">
+  <BkToCstmrStmt><Stmt>
+    <Ntry>
+      <Amt Ccy="EUR">60.00</Amt>
+      <CdtDbtInd>CRDT</CdtDbtInd>
+      <BookgDt><Dt>2026-03-15</Dt></BookgDt>
+      <NtryDtls><TxDtls>
+        <RltdPties>
+          <Dbtr><Nm>Max Muster</Nm></Dbtr>
+          <DbtrAcct><Id><IBAN>DE89370400440532013000</IBAN></Id></DbtrAcct>
+        </RltdPties>
+        <RmtInf><Ustrd>Mitgliedsbeitrag 2026</Ustrd></RmtInf>
+      </TxDtls></NtryDtls>
+    </Ntry>
+    <Ntry>
+      <Amt Ccy="EUR">25.50</Amt>
+      <CdtDbtInd>DBIT</CdtDbtInd>
+      <BookgDt><Dt>2026-03-16</Dt></BookgDt>
+      <NtryDtls><TxDtls>
+        <RltdPties>
+          <Cdtr><Nm>Beispiel Handwerk GmbH</Nm></Cdtr>
+          <CdtrAcct><Id><IBAN>DE12500105170648489890</IBAN></Id></CdtrAcct>
+        </RltdPties>
+        <RmtInf><Ustrd>Vereinsbedarf Rechnung 123</Ustrd></RmtInf>
+      </TxDtls></NtryDtls>
+    </Ntry>
+  </Stmt></BkToCstmrStmt>
+</Document>""".encode("utf-8")
+
+CSV_BEISPIEL = (
+    "Buchungstag;Betrag;Name;IBAN;Verwendungszweck\n"
+    "15.03.2026;60,00;Max Muster;DE89370400440532013000;Mitgliedsbeitrag 2026\n"
+).encode("utf-8")
 
 
 class BeitragsTests(TestCase):
@@ -245,3 +293,101 @@ class SepaViewTests(TestCase):
         r = self.client.get(reverse("sepaeinzug_detail", args=[e.pk]))
         self.assertContains(r, "Muster")
         self.assertContains(r, e.nummer)
+
+
+class KontoauszugMT940Tests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+
+    def test_import_liest_beide_zeilen(self):
+        neu, doppelt = kontoauszug.mt940_import(self.v, MT940_BEISPIEL)
+        self.assertEqual((neu, doppelt), (2, 0))
+        u1 = Bankumsatz.objects.get(betrag=Decimal("60.00"))
+        self.assertEqual((u1.buchungsdatum, u1.gegenkonto_name, u1.verwendungszweck),
+                         (date(2026, 3, 15), "Max Muster", "Mitgliedsbeitrag 2026"))
+        u2 = Bankumsatz.objects.get(betrag=Decimal("-25.50"))
+        self.assertEqual((u2.buchungsdatum, u2.verwendungszweck), (date(2026, 3, 16), "Vereinsbedarf Rechnung 123"))
+
+    def test_erneuter_import_erkennt_duplikate(self):
+        kontoauszug.mt940_import(self.v, MT940_BEISPIEL)
+        neu, doppelt = kontoauszug.mt940_import(self.v, MT940_BEISPIEL)
+        self.assertEqual((neu, doppelt), (0, 2))
+
+    def test_ohne_umsatzzeilen_wird_abgelehnt(self):
+        with self.assertRaises(ValueError):
+            kontoauszug.mt940_import(self.v, b":20:LEER\n:28C:1/1\n")
+
+
+class KontoauszugCamt053Tests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+
+    def test_import_liest_beide_eintraege(self):
+        neu, doppelt = kontoauszug.camt053_import(self.v, CAMT053_BEISPIEL)
+        self.assertEqual((neu, doppelt), (2, 0))
+        u1 = Bankumsatz.objects.get(betrag=Decimal("60.00"))
+        self.assertEqual((u1.buchungsdatum, u1.gegenkonto_name, u1.gegenkonto_iban, u1.verwendungszweck),
+                         (date(2026, 3, 15), "Max Muster", "DE89370400440532013000", "Mitgliedsbeitrag 2026"))
+        u2 = Bankumsatz.objects.get(betrag=Decimal("-25.50"))
+        self.assertEqual((u2.gegenkonto_name, u2.gegenkonto_iban), ("Beispiel Handwerk GmbH", "DE12500105170648489890"))
+
+    def test_erneuter_import_erkennt_duplikate(self):
+        kontoauszug.camt053_import(self.v, CAMT053_BEISPIEL)
+        neu, doppelt = kontoauszug.camt053_import(self.v, CAMT053_BEISPIEL)
+        self.assertEqual((neu, doppelt), (0, 2))
+
+    def test_ohne_eintraege_wird_abgelehnt(self):
+        with self.assertRaises(ValueError):
+            kontoauszug.camt053_import(self.v, b'<?xml version="1.0"?><Document><BkToCstmrStmt/></Document>')
+
+    def test_kaputtes_xml_wird_abgelehnt(self):
+        with self.assertRaises(ValueError):
+            kontoauszug.camt053_import(self.v, b"<Document><Ntry>")
+
+
+class KontoauszugDispatcherTests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+
+    def test_erkennt_camt053_an_dateiendung(self):
+        neu, doppelt, format_ = kontoauszug.importieren(self.v, "auszug.xml", CAMT053_BEISPIEL)
+        self.assertEqual((neu, format_), (2, "CAMT.053"))
+
+    def test_erkennt_mt940_an_dateiendung(self):
+        neu, doppelt, format_ = kontoauszug.importieren(self.v, "auszug.sta", MT940_BEISPIEL)
+        self.assertEqual((neu, format_), (2, "MT940"))
+
+    def test_erkennt_mt940_auch_mit_txt_endung_am_inhalt(self):
+        neu, doppelt, format_ = kontoauszug.importieren(self.v, "auszug.txt", MT940_BEISPIEL)
+        self.assertEqual((neu, format_), (2, "MT940"))
+
+    def test_erkennt_csv(self):
+        neu, doppelt, format_ = kontoauszug.importieren(self.v, "auszug.csv", CSV_BEISPIEL)
+        self.assertEqual((neu, format_), (1, "CSV"))
+
+    def test_unbekanntes_format_wird_abgelehnt(self):
+        with self.assertRaises(ValueError):
+            kontoauszug.importieren(self.v, "auszug.doc", b"irgendwas")
+
+
+class BankImportViewTests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.user = User.objects.create_user("kasse", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        self.client.login(username="kasse", password="pw-Test-12345")
+
+    def test_mt940_datei_hochladen(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        datei = SimpleUploadedFile("auszug.sta", MT940_BEISPIEL, content_type="application/octet-stream")
+        r = self.client.post(reverse("bank_import"), {"datei": datei}, follow=True)
+        self.assertContains(r, "MT940")
+        self.assertEqual(Bankumsatz.objects.filter(verein=self.v).count(), 2)
+
+    def test_camt053_datei_hochladen(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        datei = SimpleUploadedFile("auszug.xml", CAMT053_BEISPIEL, content_type="application/xml")
+        r = self.client.post(reverse("bank_import"), {"datei": datei}, follow=True)
+        self.assertContains(r, "CAMT.053")
+        self.assertEqual(Bankumsatz.objects.filter(verein=self.v).count(), 2)

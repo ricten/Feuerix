@@ -1,10 +1,7 @@
 """Fachlogik Finanzen: Beitragsberechnung, Rechnungslauf, Storno, Gutschrift, Mahnung, Bankzuordnung."""
-import csv
-import hashlib
-import io
 import re
-from datetime import date, datetime, timedelta
-from decimal import Decimal, InvalidOperation
+from datetime import date, timedelta
+from decimal import Decimal
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -166,70 +163,6 @@ def rechnung_mailen(rechnung):
 
 
 # ------------------------------------------------------------------ Bank
-def _zahl(s):
-    s = str(s).strip().replace("€", "").replace(" ", "")
-    if "," in s:
-        s = s.replace(".", "").replace(",", ".")
-    return Decimal(s)
-
-
-def _datum(s):
-    s = str(s).strip()
-    for fmt in ("%d.%m.%Y", "%d.%m.%y", "%Y-%m-%d"):
-        try:
-            return datetime.strptime(s, fmt).date()
-        except ValueError:
-            pass
-    raise ValueError(f"Datum nicht lesbar: {s}")
-
-
-SPALTEN = {
-    "datum": ("buchungstag", "buchungsdatum", "datum", "valuta", "booking date"),
-    "betrag": ("betrag", "umsatz", "amount"),
-    "name": ("name zahlungsbeteiligter", "beguenstigter/zahlungspflichtiger", "auftraggeber/empfänger", "name",
-             "auftraggeber", "zahlungspflichtiger", "beguenstigter", "begünstigter/zahlungspflichtiger"),
-    "iban": ("iban zahlungsbeteiligter", "iban", "kontonummer/iban", "iban auftraggeber"),
-    "zweck": ("verwendungszweck", "buchungstext", "zweck", "purpose"),
-}
-
-
-def csv_import(verein, dateiinhalt):
-    """Importiert einen Kontoauszug im CSV-Format (Semikolon). Gibt (neu, doppelt) zurück."""
-    try:
-        text = dateiinhalt.decode("utf-8-sig")
-    except UnicodeDecodeError:
-        text = dateiinhalt.decode("cp1252")
-    zeilen = list(csv.reader(io.StringIO(text), delimiter=";"))
-    kopf_idx = next((i for i, z in enumerate(zeilen) if any(c.strip().lower() in SPALTEN["betrag"] for c in z)
-                     and any(c.strip().lower() in SPALTEN["datum"] for c in z)), None)
-    if kopf_idx is None:
-        raise ValueError("Kopfzeile mit Spalten 'Buchungstag' und 'Betrag' nicht gefunden.")
-    kopf = [c.strip().lower() for c in zeilen[kopf_idx]]
-
-    def idx(key):
-        return next((kopf.index(n) for n in SPALTEN[key] if n in kopf), None)
-    i_d, i_b, i_n, i_i, i_z = idx("datum"), idx("betrag"), idx("name"), idx("iban"), idx("zweck")
-    neu = doppelt = 0
-    for z in zeilen[kopf_idx + 1:]:
-        if len(z) <= max(i for i in (i_d, i_b) if i is not None) or not z[i_d].strip():
-            continue
-        try:
-            d, b = _datum(z[i_d]), _zahl(z[i_b])
-        except (ValueError, InvalidOperation):
-            continue
-        name = z[i_n].strip() if i_n is not None and i_n < len(z) else ""
-        iban = z[i_i].strip().replace(" ", "") if i_i is not None and i_i < len(z) else ""
-        zweck = z[i_z].strip() if i_z is not None and i_z < len(z) else ""
-        summe = hashlib.sha1(f"{d}|{b}|{iban}|{zweck}".encode()).hexdigest()
-        if Bankumsatz.objects.filter(verein=verein, pruefsumme=summe).exists():
-            doppelt += 1
-            continue
-        Bankumsatz.objects.create(verein=verein, buchungsdatum=d, betrag=b, gegenkonto_name=name,
-                                  gegenkonto_iban=iban, verwendungszweck=zweck, pruefsumme=summe)
-        neu += 1
-    return neu, doppelt
-
-
 RE_RECHNUNG = re.compile(r"RE-(\d{4})-(\d+)")
 RE_MITGLIED = re.compile(r"MITGLIED(?:SNR|SNUMMER|SNR\.)?[\s.:-]*(\d+)", re.I)
 

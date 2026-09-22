@@ -3,9 +3,14 @@
 <div class="row justify-content-center"><div class="col-lg-7">
 <h3>Kontoauszug importieren</h3>
 <div class="card shadow-sm"><div class="card-body">
-  <p>CSV-Export aus dem Online-Banking (Semikolon-getrennt, Kopfzeile mit z. B. <em>Buchungstag</em>, <em>Betrag</em>, <em>Name</em>, <em>IBAN</em>, <em>Verwendungszweck</em>). Doppelte Umsätze werden erkannt und übersprungen. Anschließend wird automatisch versucht, Zahlungen offenen Rechnungen zuzuordnen (Rechnungsnummer, Mitgliedsnummer oder IBAN).</p>
+  <p>Unterstützt werden drei Formate, die die meisten Banken zum Download anbieten: <strong>CSV</strong>
+    (Semikolon-getrennt, Kopfzeile mit z. B. <em>Buchungstag</em>, <em>Betrag</em>, <em>Name</em>, <em>IBAN</em>,
+    <em>Verwendungszweck</em>), <strong>MT940</strong> (SWIFT-Kontoauszug, meist Dateiendung <code>.sta</code>) und
+    <strong>CAMT.053</strong> (ISO-20022-XML). Das Format wird automatisch erkannt. Doppelte Umsätze werden erkannt
+    und übersprungen. Anschließend wird automatisch versucht, Zahlungen offenen Rechnungen zuzuordnen
+    (Rechnungsnummer, Mitgliedsnummer oder IBAN).</p>
   <form method="post" enctype="multipart/form-data">{% csrf_token %}
-    <input type="file" name="datei" accept=".csv,.txt" class="form-control mb-3" required>
+    <input type="file" name="datei" accept=".csv,.txt,.sta,.mt940,.940,.xml" class="form-control mb-3" required>
     <button class="btn btn-primary">Importieren</button> <a class="btn btn-outline-secondary" href="{% url 'bankumsatz_list' %}">Abbrechen</a>
   </form>
 </div></div></div></div>
