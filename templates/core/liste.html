@@ -27,7 +27,11 @@
 <div id="tabelle">
 <div class="card shadow-sm"><div class="table-responsive">
 <table class="table table-hover table-sm mb-0 tabelle">
-  <thead class="table-light"><tr>{% for s in spalten %}<th>{{ s }}</th>{% endfor %}</tr></thead>
+  <thead class="table-light"><tr>
+    {% for s in spalten %}
+      <th>{% if s.sort_url %}<a href="{{ s.sort_url }}" class="text-decoration-none text-reset">{{ s.label }}{% if s.richtung == "auf" %} ▲{% elif s.richtung == "ab" %} ▼{% endif %}</a>{% else %}{{ s.label }}{% endif %}</th>
+    {% endfor %}
+  </tr></thead>
   <tbody>
   {% for z in zeilen %}
     <tr>{% for c in z.zellen %}<td>{% if forloop.first and z.url %}<a href="{{ z.url }}">{{ c }}</a>{% else %}{{ c }}{% endif %}</td>{% endfor %}</tr>

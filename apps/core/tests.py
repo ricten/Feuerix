@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
+from apps.core.crud import _sortierbar
 from apps.core.models import AuditLog, Rolle, Verein, Zugang, naechste_nummer
 from apps.members.models import Mitglied
 
@@ -34,6 +35,19 @@ class MandantenTests(TestCase):
         r = self.client.get(reverse("mitglied_list"))
         self.assertContains(r, "Eins")
         self.assertNotContains(r, "Zwei")
+
+    def test_liste_sortierbar_nach_spalte(self):
+        Mitglied.objects.create(verein=self.v1, vorname="Zora", nachname="Adler")
+        self.client.login(username="anna", password="pw-Test-12345")
+        r = self.client.get(reverse("mitglied_list") + "?sort=nachname")
+        self.assertLess(r.content.find(b"Adler"), r.content.find(b"Eins"))
+        r = self.client.get(reverse("mitglied_list") + "?sort=-nachname")
+        self.assertLess(r.content.find(b"Eins"), r.content.find(b"Adler"))
+
+    def test_sortierbar_nur_bei_echten_modellfeldern(self):
+        self.assertTrue(_sortierbar(Mitglied, "nachname"))
+        self.assertFalse(_sortierbar(Mitglied, "__str__"))
+        self.assertFalse(_sortierbar(Mitglied, "diesesfeldgibtesnicht"))
 
     def test_detail_eines_fremden_vereins_ist_404(self):
         self.client.login(username="anna", password="pw-Test-12345")

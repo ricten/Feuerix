@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,11 +13,11 @@ from apps.core.crud import knopf
 from apps.core.util import geld
 from apps.documents.services import ablegen
 
-from . import services
+from . import erechnung, services
 from .excel import kassenbericht_xlsx
-from .models import Kassenbericht
+from .models import Buchung, Kassenbericht, Konto
 from .pdf import kassenbericht_pdf
-from .services import berichtsdaten
+from .services import _kat, berichtsdaten
 
 
 def _pruefen(request, aktion):
@@ -28,7 +29,45 @@ def buchung_listen_aktionen(request):
     a = []
     if request.rechte.darf("kassenbuch", "add"):
         a.append(knopf("Aus Zahlungen/Spenden/Veranstaltungen übernehmen", reverse("buchungen_uebernehmen"), stil="outline-primary"))
+        a.append(knopf("E-Rechnung importieren", reverse("erechnung_importieren"), stil="outline-primary"))
     return a
+
+
+@login_required
+def erechnung_importieren(request):
+    _pruefen(request, "add")
+    if request.method == "POST":
+        datei = request.FILES.get("datei")
+        if not datei:
+            messages.error(request, "Bitte eine Datei auswählen.")
+            return redirect("erechnung_importieren")
+        inhalt = datei.read()
+        datei.seek(0)
+        angaben = erechnung.parse_rechnung(erechnung.xml_aus_datei(datei.name, inhalt))
+        konto = Konto.objects.filter(verein=request.verein, typ="bank", aktiv=True).first() \
+            or Konto.objects.filter(verein=request.verein, aktiv=True).first()
+        if konto is None:
+            messages.error(request, "Bitte zuerst unter Kasse › Konten mindestens ein Konto anlegen.")
+            return redirect("erechnung_importieren")
+        kategorie = _kat(request.verein, "Sonstige Ausgaben", "ausgabe")
+        b = Buchung(verein=request.verein, typ="ausgabe", konto=konto, kategorie=kategorie)
+        b.beleg = datei
+        if angaben:
+            b.datum = angaben["datum"] or date.today()
+            b.betrag = angaben["betrag"] or Decimal("0.01")
+            teile = [f"E-Rechnung {angaben['nummer']}" if angaben["nummer"] else "E-Rechnung", angaben["verkaeufer"]]
+            b.text = " – ".join(t for t in teile if t)[:250]
+            messages.success(request, f"{angaben['format']} eingelesen – bitte Angaben prüfen, Kategorie/Konto "
+                             "kontrollieren und speichern.")
+        else:
+            b.datum = date.today()
+            b.betrag = Decimal("0.01")
+            b.text = f"E-Rechnung {datei.name}"[:250]
+            messages.warning(request, "Datei enthält keine lesbare E-Rechnung (XRechnung/ZUGFeRD) – Beleg wurde "
+                             "trotzdem angehängt, bitte Angaben manuell eintragen.")
+        b.save()
+        return redirect("buchung_edit", pk=b.pk)
+    return render(request, "accounting/erechnung_importieren.html", {"titel": "E-Rechnung importieren"})
 
 
 @login_required

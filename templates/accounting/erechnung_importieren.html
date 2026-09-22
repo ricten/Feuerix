@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-7">
+<h3>E-Rechnung importieren</h3>
+<div class="card shadow-sm"><div class="card-body">
+  <p>Liest eine empfangene E-Rechnung ein (<strong>XRechnung</strong> als .xml oder <strong>ZUGFeRD/Faktur-X</strong>
+    als .pdf mit eingebetteter XML) und legt daraus eine vorausgefüllte Ausgabe im Kassenbuch an - die Datei selbst
+    wird als Beleg angehängt. Erkannte Angaben (Rechnungsnummer, Datum, Betrag, Aussteller) werden übernommen;
+    Konto und Kategorie danach bitte prüfen und ggf. anpassen.</p>
+  <form method="post" enctype="multipart/form-data">{% csrf_token %}
+    <input type="file" name="datei" accept=".xml,.pdf" class="form-control mb-3" required>
+    <button class="btn btn-primary">Einlesen</button>
+    <a class="btn btn-outline-secondary" href="{% url 'buchung_list' %}">Abbrechen</a>
+  </form>
+</div></div>
+</div></div>
+{% endblock %}

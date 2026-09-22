@@ -55,6 +55,18 @@ def wert(obj, name):
     return str(v)
 
 
+def _sortierbar(model, feldname):
+    """Nur echte Modellfelder lassen sich per order_by() sortieren - "__str__" und berechnete Eigenschaften
+    (z. B. eine Methode/Property in list_display) nicht."""
+    if feldname == "__str__":
+        return False
+    try:
+        model._meta.get_field(feldname)
+        return True
+    except FieldDoesNotExist:
+        return False
+
+
 def spalten_def(model, liste):
     out = []
     for s in liste:
@@ -148,6 +160,10 @@ class ListeView(MandantMixin, ListView):
                     list(qs[:0])
                 except (ValueError, TypeError, Exception):
                     return qs.none()
+        sortierung = req.GET.get("sort", "")
+        erlaubt = {c for c, _ in spalten_def(cfg.model, cfg.list_display) if _sortierbar(cfg.model, c)}
+        if sortierung.lstrip("-") in erlaubt:
+            return qs.order_by(sortierung)
         return qs.order_by(*cfg.ordering) if cfg.ordering else qs
 
     def get(self, request, *args, **kwargs):
@@ -204,8 +220,25 @@ class ListeView(MandantMixin, ListView):
         params = req.GET.copy()
         params.pop("page", None)
         params.pop("export", None)
+        aktuell = req.GET.get("sort", "")
+        aktuelles_feld = aktuell.lstrip("-")
+        aktuelle_richtung = "ab" if aktuell.startswith("-") else "auf"
+        sort_basis = params.copy()
+        sort_basis.pop("sort", None)
+        sort_basis_qs = sort_basis.urlencode()
+        spalten = []
+        for feld, label in cols:
+            if _sortierbar(cfg.model, feld):
+                ist_aktuell = feld == aktuelles_feld
+                naechstes = f"-{feld}" if (ist_aktuell and aktuelle_richtung == "auf") else feld
+                spalten.append({"label": label, "aktiv": ist_aktuell,
+                                "richtung": aktuelle_richtung if ist_aktuell else None,
+                                "sort_url": f"?{sort_basis_qs}&sort={naechstes}" if sort_basis_qs
+                                else f"?sort={naechstes}"})
+            else:
+                spalten.append({"label": label, "aktiv": False, "richtung": None, "sort_url": None})
         ctx.update(
-            spalten=[l for _, l in cols], zeilen=zeilen, q=req.GET.get("q", ""), filterfelder=filterfelder,
+            spalten=spalten, zeilen=zeilen, q=req.GET.get("q", ""), filterfelder=filterfelder,
             can_add=cfg.add and req.rechte.darf(cfg.modul, "add"),
             add_url=reverse(f"{cfg.name}_add") if cfg.add else None,
             qs_ohne_seite=params.urlencode(), export_qs=params.urlencode(),

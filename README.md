@@ -51,7 +51,7 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
 | Beiträge | Mitgliedsarten, Regeln (Alter, Familie, Gültigkeitsjahre, Priorität), individuelle Beiträge, Beitragsjahre mit Rechnungslauf; Beträge werden in der Rechnung eingefroren |
 | Rechnungen | Nummernkreis `RE-JJJJ-000001`, Entwurf → Ausstellen (danach unveränderbar), PDF, E-Mail, Storno (mit buchbarer **Rückzahlung** bei bereits bezahlten Rechnungen), Gutschrift, Mahnstufen mit PDF |
 | Zahlungen/Bank | Zahlungen je Rechnung inkl. Rücklastschrift, CSV-Import mit Dublettenerkennung, automatische Zuordnung (Rechnungsnr. → Mitgliedsnr. → IBAN), Liste „manuelle Zuordnung erforderlich“ |
-| Kassenbuch | Konten (Bank/Bar), Buchungskategorien mit steuerlicher Sphäre, Buchungen mit Belegnummer und Belegupload, Übernahme aus Zahlungen/Spenden/Aufwandsentschädigungen/Veranstaltungen (idempotent) |
+| Kassenbuch | Konten (Bank/Bar), Buchungskategorien mit steuerlicher Sphäre, Buchungen mit Belegnummer und Belegupload, Übernahme aus Zahlungen/Spenden/Aufwandsentschädigungen/Veranstaltungen (idempotent), **E-Rechnung importieren** (XRechnung/ZUGFeRD einlesen und als vorausgefüllte Ausgabe mit Beleg ablegen) |
 | Kassenbericht | Zeitraumbericht mit Kontenübersicht, Einnahmen/Ausgaben je Kategorie und Sphäre, Vorjahresvergleich, Soll/Ist-Abgleich, Prüfungsbemerkung, Unterschriftszeilen, Kassenbuch-Anlage; PDF + Excel; Abschluss sperrt den Zeitraum und legt das PDF in der Ablage ab |
 | Inventar | Inventarnummern `INV-000001`, Kategorien, Standorte, Zustand, Garantie, Fotos/Dokumente, **Import** aus Excel/CSV (wie Mitglieder), Etikettendruck mit **QR-Code** je Gegenstand |
 | Verleih | Reservierung → Ausgabe → Rückgabe, Konfliktprüfung (Überschneidungen, defekt, überfällig), Kaution/Gebühr, Zustand bei Ausgabe/Rückgabe, Leihschein-PDF, Bezug zu Veranstaltungen; **Verleih-Warenkorb** (QR-Etiketten mit dem Handy scannen) und Sammelverleih für mehrere Gegenstände als ein **Vorgang** (gemeinsame Ausgabe/Rückgabe/Rechnung/Leihschein); bei Rückgabe wählbar, ob eine Kaution zurückgezahlt oder einbehalten (→ Rechnung) wird |
@@ -73,6 +73,10 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
 * **Freibeträge** (Standard: 3.300 € Übungsleiter, 960 € Ehrenamt) sind pro Verein einstellbar – bitte auf Aktualität prüfen.
   Die Übersicht kennt nur Zahlungen dieses Vereins.
 * **Beitragslauf:** Berechnet den vollen Jahresbeitrag für alle im Jahr zeitweise aktiven Mitglieder (keine anteilige Berechnung).
+* **E-Rechnungen:** Nur der Empfang (Einlesen bekannter Kernfelder aus XRechnung/ZUGFeRD, Ablage als Beleg) ist
+  enthalten – kein EN16931-Validator und kein Ausstellen eigener E-Rechnungen (die Mitgliedsrechnungen der Software
+  bleiben klassische PDFs; das betrifft in aller Regel nicht die B2B-E-Rechnungspflicht, da Mitglieder keine
+  Unternehmer sind).
 * **Betrieb:** Hinter einen Reverse Proxy mit HTTPS setzen und `HTTPS=1` in der `.env` aktivieren.
   Bootstrap/HTMX werden beim Build lokal eingebunden (keine externen CDNs).
 

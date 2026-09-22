@@ -1,11 +1,53 @@
 from datetime import date
 from decimal import Decimal
 
+from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
+from django.urls import reverse
 
+from apps.accounting import erechnung
 from apps.accounting.models import Buchung, Buchungskategorie, Kassenbericht, Konto
 from apps.accounting.services import berichtsdaten
-from apps.core.models import Verein
+from apps.core.models import Rolle, Verein, Zugang
+
+UBL_XRECHNUNG = b"""<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+        xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+        xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:ID>RE-2026-000123</cbc:ID>
+  <cbc:IssueDate>2026-03-15</cbc:IssueDate>
+  <cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>
+  <cac:AccountingSupplierParty><cac:Party><cac:PartyLegalEntity>
+    <cbc:RegistrationName>Beispiel Lieferant GmbH</cbc:RegistrationName>
+  </cac:PartyLegalEntity></cac:Party></cac:AccountingSupplierParty>
+  <cac:LegalMonetaryTotal>
+    <cbc:TaxInclusiveAmount currencyID="EUR">238.00</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="EUR">238.00</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>
+</Invoice>"""
+
+CII_ZUGFERD = b"""<?xml version="1.0" encoding="UTF-8"?>
+<rsm:CrossIndustryInvoice xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
+        xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"
+        xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100">
+  <rsm:ExchangedDocument>
+    <ram:ID>ZF-2026-9987</ram:ID>
+    <ram:IssueDateTime><udt:DateTimeString format="102">20260320</udt:DateTimeString></ram:IssueDateTime>
+  </rsm:ExchangedDocument>
+  <rsm:SupplyChainTradeTransaction>
+    <ram:ApplicableHeaderTradeAgreement>
+      <ram:SellerTradeParty><ram:Name>Muster Handwerk e.K.</ram:Name></ram:SellerTradeParty>
+    </ram:ApplicableHeaderTradeAgreement>
+    <ram:ApplicableHeaderTradeSettlement>
+      <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
+      <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+        <ram:TaxInclusiveAmount>595.00</ram:TaxInclusiveAmount>
+        <ram:DuePayableAmount>595.00</ram:DuePayableAmount>
+      </ram:SpecifiedTradeSettlementHeaderMonetarySummation>
+    </ram:ApplicableHeaderTradeSettlement>
+  </rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryInvoice>"""
 
 
 class KassenberichtTests(TestCase):
@@ -61,3 +103,69 @@ class KassenberichtTests(TestCase):
         uebernehmen(self.v, date(2026, 1, 1), date(2026, 12, 31))
         b = Buchung.objects.get(verein=self.v, quelle="zahlung")
         self.assertEqual((b.typ, b.betrag, b.kategorie.name), ("ausgabe", Decimal("60"), "Erstattungen / Rückzahlungen"))
+
+
+class ERechnungParserTests(TestCase):
+    def test_ubl_xrechnung_wird_gelesen(self):
+        d = erechnung.parse_rechnung(erechnung.xml_aus_datei("re.xml", UBL_XRECHNUNG))
+        self.assertEqual(d["nummer"], "RE-2026-000123")
+        self.assertEqual(d["datum"], date(2026, 3, 15))
+        self.assertEqual(d["betrag"], Decimal("238.00"))
+        self.assertEqual(d["verkaeufer"], "Beispiel Lieferant GmbH")
+
+    def test_cii_zugferd_wird_gelesen(self):
+        d = erechnung.parse_rechnung(erechnung.xml_aus_datei("re.xml", CII_ZUGFERD))
+        self.assertEqual(d["nummer"], "ZF-2026-9987")
+        self.assertEqual(d["datum"], date(2026, 3, 20))
+        self.assertEqual(d["betrag"], Decimal("595.00"))
+        self.assertEqual(d["verkaeufer"], "Muster Handwerk e.K.")
+
+    def test_zugferd_pdf_mit_eingebettetem_xml_wird_gelesen(self):
+        from pypdf import PdfWriter
+        import io
+        w = PdfWriter()
+        w.add_blank_page(width=200, height=200)
+        w.add_attachment("factur-x.xml", CII_ZUGFERD)
+        buf = io.BytesIO()
+        w.write(buf)
+        xml_bytes = erechnung.xml_aus_datei("rechnung.pdf", buf.getvalue())
+        d = erechnung.parse_rechnung(xml_bytes)
+        self.assertEqual(d["nummer"], "ZF-2026-9987")
+
+    def test_unlesbare_datei_gibt_none(self):
+        self.assertIsNone(erechnung.xml_aus_datei("foto.jpg", b"\xff\xd8\xff\x00binaerdaten"))
+        self.assertIsNone(erechnung.parse_rechnung(b"das ist kein xml"))
+
+
+class ERechnungImportTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.user = User.objects.create_user("kasse", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        self.client.login(username="kasse", password="pw-Test-12345")
+
+    def test_import_xml_erstellt_ausgefuellte_buchung(self):
+        datei = SimpleUploadedFile("rechnung.xml", UBL_XRECHNUNG, content_type="application/xml")
+        r = self.client.post(reverse("erechnung_importieren"), {"datei": datei})
+        b = Buchung.objects.get(verein=self.v)
+        self.assertRedirects(r, reverse("buchung_edit", args=[b.pk]))
+        self.assertEqual((b.typ, b.betrag, b.datum), ("ausgabe", Decimal("238.00"), date(2026, 3, 15)))
+        self.assertIn("RE-2026-000123", b.text)
+        self.assertIn("Beispiel Lieferant GmbH", b.text)
+        self.assertTrue(b.beleg.name.endswith("rechnung.xml"))
+
+    def test_import_ohne_lesbare_erechnung_legt_trotzdem_beleg_an(self):
+        datei = SimpleUploadedFile("sonstiges.xml", b"<Sonstiges/>", content_type="application/xml")
+        r = self.client.post(reverse("erechnung_importieren"), {"datei": datei}, follow=True)
+        b = Buchung.objects.get(verein=self.v)
+        self.assertEqual(b.betrag, Decimal("0.01"))
+        self.assertTrue(b.beleg)
+        self.assertContains(r, "keine lesbare E-Rechnung")
+
+    def test_ohne_konto_zeigt_fehler_statt_absturz(self):
+        Konto.objects.filter(verein=self.v).delete()
+        datei = SimpleUploadedFile("rechnung.xml", UBL_XRECHNUNG, content_type="application/xml")
+        r = self.client.post(reverse("erechnung_importieren"), {"datei": datei}, follow=True)
+        self.assertEqual(Buchung.objects.filter(verein=self.v).count(), 0)
+        self.assertContains(r, "mindestens ein Konto anlegen")

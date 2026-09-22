@@ -48,6 +48,10 @@ Die Navigation oben ist nach Themen gruppiert (Mitglieder, Schriftverkehr, Finan
 Veranstaltungen, Auswertung, Verwaltung) und zeigt nur die Punkte, für die die eigene Rolle mindestens Lesezugriff
 hat.
 
+**Listen sortieren:** In jeder Tabelle lässt sich auf eine Spaltenüberschrift klicken, um danach zu sortieren
+(Pfeil zeigt die Richtung); ein zweiter Klick kehrt die Richtung um. Das funktioniert für alle Spalten, die ein
+echtes Datenfeld abbilden (nicht für rein berechnete Spalten wie z. B. „Entleiher“ in der Verleih-Liste).
+
 ## 2. Rollen und Rechte
 
 Jeder Benutzerzugang (*Verwaltung › Benutzer*) bekommt pro Verein eine **Rolle** zugewiesen (*Verwaltung › Rollen*).
@@ -134,7 +138,16 @@ manuell erfasst oder per „Aus Zahlungen/Spenden/Veranstaltungen übernehmen“
 gezogen (mehrfach anstoßbar, bereits übernommene Vorgänge werden nicht doppelt gebucht). Jede Buchung gehört zu
 einem **Konto** (Bank/Bar) und einer **Buchungskategorie**, die wiederum einer der vier steuerlichen **Sphären**
 zugeordnet ist (Ideeller Bereich, Vermögensverwaltung, Zweckbetrieb, wirtschaftlicher Geschäftsbetrieb – bitte mit
-Steuerberater/Finanzamt abstimmen). Ein **Kassenbericht** über einen Zeitraum zeigt Kontenübersicht, Einnahmen/
+Steuerberater/Finanzamt abstimmen).
+
+**E-Rechnung importieren**: Über den gleichnamigen Button auf der Kassenbuch-Liste lässt sich eine empfangene
+elektronische Rechnung einlesen – als reine XML-Datei (XRechnung) oder als PDF mit eingebetteter XML
+(ZUGFeRD/Faktur-X). Rechnungsnummer, Datum, Betrag und Aussteller werden automatisch erkannt und als Ausgabe im
+Kassenbuch vorausgefüllt, die Originaldatei wird direkt als Beleg angehängt. Konto und Kategorie danach bitte
+prüfen (Standard: erstes Bankkonto, Kategorie „Sonstige Ausgaben“). Wird kein bekanntes Format erkannt, wird die
+Datei trotzdem als Beleg abgelegt – die übrigen Angaben dann bitte manuell eintragen.
+
+Ein **Kassenbericht** über einen Zeitraum zeigt Kontenübersicht, Einnahmen/
 Ausgaben je Sphäre mit Vorjahresvergleich und einen Soll/Ist-Abgleich mit gezähltem Bargeld-/Kontostand. „Abschließen“
 sperrt alle Buchungen im Zeitraum endgültig gegen nachträgliche Änderung (Korrekturen danach nur per
 Gegenbuchung) und legt das PDF automatisch in der Ablage ab.

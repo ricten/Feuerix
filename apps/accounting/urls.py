@@ -8,6 +8,7 @@ from .models import Buchung, Buchungskategorie, Kassenbericht, Konto
 
 urlpatterns = [
     path("kassenbuch/uebernehmen/", views.buchungen_uebernehmen, name="buchungen_uebernehmen"),
+    path("kassenbuch/e-rechnung/", views.erechnung_importieren, name="erechnung_importieren"),
     path("kassenberichte/<int:pk>/pdf/", views.kassenbericht_pdf_view, name="kassenbericht_pdf"),
     path("kassenberichte/<int:pk>/excel/", views.kassenbericht_xlsx_view, name="kassenbericht_xlsx"),
     path("kassenberichte/<int:pk>/abschliessen/", views.kassenbericht_abschliessen, name="kassenbericht_abschliessen"),
