@@ -3,19 +3,24 @@ services:
   caddy:
     image: caddy:2
     restart: unless-stopped
-    network_mode: host        # erreicht 127.0.0.1:8000 (Vereinsverwaltung) und 127.0.0.1:9000 (OpenSlides)
+    network_mode: host        # erreicht 127.0.0.1:8000 (Vereinsverwaltung), :9000 (OpenSlides), :10000 (Paperless)
     entrypoint: ["/bin/sh", "/entrypoint.sh"]
     command: ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
     environment:
       VEREIN_DOMAIN: ${VEREIN_DOMAIN:?in .env setzen}
-      OPENSLIDES_DOMAIN: ${OPENSLIDES_DOMAIN:?in .env setzen}
       ACME_EMAIL: ${ACME_EMAIL:?in .env setzen}
+      # Optional: nur setzen, wenn OpenSlides (siehe ../openslides/) bzw. Paperless-ngx (siehe ../paperless/)
+      # genutzt wird. Leer lassen, wenn nicht - der jeweilige Domain-Block entfaellt dann automatisch.
+      OPENSLIDES_DOMAIN: ${OPENSLIDES_DOMAIN:-}
+      PAPERLESS_DOMAIN: ${PAPERLESS_DOMAIN:-}
       # Eigenes Zertifikat statt automatischem Let's Encrypt (optional, siehe INSTALL.md):
       # Dateinamen (nicht Pfad) von Zertifikat/Schluessel unter deploy/certs/.
       VEREIN_TLS_CERT: ${VEREIN_TLS_CERT:-}
       VEREIN_TLS_KEY: ${VEREIN_TLS_KEY:-}
       OPENSLIDES_TLS_CERT: ${OPENSLIDES_TLS_CERT:-}
       OPENSLIDES_TLS_KEY: ${OPENSLIDES_TLS_KEY:-}
+      PAPERLESS_TLS_CERT: ${PAPERLESS_TLS_CERT:-}
+      PAPERLESS_TLS_KEY: ${PAPERLESS_TLS_KEY:-}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile.tmpl:ro
       - ./entrypoint.sh:/entrypoint.sh:ro

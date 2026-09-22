@@ -1,0 +1,59 @@
+# Paperless-ngx als eigener Docker-Compose-Stack (analog zu ../openslides/) - laeuft unabhaengig von der
+# Vereinsverwaltung und wird per API-Token angebunden (Verwaltung > Paperless-Anbindung). Aufbau nach der
+# offiziellen Docker-Installation (docker-compose.postgres.yml):
+# https://raw.githubusercontent.com/paperless-ngx/paperless-ngx/main/docker/compose/docker-compose.postgres.yml
+services:
+  broker:
+    image: docker.io/valkey/valkey:9-alpine
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+
+  db:
+    image: docker.io/library/postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?bitte in .env setzen}
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paperless"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      broker:
+        condition: service_started
+    ports:
+      - "127.0.0.1:${PAPERLESS_PORT:-10000}:8000"
+    environment:
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_DBHOST: db
+      PAPERLESS_DBENGINE: postgresql
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY:?bitte in .env setzen}
+      PAPERLESS_URL: ${PAPERLESS_URL:-}
+      PAPERLESS_TIME_ZONE: ${PAPERLESS_TIME_ZONE:-Europe/Berlin}
+      PAPERLESS_OCR_LANGUAGE: ${PAPERLESS_OCR_LANGUAGE:-deu}
+      # Wird nur beim allerersten Start ausgewertet (analog ADMIN_USER/ADMIN_PASSWORD der Vereinsverwaltung):
+      PAPERLESS_ADMIN_USER: ${PAPERLESS_ADMIN_USER:-}
+      PAPERLESS_ADMIN_PASSWORD: ${PAPERLESS_ADMIN_PASSWORD:-}
+      PAPERLESS_ADMIN_MAIL: ${PAPERLESS_ADMIN_MAIL:-}
+    volumes:
+      - data:/usr/src/paperless/data
+      - media:/usr/src/paperless/media
+      - ./export:/usr/src/paperless/export
+      - ./consume:/usr/src/paperless/consume
+
+volumes:
+  data:
+  media:
+  pgdata:
+  redisdata:

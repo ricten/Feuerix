@@ -18,7 +18,8 @@ laufenden Stand zu identifizieren.
 
 ## Start
 
-Ausführliche Schritt-für-Schritt-Anleitung für Server, HTTPS und OpenSlides: **[INSTALL.md](INSTALL.md)**. Kurzfassung:
+Ausführliche Schritt-für-Schritt-Anleitung für Server, HTTPS und die optionalen Anbindungen (OpenSlides,
+Paperless-ngx): **[INSTALL.md](INSTALL.md)**. Kurzfassung:
 
 ```bash
 cp .env.example .env          # SECRET_KEY, FIELD_ENCRYPTION_KEY, POSTGRES_PASSWORD, ADMIN_* ausfüllen
@@ -81,9 +82,11 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
   Vorgängen (wirtschaftlicher Geschäftsbetrieb) unbedingt vor dem Versand prüfen (lassen) und die erzeugte Datei
   gegen ein offizielles Prüfwerkzeug (z. B. den KoSIT-Validator) laufen lassen. Für die üblichen Mitgliedsrechnungen
   ohnehin meist irrelevant, da Mitglieder keine Unternehmer sind und damit keine B2B-E-Rechnungspflicht besteht.
-* **Paperless-ngx:** Setzt eine bereits laufende, separate Paperless-ngx-Instanz voraus (wird von dieser Software
-  nicht mitinstalliert) – nur Adresse und API-Token unter *Verwaltung › Paperless-Anbindung* eintragen. Der Versand
-  ist reines Hochladen (Einweg); es gibt keinen Rücksync von Status/Metadaten aus Paperless in die Vereinsverwaltung.
+* **Paperless-ngx:** Entweder eine bereits laufende, separate Instanz verwenden (nur Adresse und API-Token unter
+  *Verwaltung › Paperless-Anbindung* eintragen), oder optional über [paperless/](paperless/) als eigenen
+  Docker-Compose-Stack auf diesem Server mitbetreiben (siehe INSTALL.md Abschnitt 9). Der Versand ist in jedem
+  Fall reines Hochladen (Einweg); es gibt keinen Rücksync von Status/Metadaten aus Paperless in die
+  Vereinsverwaltung.
 * **Kontoauszug-Import:** CSV, MT940 und CAMT.053 werden anhand Dateiendung/Inhalt automatisch erkannt; bei MT940
   wird der Verwendungszweck nur nach den gängigen deutschen SEPA-Feldkennungen (`SVWZ+` u. a.) durchsucht – weicht
   eine Bank davon ab, landet der komplette Text unstrukturiert im Verwendungszweck.

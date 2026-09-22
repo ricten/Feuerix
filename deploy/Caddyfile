@@ -1,8 +1,10 @@
-# Reverse Proxy für beide Anwendungen.
+# Reverse Proxy für alle Anwendungen. Nur die Vereinsverwaltung ist Pflicht - OpenSlides und Paperless-ngx
+# sind optionale Bausteine (siehe INSTALL.md Abschnitte 5/8 bzw. 9).
 # HTTPS-Zertifikat je Domain: standardmäßig automatisch über Let's Encrypt.
 # Ein eigenes/hinterlegtes Zertifikat wird stattdessen verwendet, sobald in der .env
-# VEREIN_TLS_CERT/_KEY bzw. OPENSLIDES_TLS_CERT/_KEY gesetzt sind (Dateien unter deploy/certs/,
-# siehe INSTALL.md Abschnitt 6). Das Einfügen der passenden "tls"-Zeile übernimmt entrypoint.sh.
+# VEREIN_TLS_CERT/_KEY, OPENSLIDES_TLS_CERT/_KEY bzw. PAPERLESS_TLS_CERT/_KEY gesetzt sind (Dateien unter
+# deploy/certs/, siehe INSTALL.md Abschnitt 6). Das Einfügen der passenden "tls"-Zeile sowie das komplette
+# Entfernen der optionalen Bloecke (falls die jeweilige *_DOMAIN leer ist) übernimmt entrypoint.sh.
 {
 	email {$ACME_EMAIL}
 }
@@ -13,6 +15,7 @@
 	reverse_proxy 127.0.0.1:8000
 }
 
+# OPENSLIDES_START
 {$OPENSLIDES_DOMAIN} {
 	# OpenSlides nutzt Streaming (Autoupdate) - deshalb kein Puffern
 	@@OPENSLIDES_TLS@@
@@ -20,3 +23,12 @@
 		flush_interval -1
 	}
 }
+# OPENSLIDES_END
+
+# PAPERLESS_START
+{$PAPERLESS_DOMAIN} {
+	encode gzip
+	@@PAPERLESS_TLS@@
+	reverse_proxy 127.0.0.1:10000
+}
+# PAPERLESS_END

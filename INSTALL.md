@@ -1,17 +1,22 @@
-# Installationsanleitung – Vereinsverwaltung + OpenSlides
+# Installationsanleitung – Vereinsverwaltung (+ optional OpenSlides, + optional Paperless-ngx)
 
-Diese Anleitung richtet auf **einem Server** beide Anwendungen ein und stellt sie per HTTPS bereit:
+Diese Anleitung richtet auf **einem Server** die Vereinsverwaltung ein und stellt sie per HTTPS bereit. OpenSlides
+(Mitgliederversammlung online) und Paperless-ngx (Dokumentenarchiv) sind zwei unabhängig voneinander komplett
+optionale Bausteine – nichts davon ist Voraussetzung für den Betrieb der Vereinsverwaltung:
 
 ```
 Internet ──► Caddy (Ports 80/443, automatisches HTTPS)
                 ├─► verein.example.org       ──► Vereinsverwaltung   127.0.0.1:8000  (Django, PostgreSQL, Redis, Celery)
-                └─► versammlung.example.org  ──► OpenSlides 4        127.0.0.1:9000  (eigener Docker-Stack)
+                ├─► versammlung.example.org  ──► OpenSlides 4        127.0.0.1:9000  (eigener Docker-Stack, optional)
+                └─► paperless.example.org    ──► Paperless-ngx       127.0.0.1:10000 (eigener Docker-Stack, optional)
 ```
 
 > **Hinweis zum Stand:** Eine automatisierte Testsuite und GitHub-Actions-CI prüfen die Vereinsverwaltung bei jeder
-> Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine laufende Instanz geprüft ist ausschließlich die
-> OpenSlides-Anbindung (nach offizieller Dokumentation umgesetzt) – planen Sie dafür eine Testphase ein (Abschnitt 10).
-> Die OpenSlides-Installationsschritte entsprechen der offiziellen `INSTALL.md` (OpenSlides 4.x, Werkzeug `osmanage`).
+> Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine laufende Instanz geprüft sind die OpenSlides- und
+> die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – planen Sie dafür eine Testphase ein
+> (Abschnitt 11), falls Sie eines der beiden nutzen. Die OpenSlides-Installationsschritte entsprechen der offiziellen
+> `INSTALL.md` (OpenSlides 4.x, Werkzeug `osmanage`); die Paperless-Installationsschritte der offiziellen
+> Docker-Compose-Installation.
 
 ---
 
@@ -19,14 +24,17 @@ Internet ──► Caddy (Ports 80/443, automatisches HTTPS)
 
 | Was | Empfehlung |
 |---|---|
-| Server | Linux (Ubuntu 24.04 LTS oder Debian 12), **mind. 2 CPU / 4 GB RAM** (Richtwert; OpenSlides besteht aus vielen Containern), 40 GB Platz |
-| Domains | zwei Namen, die auf die Server-IP zeigen (DNS-A-Eintrag): z. B. `verein.example.org` und `versammlung.example.org` |
+| Server | Linux (Ubuntu 24.04 LTS oder Debian 12), **mind. 1 CPU / 2 GB RAM** für die Vereinsverwaltung allein, 20 GB Platz |
+| Domain | ein Name, der auf die Server-IP zeigt (DNS-A-Eintrag): z. B. `verein.example.org` – **Pflicht** |
+| Domains zusätzlich | je ein weiterer Name nur bei Bedarf: `versammlung.example.org` für OpenSlides (Abschnitt 5), `paperless.example.org` für Paperless-ngx (Abschnitt 9) |
+| RAM zusätzlich | +2 GB, falls OpenSlides mitbetrieben wird (viele Container); +1 GB, falls Paperless-ngx über Abschnitt 9 (Weg A) mitbetrieben wird (eigene Postgres-Instanz, OCR-Verarbeitung) |
 | Ports | 80 und 443 eingehend frei (für HTTPS/Let's Encrypt) |
 | Zugang | SSH-Zugang mit sudo-Rechten |
 | E-Mail | SMTP-Zugangsdaten (für Rechnungs- und Serienbrief-Versand), optional |
 
-Zum Ausprobieren auf dem eigenen Rechner genügt Docker; Domains/HTTPS sind dann nicht nötig (Abschnitt 4 und 5 mit
-`http://localhost:8000` bzw. `http://127.0.0.1:9000`, für OpenSlides im Browser allerdings HTTPS nötig – siehe Abschnitt 7).
+Zum Ausprobieren auf dem eigenen Rechner genügt Docker; Domains/HTTPS sind dann nicht nötig (Abschnitt 4 mit
+`http://localhost:8000`; für OpenSlides bzw. Paperless-ngx entsprechend `http://127.0.0.1:9000`/`:10000`, für
+OpenSlides im Browser allerdings HTTPS nötig – siehe Abschnitt 7).
 
 ## 2. Server vorbereiten
 
@@ -68,7 +76,8 @@ Wichtig (alle Werte selbst setzen):
 * `ALLOWED_HOSTS=verein.example.org`
 * `CSRF_TRUSTED_ORIGINS=https://verein.example.org`
 * `HTTPS=1` und `USE_X_FORWARDED_FOR=1` (weil der Proxy davor sitzt)
-* `VEREIN_DOMAIN`, `OPENSLIDES_DOMAIN`, `ACME_EMAIL` (für den Proxy)
+* `VEREIN_DOMAIN`, `ACME_EMAIL` (für den Proxy) – `OPENSLIDES_DOMAIN`/`PAPERLESS_DOMAIN` nur, falls Abschnitt 5
+  bzw. 9 genutzt wird, sonst leer lassen
 * E-Mail: `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL`
 
 ## 4. Vereinsverwaltung starten
@@ -85,7 +94,10 @@ Test: `curl -I http://127.0.0.1:8000/login/` → HTTP 200. Anmeldung mit `ADMIN_
 Beim ersten Start wird der Verein aus `VEREIN_NAME` mit Standardrollen, Beispiel-Stammdaten, **Ablage-Ordnern und
 Standardvorlagen** (Einladungen, Protokolle, Serienbriefe) angelegt.
 
-## 5. OpenSlides installieren
+## 5. OpenSlides installieren (optional)
+
+Komplett optional – wer keine Online-Mitgliederversammlung braucht, überspringt diesen Abschnitt und Abschnitt 8
+(dann in Abschnitt 3 `OPENSLIDES_DOMAIN` einfach leer lassen).
 
 ```bash
 cd /opt/verein/vereinsverwaltung/openslides
@@ -116,22 +128,25 @@ docker compose --env-file ../.env -f docker-compose.proxy.yml up -d
 docker compose -f docker-compose.proxy.yml logs -f      # Zertifikate werden automatisch geholt
 ```
 
-Danach: `https://verein.example.org` (Vereinsverwaltung) und `https://versammlung.example.org` (OpenSlides).
-OpenSlides **benötigt HTTPS** (der Browser-Client funktioniert nicht ohne Verschlüsselung).
+Danach erreichbar: `https://verein.example.org` (Vereinsverwaltung) – **immer**. Zusätzlich
+`https://versammlung.example.org` (OpenSlides) bzw. `https://paperless.example.org` (Paperless-ngx), aber jeweils
+nur, wenn `OPENSLIDES_DOMAIN` bzw. `PAPERLESS_DOMAIN` in der `.env` gesetzt sind – leere Variablen lässt Caddy
+automatisch weg (kein Fehler, die Domain existiert dann einfach nicht). OpenSlides **benötigt HTTPS** (der
+Browser-Client funktioniert nicht ohne Verschlüsselung), falls genutzt.
 
 **Zertifikat: automatisch (Let's Encrypt) oder eigenes hinterlegtes Zertifikat.** Ohne weitere Einrichtung
-holt Caddy für beide Domains automatisch ein Let's-Encrypt-Zertifikat (Voraussetzung: Domain zeigt per DNS
-auf den Server, Ports 80/443 offen). Alternativ kann ein eigenes Zertifikat verwendet werden (z. B. von einer
-kommunalen/eigenen Zertifizierungsstelle):
+holt Caddy für jede konfigurierte Domain automatisch ein Let's-Encrypt-Zertifikat (Voraussetzung: Domain zeigt
+per DNS auf den Server, Ports 80/443 offen). Alternativ kann ein eigenes Zertifikat verwendet werden (z. B. von
+einer kommunalen/eigenen Zertifizierungsstelle):
 
 1. Zertifikat (PEM) und privaten Schlüssel (PEM, unverschlüsselt) nach `deploy/certs/` legen (siehe
    `deploy/certs/README.md`).
 2. In der `.env` die Dateinamen eintragen, z. B. `VEREIN_TLS_CERT=verein.crt`, `VEREIN_TLS_KEY=verein.key`
-   (entsprechend `OPENSLIDES_TLS_CERT`/`OPENSLIDES_TLS_KEY` für die zweite Domain).
+   (entsprechend `OPENSLIDES_TLS_CERT`/`OPENSLIDES_TLS_KEY` bzw. `PAPERLESS_TLS_CERT`/`PAPERLESS_TLS_KEY`).
 3. Proxy neu erzeugen: `docker compose -f docker-compose.proxy.yml up -d --force-recreate`.
 
-Beide Wege lassen sich je Domain unabhängig wählen (z. B. eigenes Zertifikat für die Vereinsverwaltung,
-Let's Encrypt für OpenSlides). Bei leeren `*_TLS_CERT`/`*_TLS_KEY`-Variablen bleibt es beim automatischen
+Alle drei Wege lassen sich je Domain unabhängig wählen (z. B. eigenes Zertifikat für die Vereinsverwaltung,
+Let's Encrypt für die anderen). Bei leeren `*_TLS_CERT`/`*_TLS_KEY`-Variablen bleibt es beim automatischen
 Zertifikat.
 
 ## 7. Erste Schritte in der Vereinsverwaltung
@@ -147,7 +162,7 @@ Zertifikat.
 
 Eine ausführliche Bedienungsanleitung für alle Module steht in **[docs/HANDBUCH.md](docs/HANDBUCH.md)**.
 
-## 8. OpenSlides mit der Vereinsverwaltung verbinden
+## 8. OpenSlides mit der Vereinsverwaltung verbinden (nur falls Abschnitt 5 genutzt wird)
 
 1. In OpenSlides als `superadmin` anmelden, Passwort ändern.
 2. **Konten › Neues Konto:** technischen Benutzer anlegen (z. B. `verein-sync`, langes Passwort) und ihm die
@@ -163,10 +178,28 @@ Eine ausführliche Bedienungsanleitung für alle Module steht in **[docs/HANDBUC
 7. In einer **Veranstaltung** (Mitgliederversammlung) Tagesordnung pflegen → **„In OpenSlides anlegen“**. Die Teilnehmer
    werden anschließend in OpenSlides der Versammlung zugeordnet (Teilnehmer › vorhandene Konten hinzufügen).
 
-## 9. Paperless-ngx verbinden (optional)
+## 9. Paperless-ngx einrichten und verbinden (optional)
 
-Anders als OpenSlides wird Paperless-ngx **nicht** von diesem Docker-Compose-Stack mitinstalliert – vorausgesetzt wird
-eine bereits laufende, separate Paperless-ngx-Instanz (eigener Server oder vorhandene Installation).
+Komplett optional – wer das nicht braucht, überspringt diesen Abschnitt. Zwei Wege:
+
+**A) Paperless-ngx über diesen Server mitbetreiben** (eigener Docker-Compose-Stack, analog OpenSlides):
+
+```bash
+cd /opt/verein/vereinsverwaltung/paperless
+cp .env.example .env
+nano .env              # PAPERLESS_SECRET_KEY, POSTGRES_PASSWORD, PAPERLESS_ADMIN_USER/_PASSWORD, PAPERLESS_URL setzen
+./install.sh
+```
+
+Läuft danach lokal auf `127.0.0.1:10000`. Damit es auch über den Reverse Proxy erreichbar ist, in der **`.env` der
+Vereinsverwaltung** (nicht die von `paperless/`!) `PAPERLESS_DOMAIN=paperless.example.org` setzen und den Proxy
+neu erzeugen (Abschnitt 6: `docker compose -f docker-compose.proxy.yml up -d --force-recreate`). Details, Backup
+und Update stehen in [paperless/README.md](paperless/README.md).
+
+**B) Eine bereits vorhandene, separate Paperless-ngx-Instanz nutzen** (eigener Server oder vorhandene Installation) –
+dann Schritt A überspringen und direkt mit Schritt 1 unten weitermachen.
+
+**Verbinden (bei beiden Wegen gleich):**
 
 1. In Paperless-ngx anmelden, unter **Mein Profil › API-Token** einen Token erzeugen.
 2. In der Vereinsverwaltung **Verwaltung › Paperless-Anbindung:** Adresse der Paperless-Instanz
@@ -180,19 +213,48 @@ eine bereits laufende, separate Paperless-ngx-Instanz (eigener Server oder vorha
 **Hinweis:** Der Versand ist reines Hochladen (Einweg) – Status oder Metadaten, die anschließend in Paperless
 geändert werden, fließen nicht in die Vereinsverwaltung zurück.
 
-## 10. Testphase (dringend empfohlen)
+## 10. OpenSlides oder Paperless-ngx nachträglich hinzufügen (oder entfernen)
+
+Beide Bausteine müssen nicht gleich beim ersten Einrichten dabei sein – sie lassen sich jederzeit später ergänzen,
+ohne die laufende Vereinsverwaltung anzutasten: Die App-Container (`web`/`worker`/`db`/`redis`) bleiben unberührt,
+nur der Reverse-Proxy-Container wird kurz neu erzeugt (einige Sekunden Unterbrechung für **alle** Domains, die
+über diesen Proxy laufen – nicht nur die neu hinzugefügte).
+
+**OpenSlides nachträglich hinzufügen:**
+
+1. DNS-A-Eintrag für die gewünschte Domain (z. B. `versammlung.example.org`) auf die Server-IP anlegen, falls noch
+   nicht geschehen.
+2. Abschnitt 5 durchführen: `cd openslides && ./install.sh`.
+3. In der **`.env` der Vereinsverwaltung** (Projektwurzel, nicht `openslides/config.yml`) `OPENSLIDES_DOMAIN=versammlung.example.org`
+   eintragen (optional `OPENSLIDES_TLS_CERT`/`_KEY`, siehe Abschnitt 6).
+4. Proxy neu erzeugen, damit die Domain aktiv wird: `cd deploy && docker compose -f docker-compose.proxy.yml up -d --force-recreate`.
+5. Abschnitt 8 durchführen (Verbindung in der Vereinsverwaltung einrichten und testen).
+
+**Paperless-ngx nachträglich hinzufügen:** genauso, nur mit Abschnitt 9 statt 5/8 – also Weg A oder B durchführen,
+`PAPERLESS_DOMAIN` in der `.env` der Vereinsverwaltung setzen, Proxy neu erzeugen (Schritt 4 oben), dann verbinden
+(Schritte 1–4 in Abschnitt 9).
+
+**Wieder entfernen:** in umgekehrter Reihenfolge – in der Vereinsverwaltung unter *Verwaltung ›
+OpenSlides-/Paperless-Anbindung* „Anbindung aktiv“ abwählen (sonst zeigen Detailseiten weiter tote Knöpfe an),
+`OPENSLIDES_DOMAIN` bzw. `PAPERLESS_DOMAIN` in der `.env` wieder leeren, Proxy neu erzeugen (Schritt 4 oben), dann
+den jeweiligen Stack stoppen: `cd openslides` bzw. `cd paperless && docker compose down` (mit zusätzlich `-v`, um
+auch die zugehörigen Datenbank-/Dateivolumes unwiderruflich zu löschen – vorher Backup, siehe Abschnitt 12).
+
+## 11. Testphase (dringend empfohlen)
 
 Bevor echte Mitgliederdaten eingegeben werden: Testverein anlegen und prüfen – Beitragsrechnung erzeugen und als PDF ansehen,
-Serienbrief-Vorschau, Ablage, OpenSlides-Verbindungstest, Paperless-Verbindungstest (falls genutzt), Backup **und
-Wiederherstellung** auf einem zweiten Rechner.
+Serienbrief-Vorschau, Ablage, OpenSlides-Verbindungstest (falls genutzt), Paperless-Verbindungstest (falls genutzt),
+Backup **und Wiederherstellung** auf einem zweiten Rechner.
 
-## 11. Datensicherung
+## 12. Datensicherung
 
 ```bash
 # Vereinsverwaltung (Datenbank + hochgeladene Dateien)
 docker compose exec -T web /app/scripts/backup.sh          # legt Dateien im Volume "backups" ab
-# OpenSlides
+# OpenSlides (nur falls Abschnitt 5 genutzt wird)
 cd openslides && docker compose exec --user postgres postgres pg_dump -U openslides --clean > /opt/verein/os-$(date +%F).sql
+# Paperless-ngx (nur falls über Weg A in Abschnitt 9 selbst betrieben)
+cd paperless && docker compose exec -T db pg_dump -U paperless --clean > /opt/verein/paperless-$(date +%F).sql
 ```
 
 Als Cronjob (täglich 03:00), danach die Dateien **auf einen anderen Rechner/Speicher kopieren**:
@@ -200,23 +262,29 @@ Als Cronjob (täglich 03:00), danach die Dateien **auf einen anderen Rechner/Spe
 ```cron
 0 3 * * * cd /opt/verein/vereinsverwaltung && docker compose exec -T web /app/scripts/backup.sh
 15 3 * * * cd /opt/verein/vereinsverwaltung/openslides && docker compose exec -T --user postgres postgres pg_dump -U openslides --clean > /opt/verein/os-$(date +\%F).sql
+30 3 * * * cd /opt/verein/vereinsverwaltung/paperless && docker compose exec -T db pg_dump -U paperless --clean > /opt/verein/paperless-$(date +\%F).sql
 ```
 
-Außerdem sichern: `.env` (enthält `FIELD_ENCRYPTION_KEY`!) und `openslides/secrets/`.
+Außerdem sichern: `.env` (enthält `FIELD_ENCRYPTION_KEY`!) und – falls genutzt – `openslides/secrets/` bzw.
+`paperless/.env` sowie die Docker-Volumes `paperless_data`/`paperless_media` (dort liegen die eingescannten
+Dokumente und der Volltextindex).
 Wiederherstellung: `scripts/restore.sh` (Vereinsverwaltung) bzw. laut OpenSlides-Anleitung
-(`docker compose up --detach postgres`, dann `psql < dump.sql`).
+(`docker compose up --detach postgres`, dann `psql < dump.sql`); für Paperless-ngx analog
+(`docker compose up --detach db`, dann `psql < dump.sql`).
 
-## 12. Updates
+## 13. Updates
 
 * **Vereinsverwaltung:** neue Projektdateien einspielen (`.env` und `apps/*/migrations` behalten), dann
   `docker compose build && docker compose run --rm --no-deps --user root -v "$PWD/apps:/app/apps" web python manage.py makemigrations && docker compose up -d`
   (Migrationen werden beim Start automatisch angewendet). Vorher immer Backup!
-* **OpenSlides:** `defaults.tag` in `config.yml` erhöhen, dann
+* **OpenSlides** (nur falls genutzt): `defaults.tag` in `config.yml` erhöhen, dann
   `./osmanage config --force --config config.yml --template docker-compose.yml.tmpl .`, `docker compose up --detach`,
   bei Bedarf `./osmanage migrations stats|migrate|finalize`. Versionshinweise in der offiziellen INSTALL.md lesen (bei
   einzelnen Versionen sind manuelle Schritte nötig).
+* **Paperless-ngx** (nur falls selbst betrieben): `cd paperless && docker compose pull && docker compose up --detach`.
+  Versionshinweise in den offiziellen Paperless-ngx-Release-Notes lesen.
 
-## 13. Fehlersuche
+## 14. Fehlersuche
 
 | Problem | Lösung |
 |---|---|
@@ -224,12 +292,13 @@ Wiederherstellung: `scripts/restore.sh` (Vereinsverwaltung) bzw. laut OpenSlides
 | „CSRF verification failed“ | `CSRF_TRUSTED_ORIGINS` (mit `https://`) und `ALLOWED_HOSTS` prüfen |
 | Keine E-Mails | `EMAIL_HOST…` prüfen; ohne `EMAIL_HOST` werden Mails nur ins Log geschrieben (`docker compose logs worker`) |
 | Serienbrief-Versand/OpenSlides-Abgleich tut nichts | Worker läuft? `docker compose ps`, `docker compose logs worker` |
-| OpenSlides-Verbindungstest schlägt fehl | Adresse mit `https://`, Benutzer/Passwort, `docker compose logs` im OpenSlides-Ordner; Zertifikat gültig? |
+| OpenSlides-Verbindungstest schlägt fehl (falls genutzt) | Adresse mit `https://`, Benutzer/Passwort, `docker compose logs` im OpenSlides-Ordner; Zertifikat gültig? |
 | Paperless-Verbindungstest/Versand schlägt fehl | Adresse mit `https://` (ohne `/` am Ende), API-Token korrekt kopiert, Paperless-Instanz vom Server aus erreichbar (`docker compose exec web curl -I https://paperless.example.org`) |
-| Port 8000/9000 belegt | Ports in `.env` (`WEB_PORT`) bzw. `openslides/config.yml` ändern und Caddyfile anpassen |
+| Paperless-Stack (Weg A) startet nicht | `cd paperless && docker compose logs` – häufig fehlt `PAPERLESS_SECRET_KEY`/`POSTGRES_PASSWORD` in `paperless/.env` |
+| Port 8000/9000/10000 belegt | Ports in `.env` (`WEB_PORT`) bzw. `openslides/config.yml`/`PAPERLESS_PORT` ändern und Caddyfile anpassen |
 | Logo erscheint nicht im PDF | Nur PNG/JPG; Datei nicht beschädigt; im PDF oben rechts (ca. max. 55 × 28 mm) |
 
-## 14. Datenschutz-Hinweise (kurz)
+## 15. Datenschutz-Hinweise (kurz)
 
 Mit Mitglieds- und Bankdaten gelten DSGVO-Pflichten: Auftragsverarbeitungsvertrag mit dem Hoster, Verzeichnis von
 Verarbeitungstätigkeiten, Zugriffsrechte über Rollen (bereits eingebaut), Datenauskunft/Anonymisierung pro Mitglied
