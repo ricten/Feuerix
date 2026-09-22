@@ -52,8 +52,11 @@ def mitglied_anonymisieren(v, mitglied):
     c.login()
     kennung = mitglied.mitgliedsnummer or mitglied.pk
     c.action("user.update", [{
+        # kein "member_number": "" - OpenSlides lehnt einen leeren Wert dafuer ab ("This member_number is
+        # forbidden."); die Mitgliedsnummer allein ist ausserdem nicht personenbezogen genug, um sie unbedingt
+        # loeschen zu muessen.
         "id": mitglied.openslides_user_id, "first_name": "Anonymisiert", "last_name": f"#{kennung}",
-        "username": f"anonym-{mitglied.openslides_user_id}", "email": "", "member_number": "", "is_active": False,
+        "username": f"anonym-{mitglied.openslides_user_id}", "email": "", "is_active": False,
     }])
 
 
