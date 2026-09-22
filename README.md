@@ -8,6 +8,10 @@ Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Ex
 > zu starten). Rechnen Sie beim ersten Start mit kleineren Fehlern und testen Sie vor dem Produktiveinsatz
 > gründlich – insbesondere Rechnungslauf, Bankzuordnung und Spendenquittungen.
 
+**Version:** Die Datei `VERSION` enthält die aktuelle Versionsnummer (Semantic Versioning) und wird bei jedem
+nennenswerten Deploy erhöht. Sie erscheint im Footer jeder Seite und hilft bei der Fehlersuche/Support, den
+laufenden Stand zu identifizieren.
+
 ## Start
 
 Ausführliche Schritt-für-Schritt-Anleitung für Server, HTTPS und OpenSlides: **[INSTALL.md](INSTALL.md)**. Kurzfassung:

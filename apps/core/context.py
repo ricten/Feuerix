@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 
 NAV = [
@@ -59,6 +60,15 @@ NAV = [
         ("Inventar-Standorte", "standort_list", "inventar"),
     ]),
 ]
+
+
+def version(request):
+    """Version aus der VERSION-Datei im Projektwurzelverzeichnis - fuer Footer/Support (welcher Stand laeuft)."""
+    try:
+        app_version = (settings.BASE_DIR / "VERSION").read_text(encoding="utf-8").strip()
+    except OSError:
+        app_version = ""
+    return {"app_version": app_version}
 
 
 def mandant(request):

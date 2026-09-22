@@ -49,5 +49,8 @@
   {% endfor %}
   {% block content %}{% endblock %}
 </main>
+<footer class="text-center text-muted small py-3">
+  © {% now "Y" %} {{ verein.name|default:"Vereinsverwaltung" }}{% if app_version %} · Version {{ app_version }}{% endif %}
+</footer>
 </body>
 </html>
