@@ -1,5 +1,7 @@
 # Anleitung: Briefe, Serienbriefe, Protokolle, Vorlagen und Ablage
 
+> Teil des [Handbuchs](HANDBUCH.md) – siehe dort Kapitel 11 für den Gesamtüberblick inkl. Corporate Design.
+
 ## Vereinslogo
 *Verwaltung › Verein / Einstellungen / Logo* → Feld **Vereinslogo** (PNG oder JPG). Das Logo steht danach oben rechts auf
 allen PDF-Dokumenten (Briefe, Serienbriefe, Rechnungen, Mahnungen, Leihscheine, Spendenquittungen) und im Word-Export und

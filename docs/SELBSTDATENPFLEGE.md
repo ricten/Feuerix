@@ -1,5 +1,7 @@
 # Selbstdatenpflege für Mitglieder
 
+> Teil des [Handbuchs](HANDBUCH.md) – siehe dort Kapitel 3 „Mitgliederverwaltung“ für den Gesamtüberblick.
+
 Mitglieder können ausgewählte eigene Daten selbst online pflegen, ohne Zugriff auf die übrige Verwaltung zu
 erhalten. Das ist ein separater, schlanker Zugang – unabhängig vom Rollen-/Rechtesystem für Mitarbeiter
 (*Verwaltung › Benutzer*).

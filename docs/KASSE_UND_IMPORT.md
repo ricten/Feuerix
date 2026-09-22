@@ -1,5 +1,8 @@
 # Kassenbuch, Kassenbericht und Mitglieder-Import/Export
 
+> Teil des [Handbuchs](HANDBUCH.md) – siehe dort Kapitel 4/5 für den Gesamtüberblick über Beiträge, Rechnungen
+> und Kassenbuch.
+
 ## Kassenbuch einrichten (einmalig)
 1. **Kasse › Konten:** „Bankkonto“ und „Barkasse“ sind angelegt. **Eröffnungsbestand** und **Eröffnungsdatum** eintragen
    (Kontostand bzw. Kassenbestand zum Startdatum der Buchführung im System, z. B. 01.01.).

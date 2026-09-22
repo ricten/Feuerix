@@ -4,9 +4,13 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Der Code wurde ohne Testlauf geschrieben (keine Möglichkeit, Django/Postgres in der Entwicklungsumgebung
-> zu starten). Rechnen Sie beim ersten Start mit kleineren Fehlern und testen Sie vor dem Produktiveinsatz
-> gründlich – insbesondere Rechnungslauf, Bankzuordnung und Spendenquittungen.
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~80 Tests) und eine GitHub-Actions-CI prüfen
+> bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz verifiziert ist
+> ausschließlich die OpenSlides-Anbindung (nach offizieller Dokumentation umgesetzt) – dafür vor dem Verlass
+> darauf eine Testphase einplanen.
+
+**Handbuch:** Eine ausführliche Bedienungsanleitung für Vorstand, Kassenwart, Schriftführer & Co. steht in
+**[docs/HANDBUCH.md](docs/HANDBUCH.md)**.
 
 **Version:** Die Datei `VERSION` enthält die aktuelle Versionsnummer (Semantic Versioning) und wird bei jedem
 nennenswerten Deploy erhöht. Sie erscheint im Footer jeder Seite und hilft bei der Fehlersuche/Support, den
@@ -45,12 +49,12 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
 | Mitglieder | **Import** aus Excel/CSV (Testlauf, Aktualisierung bestehender Mitglieder, Fehlerbericht, Vorlagendatei) und **Vollexport** (Excel/CSV, Bankdaten nur mit Beitragsrecht, protokolliert); Akte inkl. verschlüsselter IBAN, SEPA-Mandat, Familie/Familienzahler, Abteilungen, Funktionen, versionierte Dokumente, Datenauskunft (JSON), Anonymisierung; **Selbstdatenpflege** – Mitglieder pflegen Adresse/Telefon/E-Mail/Bankverbindung selbst online, siehe [docs/SELBSTDATENPFLEGE.md](docs/SELBSTDATENPFLEGE.md) |
 | Ehrungen | Ehrungsarten, Ehrungen, konfigurierbare Jubiläumsregeln, Jubiläumsliste mit Direktanlage |
 | Beiträge | Mitgliedsarten, Regeln (Alter, Familie, Gültigkeitsjahre, Priorität), individuelle Beiträge, Beitragsjahre mit Rechnungslauf; Beträge werden in der Rechnung eingefroren |
-| Rechnungen | Nummernkreis `RE-JJJJ-000001`, Entwurf → Ausstellen (danach unveränderbar), PDF, E-Mail, Storno, Gutschrift, Mahnstufen mit PDF |
+| Rechnungen | Nummernkreis `RE-JJJJ-000001`, Entwurf → Ausstellen (danach unveränderbar), PDF, E-Mail, Storno (mit buchbarer **Rückzahlung** bei bereits bezahlten Rechnungen), Gutschrift, Mahnstufen mit PDF |
 | Zahlungen/Bank | Zahlungen je Rechnung inkl. Rücklastschrift, CSV-Import mit Dublettenerkennung, automatische Zuordnung (Rechnungsnr. → Mitgliedsnr. → IBAN), Liste „manuelle Zuordnung erforderlich“ |
 | Kassenbuch | Konten (Bank/Bar), Buchungskategorien mit steuerlicher Sphäre, Buchungen mit Belegnummer und Belegupload, Übernahme aus Zahlungen/Spenden/Aufwandsentschädigungen/Veranstaltungen (idempotent) |
 | Kassenbericht | Zeitraumbericht mit Kontenübersicht, Einnahmen/Ausgaben je Kategorie und Sphäre, Vorjahresvergleich, Soll/Ist-Abgleich, Prüfungsbemerkung, Unterschriftszeilen, Kassenbuch-Anlage; PDF + Excel; Abschluss sperrt den Zeitraum und legt das PDF in der Ablage ab |
-| Inventar | Inventarnummern `INV-000001`, Kategorien, Standorte, Zustand, Garantie, Fotos/Dokumente |
-| Verleih | Reservierung → Ausgabe → Rückgabe, Konfliktprüfung (Überschneidungen, defekt, überfällig), Kaution/Gebühr, Zustand bei Ausgabe/Rückgabe, Leihschein-PDF, Bezug zu Veranstaltungen |
+| Inventar | Inventarnummern `INV-000001`, Kategorien, Standorte, Zustand, Garantie, Fotos/Dokumente, **Import** aus Excel/CSV (wie Mitglieder), Etikettendruck mit **QR-Code** je Gegenstand |
+| Verleih | Reservierung → Ausgabe → Rückgabe, Konfliktprüfung (Überschneidungen, defekt, überfällig), Kaution/Gebühr, Zustand bei Ausgabe/Rückgabe, Leihschein-PDF, Bezug zu Veranstaltungen; **Verleih-Warenkorb** (QR-Etiketten mit dem Handy scannen) und Sammelverleih für mehrere Gegenstände als ein **Vorgang** (gemeinsame Ausgabe/Rückgabe/Rechnung/Leihschein); bei Rückgabe wählbar, ob eine Kaution zurückgezahlt oder einbehalten (→ Rechnung) wird |
 | Inventur | Momentaufnahme des Bestands, Positionen abhaken (gefunden / nicht gefunden / beschädigt), Abschluss, Historie bleibt erhalten |
 | Spenden | Spenden (Geld/Sach/Aufwandsverzicht/Beitrag), Einzel- und Sammelbestätigungen, Ausstellen mit Nummernkreis `ZB-JJJJ-000001`, Storno, PDF, Prüfung der Vereinsdaten |
 | Aufwandsentschädigungen | Ehrenamts-/Übungsleiterpauschale, Aufwandsersatz, Genehmigungsworkflow, Freibetragsübersicht je Person/Jahr, Aufwandsverzicht → Spende |

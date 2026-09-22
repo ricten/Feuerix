@@ -8,8 +8,9 @@ Internet ──► Caddy (Ports 80/443, automatisches HTTPS)
                 └─► versammlung.example.org  ──► OpenSlides 4        127.0.0.1:9000  (eigener Docker-Stack)
 ```
 
-> **Hinweis zum Stand:** Die Vereinsverwaltung wurde ohne Testlauf erstellt, die OpenSlides-Anbindung nach der offiziellen
-> Dokumentation, aber nicht gegen eine laufende Instanz geprüft. Planen Sie eine Testphase ein (Abschnitt 9).
+> **Hinweis zum Stand:** Eine automatisierte Testsuite und GitHub-Actions-CI prüfen die Vereinsverwaltung bei jeder
+> Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine laufende Instanz geprüft ist ausschließlich die
+> OpenSlides-Anbindung (nach offizieller Dokumentation umgesetzt) – planen Sie dafür eine Testphase ein (Abschnitt 9).
 > Die OpenSlides-Installationsschritte entsprechen der offiziellen `INSTALL.md` (OpenSlides 4.x, Werkzeug `osmanage`).
 
 ---
@@ -141,7 +142,10 @@ Zertifikat.
 2. **Verwaltung › Benutzer:** Vorstand, Kassenwart usw. mit passender Rolle anlegen.
 3. **Verwaltung › Mitgliedsarten / Beiträge** und **Beitragsregeln:** Beispielbeträge anpassen.
 4. **Schriftverkehr › Vorlagen:** Standardvorlagen prüfen und an die Satzung anpassen (z. B. Einladungsfristen).
-5. Mitglieder erfassen (Import aus Excel ist noch nicht enthalten).
+5. Mitglieder erfassen – einzeln oder per **Import aus Excel/CSV** (Button „Import“ auf der Mitgliederliste,
+   mit Testlauf und herunterladbarer Vorlage).
+
+Eine ausführliche Bedienungsanleitung für alle Module steht in **[docs/HANDBUCH.md](docs/HANDBUCH.md)**.
 
 ## 8. OpenSlides mit der Vereinsverwaltung verbinden
 
