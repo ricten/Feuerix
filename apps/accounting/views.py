@@ -1,3 +1,4 @@
+import os
 from datetime import date
 from decimal import Decimal
 
@@ -31,6 +32,42 @@ def buchung_listen_aktionen(request):
         a.append(knopf("Aus Zahlungen/Spenden/Veranstaltungen übernehmen", reverse("buchungen_uebernehmen"), stil="outline-primary"))
         a.append(knopf("E-Rechnung importieren", reverse("erechnung_importieren"), stil="outline-primary"))
     return a
+
+
+def buchung_kontext(request, b):
+    aktionen, hinweise = [], []
+    if b.beleg:
+        if b.ablage_id:
+            hinweise.append(f"Beleg in Ablage gespeichert: {b.ablage}")
+        elif request.rechte.darf("kassenbuch", "change"):
+            aktionen.append(knopf("Beleg in Ablage übernehmen", reverse("buchung_beleg_ablegen", args=[b.pk]),
+                                  post=True))
+    return {"aktionen": aktionen, "hinweise": hinweise}
+
+
+@login_required
+@require_POST
+def buchung_beleg_ablegen(request, pk):
+    _pruefen(request, "change")
+    b = get_object_or_404(Buchung, pk=pk, verein=request.verein)
+    if not b.beleg:
+        messages.error(request, "Diese Buchung hat keinen Beleg.")
+        return redirect("buchung_detail", pk=b.pk)
+    if b.ablage_id:
+        messages.info(request, "Der Beleg wurde bereits in der Ablage abgelegt.")
+        return redirect("buchung_detail", pk=b.pk)
+    b.beleg.open("rb")
+    try:
+        inhalt = b.beleg.read()
+    finally:
+        b.beleg.close()
+    dateiname = os.path.basename(b.beleg.name)
+    doc = ablegen(request.verein, f"Beleg {b.belegnummer or b.pk}", "beleg", dateiname, inhalt, datum=b.datum,
+                 veranstaltung=b.veranstaltung, beschreibung=b.text[:300])
+    b.ablage = doc
+    b.save(update_fields=["ablage", "geaendert"])
+    messages.success(request, "Beleg in der Ablage abgelegt.")
+    return redirect("buchung_detail", pk=b.pk)
 
 
 @login_required

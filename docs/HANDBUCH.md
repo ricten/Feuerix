@@ -1,4 +1,4 @@
-# Handbuch – Vereinsverwaltung (Version 1.6.0)
+# Handbuch – Vereinsverwaltung (Version 1.7.0)
 
 Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
 alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
@@ -175,6 +175,12 @@ elektronische Rechnung einlesen – als reine XML-Datei (XRechnung) oder als PDF
 Kassenbuch vorausgefüllt, die Originaldatei wird direkt als Beleg angehängt. Konto und Kategorie danach bitte
 prüfen (Standard: erstes Bankkonto, Kategorie „Sonstige Ausgaben“). Wird kein bekanntes Format erkannt, wird die
 Datei trotzdem als Beleg abgelegt – die übrigen Angaben dann bitte manuell eintragen.
+
+**Beleg in Ablage übernehmen**: Ein an einer Buchung hochgeladener Beleg (Scan/Foto) liegt zunächst nur an dieser
+Buchung selbst und taucht nicht automatisch im allgemeinen Dokumentenarchiv (*Schriftverkehr › Ablage*) auf. Über
+den Knopf „Beleg in Ablage übernehmen“ auf der Buchungs-Detailseite lässt er sich bei Bedarf zusätzlich dort
+einordnen (Ordner „Belege“/Jahr) – z. B. um ihn zusammen mit anderen Unterlagen wiederzufinden oder an Paperless-ngx
+weiterzuleiten. Der Knopf verschwindet danach und ein Hinweis zeigt, wo der Beleg abgelegt wurde.
 
 Ein **Kassenbericht** über einen Zeitraum zeigt Kontenübersicht, Einnahmen/
 Ausgaben je Sphäre mit Vorjahresvergleich und einen Soll/Ist-Abgleich mit gezähltem Bargeld-/Kontostand. „Abschließen“

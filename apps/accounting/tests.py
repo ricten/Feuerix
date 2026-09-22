@@ -169,3 +169,65 @@ class ERechnungImportTests(TestCase):
         r = self.client.post(reverse("erechnung_importieren"), {"datei": datei}, follow=True)
         self.assertEqual(Buchung.objects.filter(verein=self.v).count(), 0)
         self.assertContains(r, "mindestens ein Konto anlegen")
+
+
+class BelegAblageTests(TestCase):
+    """Belege (Buchung.beleg) waren bisher nur ueber das Kassenbuch erreichbar, nicht in der allgemeinen
+    Ablage (Schriftverkehr) auffindbar - ueber "Beleg in Ablage uebernehmen" lassen sie sich dort einordnen."""
+
+    def setUp(self):
+        from apps.documents.models import Ablagedokument
+
+        self.Ablagedokument = Ablagedokument
+        User = get_user_model()
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.user = User.objects.create_user("kasse", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        self.client.login(username="kasse", password="pw-Test-12345")
+        konto = Konto.objects.filter(verein=self.v, aktiv=True).first()
+        kategorie = Buchungskategorie.objects.filter(verein=self.v, typ="ausgabe").first()
+        self.b = Buchung.objects.create(
+            verein=self.v, datum=date(2026, 3, 1), typ="ausgabe", betrag=Decimal("42.00"), konto=konto,
+            kategorie=kategorie, text="Testbeleg",
+            beleg=SimpleUploadedFile("quittung.pdf", b"%PDF-1.4 Inhalt", content_type="application/pdf"))
+
+    def test_knopf_erscheint_nur_solange_nicht_abgelegt(self):
+        r = self.client.get(reverse("buchung_detail", args=[self.b.pk]))
+        self.assertContains(r, "Beleg in Ablage übernehmen")
+
+    def test_beleg_ablegen_erstellt_ablagedokument(self):
+        r = self.client.post(reverse("buchung_beleg_ablegen", args=[self.b.pk]), follow=True)
+        self.b.refresh_from_db()
+        self.assertIsNotNone(self.b.ablage_id)
+        doc = self.Ablagedokument.objects.get(pk=self.b.ablage_id)
+        self.assertEqual(doc.kategorie, "beleg")
+        self.assertEqual(doc.datum, date(2026, 3, 1))
+        self.assertTrue(doc.datei.name.endswith("quittung.pdf"))
+        self.assertContains(r, "Beleg in der Ablage abgelegt")
+        self.assertContains(r, "Beleg in Ablage gespeichert")
+
+    def test_doppeltes_ablegen_wird_abgefangen(self):
+        self.client.post(reverse("buchung_beleg_ablegen", args=[self.b.pk]))
+        anzahl_vorher = self.Ablagedokument.objects.filter(verein=self.v).count()
+        r = self.client.post(reverse("buchung_beleg_ablegen", args=[self.b.pk]), follow=True)
+        self.assertEqual(self.Ablagedokument.objects.filter(verein=self.v).count(), anzahl_vorher)
+        self.assertContains(r, "bereits in der Ablage abgelegt")
+
+    def test_ohne_beleg_kein_knopf_und_fehler_bei_direktem_aufruf(self):
+        ohne_beleg = Buchung.objects.create(
+            verein=self.v, datum=date(2026, 3, 2), typ="ausgabe", betrag=Decimal("10.00"),
+            konto=Konto.objects.filter(verein=self.v).first(),
+            kategorie=Buchungskategorie.objects.filter(verein=self.v, typ="ausgabe").first(), text="Ohne Beleg")
+        r = self.client.get(reverse("buchung_detail", args=[ohne_beleg.pk]))
+        self.assertNotContains(r, "Beleg in Ablage übernehmen")
+        r = self.client.post(reverse("buchung_beleg_ablegen", args=[ohne_beleg.pk]), follow=True)
+        self.assertContains(r, "hat keinen Beleg")
+
+    def test_ohne_recht_verboten(self):
+        User = get_user_model()
+        User.objects.create_user("leser", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=User.objects.get(username="leser"),
+                              rolle=Rolle.objects.get(verein=self.v, name="Lesebenutzer"))
+        self.client.login(username="leser", password="pw-Test-12345")
+        r = self.client.post(reverse("buchung_beleg_ablegen", args=[self.b.pk]))
+        self.assertEqual(r.status_code, 403)

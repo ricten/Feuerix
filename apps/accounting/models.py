@@ -71,6 +71,8 @@ class Buchung(TenantModel):
                                       related_name="buchungen", verbose_name="Veranstaltung")
     quelle = models.CharField("Herkunft", max_length=8, choices=QUELLE, default="manuell", editable=False)
     quelle_id = models.PositiveIntegerField(null=True, blank=True, editable=False)
+    ablage = models.ForeignKey("documents.Ablagedokument", on_delete=models.SET_NULL, null=True, blank=True,
+                               editable=False, related_name="+", verbose_name="Ablage")
 
     class Meta:
         verbose_name = "Buchung"
