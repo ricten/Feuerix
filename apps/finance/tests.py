@@ -1,3 +1,4 @@
+import io
 import xml.etree.ElementTree as ET
 from datetime import date
 from decimal import Decimal
@@ -410,40 +411,62 @@ class ErechnungExportTests(TestCase):
                                          einzelpreis=Decimal("25.00"))
         self.r.refresh_from_db()
 
-    def test_xml_enthaelt_kernfelder(self):
-        xml_bytes = erechnung.xrechnung_xml(self.r)
-        root = ET.fromstring(xml_bytes)
-        self.assertTrue(root.tag.endswith("Invoice"))
-        ns = {"cbc": erechnung.CBC_NS, "cac": erechnung.CAC_NS}
-        self.assertEqual(root.find("cbc:ID", ns).text, self.r.nummer)
-        self.assertEqual(root.find("cbc:IssueDate", ns).text, "2026-03-01")
-        self.assertEqual(root.find("cac:LegalMonetaryTotal/cbc:PayableAmount", ns).text, f"{self.r.betrag:.2f}")
-        zeilen = root.findall("cac:InvoiceLine", ns)
-        self.assertEqual(len(zeilen), 2)
-        self.assertEqual(root.find("cac:AccountingSupplierParty//cbc:RegistrationName", ns).text, self.v.name)
-        self.assertEqual(root.find("cac:AccountingCustomerParty//cbc:RegistrationName", ns).text,
-                         "Beispiel Handwerk GmbH")
-        self.assertEqual(root.find("cac:PaymentMeans/cac:PayeeFinancialAccount/cbc:ID", ns).text, self.v.iban)
-
-    def test_entwurf_ohne_nummer_bekommt_platzhalter(self):
-        entwurf = Rechnung.objects.create(verein=self.v, typ="individuell", status="entwurf",
-                                          empfaenger_name="Max Muster", datum=date(2026, 3, 1))
-        xml_bytes = erechnung.xrechnung_xml(entwurf)
-        root = ET.fromstring(xml_bytes)
-        ns = {"cbc": erechnung.CBC_NS}
-        self.assertEqual(root.find("cbc:ID", ns).text, f"ENTWURF-{entwurf.pk}")
-
-    def test_roundtrip_mit_dem_e_rechnung_importer_lesbar(self):
-        """Die eigene Ausgabe muss vom bestehenden E-Rechnung-Import (apps.accounting.erechnung) wieder
-        korrekt eingelesen werden koennen - Symmetrie zwischen Erstellen und Lesen."""
-        xml_bytes = erechnung.xrechnung_xml(self.r)
+    def test_xml_ist_gueltig_und_enthaelt_kernfelder(self):
+        """generate_cii_xml validiert bereits intern gegen das offizielle EN16931/Factur-X-XSD - kommen
+        Bytes zurueck, ist die Struktur amtlich schema-valide (siehe auch die XSD-Ablehnungstests unten)."""
+        xml_bytes = erechnung.zugferd_xml(self.r)
         d = erechnung_import.parse_rechnung(xml_bytes)
-        self.assertEqual(d["format"], "XRechnung (UBL)")
+        self.assertEqual(d["format"], "ZUGFeRD/XRechnung (CII)")
         self.assertEqual(d["nummer"], self.r.nummer)
         self.assertEqual(d["datum"], date(2026, 3, 1))
         self.assertEqual(d["betrag"], self.r.betrag)
         self.assertEqual(d["verkaeufer"], self.v.name)
         self.assertEqual(d["waehrung"], "EUR")
+
+    def test_entwurf_ohne_nummer_bekommt_platzhalter(self):
+        entwurf = Rechnung.objects.create(verein=self.v, typ="individuell", status="entwurf",
+                                          empfaenger_name="Max Muster", datum=date(2026, 3, 1))
+        Rechnungsposition.objects.create(verein=self.v, rechnung=entwurf, text="Posten", menge=1,
+                                         einzelpreis=Decimal("10.00"))
+        entwurf.refresh_from_db()
+        xml_bytes = erechnung.zugferd_xml(entwurf)
+        d = erechnung_import.parse_rechnung(xml_bytes)
+        self.assertEqual(d["nummer"], f"ENTWURF-{entwurf.pk}")
+
+    def test_pdf_enthaelt_eingebettete_xml_als_factur_x_datei(self):
+        pdf_bytes = erechnung.zugferd_pdf(self.r)
+        self.assertTrue(pdf_bytes.startswith(b"%PDF"))
+        from pypdf import PdfReader
+        reader = PdfReader(io.BytesIO(pdf_bytes))
+        self.assertIn("factur-x.xml", reader.attachments)
+
+    def test_roundtrip_mit_dem_e_rechnung_importer_lesbar(self):
+        """Die eigene ZUGFeRD-PDF-Ausgabe muss vom bestehenden E-Rechnung-Import (apps.accounting.erechnung)
+        wieder korrekt eingelesen werden koennen - Symmetrie zwischen Erstellen und Lesen."""
+        pdf_bytes = erechnung.zugferd_pdf(self.r)
+        xml_bytes = erechnung_import.xml_aus_datei("rechnung.pdf", pdf_bytes)
+        d = erechnung_import.parse_rechnung(xml_bytes)
+        self.assertEqual(d["format"], "ZUGFeRD/XRechnung (CII)")
+        self.assertEqual(d["nummer"], self.r.nummer)
+        self.assertEqual(d["datum"], date(2026, 3, 1))
+        self.assertEqual(d["betrag"], self.r.betrag)
+        self.assertEqual(d["verkaeufer"], self.v.name)
+
+    def test_xsd_pruefung_lehnt_ungueltigen_betrag_ab(self):
+        """Beweist, dass wirklich gegen das amtliche Schema geprueft wird und nicht nur hausgemachtes XML
+        blind ausgegeben wird: ein nicht-numerischer Betrag muss vom XSD-Datentyp abgelehnt werden."""
+        from facturx.generate_xml import generate_cii_xml
+        daten = erechnung._cii_data_dict(self.r)
+        daten["BT-115"] = "keine-zahl"
+        with self.assertRaises(Exception):
+            generate_cii_xml(daten, level=erechnung.LEVEL, check_xsd=True, check_schematron=False)
+
+    def test_xsd_pruefung_lehnt_fehlendes_pflichtfeld_ab(self):
+        from facturx.generate_xml import generate_cii_xml
+        daten = erechnung._cii_data_dict(self.r)
+        del daten["BT-27"]  # Verkaeufername ist Pflicht
+        with self.assertRaises(Exception):
+            generate_cii_xml(daten, level=erechnung.LEVEL, check_xsd=True, check_schematron=False)
 
 
 class ErechnungViewTests(TestCase):
@@ -459,12 +482,12 @@ class ErechnungViewTests(TestCase):
         Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
         self.client.login(username="kasse", password="pw-Test-12345")
 
-    def test_download_liefert_xml(self):
+    def test_download_liefert_zugferd_pdf(self):
         r = self.client.get(reverse("rechnung_erechnung", args=[self.r.pk]))
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r["Content-Type"], "application/xml")
+        self.assertEqual(r["Content-Type"], "application/pdf")
         self.assertIn(self.r.nummer, r["Content-Disposition"])
-        self.assertIn(self.r.nummer.encode(), r.content)
+        self.assertTrue(r.content.startswith(b"%PDF"))
 
     def test_entwurf_wird_abgelehnt(self):
         entwurf = Rechnung.objects.create(verein=self.v, typ="individuell", status="entwurf",
@@ -476,6 +499,6 @@ class ErechnungViewTests(TestCase):
         entwurf = Rechnung.objects.create(verein=self.v, typ="individuell", status="entwurf",
                                           empfaenger_name="Max Muster", datum=date(2026, 3, 1))
         r1 = self.client.get(reverse("rechnung_detail", args=[entwurf.pk]))
-        self.assertNotContains(r1, "E-Rechnung (XML)")
+        self.assertNotContains(r1, "E-Rechnung (ZUGFeRD-PDF)")
         r2 = self.client.get(reverse("rechnung_detail", args=[self.r.pk]))
-        self.assertContains(r2, "E-Rechnung (XML)")
+        self.assertContains(r2, "E-Rechnung (ZUGFeRD-PDF)")

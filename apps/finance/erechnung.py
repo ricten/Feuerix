@@ -1,42 +1,30 @@
-"""XRechnung-Ausgabe (UBL-Invoice-XML) für Rechnungen dieser Vereinsverwaltung.
+"""ZUGFeRD/Factur-X-Ausgabe (PDF mit eingebetteter CII-XML, Profil EN16931) für Rechnungen dieser Vereinsverwaltung.
 
-Bewusst kein zertifizierter/vollständig validierter EN16931-Generator: Die gängigen Pflichtfelder (Verkäufer,
-Käufer, Positionen, Summen, IBAN) werden gefüllt, aber eine differenzierte Umsatzsteuer-Aufschlüsselung fehlt,
-da diese Software selbst keine Umsatzsteuersätze je Position führt (Vereinsrechnungen sind überwiegend im
-ideellen Bereich umsatzsteuerfrei, § 4 UStG) - alle Positionen werden daher pauschal als steuerbefreit (Code "E")
-ausgewiesen. Vor dem Versand an eine Stelle mit E-Rechnungspflicht bitte mit einem offiziellen Prüfwerkzeug
-(z. B. dem KoSIT-Validator) gegenprüfen und bei tatsächlich umsatzsteuerpflichtigen Vorgängen (wirtschaftlicher
-Geschäftsbetrieb) die Steuerangaben von einem Steuerberater prüfen lassen."""
-import xml.etree.ElementTree as ET
+Nutzt die Bibliothek `factur-x` (github.com/akretion/factur-x), die die eingebettete XML nach den offiziellen
+EN16931-Business-Terms aufbaut und automatisch gegen das amtliche XML-Schema (XSD) prüft, bevor sie in die
+bestehende PDF-Rechnung eingebettet wird - das ist eine echte strukturelle Validierung, kein handgeschriebenes
+XML mehr. Was damit NICHT geprüft wird: die vollständigen EN16931-Geschäftsregeln (Schematron), die offiziell
+nur mit dem KoSIT-Prüfwerkzeug (Java) bzw. einem Saxon-Server geprüft werden können - das ist hier bewusst nicht
+eingebunden (zusätzliche Infrastruktur, siehe Abwägung im Handbuch). Ebenso wird die Trägerdatei nicht auf echte
+PDF/A-3-Konformität geprüft (z. B. mit veraPDF) - die meisten empfangenden Systeme lesen ohnehin nur die
+eingebettete XML-Datei aus, für eine amtliche Langzeitarchivierungs-Zusage würde das aber nicht ausreichen.
 
-UBL_NS = "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
-CAC_NS = "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
-CBC_NS = "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+Bewusst pauschal umsatzsteuerbefreit (Kategorie "E"): diese Software führt keine Umsatzsteuersätze je Position
+(Vereinsrechnungen sind überwiegend im ideellen Bereich umsatzsteuerfrei, § 4 UStG). Vor dem Versand an eine
+Stelle mit E-Rechnungspflicht bzw. bei tatsächlich umsatzsteuerpflichtigen Vorgängen (wirtschaftlicher
+Geschäftsbetrieb) bitte mit einem offiziellen Prüfwerkzeug gegenprüfen bzw. einen Steuerberater hinzuziehen."""
+from decimal import Decimal
 
-ET.register_namespace("", UBL_NS)
-ET.register_namespace("cac", CAC_NS)
-ET.register_namespace("cbc", CBC_NS)
+from facturx import generate_from_binary
+from facturx.generate_xml import generate_cii_xml
 
+from .pdf import rechnung_pdf
 
-def _el(parent, tag, ns, text=None):
-    e = ET.SubElement(parent, f"{{{ns}}}{tag}")
-    if text is not None:
-        e.text = str(text)
-    return e
+LEVEL = "en16931"
 
 
-def _cbc(parent, tag, text=None):
-    return _el(parent, tag, CBC_NS, text)
-
-
-def _cac(parent, tag):
-    return _el(parent, tag, CAC_NS)
-
-
-def _betrag(parent, tag, wert):
-    e = _cbc(parent, tag, f"{wert:.2f}")
-    e.set("currencyID", "EUR")
-    return e
+def _betrag(wert):
+    return f"{Decimal(wert):.2f}"
 
 
 def _anschrift_zerlegen(text):
@@ -51,83 +39,77 @@ def _anschrift_zerlegen(text):
     return (zeilen[0] if zeilen else ""), "", ""
 
 
-def _partei(parent, tag_name, name, strasse="", plz="", ort="", steuernummer=None):
-    partei_wrapper = _cac(parent, tag_name)
-    partei = _cac(partei_wrapper, "Party")
-    if strasse or ort or plz:
-        adresse = _cac(partei, "PostalAddress")
-        if strasse:
-            _cbc(adresse, "StreetName", strasse)
-        if ort:
-            _cbc(adresse, "CityName", ort)
-        if plz:
-            _cbc(adresse, "PostalZone", plz)
-        _cbc(_cac(adresse, "Country"), "IdentificationCode", "DE")
-    if steuernummer:
-        steuer = _cac(partei, "PartyTaxScheme")
-        _cbc(steuer, "CompanyID", steuernummer)
-        _cbc(_cac(steuer, "TaxScheme"), "ID", "FC")
-    rechtstraeger = _cac(partei, "PartyLegalEntity")
-    _cbc(rechtstraeger, "RegistrationName", name or "-")
-    return partei_wrapper
-
-
-def xrechnung_xml(rechnung):
-    """-> XML-Bytes (UBL-Invoice, XRechnung-Struktur) für eine Rechnung dieser Software."""
+def _cii_data_dict(rechnung):
+    """-> data_dict nach den EN16931-Business-Terms (BT-...), wie von facturx.generate_cii_xml erwartet."""
     v = rechnung.verein
-    root = ET.Element(f"{{{UBL_NS}}}Invoice")
-    _cbc(root, "CustomizationID", "urn:cen.eu:en16931:2017")
-    _cbc(root, "ID", rechnung.nummer or f"ENTWURF-{rechnung.pk}")
-    _cbc(root, "IssueDate", rechnung.datum.isoformat())
-    if rechnung.faellig_am:
-        _cbc(root, "DueDate", rechnung.faellig_am.isoformat())
-    _cbc(root, "InvoiceTypeCode", "381" if rechnung.betrag < 0 else "380")
-    _cbc(root, "DocumentCurrencyCode", "EUR")
-    if rechnung.bemerkung:
-        _cbc(root, "Note", rechnung.bemerkung)
-
-    _partei(root, "AccountingSupplierParty", v.name, v.anschrift, v.plz, v.ort, v.steuernummer)
+    positionen = list(rechnung.positionen.all())
+    zwischensumme = sum((p.betrag for p in positionen), Decimal("0"))
     strasse, plz, ort = _anschrift_zerlegen(rechnung.empfaenger_anschrift)
-    _partei(root, "AccountingCustomerParty", rechnung.empfaenger_name, strasse, plz, ort)
 
+    zeilen = [{
+        "BT-126": str(i), "BT-153": p.text[:300], "BT-129": _betrag(p.menge), "BT-130": "C62",
+        "BT-146": _betrag(p.einzelpreis), "BT-151": "E", "BT-131": _betrag(p.betrag),
+    } for i, p in enumerate(positionen, start=1)]
+
+    d = {
+        "BT-1": rechnung.nummer or f"ENTWURF-{rechnung.pk}",
+        "BT-2": rechnung.datum,
+        "BT-3": "381" if rechnung.betrag < 0 else "380",
+        "BT-5": "EUR",
+        "BT-27": v.name,
+        "BT-40": "DE",
+        "BT-44": rechnung.empfaenger_name or "-",
+        "BT-55": "DE",
+        # BT-72 (tatsächliches Lieferdatum) wird immer gesetzt - ohne jedes Feld im Lieferabschnitt
+        # (kein Lieferort, kein Lieferdatum) erzeugt die facturx-Bibliothek ein leeres, laut Schema aber
+        # nicht "nillable" ApplicableHeaderTradeDelivery-Element und die XSD-Prüfung schlägt fehl.
+        "BT-72": rechnung.zeitraum_bis or rechnung.datum,
+        "BG-23": [{
+            "BT-116": _betrag(zwischensumme), "BT-117": "0.00", "BT-118": "E",
+            "BT-120": "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen",
+        }],
+        "BG-25": zeilen,
+        "BT-106": _betrag(zwischensumme),
+        "BT-109": _betrag(zwischensumme),
+        "BT-110": "0.00", "BT-110-1": "EUR",
+        "BT-112": _betrag(zwischensumme),
+        "BT-115": _betrag(zwischensumme),
+    }
+    if v.anschrift:
+        d["BT-35"] = v.anschrift
+    if v.ort:
+        d["BT-37"] = v.ort
+    if v.plz:
+        d["BT-38"] = v.plz
+    if v.steuernummer:
+        d["BT-32"] = v.steuernummer
+    if rechnung.faellig_am:
+        d["BT-9"] = rechnung.faellig_am
+    if strasse:
+        d["BT-50"] = strasse
+    if ort:
+        d["BT-52"] = ort
+    if plz:
+        d["BT-53"] = plz
     if v.iban:
-        zahlung = _cac(root, "PaymentMeans")
-        _cbc(zahlung, "PaymentMeansCode", "58")  # SEPA-Überweisung
-        konto = _cac(zahlung, "PayeeFinancialAccount")
-        _cbc(konto, "ID", v.iban.replace(" ", ""))
+        d["BT-81"] = "58"  # SEPA-Überweisung
+        d["BT-84"] = v.iban.replace(" ", "")
         if v.bankname:
-            _cbc(konto, "Name", v.bankname)
+            d["BT-85"] = v.bankname
+        if v.bic:
+            d["BT-86"] = v.bic
+    return d
 
-    taxtotal = _cac(root, "TaxTotal")
-    _betrag(taxtotal, "TaxAmount", 0)
-    teilsumme = _cac(taxtotal, "TaxSubtotal")
-    _betrag(teilsumme, "TaxableAmount", rechnung.betrag)
-    _betrag(teilsumme, "TaxAmount", 0)
-    kategorie = _cac(teilsumme, "TaxCategory")
-    _cbc(kategorie, "ID", "E")
-    _cbc(kategorie, "Percent", "0")
-    _cbc(kategorie, "TaxExemptionReason", "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen")
-    _cbc(_cac(kategorie, "TaxScheme"), "ID", "VAT")
 
-    summen = _cac(root, "LegalMonetaryTotal")
-    _betrag(summen, "LineExtensionAmount", rechnung.betrag)
-    _betrag(summen, "TaxExclusiveAmount", rechnung.betrag)
-    _betrag(summen, "TaxInclusiveAmount", rechnung.betrag)
-    _betrag(summen, "PayableAmount", rechnung.betrag)
+def zugferd_xml(rechnung):
+    """-> CII-XML-Bytes, bereits gegen das offizielle EN16931/Factur-X-Schema (XSD) validiert."""
+    return generate_cii_xml(_cii_data_dict(rechnung), level=LEVEL, check_xsd=True, check_schematron=False)
 
-    for i, p in enumerate(rechnung.positionen.all(), start=1):
-        zeile = _cac(root, "InvoiceLine")
-        _cbc(zeile, "ID", i)
-        menge = _cbc(zeile, "InvoicedQuantity", p.menge)
-        menge.set("unitCode", "C62")
-        _betrag(zeile, "LineExtensionAmount", p.betrag)
-        posten = _cac(zeile, "Item")
-        _cbc(posten, "Name", p.text[:300])
-        posten_steuer = _cac(posten, "ClassifiedTaxCategory")
-        _cbc(posten_steuer, "ID", "E")
-        _cbc(posten_steuer, "Percent", "0")
-        _cbc(_cac(posten_steuer, "TaxScheme"), "ID", "VAT")
-        preis = _cac(zeile, "Price")
-        _betrag(preis, "PriceAmount", p.einzelpreis)
 
-    return b'<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(root, encoding="UTF-8")
+def zugferd_pdf(rechnung):
+    """-> PDF-Bytes (ZUGFeRD/Factur-X, Profil EN16931) für eine Rechnung dieser Software: die normale
+    PDF-Rechnung mit eingebetteter, XSD-validierter CII-XML (Dateiname im PDF: „factur-x.xml“)."""
+    xml_bytes = zugferd_xml(rechnung)
+    pdf_bytes = rechnung_pdf(rechnung)
+    return generate_from_binary(pdf_bytes, xml_bytes, flavor="factur-x", level=LEVEL, check_xsd=True,
+                                check_schematron=False)

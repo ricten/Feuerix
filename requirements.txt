@@ -13,3 +13,4 @@ fints>=4.2
 python-docx>=1.1
 requests>=2.32
 pypdf>=5.0
+factur-x>=6.8

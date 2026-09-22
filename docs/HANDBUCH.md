@@ -1,4 +1,4 @@
-# Handbuch – Vereinsverwaltung (Version 1.7.0)
+# Handbuch – Vereinsverwaltung (Version 1.8.0)
 
 Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
 alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
@@ -121,18 +121,23 @@ anteilige Berechnung bei unterjährigem Eintritt.
 
 **Rechnungen** (auch einzeln/individuell oder als Sammelrechnung anlegbar) durchlaufen die Stationen *Entwurf* →
 *Ausstellen* (vergibt die endgültige Nummer `RE-JJJJ-000001`, danach unveränderbar) → *Offen* → *Teilbezahlt/
-Bezahlt*. Auf der Rechnung stehen je nach Status und Recht: „PDF“, „E-Rechnung (XML)“ (nur bei ausgestellten
-Rechnungen), „Ausstellen“, „Per E-Mail senden“, „Storno“, „Mahnung erzeugen“, „Zahlung erfassen“ (Betrag ist mit
-dem offenen Betrag vorbelegt).
+Bezahlt*. Auf der Rechnung stehen je nach Status und Recht: „PDF“, „E-Rechnung (ZUGFeRD-PDF)“ (nur bei
+ausgestellten Rechnungen), „Ausstellen“, „Per E-Mail senden“, „Storno“, „Mahnung erzeugen“, „Zahlung erfassen“
+(Betrag ist mit dem offenen Betrag vorbelegt).
 
-**E-Rechnung (XML)**: erzeugt aus der Rechnung eine XRechnung-Datei (UBL-Invoice-XML) zum Download – für den
+**E-Rechnung (ZUGFeRD-PDF)**: erzeugt aus der Rechnung eine ZUGFeRD/Factur-X-Datei (Profil EN16931) zum Download –
+das ist die normale PDF-Rechnung mit einer zusätzlich eingebetteten, maschinenlesbaren XML-Datei. Gedacht für den
 seltenen Fall, dass eine Rechnung an eine Stelle mit E-Rechnungspflicht (z. B. eine Behörde oder ein Unternehmen)
-geht. **Kein zertifizierter/vollständig validierter EN16931-Generator:** Da diese Software keine Umsatzsteuersätze
-je Position führt, wird pauschal Steuerbefreiung nach § 4 UStG (ideeller Bereich) angenommen und in der Datei so
-vermerkt. Bei tatsächlich umsatzsteuerpflichtigen Vorgängen (wirtschaftlicher Geschäftsbetrieb, z. B. Vermietung an
-gewerbliche Dritte) vor dem Versand unbedingt prüfen (lassen) und die Datei gegen ein offizielles Prüfwerkzeug
-(z. B. den KoSIT-XRechnung-Validator) laufen lassen. Für gewöhnliche Mitgliedsrechnungen ist das in aller Regel
-nicht nötig, da Mitglieder keine Unternehmer sind.
+geht; das PDF lässt sich wie gewohnt öffnen und ausdrucken, E-Rechnungs-fähige Buchhaltungssysteme lesen zusätzlich
+die eingebettete XML aus. Die eingebettete XML wird beim Erzeugen automatisch gegen das amtliche EN16931/CII-Schema
+(XSD) geprüft – eine echte strukturelle Validierung. **Nicht geprüft** werden die vollständigen
+EN16931-Geschäftsregeln (Schematron – dafür wäre zusätzlich ein Java-Prüfwerkzeug bzw. Saxon-Server nötig, bewusst
+nicht eingebunden) und die PDF/A-3-Konformität der Trägerdatei selbst (kein veraPDF-Check). Da diese Software
+keine Umsatzsteuersätze je Position führt, wird pauschal Steuerbefreiung nach § 4 UStG (ideeller Bereich)
+angenommen und in der Datei so vermerkt. Bei tatsächlich umsatzsteuerpflichtigen Vorgängen (wirtschaftlicher
+Geschäftsbetrieb, z. B. Vermietung an gewerbliche Dritte) vor dem Versand unbedingt prüfen (lassen) und die Datei
+gegen ein offizielles Prüfwerkzeug (z. B. den KoSIT-Validator) laufen lassen. Für gewöhnliche Mitgliedsrechnungen
+ist das in aller Regel nicht nötig, da Mitglieder keine Unternehmer sind.
 
 **Storno und Rückzahlung**: „Storno“ erzeugt eine Stornorechnung mit umgekehrtem Vorzeichen; die Originalrechnung
 wird als *storniert* markiert. War die Rechnung bereits (teil-)bezahlt, zeigt die Stornorechnung einen Hinweis

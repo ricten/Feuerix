@@ -36,7 +36,7 @@ def rechnung_kontext(request, r):
     if rt.darf("rechnungen", "view"):
         aktionen.append(knopf("PDF", reverse("rechnung_pdf", args=[r.pk]), stil="primary"))
         if r.status != "entwurf":
-            aktionen.append(knopf("E-Rechnung (XML)", reverse("rechnung_erechnung", args=[r.pk])))
+            aktionen.append(knopf("E-Rechnung (ZUGFeRD-PDF)", reverse("rechnung_erechnung", args=[r.pk])))
     if rt.darf("rechnungen", "change"):
         if r.status == "entwurf":
             aktionen.append(knopf("Ausstellen (nicht mehr änderbar)", reverse("rechnung_ausstellen", args=[r.pk]),
@@ -87,8 +87,13 @@ def rechnung_erechnung_view(request, pk):
     if r.status == "entwurf":
         messages.error(request, "Entwürfe haben noch keine Rechnungsnummer - bitte zuerst ausstellen.")
         return redirect("rechnung_detail", pk=r.pk)
-    resp = HttpResponse(erechnung.xrechnung_xml(r), content_type="application/xml")
-    resp["Content-Disposition"] = f'attachment; filename="{r.nummer}.xml"'
+    try:
+        pdf_bytes = erechnung.zugferd_pdf(r)
+    except Exception as e:
+        messages.error(request, f"E-Rechnung konnte nicht erzeugt werden: {e}")
+        return redirect("rechnung_detail", pk=r.pk)
+    resp = HttpResponse(pdf_bytes, content_type="application/pdf")
+    resp["Content-Disposition"] = f'attachment; filename="{r.nummer}-zugferd.pdf"'
     return resp
 
 

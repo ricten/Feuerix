@@ -50,7 +50,7 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
 | Mitglieder | **Import** aus Excel/CSV (Testlauf, Aktualisierung bestehender Mitglieder, Fehlerbericht, Vorlagendatei) und **Vollexport** (Excel/CSV, Bankdaten nur mit Beitragsrecht, protokolliert); Akte inkl. verschlüsselter IBAN, SEPA-Mandat, Familie/Familienzahler, Abteilungen, Funktionen, versionierte Dokumente, Datenauskunft (JSON), Anonymisierung; **Selbstdatenpflege** – Mitglieder pflegen Adresse/Telefon/E-Mail/Bankverbindung selbst online, siehe [docs/SELBSTDATENPFLEGE.md](docs/SELBSTDATENPFLEGE.md) |
 | Ehrungen | Ehrungsarten, Ehrungen, konfigurierbare Jubiläumsregeln, Jubiläumsliste mit Direktanlage |
 | Beiträge | Mitgliedsarten, Regeln (Alter, Familie, Gültigkeitsjahre, Priorität), individuelle Beiträge, Beitragsjahre mit Rechnungslauf; Beträge werden in der Rechnung eingefroren |
-| Rechnungen | Nummernkreis `RE-JJJJ-000001`, Entwurf → Ausstellen (danach unveränderbar), PDF, **E-Rechnung (XRechnung/UBL-XML)**, E-Mail, Storno (mit buchbarer **Rückzahlung** bei bereits bezahlten Rechnungen), Gutschrift, Mahnstufen mit PDF |
+| Rechnungen | Nummernkreis `RE-JJJJ-000001`, Entwurf → Ausstellen (danach unveränderbar), PDF, **E-Rechnung (ZUGFeRD/Factur-X-PDF, EN16931, XSD-validiert)**, E-Mail, Storno (mit buchbarer **Rückzahlung** bei bereits bezahlten Rechnungen), Gutschrift, Mahnstufen mit PDF |
 | Zahlungen/Bank | Zahlungen je Rechnung inkl. Rücklastschrift, Kontoauszug-Import in **CSV, MT940 und CAMT.053** (Format wird automatisch erkannt) mit Dublettenerkennung, automatische Zuordnung (Rechnungsnr. → Mitgliedsnr. → IBAN), Liste „manuelle Zuordnung erforderlich“; **SEPA-Sammellastschrift-Export** (pain.008/CORE) für offene Rechnungen mit SEPA-Mandat, automatische Erst-/Folgelastschrift-Erkennung |
 | Kassenbuch | Konten (Bank/Bar), Buchungskategorien mit steuerlicher Sphäre, Buchungen mit Belegnummer und Belegupload, Übernahme aus Zahlungen/Spenden/Aufwandsentschädigungen/Veranstaltungen (idempotent), **E-Rechnung importieren** (XRechnung/ZUGFeRD einlesen und als vorausgefüllte Ausgabe mit Beleg ablegen), **Beleg in Ablage übernehmen** (zusätzlich im allgemeinen Dokumentenarchiv einordnen) |
 | Kassenbericht | Zeitraumbericht mit Kontenübersicht, Einnahmen/Ausgaben je Kategorie und Sphäre, Vorjahresvergleich, Soll/Ist-Abgleich, Prüfungsbemerkung, Unterschriftszeilen, Kassenbuch-Anlage; PDF + Excel; Abschluss sperrt den Zeitraum und legt das PDF in der Ablage ab |
@@ -76,12 +76,17 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
   Die Übersicht kennt nur Zahlungen dieses Vereins.
 * **Beitragslauf:** Berechnet den vollen Jahresbeitrag für alle im Jahr zeitweise aktiven Mitglieder (keine anteilige Berechnung).
 * **E-Rechnungen:** Empfang (Einlesen bekannter Kernfelder aus XRechnung/ZUGFeRD, Ablage als Beleg) und Ausstellen
-  eigener Rechnungen als XRechnung (UBL-XML) sind enthalten – **kein zertifizierter/vollständig validierter
-  EN16931-Generator bzw. -Validator.** Beim Ausstellen wird mangels je Position geführter Umsatzsteuersätze
-  pauschal Steuerbefreiung nach § 4 UStG (ideeller Bereich) angenommen; bei tatsächlich umsatzsteuerpflichtigen
-  Vorgängen (wirtschaftlicher Geschäftsbetrieb) unbedingt vor dem Versand prüfen (lassen) und die erzeugte Datei
-  gegen ein offizielles Prüfwerkzeug (z. B. den KoSIT-Validator) laufen lassen. Für die üblichen Mitgliedsrechnungen
-  ohnehin meist irrelevant, da Mitglieder keine Unternehmer sind und damit keine B2B-E-Rechnungspflicht besteht.
+  eigener Rechnungen als **ZUGFeRD/Factur-X-PDF** (Profil EN16931 – die normale PDF-Rechnung mit eingebetteter
+  XML) sind enthalten. Die eingebettete XML wird über die Bibliothek [`factur-x`](https://github.com/akretion/factur-x)
+  erzeugt und dabei automatisch gegen das amtliche XML-Schema (XSD) geprüft – eine echte strukturelle
+  Validierung, kein handgeschriebenes XML. **Nicht geprüft** werden die vollständigen EN16931-Geschäftsregeln
+  (Schematron; dafür wäre ein Java-Prüfwerkzeug bzw. Saxon-Server nötig, bewusst nicht eingebunden) und die
+  PDF/A-3-Konformität der Trägerdatei selbst (kein veraPDF-Check). Mangels je Position geführter
+  Umsatzsteuersätze wird pauschal Steuerbefreiung nach § 4 UStG (ideeller Bereich) angenommen; bei tatsächlich
+  umsatzsteuerpflichtigen Vorgängen (wirtschaftlicher Geschäftsbetrieb) unbedingt vor dem Versand prüfen
+  (lassen) und die erzeugte Datei gegen ein offizielles Prüfwerkzeug (z. B. den KoSIT-Validator) laufen lassen.
+  Für die üblichen Mitgliedsrechnungen ohnehin meist irrelevant, da Mitglieder keine Unternehmer sind und damit
+  keine B2B-E-Rechnungspflicht besteht.
 * **Paperless-ngx:** Entweder eine bereits laufende, separate Instanz verwenden (nur Adresse und API-Token unter
   *Verwaltung › Paperless-Anbindung* eintragen), oder optional über [paperless/](paperless/) als eigenen
   Docker-Compose-Stack auf diesem Server mitbetreiben (siehe INSTALL.md Abschnitt 9). Der Versand ist in jedem
