@@ -134,5 +134,9 @@ Der SEPA-Einzug erzeugt nur die Einzugsdatei (pain.008) – der Rückkanal (eing
 
 ## Lizenz
 
-[GNU Affero General Public License v3.0](LICENSE). Wird der Code (auch verändert) als Netzwerkdienst betrieben, muss der
-Quellcode dieser Version den Nutzern zugänglich gemacht werden (§ 13 AGPL).
+Copyright (C) 2026 Rico Tengler
+
+[GNU Affero General Public License v3.0](LICENSE) ([inoffizielle deutsche Übersetzung](LICENSE.de.md) zum
+besseren Verständnis – rechtlich verbindlich ist nur der englische Originaltext). Wird der Code (auch
+verändert) als Netzwerkdienst betrieben, muss der Quellcode dieser Version den Nutzern zugänglich gemacht
+werden (§ 13 AGPL).
