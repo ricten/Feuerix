@@ -35,10 +35,10 @@ urlpatterns = [
 
 
 def gegenstand_listen_aktionen(request):
+    """Der Inventar-Import läuft in der Regel nur einmalig beim Einrichten des Vereins und liegt deshalb unter
+    Verwaltung (Navigationsleiste), nicht als Aktion auf dieser laufend genutzten Liste."""
     from django.urls import reverse
     a = []
-    if request.rechte.darf("inventar", "add"):
-        a.append(knopf("Import (Excel/CSV)", reverse("gegenstand_import"), stil="outline-primary"))
     if request.rechte.darf("inventar", "view"):
         a.append(knopf("Etiketten drucken (alle)", reverse("gegenstand_etiketten")))
     return a

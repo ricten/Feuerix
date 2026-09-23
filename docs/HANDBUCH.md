@@ -1,4 +1,4 @@
-# Handbuch – Vereinsverwaltung (Version 1.12.0)
+# Handbuch – Vereinsverwaltung (Version 1.12.1)
 
 Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
 alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
@@ -88,11 +88,12 @@ Unter *Mitglieder* werden Personendaten, Anschrift, Bankverbindung (SEPA), Mitgl
 Abteilungen und ausgeübte Funktionen (z. B. „1. Vorsitzender“, mit Zeitraum) gepflegt. Die Mitgliedsnummer wird
 automatisch vergeben, kann aber auch manuell gesetzt werden.
 
-**Import/Export**: Über den Button „Import (Excel/CSV)“ auf der Mitgliederliste lässt sich eine Tabelle einlesen –
-mit **Testlauf** (nichts wird gespeichert, nur geprüft), Abgleich bestehender Mitglieder über Mitgliedsnummer bzw.
-Vorname+Nachname+Geburtsdatum, und der Option, unbekannte Mitgliedsarten/Abteilungen automatisch anzulegen. Eine
-Vorlage mit Beispielzeile und Hinweisen steht zum Download bereit. „Vollexport (Excel)“ exportiert alle Mitglieder,
-optional inkl. Bankdaten (nur mit Beitragsrecht).
+**Import/Export**: Über *Verwaltung › Mitglieder-Import* (nicht auf der Mitgliederliste selbst, da meist nur einmalig
+beim Einrichten des Vereins benötigt) lässt sich eine Tabelle einlesen – mit **Testlauf** (nichts wird gespeichert,
+nur geprüft), Abgleich bestehender Mitglieder über Mitgliedsnummer bzw. Vorname+Nachname+Geburtsdatum, und der
+Option, unbekannte Mitgliedsarten/Abteilungen automatisch anzulegen. Eine Vorlage mit Beispielzeile und Hinweisen
+steht zum Download bereit. „Vollexport (Excel)“ auf der Mitgliederliste exportiert alle Mitglieder, optional inkl.
+Bankdaten (nur mit Beitragsrecht).
 
 **Auf der Mitglieder-Detailseite** (je nach eigenen Rechten):
 - „Datenauskunft (JSON)“ – vollständige DSGVO-Auskunft inkl. Rechnungen, Zahlungen, Spenden, Aufwand, Ehrungen,

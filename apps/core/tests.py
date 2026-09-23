@@ -303,3 +303,19 @@ class WeboberflaechenDesignTests(TestCase):
         m = Mitglied.objects.create(verein=v, vorname="Anton", nachname="Eins")
         r = self.client.get(reverse("mitglied_detail", args=[m.pk]))
         self.assertContains(r, "bi-people")
+
+    def test_mitglieder_und_inventar_import_liegen_unter_verwaltung(self):
+        """Import laeuft in der Regel nur einmalig beim Einrichten des Vereins - deshalb ein Menuepunkt unter
+        Verwaltung statt eines Buttons auf der laufend genutzten Liste."""
+        User = get_user_model()
+        v = Verein.objects.create(name="Verein A", kuerzel="a")
+        admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=v, user=admin, rolle=Rolle.objects.get(verein=v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, reverse("mitglieder_import"))
+        self.assertContains(r, reverse("gegenstand_import"))
+        r = self.client.get(reverse("mitglied_list"))
+        self.assertNotContains(r, "Import (Excel/CSV)")
+        r = self.client.get(reverse("gegenstand_list"))
+        self.assertNotContains(r, "Import (Excel/CSV)")

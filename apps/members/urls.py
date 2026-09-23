@@ -20,11 +20,10 @@ urlpatterns = [
         name="mitglied_verwaltungszugang_einrichten"),
 ]
 def mitglieder_listen_aktionen(request):
+    """Der Mitglieder-Import läuft in der Regel nur einmalig beim Einrichten des Vereins und liegt deshalb unter
+    Verwaltung (Navigationsleiste), nicht als Aktion auf dieser laufend genutzten Liste."""
     from django.urls import reverse
-    a = []
-    if request.rechte.darf("mitglieder", "add"):
-        a.append(knopf("Import (Excel/CSV)", reverse("mitglieder_import"), stil="outline-primary"))
-    a.append(knopf("Vollexport (Excel)", reverse("mitglieder_export")))
+    a = [knopf("Vollexport (Excel)", reverse("mitglieder_export"))]
     if request.rechte.darf("beitraege", "view"):
         a.append(knopf("Vollexport mit Bankdaten", reverse("mitglieder_export") + "?bank=1"))
     return a

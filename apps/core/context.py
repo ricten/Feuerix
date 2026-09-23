@@ -4,7 +4,6 @@ from django.urls import NoReverseMatch, reverse
 NAV = [
     ("Mitglieder", "bi-people", [
         ("Mitglieder", "mitglied_list", "mitglieder"),
-        ("Mitglieder-Import", "mitglieder_import", "mitglieder"),
         ("Jubiläen", "jubilaeen", "ehrungen"),
         ("Ehrungen", "ehrung_list", "ehrungen"),
         ("Dokumente", "dokument_list", "dokumente"),
@@ -60,6 +59,8 @@ NAV = [
         ("Jubiläumsregeln", "jubilaeumsregel_list", "ehrungen"),
         ("Inventar-Kategorien", "kategorie_list", "inventar"),
         ("Inventar-Standorte", "standort_list", "inventar"),
+        ("Mitglieder-Import", "mitglieder_import", "mitglieder"),
+        ("Inventar-Import", "gegenstand_import", "inventar"),
     ]),
 ]
 
