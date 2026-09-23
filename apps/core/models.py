@@ -23,6 +23,18 @@ class Verein(models.Model):
     glaeubiger_id = models.CharField("Gläubiger-ID (SEPA)", max_length=35, blank=True)
     finanzamt = models.CharField("Finanzamt", max_length=100, blank=True)
     steuernummer = models.CharField("Steuernummer", max_length=30, blank=True)
+    umsatzsteuerpflichtig = models.BooleanField(
+        "Umsatzsteuerpflichtig", default=False,
+        help_text="Für nicht gemeinnützige Vereine bzw. den wirtschaftlichen Geschäftsbetrieb: neue "
+                  "Rechnungspositionen schlagen dann standardmäßig Umsatzsteuer vor, Rechnungen/E-Rechnungen weisen "
+                  "sie entsprechend aus. Ersetzt keine steuerliche Beratung.")
+    ust_idnr = models.CharField("USt-IdNr.", max_length=20, blank=True)
+    rechnung_steuerhinweis = models.CharField(
+        "Steuerhinweis auf Rechnungen ohne Umsatzsteuer", max_length=300, blank=True,
+        help_text="Freitext für Rechnungen/E-Rechnungen, wenn (ein Teil) der Rechnung mit 0 % Umsatzsteuer "
+                  "ausgewiesen wird, z. B. „Gemäß § 19 UStG wird keine Umsatzsteuer berechnet“ oder eine passende "
+                  "Befreiungsvorschrift. Leer lassen für den Standardtext „Steuerbefreiung nach § 4 UStG "
+                  "(ideeller Bereich)“. Bitte durch Steuerberater prüfen lassen.")
     bescheid_art = models.CharField("Art des Gemeinnützigkeitsbescheids", max_length=20, choices=BESCHEID,
                                     default="freistellung")
     bescheid_datum = models.DateField("Datum des Bescheids", null=True, blank=True)

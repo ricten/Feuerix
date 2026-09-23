@@ -9,6 +9,8 @@ from apps.core.fields import VerschluesseltesTextField
 from apps.core.models import TenantModel, naechste_nummer
 from apps.core.util import upload_pfad
 
+STANDARD_STEUERHINWEIS = "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
+
 
 def wirksame_summe(rechnungen_qs):
     """Summe der Zahlungen (Rücklastschriften negativ) zu einer Rechnungs-Queryset."""
@@ -77,7 +79,9 @@ class Rechnung(TenantModel):
     jahr = models.PositiveIntegerField("Beitragsjahr", null=True, blank=True)
     zeitraum_von = models.DateField("Leistungszeitraum von", null=True, blank=True)
     zeitraum_bis = models.DateField("Leistungszeitraum bis", null=True, blank=True)
-    betrag = models.DecimalField("Betrag (€)", max_digits=10, decimal_places=2, default=0, editable=False)
+    betrag = models.DecimalField("Betrag brutto (€)", max_digits=10, decimal_places=2, default=0, editable=False)
+    nettobetrag = models.DecimalField("Nettobetrag (€)", max_digits=10, decimal_places=2, default=0, editable=False)
+    steuerbetrag = models.DecimalField("Umsatzsteuer (€)", max_digits=10, decimal_places=2, default=0, editable=False)
     kopftext = models.TextField("Text oben", blank=True)
     fusstext = models.TextField("Text unten", blank=True)
     storno_von = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True, editable=False,
@@ -143,10 +147,23 @@ class Rechnung(TenantModel):
         return -self.betrag - self.rueckzahlung_bereits_gebucht
 
     def neu_berechnen(self):
-        s = self.positionen.aggregate(s=Sum(F("menge") * F("einzelpreis"),
-                                            output_field=DecimalField(max_digits=12, decimal_places=2)))["s"]
-        self.betrag = s or Decimal("0")
-        Rechnung.objects.filter(pk=self.pk).update(betrag=self.betrag)
+        zeilen = list(self.positionen.all())
+        self.nettobetrag = sum((p.nettobetrag for p in zeilen), Decimal("0.00"))
+        self.steuerbetrag = sum((p.steuerbetrag for p in zeilen), Decimal("0.00"))
+        self.betrag = self.nettobetrag + self.steuerbetrag
+        Rechnung.objects.filter(pk=self.pk).update(
+            nettobetrag=self.nettobetrag, steuerbetrag=self.steuerbetrag, betrag=self.betrag)
+
+    @property
+    def steuer_gruppen(self):
+        """Positionen gruppiert nach Umsatzsteuersatz -> {satz: {"netto": ..., "steuer": ...}} - für die
+        Steueraufschlüsselung auf Rechnung/PDF und E-Rechnung (BG-23), auch bei gemischten Steuersätzen."""
+        gruppen = {}
+        for p in self.positionen.all():
+            g = gruppen.setdefault(p.steuersatz, {"netto": Decimal("0.00"), "steuer": Decimal("0.00")})
+            g["netto"] += p.nettobetrag
+            g["steuer"] += p.steuerbetrag
+        return gruppen
 
     def aktualisiere_status(self):
         if self.status in ("entwurf", "storniert", "verbucht"):
@@ -163,7 +180,9 @@ class Rechnungsposition(TenantModel):
                                  verbose_name="Rechnung")
     text = models.CharField("Bezeichnung", max_length=300)
     menge = models.DecimalField("Menge", max_digits=8, decimal_places=2, default=1)
-    einzelpreis = models.DecimalField("Einzelpreis (€)", max_digits=10, decimal_places=2)
+    einzelpreis = models.DecimalField("Einzelpreis netto (€)", max_digits=10, decimal_places=2)
+    steuersatz = models.DecimalField("Umsatzsteuersatz (%)", max_digits=5, decimal_places=2, default=0,
+                                     help_text="0 für umsatzsteuerfreie Positionen (z. B. ideeller Bereich).")
 
     class Meta:
         verbose_name = "Rechnungsposition"
@@ -174,8 +193,21 @@ class Rechnungsposition(TenantModel):
         return self.text
 
     @property
-    def betrag(self):
+    def nettobetrag(self):
         return self.menge * self.einzelpreis
+
+    @property
+    def steuerbetrag(self):
+        return (self.nettobetrag * self.steuersatz / 100).quantize(Decimal("0.01"))
+
+    @property
+    def bruttobetrag(self):
+        return self.nettobetrag + self.steuerbetrag
+
+    @property
+    def betrag(self):
+        """Historischer Name für nettobetrag (vor Einführung der Umsatzsteuer war das der einzige Betrag)."""
+        return self.nettobetrag
 
     def clean(self):
         if self.rechnung_id and self.rechnung.status != "entwurf":

@@ -5,7 +5,7 @@ from django.urls import path
 from apps.core.crud import crud
 
 from . import views
-from .forms import RechnungForm
+from .forms import RechnungForm, RechnungspositionForm
 from .models import (Bankumsatz, Beitragsjahr, Beitragsregel, Mahnung, Rechnung, Rechnungsposition, SepaEinzug,
                      SepaEinzugPosition, Zahlung)
 
@@ -48,9 +48,9 @@ urlpatterns += crud("rechnungen", Rechnung, "rechnungen", form=RechnungForm, lis
                     kontext=views.rechnung_kontext, nach_speichern=_rechnung_nach_speichern,
                     bearbeitbar=_bearbeitbar_entwurf, loeschbar=_bearbeitbar_entwurf, select_related=("mitglied",),
                     )
-urlpatterns += crud("rechnungspositionen", Rechnungsposition, "rechnungen", list_display=("rechnung", "text", "menge",
-                    "einzelpreis"), bearbeitbar=_position_bearbeitbar, loeschbar=_position_bearbeitbar,
-                    select_related=("rechnung",))
+urlpatterns += crud("rechnungspositionen", Rechnungsposition, "rechnungen", form=RechnungspositionForm,
+                    list_display=("rechnung", "text", "menge", "einzelpreis", "steuersatz"),
+                    bearbeitbar=_position_bearbeitbar, loeschbar=_position_bearbeitbar, select_related=("rechnung",))
 urlpatterns += crud("zahlungen", Zahlung, "zahlungen", list_display=("datum", "rechnung", "betrag", "art",
                     "ruecklastschrift", "referenz"), select_related=("rechnung",), suche=("rechnung__nummer", "referenz"),
                     filter=("rechnung",), ordering=("-datum", "-id"))

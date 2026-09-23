@@ -59,7 +59,8 @@ def rechnung_kontext(request, r):
                                   f"?rechnung={r.pk}&art=rueckzahlung&betrag={r.rueckzahlung_offen}"
                                   f"&next={reverse('rechnung_detail', args=[r.pk])}", stil="outline-primary"))
     abschnitte = [
-        abschnitt(request, "Positionen", r.positionen.all(), ("text", "menge", "einzelpreis", ("betrag", "Betrag")),
+        abschnitt(request, "Positionen", r.positionen.all(),
+                  ("text", "menge", "einzelpreis", "steuersatz", ("betrag", "Netto"), ("bruttobetrag", "Brutto")),
                   "rechnungsposition_add" if r.status == "entwurf" else None, {"rechnung": r.pk}),
         abschnitt(request, "Zahlungen", r.zahlungen.all(), ("datum", "betrag", "art", "ruecklastschrift", "referenz")),
         abschnitt(request, "Mahnungen", r.mahnungen.all(), ("stufe", "datum", "frist", "gebuehr")),

@@ -1,4 +1,4 @@
-# Handbuch – Vereinsverwaltung (Version 1.12.1)
+# Handbuch – Vereinsverwaltung (Version 1.13.0)
 
 Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
 alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
@@ -130,6 +130,19 @@ Bezahlt*. Auf der Rechnung stehen je nach Status und Recht: „PDF“, „E-Rech
 ausgestellten Rechnungen), „Ausstellen“, „Per E-Mail senden“, „Storno“, „Mahnung erzeugen“, „Zahlung erfassen“
 (Betrag ist mit dem offenen Betrag vorbelegt).
 
+**Umsatzsteuer** (für nicht gemeinnützige Vereine bzw. den wirtschaftlichen Geschäftsbetrieb): Unter *Verwaltung ›
+Verein/Einstellungen* lässt sich „Umsatzsteuerpflichtig“ aktivieren – neue Rechnungspositionen schlagen dann 19 %
+als Steuersatz vor, jede Position hat aber weiterhin ihren **eigenen** Umsatzsteuersatz (0 % für z. B. den
+ideellen Bereich, 19 %/7 % für den wirtschaftlichen Geschäftsbetrieb) und kann so auch gemischt auf einer
+Rechnung stehen. Sobald eine Rechnung Umsatzsteuer enthält, zeigen PDF und E-Rechnung automatisch die
+Aufschlüsselung Netto/Steuer/Brutto; ohne Umsatzsteuerpflicht und ohne gesetzten Steuersatz bleibt die Rechnung
+unverändert wie bisher eine einfache Betragsspalte. Ein eigener **Steuerhinweis** (z. B. „Gemäß § 19 UStG wird
+keine Umsatzsteuer berechnet“) lässt sich ebenfalls in den Vereinseinstellungen hinterlegen; ohne eigenen Text
+erscheint bei 0 % weiterhin der Standardhinweis „Steuerbefreiung nach § 4 UStG (ideeller Bereich)“. Eine
+**USt-IdNr.** kann dort ebenfalls gepflegt werden (erscheint dann in der E-Rechnung). Das ersetzt keine steuerliche
+Beratung – insbesondere die Frage, welche Vereinstätigkeiten tatsächlich umsatzsteuerpflichtig sind, bitte mit
+Steuerberater/Finanzamt klären.
+
 **E-Rechnung (ZUGFeRD-PDF)**: erzeugt aus der Rechnung eine ZUGFeRD/Factur-X-Datei (Profil EN16931) zum Download –
 das ist die normale PDF-Rechnung mit einer zusätzlich eingebetteten, maschinenlesbaren XML-Datei. Gedacht für den
 seltenen Fall, dass eine Rechnung an eine Stelle mit E-Rechnungspflicht (z. B. eine Behörde oder ein Unternehmen)
@@ -137,12 +150,10 @@ geht; das PDF lässt sich wie gewohnt öffnen und ausdrucken, E-Rechnungs-fähig
 die eingebettete XML aus. Die eingebettete XML wird beim Erzeugen automatisch gegen das amtliche EN16931/CII-Schema
 (XSD) geprüft – eine echte strukturelle Validierung. **Nicht geprüft** werden die vollständigen
 EN16931-Geschäftsregeln (Schematron – dafür wäre zusätzlich ein Java-Prüfwerkzeug bzw. Saxon-Server nötig, bewusst
-nicht eingebunden) und die PDF/A-3-Konformität der Trägerdatei selbst (kein veraPDF-Check). Da diese Software
-keine Umsatzsteuersätze je Position führt, wird pauschal Steuerbefreiung nach § 4 UStG (ideeller Bereich)
-angenommen und in der Datei so vermerkt. Bei tatsächlich umsatzsteuerpflichtigen Vorgängen (wirtschaftlicher
-Geschäftsbetrieb, z. B. Vermietung an gewerbliche Dritte) vor dem Versand unbedingt prüfen (lassen) und die Datei
-gegen ein offizielles Prüfwerkzeug (z. B. den KoSIT-Validator) laufen lassen. Für gewöhnliche Mitgliedsrechnungen
-ist das in aller Regel nicht nötig, da Mitglieder keine Unternehmer sind.
+nicht eingebunden) und die PDF/A-3-Konformität der Trägerdatei selbst (kein veraPDF-Check). Umsatzsteuersätze je
+Position (s. o.) werden korrekt als eigene Steuergruppen (auch gemischt) in die E-Rechnung übernommen. Vor dem
+Versand an eine Stelle mit E-Rechnungspflicht bitte trotzdem gegen ein offizielles Prüfwerkzeug (z. B. den
+KoSIT-Validator) laufen lassen bzw. einen Steuerberater hinzuziehen.
 
 **Storno und Rückzahlung**: „Storno“ erzeugt eine Stornorechnung mit umgekehrtem Vorzeichen; die Originalrechnung
 wird als *storniert* markiert. War die Rechnung bereits (teil-)bezahlt, zeigt die Stornorechnung einen Hinweis
@@ -348,9 +359,10 @@ Zeitpunkt, IP-Adresse und geänderten Feldern; sensible Felder wie IBAN oder Pas
 
 Unter *Verwaltung › Verein/Einstellungen* (nur mit Recht `verwaltung`, siehe Kapitel 2) werden gepflegt:
 Vereinsname/-anschrift/-kontakt, Registereintrag, Bankverbindung inkl. Gläubiger-ID, Finanzamt/Steuernummer und
-Angaben zum Gemeinnützigkeitsbescheid (für Spendenquittungen), Zahlungsziel und Rechnungstexte, die konfigurierbaren
-Freibeträge für Aufwandsentschädigungen, sowie Logo, Akzentfarbe(n) und die Unterschriftszeilen für den
-Briefkopf (Kapitel 11).
+Angaben zum Gemeinnützigkeitsbescheid (für Spendenquittungen), Umsatzsteuerpflicht/USt-IdNr./Steuerhinweis
+(Kapitel 4, für nicht gemeinnützige Vereine bzw. den wirtschaftlichen Geschäftsbetrieb), Zahlungsziel und
+Rechnungstexte, die konfigurierbaren Freibeträge für Aufwandsentschädigungen, sowie Logo, Akzentfarbe(n) und die
+Unterschriftszeilen für den Briefkopf (Kapitel 11).
 
 **Impressum**: Das Feld „Impressum“ enthält den vollständigen Text nach § 5 TMG/§ 18 MStV (verantwortliche
 Person, Anschrift, Kontakt, Vertretungsberechtigte, ggf. USt-IdNr.) und wird **ungeprüft** auf einer öffentlich

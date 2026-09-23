@@ -469,6 +469,122 @@ class ErechnungExportTests(TestCase):
             generate_cii_xml(daten, level=erechnung.LEVEL, check_xsd=True, check_schematron=False)
 
 
+class UmsatzsteuerTests(TestCase):
+    """Umsatzsteuer-Ausweisung fuer nicht gemeinnuetzige Vereine / den wirtschaftlichen Geschaeftsbetrieb -
+    Standard weiterhin 0 % (unveraendertes Verhalten fuer bestehende gemeinnuetzige Vereine)."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Handel e.V.", kuerzel="handel", umsatzsteuerpflichtig=True,
+                                       ust_idnr="DE123456789")
+        self.r = Rechnung.objects.create(verein=self.v, typ="individuell", status="entwurf",
+                                         empfaenger_name="Max Muster", datum=date(2026, 3, 1))
+
+    def test_position_berechnet_netto_steuer_brutto(self):
+        p = Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Ware", menge=2,
+                                             einzelpreis=Decimal("10.00"), steuersatz=Decimal("19.00"))
+        self.assertEqual(p.nettobetrag, Decimal("20.00"))
+        self.assertEqual(p.steuerbetrag, Decimal("3.80"))
+        self.assertEqual(p.bruttobetrag, Decimal("23.80"))
+        self.assertEqual(p.betrag, p.nettobetrag)
+
+    def test_position_ohne_steuersatz_ist_weiterhin_wie_vorher(self):
+        p = Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Ware", menge=2,
+                                             einzelpreis=Decimal("10.00"))
+        self.assertEqual(p.steuersatz, Decimal("0"))
+        self.assertEqual(p.steuerbetrag, Decimal("0.00"))
+        self.assertEqual(p.bruttobetrag, p.nettobetrag)
+
+    def test_rechnung_summiert_gemischte_steuersaetze(self):
+        Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Ware (19 %)", menge=2,
+                                         einzelpreis=Decimal("10.00"), steuersatz=Decimal("19.00"))
+        Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Ware (steuerfrei)", menge=1,
+                                         einzelpreis=Decimal("5.00"))
+        self.r.refresh_from_db()
+        self.assertEqual(self.r.nettobetrag, Decimal("25.00"))
+        self.assertEqual(self.r.steuerbetrag, Decimal("3.80"))
+        self.assertEqual(self.r.betrag, Decimal("28.80"))
+        gruppen = self.r.steuer_gruppen
+        self.assertEqual(gruppen[Decimal("19.00")], {"netto": Decimal("20.00"), "steuer": Decimal("3.80")})
+        self.assertEqual(gruppen[Decimal("0")]["steuer"], Decimal("0.00"))
+
+    def test_storno_uebernimmt_steuersatz_der_originalposition(self):
+        Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Ware", menge=1,
+                                         einzelpreis=Decimal("100.00"), steuersatz=Decimal("19.00"))
+        self.r.status = "offen"
+        self.r.nummer_vergeben()
+        self.r.save()
+        storno = services.storniere(self.r)
+        self.assertEqual(storno.positionen.get().steuersatz, Decimal("19.00"))
+        self.assertEqual(storno.steuerbetrag, Decimal("-19.00"))
+        self.assertEqual(storno.betrag, Decimal("-119.00"))
+
+    def test_rechnungsposition_form_schlaegt_standardsatz_vor(self):
+        from apps.finance.forms import RechnungspositionForm
+        form = RechnungspositionForm(verein=self.v)
+        self.assertEqual(form.fields["steuersatz"].initial, Decimal("19.00"))
+        andere_verein = Verein.objects.create(name="Verein B", kuerzel="b")
+        form2 = RechnungspositionForm(verein=andere_verein)
+        self.assertNotEqual(form2.fields["steuersatz"].initial, Decimal("19.00"))
+
+    def test_pdf_ohne_umsatzsteuer_bleibt_unveraendert(self):
+        """Regressionsschutz: ein Verein ohne Umsatzsteuerpflicht und ohne Steuersatz auf den Positionen
+        bekommt weiterhin die einfache Rechnung ohne Steuerspalte/-hinweis (Standardfall gemeinnuetziger Vereine)."""
+        v = Verein.objects.create(name="Gemeinnuetziger Verein e.V.", kuerzel="gemeinnuetzig")
+        r = Rechnung.objects.create(verein=v, typ="individuell", status="offen", empfaenger_name="Max Muster",
+                                    datum=date(2026, 3, 1))
+        Rechnungsposition.objects.create(verein=v, rechnung=r, text="Beitrag", menge=1, einzelpreis=Decimal("50.00"))
+        r.refresh_from_db()
+        from apps.finance.pdf import rechnung_pdf
+        pdf_bytes = rechnung_pdf(r)
+        self.assertTrue(pdf_bytes.startswith(b"%PDF"))
+        from pypdf import PdfReader
+        text = "".join(page.extract_text() for page in PdfReader(io.BytesIO(pdf_bytes)).pages)
+        self.assertIn("Gesamtbetrag", text)
+        self.assertNotIn("USt", text)
+
+    def test_pdf_mit_umsatzsteuer_zeigt_aufschluesselung(self):
+        Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Ware", menge=1,
+                                         einzelpreis=Decimal("100.00"), steuersatz=Decimal("19.00"))
+        self.r.status = "offen"
+        self.r.nummer_vergeben()
+        self.r.save()
+        from apps.finance.pdf import rechnung_pdf
+        pdf_bytes = rechnung_pdf(self.r)
+        from pypdf import PdfReader
+        text = "".join(page.extract_text() for page in PdfReader(io.BytesIO(pdf_bytes)).pages)
+        self.assertIn("Nettobetrag", text)
+        self.assertIn("19", text)
+        self.assertIn("USt", text)
+        self.assertIn("Gesamtbetrag", text)
+        self.assertIn("brutto", text)
+
+    def test_erechnung_bildet_gemischte_steuersaetze_in_bg23_ab(self):
+        Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Ware (19 %)", menge=1,
+                                         einzelpreis=Decimal("100.00"), steuersatz=Decimal("19.00"))
+        Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Ware (steuerfrei)", menge=1,
+                                         einzelpreis=Decimal("50.00"))
+        self.r.status = "offen"
+        self.r.nummer_vergeben()
+        self.r.save()
+        xml_bytes = erechnung.zugferd_xml(self.r)
+        text = xml_bytes.decode("utf-8")
+        self.assertIn("<ram:RateApplicablePercent>19.00</ram:RateApplicablePercent>", text)
+        self.assertIn("<ram:CategoryCode>S</ram:CategoryCode>", text)
+        self.assertIn("<ram:CategoryCode>E</ram:CategoryCode>", text)
+        self.assertIn("ExemptionReason", text)
+
+    def test_erechnung_nutzt_eigenen_steuerhinweis(self):
+        self.v.rechnung_steuerhinweis = "Gemäß § 19 UStG wird keine Umsatzsteuer berechnet"
+        self.v.save()
+        Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Ware", menge=1,
+                                         einzelpreis=Decimal("10.00"))
+        self.r.status = "offen"
+        self.r.nummer_vergeben()
+        self.r.save()
+        xml_bytes = erechnung.zugferd_xml(self.r)
+        self.assertIn("Gemäß § 19 UStG", xml_bytes.decode("utf-8"))
+
+
 class ErechnungViewTests(TestCase):
     def setUp(self):
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test", iban="DE02120300000000202051")

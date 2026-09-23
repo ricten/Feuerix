@@ -91,7 +91,7 @@ def storniere(rechnung):
                                 kopftext=f"Storno zur Rechnung {rechnung.nummer}")
     for p in rechnung.positionen.all():
         Rechnungsposition.objects.create(verein=rechnung.verein, rechnung=s, text=f"Storno: {p.text}", menge=p.menge,
-                                         einzelpreis=-p.einzelpreis)
+                                         einzelpreis=-p.einzelpreis, steuersatz=p.steuersatz)
     rechnung.status = "storniert"
     rechnung.save(update_fields=["status", "geaendert"])
     s.refresh_from_db()
@@ -117,12 +117,14 @@ def gutschrift(rechnung, betrag, text):
 @transaction.atomic
 def rechnung_erstellen(verein, positionen, mitglied=None, empfaenger_name="", empfaenger_anschrift="", bemerkung=""):
     """Erzeugt sofort eine offene Rechnung (kein Entwurf) für sonstige Leistungen außerhalb des Beitragswesens
-    (z. B. Leihgebühren) - positionen: Liste von (text, menge, einzelpreis)."""
+    (z. B. Leihgebühren) - positionen: Liste von (text, menge, einzelpreis) oder (text, menge, einzelpreis,
+    steuersatz), falls Umsatzsteuer ausgewiesen werden soll (Standard ohne Angabe: 0 %)."""
     r = Rechnung.objects.create(verein=verein, typ="individuell", status="offen", mitglied=mitglied,
                                 empfaenger_name=empfaenger_name, empfaenger_anschrift=empfaenger_anschrift,
                                 datum=date.today(), bemerkung=bemerkung)
-    for text, menge, einzelpreis in positionen:
-        Rechnungsposition.objects.create(verein=verein, rechnung=r, text=text, menge=menge, einzelpreis=einzelpreis)
+    for text, menge, einzelpreis, *rest in positionen:
+        Rechnungsposition.objects.create(verein=verein, rechnung=r, text=text, menge=menge, einzelpreis=einzelpreis,
+                                         steuersatz=rest[0] if rest else Decimal("0"))
     r.refresh_from_db()
     return r
 
@@ -130,10 +132,11 @@ def rechnung_erstellen(verein, positionen, mitglied=None, empfaenger_name="", em
 @transaction.atomic
 def rechnung_positionen_hinzufuegen(rechnung, positionen):
     """Ergänzt eine bereits bestehende Rechnung um weitere Positionen (z. B. wenn ein mehrteiliger Vorgang in
-    mehreren Schritten abgeschlossen wird und trotzdem alles auf einer Rechnung landen soll)."""
-    for text, menge, einzelpreis in positionen:
+    mehreren Schritten abgeschlossen wird und trotzdem alles auf einer Rechnung landen soll) - positionen wie
+    bei rechnung_erstellen()."""
+    for text, menge, einzelpreis, *rest in positionen:
         Rechnungsposition.objects.create(verein=rechnung.verein, rechnung=rechnung, text=text, menge=menge,
-                                         einzelpreis=einzelpreis)
+                                         einzelpreis=einzelpreis, steuersatz=rest[0] if rest else Decimal("0"))
     rechnung.refresh_from_db()
     return rechnung
 

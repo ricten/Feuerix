@@ -4,7 +4,7 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~179 Tests) und eine GitHub-Actions-CI prüfen
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~188 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz verifiziert sind
 > die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – dafür vor dem
 > Verlass darauf eine Testphase einplanen.
@@ -62,7 +62,7 @@ CDN, DSGVO-freundlich); nahezu jeder Button bekommt anhand seines Labels automat
 | Mitglieder | **Import** aus Excel/CSV (Testlauf, Aktualisierung bestehender Mitglieder, Fehlerbericht, Vorlagendatei) und **Vollexport** (Excel/CSV, Bankdaten nur mit Beitragsrecht, protokolliert); Akte inkl. verschlüsselter IBAN, SEPA-Mandat, Familie/Familienzahler, Abteilungen, Funktionen, versionierte Dokumente, Datenauskunft (JSON), Anonymisierung; **Selbstdatenpflege** – Mitglieder pflegen Adresse/Telefon/E-Mail/Bankverbindung selbst online, siehe [docs/SELBSTDATENPFLEGE.md](docs/SELBSTDATENPFLEGE.md) |
 | Ehrungen | Ehrungsarten, Ehrungen, konfigurierbare Jubiläumsregeln, Jubiläumsliste mit Direktanlage |
 | Beiträge | Mitgliedsarten, Regeln (Alter, Familie, Gültigkeitsjahre, Priorität), individuelle Beiträge, Beitragsjahre mit Rechnungslauf; Beträge werden in der Rechnung eingefroren |
-| Rechnungen | Nummernkreis `RE-JJJJ-000001`, Entwurf → Ausstellen (danach unveränderbar), PDF, **E-Rechnung (ZUGFeRD/Factur-X-PDF, EN16931, XSD-validiert)**, E-Mail, Storno (mit buchbarer **Rückzahlung** bei bereits bezahlten Rechnungen), Gutschrift, Mahnstufen mit PDF |
+| Rechnungen | Nummernkreis `RE-JJJJ-000001`, Entwurf → Ausstellen (danach unveränderbar), PDF, **E-Rechnung (ZUGFeRD/Factur-X-PDF, EN16931, XSD-validiert)**, E-Mail, Storno (mit buchbarer **Rückzahlung** bei bereits bezahlten Rechnungen), Gutschrift, Mahnstufen mit PDF; **Umsatzsteuer je Position** (0 % Standard, auch gemischt auf einer Rechnung) für nicht gemeinnützige Vereine/den wirtschaftlichen Geschäftsbetrieb, mit Netto/Steuer/Brutto-Aufschlüsselung auf PDF und E-Rechnung |
 | Zahlungen/Bank | Zahlungen je Rechnung inkl. Rücklastschrift, Kontoauszug-Import in **CSV, MT940 und CAMT.053** (Format wird automatisch erkannt) mit Dublettenerkennung, automatische Zuordnung (Rechnungsnr. → Mitgliedsnr. → IBAN), Liste „manuelle Zuordnung erforderlich“; **SEPA-Sammellastschrift-Export** (pain.008/CORE) für offene Rechnungen mit SEPA-Mandat, automatische Erst-/Folgelastschrift-Erkennung |
 | Kassenbuch | Konten (Bank/Bar), Buchungskategorien mit steuerlicher Sphäre, Buchungen mit Belegnummer und Belegupload, Übernahme aus Zahlungen/Spenden/Aufwandsentschädigungen/Veranstaltungen (idempotent), **E-Rechnung importieren** (XRechnung/ZUGFeRD einlesen und als vorausgefüllte Ausgabe mit Beleg ablegen), **Beleg in Ablage übernehmen** (zusätzlich im allgemeinen Dokumentenarchiv einordnen) |
 | Kassenbericht | Zeitraumbericht mit Kontenübersicht, Einnahmen/Ausgaben je Kategorie und Sphäre, Vorjahresvergleich, Soll/Ist-Abgleich, Prüfungsbemerkung, Unterschriftszeilen, Kassenbuch-Anlage; PDF + Excel; Abschluss sperrt den Zeitraum und legt das PDF in der Ablage ab |

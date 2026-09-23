@@ -1,6 +1,8 @@
 from apps.core.pdf import brief_pdf
 from apps.core.util import geld
 
+from .models import STANDARD_STEUERHINWEIS
+
 
 def _empfaenger(r):
     return [r.empfaenger_name] + (r.empfaenger_anschrift or "").splitlines()
@@ -16,11 +18,27 @@ def rechnung_pdf(r):
         meta.append(("Fällig am", f"{r.faellig_am:%d.%m.%Y}"))
     if r.zeitraum_von and r.zeitraum_bis:
         meta.append(("Zeitraum", f"{r.zeitraum_von:%d.%m.%Y} – {r.zeitraum_bis:%d.%m.%Y}"))
-    tabelle = [["Bezeichnung", "Menge", "Einzelpreis", "Betrag"]]
-    for p in r.positionen.all():
-        tabelle.append([p.text, f"{p.menge:g}", geld(p.einzelpreis), geld(p.betrag)])
-    tabelle.append(["Gesamtbetrag", "", "", geld(r.betrag)])
+    # Nur bei tatsächlich genutzter Umsatzsteuer eine eigene Spalte/Aufschlüsselung zeigen - bei 0 % überall
+    # (Standardfall gemeinnütziger Vereine) bleibt die Rechnung wie bisher eine einfache Betragsspalte.
+    mit_ust = r.steuerbetrag or v.umsatzsteuerpflichtig
+    if mit_ust:
+        tabelle = [["Bezeichnung", "Menge", "Einzelpreis netto", "USt %", "Betrag netto"]]
+        for p in r.positionen.all():
+            tabelle.append([p.text, f"{p.menge:g}", geld(p.einzelpreis), f"{p.steuersatz:g} %", geld(p.nettobetrag)])
+        tabelle.append(["Nettobetrag", "", "", "", geld(r.nettobetrag)])
+        for satz in sorted(r.steuer_gruppen):
+            g = r.steuer_gruppen[satz]
+            if g["steuer"]:
+                tabelle.append([f"zzgl. {satz:g} % USt", "", "", "", geld(g["steuer"])])
+        tabelle.append(["Gesamtbetrag brutto", "", "", "", geld(r.betrag)])
+    else:
+        tabelle = [["Bezeichnung", "Menge", "Einzelpreis", "Betrag"]]
+        for p in r.positionen.all():
+            tabelle.append([p.text, f"{p.menge:g}", geld(p.einzelpreis), geld(p.betrag)])
+        tabelle.append(["Gesamtbetrag", "", "", geld(r.betrag)])
     nach = [r.fusstext] if r.fusstext else []
+    if not r.steuerbetrag and (v.umsatzsteuerpflichtig or v.rechnung_steuerhinweis):
+        nach.insert(0, v.rechnung_steuerhinweis or STANDARD_STEUERHINWEIS)
     if r.betrag > 0 and v.iban and r.typ in ("beitrag", "individuell", "sammel"):
         vz = f"MITGLIED {r.mitglied.mitgliedsnummer} " if r.mitglied_id else ""
         nach.append(f"Bitte überweisen Sie {geld(r.betrag)} auf das Konto {v.iban}"

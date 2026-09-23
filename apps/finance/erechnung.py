@@ -9,15 +9,17 @@ eingebunden (zusätzliche Infrastruktur, siehe Abwägung im Handbuch). Ebenso wi
 PDF/A-3-Konformität geprüft (z. B. mit veraPDF) - die meisten empfangenden Systeme lesen ohnehin nur die
 eingebettete XML-Datei aus, für eine amtliche Langzeitarchivierungs-Zusage würde das aber nicht ausreichen.
 
-Bewusst pauschal umsatzsteuerbefreit (Kategorie "E"): diese Software führt keine Umsatzsteuersätze je Position
-(Vereinsrechnungen sind überwiegend im ideellen Bereich umsatzsteuerfrei, § 4 UStG). Vor dem Versand an eine
-Stelle mit E-Rechnungspflicht bzw. bei tatsächlich umsatzsteuerpflichtigen Vorgängen (wirtschaftlicher
-Geschäftsbetrieb) bitte mit einem offiziellen Prüfwerkzeug gegenprüfen bzw. einen Steuerberater hinzuziehen."""
+Jede Rechnungsposition hat einen eigenen Umsatzsteuersatz (Standard 0 %, für nicht gemeinnützige Vereine bzw. den
+wirtschaftlichen Geschäftsbetrieb einstellbar) - auch gemischte Steuersätze auf einer Rechnung werden über mehrere
+BG-23-Gruppen korrekt abgebildet. Positionen mit 0 % werden weiterhin als umsatzsteuerbefreit (Kategorie "E")
+ausgewiesen; vor dem Versand an eine Stelle mit E-Rechnungspflicht bzw. bei tatsächlich umsatzsteuerpflichtigen
+Vorgängen bitte trotzdem mit einem offiziellen Prüfwerkzeug gegenprüfen bzw. einen Steuerberater hinzuziehen."""
 from decimal import Decimal
 
 from facturx import generate_from_binary
 from facturx.generate_xml import generate_cii_xml
 
+from .models import STANDARD_STEUERHINWEIS
 from .pdf import rechnung_pdf
 
 LEVEL = "en16931"
@@ -43,13 +45,32 @@ def _cii_data_dict(rechnung):
     """-> data_dict nach den EN16931-Business-Terms (BT-...), wie von facturx.generate_cii_xml erwartet."""
     v = rechnung.verein
     positionen = list(rechnung.positionen.all())
-    zwischensumme = sum((p.betrag for p in positionen), Decimal("0"))
     strasse, plz, ort = _anschrift_zerlegen(rechnung.empfaenger_anschrift)
 
-    zeilen = [{
-        "BT-126": str(i), "BT-153": p.text[:300], "BT-129": _betrag(p.menge), "BT-130": "C62",
-        "BT-146": _betrag(p.einzelpreis), "BT-151": "E", "BT-131": _betrag(p.betrag),
-    } for i, p in enumerate(positionen, start=1)]
+    zeilen = []
+    for i, p in enumerate(positionen, start=1):
+        zeile = {
+            "BT-126": str(i), "BT-153": p.text[:300], "BT-129": _betrag(p.menge), "BT-130": "C62",
+            "BT-146": _betrag(p.einzelpreis), "BT-151": "S" if p.steuersatz else "E",
+            "BT-131": _betrag(p.nettobetrag),
+        }
+        if p.steuersatz:
+            zeile["BT-152"] = _betrag(p.steuersatz)
+        zeilen.append(zeile)
+
+    steuer_gruppen = []
+    for satz, g in sorted(rechnung.steuer_gruppen.items()):
+        eintrag = {"BT-116": _betrag(g["netto"]), "BT-117": _betrag(g["steuer"])}
+        if satz:
+            eintrag["BT-118"] = "S"
+            eintrag["BT-119"] = _betrag(satz)
+        else:
+            eintrag["BT-118"] = "E"
+            eintrag["BT-120"] = v.rechnung_steuerhinweis or STANDARD_STEUERHINWEIS
+        steuer_gruppen.append(eintrag)
+    if not steuer_gruppen:
+        steuer_gruppen = [{"BT-116": "0.00", "BT-117": "0.00", "BT-118": "E",
+                          "BT-120": v.rechnung_steuerhinweis or STANDARD_STEUERHINWEIS}]
 
     d = {
         "BT-1": rechnung.nummer or f"ENTWURF-{rechnung.pk}",
@@ -64,16 +85,13 @@ def _cii_data_dict(rechnung):
         # (kein Lieferort, kein Lieferdatum) erzeugt die facturx-Bibliothek ein leeres, laut Schema aber
         # nicht "nillable" ApplicableHeaderTradeDelivery-Element und die XSD-Prüfung schlägt fehl.
         "BT-72": rechnung.zeitraum_bis or rechnung.datum,
-        "BG-23": [{
-            "BT-116": _betrag(zwischensumme), "BT-117": "0.00", "BT-118": "E",
-            "BT-120": "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen",
-        }],
+        "BG-23": steuer_gruppen,
         "BG-25": zeilen,
-        "BT-106": _betrag(zwischensumme),
-        "BT-109": _betrag(zwischensumme),
-        "BT-110": "0.00", "BT-110-1": "EUR",
-        "BT-112": _betrag(zwischensumme),
-        "BT-115": _betrag(zwischensumme),
+        "BT-106": _betrag(rechnung.nettobetrag),
+        "BT-109": _betrag(rechnung.nettobetrag),
+        "BT-110": _betrag(rechnung.steuerbetrag), "BT-110-1": "EUR",
+        "BT-112": _betrag(rechnung.betrag),
+        "BT-115": _betrag(rechnung.betrag),
     }
     if v.anschrift:
         d["BT-35"] = v.anschrift
@@ -83,6 +101,8 @@ def _cii_data_dict(rechnung):
         d["BT-38"] = v.plz
     if v.steuernummer:
         d["BT-32"] = v.steuernummer
+    if v.ust_idnr:
+        d["BT-31"] = v.ust_idnr
     if rechnung.faellig_am:
         d["BT-9"] = rechnung.faellig_am
     if strasse:
