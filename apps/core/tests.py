@@ -319,3 +319,23 @@ class WeboberflaechenDesignTests(TestCase):
         self.assertNotContains(r, "Import (Excel/CSV)")
         r = self.client.get(reverse("gegenstand_list"))
         self.assertNotContains(r, "Import (Excel/CSV)")
+
+
+class FeuerixBrandingTests(TestCase):
+    """Softwaremarke "Feuerix" (getrennt vom individuellen Vereinsnamen/-logo) - muss auch ohne Anmeldung
+    sichtbar sein (Login-Seite), bevor ein Verein aktiv ist."""
+
+    def test_produktname_auf_login_seite_ohne_anmeldung(self):
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, "Feuerix")
+        self.assertContains(r, "branding/icon.svg")
+
+    def test_produktname_im_footer_bei_angemeldetem_verein(self):
+        User = get_user_model()
+        v = Verein.objects.create(name="Verein A", kuerzel="a")
+        admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=v, user=admin, rolle=Rolle.objects.get(verein=v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "Verein A")
+        self.assertContains(r, "Feuerix")

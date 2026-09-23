@@ -134,3 +134,7 @@ CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_TASK_ALWAYS_EAGER = _bool("CELERY_EAGER")
 
 FINTS_PRODUCT_ID = os.environ.get("FINTS_PRODUCT_ID", "")
+
+# Software-Marke (nicht zu verwechseln mit dem Namen/Logo des einzelnen Vereins)
+PRODUCT_NAME = "Feuerix"
+PRODUCT_TAGLINE = "Verwaltung für Feuerwehr-Fördervereine"

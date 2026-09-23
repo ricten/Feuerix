@@ -1,10 +1,13 @@
 # Vereinsverwaltung (Django · PostgreSQL · Docker)
 
+Softwaremarke: **Feuerix** (`PRODUCT_NAME` in `config/settings.py`) – getrennt vom Namen/Logo des einzelnen
+Vereins, das jede Feuerwehr selbst hochlädt und das auf der eigenen Instanz die Hauptmarke bleibt.
+
 Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, Rechnungen, Zahlungen, Bankumsätze,
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~188 Tests) und eine GitHub-Actions-CI prüfen
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~190 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz verifiziert sind
 > die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – dafür vor dem
 > Verlass darauf eine Testphase einplanen.

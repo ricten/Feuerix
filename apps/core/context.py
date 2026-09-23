@@ -119,8 +119,9 @@ def oeffentlich(request):
 
 
 def mandant(request):
+    produkt = {"product_name": settings.PRODUCT_NAME, "product_tagline": settings.PRODUCT_TAGLINE}
     if not getattr(request, "user", None) or not request.user.is_authenticated:
-        return {}
+        return produkt
     navigation = []
     for gruppe, icon, eintraege in NAV:
         punkte = []
@@ -137,5 +138,5 @@ def mandant(request):
         m = getattr(request.user, "mitglied_zugang", None)
         if m is not None:
             verein = m.verein
-    return {"verein": verein, "vereine": request.vereine, "navigation": navigation,
+    return {**produkt, "verein": verein, "vereine": request.vereine, "navigation": navigation,
             "aktive_icon": _aktive_icon(request), **_farbkontext(verein)}

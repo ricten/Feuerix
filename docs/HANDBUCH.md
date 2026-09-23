@@ -1,4 +1,4 @@
-# Handbuch – Vereinsverwaltung (Version 1.13.0)
+# Handbuch – Vereinsverwaltung (Version 1.14.0)
 
 Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
 alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
