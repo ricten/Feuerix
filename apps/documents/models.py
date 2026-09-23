@@ -10,10 +10,11 @@ from apps.core.util import upload_pfad
 from apps.members.models import Mitglied
 
 KATEGORIEN = [("protokoll", "Protokoll"), ("einladung", "Einladung"), ("serienbrief", "Serienbrief"),
-              ("satzung", "Satzung & Verträge"), ("beleg", "Belege"), ("kassenbericht", "Kassenbericht"), ("sonstiges", "Sonstiges")]
+              ("satzung", "Satzung & Verträge"), ("datenschutz", "Datenschutzerklärung"), ("formular", "Formulare"),
+              ("beleg", "Belege"), ("kassenbericht", "Kassenbericht"), ("sonstiges", "Sonstiges")]
 ORDNER_NAMEN = {"protokoll": "Protokolle", "einladung": "Einladungen", "serienbrief": "Serienbriefe",
-                "satzung": "Satzung & Verträge", "beleg": "Belege", "kassenbericht": "Kassenberichte",
-                "sonstiges": "Sonstiges"}
+                "satzung": "Satzung & Verträge", "datenschutz": "Datenschutzerklärung", "formular": "Formulare",
+                "beleg": "Belege", "kassenbericht": "Kassenberichte", "sonstiges": "Sonstiges"}
 
 
 class Ordner(TenantModel):
@@ -55,6 +56,10 @@ class Ablagedokument(TenantModel):
     veranstaltung = models.ForeignKey("events.Veranstaltung", on_delete=models.SET_NULL, null=True, blank=True,
                                       related_name="ablage", verbose_name="Zur Veranstaltung")
     beschreibung = models.CharField("Beschreibung", max_length=300, blank=True)
+    oeffentlich = models.BooleanField(
+        "Öffentlich auf der Startseite sichtbar", default=False,
+        help_text="Ohne Anmeldung für jeden abrufbar (z. B. Datenschutzerklärung, Aufnahmeformular). "
+                  "Nur aktivieren, wenn das Dokument wirklich für die Öffentlichkeit bestimmt ist!")
     paperless_gesendet_am = models.DateTimeField("An Paperless gesendet am", null=True, blank=True, editable=False)
     paperless_task_id = models.CharField("Paperless-Task-ID", max_length=50, blank=True, editable=False)
     paperless_fehler = models.CharField("Letzter Paperless-Fehler", max_length=300, blank=True, editable=False)

@@ -45,6 +45,11 @@ class Verein(models.Model):
     unterschrift_1 = models.CharField("Unterschrift 1 (Briefe)", max_length=150, blank=True,
                                       help_text="z. B. Max Mustermann, 1. Vorsitzender")
     unterschrift_2 = models.CharField("Unterschrift 2 (Briefe)", max_length=150, blank=True)
+    impressum_text = models.TextField(
+        "Impressum", blank=True,
+        help_text="Vollständiger Text nach § 5 TMG / § 18 MStV (verantwortliche Person, Anschrift, Kontakt, "
+                  "Vertretungsberechtigte, ggf. USt-IdNr.). Wird ungeprüft auf der öffentlich erreichbaren "
+                  "Impressum-Seite angezeigt – bitte gegen die eigene Satzung/das Vereinsregister prüfen.")
     aktiv = models.BooleanField("Aktiv", default=True)
 
     AUDIT = True

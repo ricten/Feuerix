@@ -1,4 +1,4 @@
-# Handbuch – Vereinsverwaltung (Version 1.8.0)
+# Handbuch – Vereinsverwaltung (Version 1.10.0)
 
 Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
 alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
@@ -44,6 +44,10 @@ stattdessen direkt auf „Mein Konto“.
 Hat ein Benutzer Zugang zu **mehreren Vereinen**, erscheint oben rechts eine Auswahlliste, mit der zwischen den
 Vereinen gewechselt wird. Jede Ansicht, jede Liste und jeder Export zeigt ausschließlich Daten des gerade
 ausgewählten Vereins – die Vereine sind vollständig getrennt (Mandantenfähigkeit).
+
+**Hinweis:** Das Anlegen eines *weiteren* Vereins über `/admin/` ist aktuell gesperrt, solange bereits einer
+existiert – das Mehrmandanten-Setup ist für den produktiven Einsatz derzeit nicht freigegeben. Bereits bestehende
+Installationen mit mehreren Vereinen sind davon nicht betroffen.
 
 Die Navigation oben ist nach Themen gruppiert (Mitglieder, Schriftverkehr, Finanzen, Kasse, Inventar,
 Veranstaltungen, Auswertung, Verwaltung) und zeigt nur die Punkte, für die die eigene Rolle mindestens Lesezugriff
@@ -291,6 +295,13 @@ Bankverbindung – getrennt durch eine zweite Trennlinie in der optionalen **zwe
 erste zurück, wenn nicht gesetzt). Kein Vorlagen-Code nötig: jeder Verein bekommt automatisch sein eigenes Design
 aus den Vereinseinstellungen.
 
+**Öffentliche Dokumente**: Beim Anlegen/Bearbeiten eines Ablage-Dokuments lässt sich „Öffentlich auf der
+Startseite sichtbar“ aktivieren (Standard: aus). Ein so markiertes Dokument – z. B. die Datenschutzerklärung
+oder ein Aufnahmeformular für Interessierte – erscheint dann auf einer öffentlichen, **ohne Anmeldung**
+erreichbaren Downloads-Seite, verlinkt in der Fußzeile jeder Seite (auch der Anmeldeseite). Alle anderen
+Ablage-Dokumente bleiben wie gewohnt nur für angemeldete Benutzer mit Ablage-Recht sichtbar. Siehe auch Kapitel 15
+(Impressum).
+
 ## 12. OpenSlides-Anbindung
 
 Unter *Verwaltung › OpenSlides-Anbindung* wird einmal pro Verein die Verbindung zu einer OpenSlides-Instanz
@@ -335,6 +346,12 @@ Vereinsname/-anschrift/-kontakt, Registereintrag, Bankverbindung inkl. Gläubige
 Angaben zum Gemeinnützigkeitsbescheid (für Spendenquittungen), Zahlungsziel und Rechnungstexte, die konfigurierbaren
 Freibeträge für Aufwandsentschädigungen, sowie Logo, Akzentfarbe(n) und die Unterschriftszeilen für den
 Briefkopf (Kapitel 11).
+
+**Impressum**: Das Feld „Impressum“ enthält den vollständigen Text nach § 5 TMG/§ 18 MStV (verantwortliche
+Person, Anschrift, Kontakt, Vertretungsberechtigte, ggf. USt-IdNr.) und wird **ungeprüft** auf einer öffentlich
+erreichbaren Seite angezeigt, verlinkt in der Fußzeile jeder Seite (auch vor der Anmeldung). Bitte den Text vorab
+mit der Satzung/dem Vereinsregister abgleichen – die Software übernimmt keine rechtliche Prüfung. Läuft die
+Installation für mehrere Vereine (Kapitel 1), erscheint pro Verein ein eigener Impressum-Link.
 
 ## 16. Datenschutz und Sicherheit
 

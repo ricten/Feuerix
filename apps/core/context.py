@@ -73,6 +73,16 @@ def version(request):
     return {"app_version": app_version}
 
 
+def oeffentlich(request):
+    """Impressum/Downloads-Links im Footer - auch ohne Anmeldung (z. B. auf der Login-Seite) sichtbar.
+    Bei genau einem aktiven Verein wird direkt verlinkt, bei mehreren (Mandantenfaehigkeit) je Verein einzeln."""
+    from .models import Verein
+    vereine = list(Verein.objects.filter(aktiv=True))
+    if len(vereine) == 1:
+        return {"einzelverein": vereine[0]}
+    return {"mehrere_vereine_oeffentlich": vereine}
+
+
 def mandant(request):
     if not getattr(request, "user", None) or not request.user.is_authenticated:
         return {}

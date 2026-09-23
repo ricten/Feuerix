@@ -8,7 +8,15 @@ class TenantAdmin(admin.ModelAdmin):
     list_filter = ("verein",)
 
 
-admin.site.register(Verein)
+@admin.register(Verein)
+class VereinAdmin(admin.ModelAdmin):
+    """Mandantenfähigkeit ist aktuell gesperrt: es lässt sich kein zweiter Verein anlegen, solange schon
+    einer existiert (die zugrunde liegende Mandantentrennung im Datenmodell bleibt unangetastet)."""
+
+    def has_add_permission(self, request):
+        return not Verein.objects.exists()
+
+
 admin.site.register(Rolle)
 admin.site.register(Zugang)
 

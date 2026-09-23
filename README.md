@@ -4,7 +4,7 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~150 Tests) und eine GitHub-Actions-CI prüfen
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~170 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz verifiziert sind
 > die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – dafür vor dem
 > Verlass darauf eine Testphase einplanen.
@@ -35,10 +35,12 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
 
 ## Mehrere Vereine (Mandanten)
 
-* Jede Datenzeile gehört zu genau einem Verein; alle Listen, Detailseiten, Formularauswahlen, Datei-Downloads und
-  Exporte sind auf den aktiven Verein beschränkt.
-* Weitere Vereine legt der Plattform-Administrator (Django-Superuser) unter `/admin/` › Vereine an – Standardrollen und
-  Stammdaten entstehen automatisch.
+* Die Datentrennung ist mandantenfähig angelegt: Jede Datenzeile gehört zu genau einem Verein; alle Listen,
+  Detailseiten, Formularauswahlen, Datei-Downloads und Exporte sind auf den aktiven Verein beschränkt.
+* **Aktuell gesperrt:** Über `/admin/` lässt sich vorerst kein zweiter Verein anlegen, solange bereits einer
+  existiert (`VereinAdmin.has_add_permission`) – das Mehrmandanten-Setup ist für den produktiven Einsatz mit
+  mehreren Vereinen derzeit nicht freigegeben. Bereits bestehende Installationen mit mehreren Vereinen sind davon
+  nicht betroffen; die Sperre verhindert nur das Neuanlegen.
 * Vereins-Administratoren verwalten ihre Benutzer selbst (*Verwaltung › Benutzer*). Ein Benutzer kann Zugang zu
   mehreren Vereinen haben (Umschalter in der Kopfzeile) und sieht nur diese.
 * Rechte: Rolle je Verein + individuelle Einzelrechte je Modul (Anzeigen/Erstellen/Bearbeiten/Löschen).
@@ -61,7 +63,7 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
 | Aufwandsentschädigungen | Ehrenamts-/Übungsleiterpauschale, Aufwandsersatz, Genehmigungsworkflow, Freibetragsübersicht je Person/Jahr, Aufwandsverzicht → Spende |
 | Veranstaltungen | Planung, Aufgaben, Schichtplan mit Besetzung, Anmeldungen, Budget (Plan/Ist), Inventarreservierung, iCal-Export |
 | Schriftverkehr | Vereinslogo (auf allen PDFs), bearbeitbare Vorlagen (Einladung, Protokoll, Serienbrief …) mit Platzhaltern, Einzelschriftstücke mit PDF- und Word-Export, Serienbriefe mit Empfängerfilter (PDF-Sammeldatei oder E-Mail mit PDF-Anhang) – siehe [docs/SCHRIFTVERKEHR.md](docs/SCHRIFTVERKEHR.md) |
-| Ablage | Ordnerstruktur (Kategorie/Jahr), versionierte Dokumente, Zuordnung zu Veranstaltungen, geschützter Dateizugriff; erzeugte PDFs werden automatisch abgelegt; optionaler Versand an **Paperless-ngx** (einzeln oder gesammelt) |
+| Ablage | Ordnerstruktur (Kategorie/Jahr), versionierte Dokumente, Zuordnung zu Veranstaltungen, geschützter Dateizugriff; erzeugte PDFs werden automatisch abgelegt; optionaler Versand an **Paperless-ngx** (einzeln oder gesammelt); einzelne Dokumente als **öffentlich** markierbar (Datenschutzerklärung, Aufnahmeformular u. Ä.) – erscheinen dann ohne Anmeldung auf einer öffentlichen Downloads-Seite |
 | OpenSlides | Anbindung an OpenSlides 4: Konten der Mitglieder anlegen/abgleichen, Versammlung + Tagesordnung aus der Veranstaltung anlegen (nach Dokumentation umgesetzt, ungetestet) |
 | Paperless-ngx | Verbindung je Verein (Adresse, API-Token verschlüsselt gespeichert, Verbindungstest); Ablage-Dokumente per Knopf oder gesammelt an eine bestehende Paperless-Instanz senden (Korrespondent/Dokumenttyp/Tags werden dort bei Bedarf automatisch angelegt) |
 | Protokoll | Jede Änderung: wer, wann, IP, Feld alt → neu, optionaler Grund; sensible Felder maskiert |
@@ -74,6 +76,9 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
   (Finanzamt, Steuernummer, Bescheiddatum, Zwecke) müssen unter *Verwaltung › Verein* gepflegt sein.
 * **Freibeträge** (Standard: 3.300 € Übungsleiter, 960 € Ehrenamt) sind pro Verein einstellbar – bitte auf Aktualität prüfen.
   Die Übersicht kennt nur Zahlungen dieses Vereins.
+* **Impressum:** Das Textfeld unter *Verwaltung › Verein* wird ungeprüft auf einer öffentlichen, nicht
+  anmeldungspflichtigen Seite angezeigt (Pflicht nach § 5 TMG) – der Inhalt muss selbst korrekt und vollständig
+  eingetragen werden.
 * **Beitragslauf:** Berechnet den vollen Jahresbeitrag für alle im Jahr zeitweise aktiven Mitglieder (keine anteilige Berechnung).
 * **E-Rechnungen:** Empfang (Einlesen bekannter Kernfelder aus XRechnung/ZUGFeRD, Ablage als Beleg) und Ausstellen
   eigener Rechnungen als **ZUGFeRD/Factur-X-PDF** (Profil EN16931 – die normale PDF-Rechnung mit eingebetteter

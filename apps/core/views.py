@@ -14,7 +14,7 @@ from django.views.decorators.http import require_POST
 from . import audit
 from .crud import REGISTRY, wert
 from .forms import VereinForm
-from .models import Zugang
+from .models import Verein, Zugang
 from .util import geld
 
 
@@ -216,3 +216,29 @@ def auswertungen(request):
         abschnitte.append(("Aufwandsentschädigungen je Jahr", ["Jahr", "Summe"],
                            [[j, geld(au[j])] for j in sorted(au)], ""))
     return render(request, "core/auswertungen.html", {"abschnitte": abschnitte, "titel": "Auswertungen"})
+
+
+# ---------------------------------------------------------------- Öffentliche Seiten (ohne Anmeldung)
+def impressum(request, kuerzel):
+    """Öffentlich erreichbar (Pflichtangabe nach § 5 TMG) - bewusst ohne @login_required."""
+    verein = get_object_or_404(Verein, kuerzel=kuerzel, aktiv=True)
+    return render(request, "core/impressum.html", {"verein": verein, "titel": f"Impressum – {verein.name}"})
+
+
+def oeffentliche_dokumente(request, kuerzel):
+    """Öffentliche Dokumente eines Vereins (z. B. Datenschutzerklärung, Aufnahmeformular) - ohne Anmeldung."""
+    from apps.documents.models import Ablagedokument
+    verein = get_object_or_404(Verein, kuerzel=kuerzel, aktiv=True)
+    dokumente = Ablagedokument.objects.filter(verein=verein, oeffentlich=True).order_by("kategorie", "titel")
+    return render(request, "core/oeffentliche_dokumente.html",
+                 {"verein": verein, "dokumente": dokumente, "titel": f"Downloads – {verein.name}"})
+
+
+def oeffentliches_dokument_download(request, kuerzel, pk):
+    """Datei-Download zu oeffentliche_dokumente() - liefert NUR Dokumente mit oeffentlich=True aus."""
+    from apps.documents.models import Ablagedokument
+    verein = get_object_or_404(Verein, kuerzel=kuerzel, aktiv=True)
+    d = get_object_or_404(Ablagedokument, pk=pk, verein=verein, oeffentlich=True)
+    if not d.datei:
+        raise Http404
+    return FileResponse(d.datei.open("rb"), as_attachment=True, filename=os.path.basename(d.datei.name))

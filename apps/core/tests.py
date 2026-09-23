@@ -141,3 +141,108 @@ class MandantenTests(TestCase):
         self.v1.akzentfarbe = "#EA580C"
         self.v1.akzentfarbe_fuss = ""
         self.assertEqual(_akzentfarbe_fuss(self.v1), colors.HexColor("#EA580C"))
+
+
+class OeffentlicheSeitenTests(TestCase):
+    """Impressum und öffentliche Downloads: bewusst ohne Anmeldung erreichbar (Impressum ist Pflicht nach
+    § 5 TMG), aber Downloads duerfen NIE ein Dokument ausliefern, das nicht explizit als oeffentlich markiert ist."""
+
+    def setUp(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        from apps.documents.models import Ablagedokument
+        self.Ablagedokument = Ablagedokument
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test", anschrift="Musterweg 1", plz="12345",
+                                       ort="Musterstadt", email="verein@example.org",
+                                       impressum_text="Vertretungsberechtigter Vorstand: Max Mustermann")
+        self.oeffentlich = Ablagedokument.objects.create(
+            verein=self.v, titel="Datenschutzerklärung", kategorie="datenschutz", oeffentlich=True,
+            datei=SimpleUploadedFile("datenschutz.pdf", b"%PDF-1.4 Inhalt"))
+        self.privat = Ablagedokument.objects.create(
+            verein=self.v, titel="Vorstandsprotokoll", kategorie="protokoll", oeffentlich=False,
+            datei=SimpleUploadedFile("protokoll.pdf", b"%PDF-1.4 Geheim"))
+
+    def test_impressum_ohne_anmeldung_erreichbar(self):
+        r = self.client.get(reverse("impressum", args=[self.v.kuerzel]))
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Test e.V.")
+        self.assertContains(r, "Max Mustermann")
+
+    def test_impressum_unbekannter_verein_ist_404(self):
+        r = self.client.get(reverse("impressum", args=["gibt-es-nicht"]))
+        self.assertEqual(r.status_code, 404)
+
+    def test_downloads_zeigt_nur_oeffentliche_dokumente(self):
+        r = self.client.get(reverse("oeffentliche_dokumente", args=[self.v.kuerzel]))
+        self.assertContains(r, "Datenschutzerklärung")
+        self.assertNotContains(r, "Vorstandsprotokoll")
+
+    def test_download_oeffentliches_dokument_erlaubt(self):
+        r = self.client.get(reverse("oeffentliches_dokument_download", args=[self.v.kuerzel, self.oeffentlich.pk]))
+        self.assertEqual(r.status_code, 200)
+
+    def test_download_privates_dokument_ist_404(self):
+        """Sicherheitskritisch: ein nicht als oeffentlich markiertes Dokument darf ueber die oeffentliche
+        Download-Route unter keinen Umstaenden ausgeliefert werden, auch mit korrekter PK."""
+        r = self.client.get(reverse("oeffentliches_dokument_download", args=[self.v.kuerzel, self.privat.pk]))
+        self.assertEqual(r.status_code, 404)
+
+    def test_download_fremder_verein_ist_404(self):
+        anderer = Verein.objects.create(name="Anderer Verein", kuerzel="anderer")
+        r = self.client.get(reverse("oeffentliches_dokument_download", args=[anderer.kuerzel, self.oeffentlich.pk]))
+        self.assertEqual(r.status_code, 404)
+
+    def test_footer_verlinkt_impressum_bei_genau_einem_verein(self):
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, reverse("impressum", args=[self.v.kuerzel]))
+        self.assertContains(r, reverse("oeffentliche_dokumente", args=[self.v.kuerzel]))
+
+    def test_footer_listet_mehrere_vereine_einzeln_auf(self):
+        zweiter = Verein.objects.create(name="Zweiter Verein", kuerzel="zweiter")
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, reverse("impressum", args=[self.v.kuerzel]))
+        self.assertContains(r, reverse("impressum", args=[zweiter.kuerzel]))
+
+    def test_verein_einstellungen_speichert_impressum(self):
+        User = get_user_model()
+        admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        r = self.client.post(reverse("verein_einstellungen"), {
+            "name": self.v.name, "impressum_text": "Neuer Impressumstext", "zahlungsziel_tage": 14,
+            "uebungsleiter_freibetrag": "3300", "ehrenamts_freibetrag": "960", "akzentfarbe": "#1F4E79",
+            "bescheid_art": "freistellung"})
+        self.assertEqual(r.status_code, 302)
+        self.v.refresh_from_db()
+        self.assertEqual(self.v.impressum_text, "Neuer Impressumstext")
+
+
+class MandantenfaehigkeitGesperrtTests(TestCase):
+    """Mandantenfaehigkeit ist aktuell gesperrt: ueber /admin/ laesst sich kein zweiter Verein mehr anlegen,
+    solange bereits einer existiert. Die zugrunde liegende Mandantentrennung bleibt unangetastet (siehe
+    MandantenTests, die weiterhin mit mehreren Vereinen arbeiten, z. B. fuer bereits laengere bestehende
+    Installationen oder interne Tests der Datentrennung)."""
+
+    def setUp(self):
+        User = get_user_model()
+        self.superuser = User.objects.create_superuser("root", password="pw-Test-12345")
+        self.client.login(username="root", password="pw-Test-12345")
+
+    def test_admin_erlaubt_ersten_verein(self):
+        from apps.core.admin import VereinAdmin
+        self.assertTrue(VereinAdmin(Verein, None).has_add_permission(None))
+
+    def test_admin_verbietet_zweiten_verein(self):
+        Verein.objects.create(name="Verein A", kuerzel="a")
+        from apps.core.admin import VereinAdmin
+        self.assertFalse(VereinAdmin(Verein, None).has_add_permission(None))
+
+    def test_add_formular_im_admin_ist_gesperrt(self):
+        Verein.objects.create(name="Verein A", kuerzel="a")
+        r = self.client.get(reverse("admin:core_verein_add"))
+        self.assertEqual(r.status_code, 403)
+
+    def test_add_formular_im_admin_ohne_bestehenden_verein_erlaubt(self):
+        r = self.client.get(reverse("admin:core_verein_add"))
+        self.assertEqual(r.status_code, 200)

@@ -51,6 +51,13 @@
 </main>
 <footer class="text-center text-muted small py-3">
   © {% now "Y" %} {{ verein.name|default:"Vereinsverwaltung" }}{% if app_version %} · Version {{ app_version }}{% endif %}
+  {% if einzelverein %}
+    · <a href="{% url 'impressum' einzelverein.kuerzel %}">Impressum</a>
+    · <a href="{% url 'oeffentliche_dokumente' einzelverein.kuerzel %}">Downloads</a>
+  {% elif mehrere_vereine_oeffentlich %}
+    · Impressum:
+    {% for v in mehrere_vereine_oeffentlich %}<a href="{% url 'impressum' v.kuerzel %}">{{ v.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+  {% endif %}
 </footer>
 </body>
 </html>

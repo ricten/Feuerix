@@ -21,6 +21,10 @@ urlpatterns = [
     path("verein/einstellungen/", views.verein_einstellungen, name="verein_einstellungen"),
     path("datei/<str:app_label>/<str:modell>/<int:pk>/<str:feld>/", views.datei, name="datei"),
     path("auswertungen/", views.auswertungen, name="auswertungen"),
+    path("impressum/<slug:kuerzel>/", views.impressum, name="impressum"),
+    path("downloads/<slug:kuerzel>/", views.oeffentliche_dokumente, name="oeffentliche_dokumente"),
+    path("downloads/<slug:kuerzel>/<int:pk>/", views.oeffentliches_dokument_download,
+        name="oeffentliches_dokument_download"),
 ]
 urlpatterns += crud("protokoll", AuditLog, "audit", add=False, edit=False, delete=False,
                     list_display=("zeit", "user_name", "aktion", "modell", "objekt_repr", "grund"),

@@ -62,6 +62,7 @@ TEMPLATES = [{
         "django.contrib.messages.context_processors.messages",
         "apps.core.context.mandant",
         "apps.core.context.version",
+        "apps.core.context.oeffentlich",
     ]},
 }]
 
