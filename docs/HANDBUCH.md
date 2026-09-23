@@ -1,9 +1,9 @@
-# Handbuch – Vereinsverwaltung (Version 1.14.0)
+# Handbuch – Feuerix (Version 1.14.0)
 
-Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
-alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
-Installation) und [INSTALL.md](../INSTALL.md) (Schritt-für-Schritt-Einrichtung auf dem Server) um die
-tägliche Arbeit mit der Software.
+Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
+Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
+[README.md](../README.md) (Überblick, Installation) und [INSTALL.md](../INSTALL.md)
+(Schritt-für-Schritt-Einrichtung auf dem Server) um die tägliche Arbeit mit der Software.
 
 Für einzelne Themen gibt es vertiefende Dokumente, auf die im jeweiligen Kapitel verwiesen wird:
 [Selbstdatenpflege](SELBSTDATENPFLEGE.md), [Kasse & Mitglieder-Import](KASSE_UND_IMPORT.md),
@@ -331,7 +331,7 @@ gespeicherten OpenSlides-Anfangspasswörter (z. B. nachdem alle Zugangsdaten ver
 
 Diese Anbindung ist praktisch nur für den Superadministrator nutzbar, da das Modul `openslides` standardmäßig
 außer beim Vorstand (nur lesend) keiner Rolle zugewiesen ist. Ein automatischer Rückfluss (Anwesenheit/Abstimmungen
-aus OpenSlides zurück in die Vereinsverwaltung) ist nicht enthalten.
+aus OpenSlides zurück in Feuerix) ist nicht enthalten.
 
 ## 13. Paperless-ngx-Anbindung
 

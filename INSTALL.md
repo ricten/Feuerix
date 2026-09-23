@@ -1,17 +1,17 @@
-# Installationsanleitung – Vereinsverwaltung (+ optional OpenSlides, + optional Paperless-ngx)
+# Installationsanleitung – Feuerix (+ optional OpenSlides, + optional Paperless-ngx)
 
-Diese Anleitung richtet auf **einem Server** die Vereinsverwaltung ein und stellt sie per HTTPS bereit. OpenSlides
+Diese Anleitung richtet auf **einem Server** Feuerix ein und stellt es per HTTPS bereit. OpenSlides
 (Mitgliederversammlung online) und Paperless-ngx (Dokumentenarchiv) sind zwei unabhängig voneinander komplett
-optionale Bausteine – nichts davon ist Voraussetzung für den Betrieb der Vereinsverwaltung:
+optionale Bausteine – nichts davon ist Voraussetzung für den Betrieb von Feuerix:
 
 ```
 Internet ──► Caddy (Ports 80/443, automatisches HTTPS)
-                ├─► verein.example.org       ──► Vereinsverwaltung   127.0.0.1:8000  (Django, PostgreSQL, Redis, Celery)
+                ├─► verein.example.org       ──► Feuerix             127.0.0.1:8000  (Django, PostgreSQL, Redis, Celery)
                 ├─► versammlung.example.org  ──► OpenSlides 4        127.0.0.1:9000  (eigener Docker-Stack, optional)
                 └─► paperless.example.org    ──► Paperless-ngx       127.0.0.1:10000 (eigener Docker-Stack, optional)
 ```
 
-> **Hinweis zum Stand:** Eine automatisierte Testsuite und GitHub-Actions-CI prüfen die Vereinsverwaltung bei jeder
+> **Hinweis zum Stand:** Eine automatisierte Testsuite und GitHub-Actions-CI prüfen Feuerix bei jeder
 > Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine laufende Instanz geprüft sind die OpenSlides- und
 > die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – planen Sie dafür eine Testphase ein
 > (Abschnitt 11), falls Sie eines der beiden nutzen. Die OpenSlides-Installationsschritte entsprechen der offiziellen
@@ -24,7 +24,7 @@ Internet ──► Caddy (Ports 80/443, automatisches HTTPS)
 
 | Was | Empfehlung |
 |---|---|
-| Server | Linux (Ubuntu 24.04 LTS oder Debian 12), **mind. 1 CPU / 2 GB RAM** für die Vereinsverwaltung allein, 20 GB Platz |
+| Server | Linux (Ubuntu 24.04 LTS oder Debian 12), **mind. 1 CPU / 2 GB RAM** für Feuerix allein, 20 GB Platz |
 | Domain | ein Name, der auf die Server-IP zeigt (DNS-A-Eintrag): z. B. `verein.example.org` – **Pflicht** |
 | Domains zusätzlich | je ein weiterer Name nur bei Bedarf: `versammlung.example.org` für OpenSlides (Abschnitt 5), `paperless.example.org` für Paperless-ngx (Abschnitt 9) |
 | RAM zusätzlich | +2 GB, falls OpenSlides mitbetrieben wird (viele Container); +1 GB, falls Paperless-ngx über Abschnitt 9 (Weg A) mitbetrieben wird (eigene Postgres-Instanz, OCR-Verarbeitung) |
@@ -59,7 +59,7 @@ sudo mkdir -p /opt/verein && sudo chown $USER /opt/verein
 cd /opt/verein/vereinsverwaltung
 ```
 
-## 3. Vereinsverwaltung konfigurieren
+## 3. Feuerix konfigurieren
 
 ```bash
 cp .env.example .env
@@ -80,7 +80,7 @@ Wichtig (alle Werte selbst setzen):
   bzw. 9 genutzt wird, sonst leer lassen
 * E-Mail: `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL`
 
-## 4. Vereinsverwaltung starten
+## 4. Feuerix starten
 
 ```bash
 docker compose build
@@ -128,7 +128,7 @@ docker compose --env-file ../.env -f docker-compose.proxy.yml up -d
 docker compose -f docker-compose.proxy.yml logs -f      # Zertifikate werden automatisch geholt
 ```
 
-Danach erreichbar: `https://verein.example.org` (Vereinsverwaltung) – **immer**. Zusätzlich
+Danach erreichbar: `https://verein.example.org` (Feuerix) – **immer**. Zusätzlich
 `https://versammlung.example.org` (OpenSlides) bzw. `https://paperless.example.org` (Paperless-ngx), aber jeweils
 nur, wenn `OPENSLIDES_DOMAIN` bzw. `PAPERLESS_DOMAIN` in der `.env` gesetzt sind – leere Variablen lässt Caddy
 automatisch weg (kein Fehler, die Domain existiert dann einfach nicht). OpenSlides **benötigt HTTPS** (der
@@ -145,11 +145,11 @@ einer kommunalen/eigenen Zertifizierungsstelle):
    (entsprechend `OPENSLIDES_TLS_CERT`/`OPENSLIDES_TLS_KEY` bzw. `PAPERLESS_TLS_CERT`/`PAPERLESS_TLS_KEY`).
 3. Proxy neu erzeugen: `docker compose -f docker-compose.proxy.yml up -d --force-recreate`.
 
-Alle drei Wege lassen sich je Domain unabhängig wählen (z. B. eigenes Zertifikat für die Vereinsverwaltung,
+Alle drei Wege lassen sich je Domain unabhängig wählen (z. B. eigenes Zertifikat für Feuerix,
 Let's Encrypt für die anderen). Bei leeren `*_TLS_CERT`/`*_TLS_KEY`-Variablen bleibt es beim automatischen
 Zertifikat.
 
-## 7. Erste Schritte in der Vereinsverwaltung
+## 7. Erste Schritte in Feuerix
 
 1. **Verwaltung › Verein / Einstellungen / Logo:** Vereinsdaten ausfüllen, **Logo hochladen** (PNG oder JPG, am besten mit
    transparentem oder weißem Hintergrund), Unterschriftszeilen eintragen (z. B. „Max Mustermann, 1. Vorsitzender“), IBAN,
@@ -162,7 +162,7 @@ Zertifikat.
 
 Eine ausführliche Bedienungsanleitung für alle Module steht in **[docs/HANDBUCH.md](docs/HANDBUCH.md)**.
 
-## 8. OpenSlides mit der Vereinsverwaltung verbinden (nur falls Abschnitt 5 genutzt wird)
+## 8. OpenSlides mit Feuerix verbinden (nur falls Abschnitt 5 genutzt wird)
 
 1. In OpenSlides als `superadmin` anmelden, Passwort ändern.
 2. **Konten › Neues Konto:** technischen Benutzer anlegen (z. B. `verein-sync`, langes Passwort) und ihm die
@@ -170,7 +170,7 @@ Eine ausführliche Bedienungsanleitung für alle Module steht in **[docs/HANDBUC
    Berechtigungsfehler scheitert: zusätzlich Ausschussverwaltung im Ausschuss oder – notfalls – Superadmin.
 3. Ausschuss-ID ermitteln: in OpenSlides den Ausschuss öffnen, die Zahl in der Adresszeile (`…/committees/<ID>`) notieren.
    Ebenso die Konto-ID des Administrators, der neue Versammlungen verwalten soll (Standard: `1` = superadmin).
-4. In der Vereinsverwaltung **Verwaltung › OpenSlides-Anbindung:** Adresse (`https://versammlung.example.org`), technischer
+4. In Feuerix **Verwaltung › OpenSlides-Anbindung:** Adresse (`https://versammlung.example.org`), technischer
    Benutzer, Passwort, Ausschuss-ID, Administrator-IDs eintragen, „Anbindung aktiv“ setzen, speichern → **Verbindung testen**.
 5. **Mitglieder abgleichen:** legt Konten mit Startpasswort an (läuft im Hintergrund, Ergebnis auf der Seite).
 6. Zugangsdaten verteilen: **Schriftverkehr › Serienbriefe** mit der Vorlage „Zugangsdaten OpenSlides“ (per Brief oder E-Mail),
@@ -191,8 +191,8 @@ nano .env              # PAPERLESS_SECRET_KEY, POSTGRES_PASSWORD, PAPERLESS_ADMI
 ./install.sh
 ```
 
-Läuft danach lokal auf `127.0.0.1:10000`. Damit es auch über den Reverse Proxy erreichbar ist, in der **`.env` der
-Vereinsverwaltung** (nicht die von `paperless/`!) `PAPERLESS_DOMAIN=paperless.example.org` setzen und den Proxy
+Läuft danach lokal auf `127.0.0.1:10000`. Damit es auch über den Reverse Proxy erreichbar ist, in der **`.env` von
+Feuerix** (nicht die von `paperless/`!) `PAPERLESS_DOMAIN=paperless.example.org` setzen und den Proxy
 neu erzeugen (Abschnitt 6: `docker compose -f docker-compose.proxy.yml up -d --force-recreate`). Details, Backup
 und Update stehen in [paperless/README.md](paperless/README.md).
 
@@ -202,7 +202,7 @@ dann Schritt A überspringen und direkt mit Schritt 1 unten weitermachen.
 **Verbinden (bei beiden Wegen gleich):**
 
 1. In Paperless-ngx anmelden, unter **Mein Profil › API-Token** einen Token erzeugen.
-2. In der Vereinsverwaltung **Verwaltung › Paperless-Anbindung:** Adresse der Paperless-Instanz
+2. In Feuerix **Verwaltung › Paperless-Anbindung:** Adresse der Paperless-Instanz
    (z. B. `https://paperless.example.org`, ohne `/` am Ende) und den API-Token eintragen. Optional einen
    Standard-Korrespondenten, -Dokumenttyp und/oder Tags festlegen – diese werden in Paperless automatisch angelegt,
    falls sie dort noch nicht existieren.
@@ -211,12 +211,12 @@ dann Schritt A überspringen und direkt mit Schritt 1 unten weitermachen.
    mehrere Dokumente gleichzeitig (*Ablage › Sammelversand an Paperless*).
 
 **Hinweis:** Der Versand ist reines Hochladen (Einweg) – Status oder Metadaten, die anschließend in Paperless
-geändert werden, fließen nicht in die Vereinsverwaltung zurück.
+geändert werden, fließen nicht in Feuerix zurück.
 
 ## 10. OpenSlides oder Paperless-ngx nachträglich hinzufügen (oder entfernen)
 
 Beide Bausteine müssen nicht gleich beim ersten Einrichten dabei sein – sie lassen sich jederzeit später ergänzen,
-ohne die laufende Vereinsverwaltung anzutasten: Die App-Container (`web`/`worker`/`db`/`redis`) bleiben unberührt,
+ohne den laufenden Betrieb von Feuerix anzutasten: Die App-Container (`web`/`worker`/`db`/`redis`) bleiben unberührt,
 nur der Reverse-Proxy-Container wird kurz neu erzeugt (einige Sekunden Unterbrechung für **alle** Domains, die
 über diesen Proxy laufen – nicht nur die neu hinzugefügte).
 
@@ -225,16 +225,16 @@ nur der Reverse-Proxy-Container wird kurz neu erzeugt (einige Sekunden Unterbrec
 1. DNS-A-Eintrag für die gewünschte Domain (z. B. `versammlung.example.org`) auf die Server-IP anlegen, falls noch
    nicht geschehen.
 2. Abschnitt 5 durchführen: `cd openslides && ./install.sh`.
-3. In der **`.env` der Vereinsverwaltung** (Projektwurzel, nicht `openslides/config.yml`) `OPENSLIDES_DOMAIN=versammlung.example.org`
+3. In der **`.env` von Feuerix** (Projektwurzel, nicht `openslides/config.yml`) `OPENSLIDES_DOMAIN=versammlung.example.org`
    eintragen (optional `OPENSLIDES_TLS_CERT`/`_KEY`, siehe Abschnitt 6).
 4. Proxy neu erzeugen, damit die Domain aktiv wird: `cd deploy && docker compose -f docker-compose.proxy.yml up -d --force-recreate`.
-5. Abschnitt 8 durchführen (Verbindung in der Vereinsverwaltung einrichten und testen).
+5. Abschnitt 8 durchführen (Verbindung in Feuerix einrichten und testen).
 
 **Paperless-ngx nachträglich hinzufügen:** genauso, nur mit Abschnitt 9 statt 5/8 – also Weg A oder B durchführen,
-`PAPERLESS_DOMAIN` in der `.env` der Vereinsverwaltung setzen, Proxy neu erzeugen (Schritt 4 oben), dann verbinden
+`PAPERLESS_DOMAIN` in der `.env` von Feuerix setzen, Proxy neu erzeugen (Schritt 4 oben), dann verbinden
 (Schritte 1–4 in Abschnitt 9).
 
-**Wieder entfernen:** in umgekehrter Reihenfolge – in der Vereinsverwaltung unter *Verwaltung ›
+**Wieder entfernen:** in umgekehrter Reihenfolge – in Feuerix unter *Verwaltung ›
 OpenSlides-/Paperless-Anbindung* „Anbindung aktiv“ abwählen (sonst zeigen Detailseiten weiter tote Knöpfe an),
 `OPENSLIDES_DOMAIN` bzw. `PAPERLESS_DOMAIN` in der `.env` wieder leeren, Proxy neu erzeugen (Schritt 4 oben), dann
 den jeweiligen Stack stoppen: `cd openslides` bzw. `cd paperless && docker compose down` (mit zusätzlich `-v`, um
@@ -249,7 +249,7 @@ Backup **und Wiederherstellung** auf einem zweiten Rechner.
 ## 12. Datensicherung
 
 ```bash
-# Vereinsverwaltung (Datenbank + hochgeladene Dateien)
+# Feuerix (Datenbank + hochgeladene Dateien)
 docker compose exec -T web /app/scripts/backup.sh          # legt Dateien im Volume "backups" ab
 # OpenSlides (nur falls Abschnitt 5 genutzt wird)
 cd openslides && docker compose exec --user postgres postgres pg_dump -U openslides --clean > /opt/verein/os-$(date +%F).sql
@@ -268,13 +268,13 @@ Als Cronjob (täglich 03:00), danach die Dateien **auf einen anderen Rechner/Spe
 Außerdem sichern: `.env` (enthält `FIELD_ENCRYPTION_KEY`!) und – falls genutzt – `openslides/secrets/` bzw.
 `paperless/.env` sowie die Docker-Volumes `paperless_data`/`paperless_media` (dort liegen die eingescannten
 Dokumente und der Volltextindex).
-Wiederherstellung: `scripts/restore.sh` (Vereinsverwaltung) bzw. laut OpenSlides-Anleitung
+Wiederherstellung: `scripts/restore.sh` (Feuerix) bzw. laut OpenSlides-Anleitung
 (`docker compose up --detach postgres`, dann `psql < dump.sql`); für Paperless-ngx analog
 (`docker compose up --detach db`, dann `psql < dump.sql`).
 
 ## 13. Updates
 
-* **Vereinsverwaltung:** neue Projektdateien einspielen (`.env` und `apps/*/migrations` behalten), dann
+* **Feuerix:** neue Projektdateien einspielen (`.env` und `apps/*/migrations` behalten), dann
   `docker compose build && docker compose run --rm --no-deps --user root -v "$PWD/apps:/app/apps" web python manage.py makemigrations && docker compose up -d`
   (Migrationen werden beim Start automatisch angewendet). Vorher immer Backup!
 * **OpenSlides** (nur falls genutzt): `defaults.tag` in `config.yml` erhöhen, dann
@@ -288,7 +288,7 @@ Wiederherstellung: `scripts/restore.sh` (Vereinsverwaltung) bzw. laut OpenSlides
 
 | Problem | Lösung |
 |---|---|
-| Vereinsverwaltung startet nicht | `docker compose logs web` – häufig fehlt `SECRET_KEY`/`FIELD_ENCRYPTION_KEY` in `.env` |
+| Feuerix startet nicht | `docker compose logs web` – häufig fehlt `SECRET_KEY`/`FIELD_ENCRYPTION_KEY` in `.env` |
 | „CSRF verification failed“ | `CSRF_TRUSTED_ORIGINS` (mit `https://`) und `ALLOWED_HOSTS` prüfen |
 | Keine E-Mails | `EMAIL_HOST…` prüfen; ohne `EMAIL_HOST` werden Mails nur ins Log geschrieben (`docker compose logs worker`) |
 | Serienbrief-Versand/OpenSlides-Abgleich tut nichts | Worker läuft? `docker compose ps`, `docker compose logs worker` |

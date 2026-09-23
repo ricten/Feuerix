@@ -1,6 +1,6 @@
-# Vereinsverwaltung (Django · PostgreSQL · Docker)
+# Feuerix – Vereinsverwaltung für Feuerwehr-Fördervereine (Django · PostgreSQL · Docker)
 
-Softwaremarke: **Feuerix** (`PRODUCT_NAME` in `config/settings.py`) – getrennt vom Namen/Logo des einzelnen
+"Feuerix" ist die Softwaremarke (`PRODUCT_NAME` in `config/settings.py`) – getrennt vom Namen/Logo des einzelnen
 Vereins, das jede Feuerwehr selbst hochlädt und das auf der eigenen Instanz die Hauptmarke bleibt.
 
 Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, Rechnungen, Zahlungen, Bankumsätze,
@@ -108,8 +108,7 @@ CDN, DSGVO-freundlich); nahezu jeder Button bekommt anhand seines Labels automat
 * **Paperless-ngx:** Entweder eine bereits laufende, separate Instanz verwenden (nur Adresse und API-Token unter
   *Verwaltung › Paperless-Anbindung* eintragen), oder optional über [paperless/](paperless/) als eigenen
   Docker-Compose-Stack auf diesem Server mitbetreiben (siehe INSTALL.md Abschnitt 9). Der Versand ist in jedem
-  Fall reines Hochladen (Einweg); es gibt keinen Rücksync von Status/Metadaten aus Paperless in die
-  Vereinsverwaltung.
+  Fall reines Hochladen (Einweg); es gibt keinen Rücksync von Status/Metadaten aus Paperless in Feuerix.
 * **Kontoauszug-Import:** CSV, MT940 und CAMT.053 werden anhand Dateiendung/Inhalt automatisch erkannt; bei MT940
   wird der Verwendungszweck nur nach den gängigen deutschen SEPA-Feldkennungen (`SVWZ+` u. a.) durchsucht – weicht
   eine Bank davon ab, landet der komplette Text unstrukturiert im Verwendungszweck.
