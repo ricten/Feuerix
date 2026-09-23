@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-  <div><a href="{{ liste_url }}" class="text-decoration-none small">‹ {{ cfg.label_plural }}</a><h3 class="mb-0">{{ titel }}</h3></div>
+  <div><a href="{{ liste_url }}" class="text-decoration-none small"><i class="bi bi-arrow-left"></i> {{ cfg.label_plural }}</a><h3 class="mb-0">{{ titel }}</h3></div>
   <div class="d-flex gap-2 flex-wrap kopf-aktionen">
     {% include "core/_buttons.html" with buttons=aktionen %}
-    {% if can_change %}<a class="btn btn-sm btn-outline-primary" href="{% url cfg.name|add:'_edit' object.pk %}">Bearbeiten</a>{% endif %}
-    {% if can_delete %}<a class="btn btn-sm btn-outline-danger" href="{% url cfg.name|add:'_delete' object.pk %}">Löschen</a>{% endif %}
+    {% if can_change %}<a class="btn btn-sm btn-outline-primary" href="{% url cfg.name|add:'_edit' object.pk %}"><i class="bi bi-pencil"></i> Bearbeiten</a>{% endif %}
+    {% if can_delete %}<a class="btn btn-sm btn-outline-danger" href="{% url cfg.name|add:'_delete' object.pk %}"><i class="bi bi-trash"></i> Löschen</a>{% endif %}
   </div>
 </div>
 {% for h in hinweise %}<div class="alert alert-info py-2">{{ h }}</div>{% endfor %}
@@ -32,7 +32,7 @@
 {% for a in abschnitte %}
 <div class="card shadow-sm mb-3">
   <div class="card-header d-flex justify-content-between align-items-center"><strong>{{ a.titel }}</strong>
-    {% if a.add_url %}<a class="btn btn-sm btn-outline-primary" href="{{ a.add_url }}">+ Hinzufügen</a>{% endif %}</div>
+    {% if a.add_url %}<a class="btn btn-sm btn-outline-primary" href="{{ a.add_url }}"><i class="bi bi-plus-lg"></i> Hinzufügen</a>{% endif %}</div>
   <div class="table-responsive"><table class="table table-sm table-hover mb-0 tabelle">
     <thead class="table-light"><tr>{% for s in a.spalten %}<th>{{ s }}</th>{% endfor %}{% if a.mit_aktionen %}<th></th>{% endif %}</tr></thead>
     <tbody>

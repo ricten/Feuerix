@@ -7,11 +7,14 @@ RUN apt-get update \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-# Bootstrap und HTMX werden lokal ausgeliefert (kein CDN -> DSGVO-freundlich)
-RUN mkdir -p static/vendor \
+# Bootstrap, Bootstrap Icons und HTMX werden lokal ausgeliefert (kein CDN -> DSGVO-freundlich)
+RUN mkdir -p static/vendor/fonts \
  && curl -fsSL https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css -o static/vendor/bootstrap.min.css \
  && curl -fsSL https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js -o static/vendor/bootstrap.bundle.min.js \
- && curl -fsSL https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js -o static/vendor/htmx.min.js
+ && curl -fsSL https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js -o static/vendor/htmx.min.js \
+ && curl -fsSL https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css -o static/vendor/bootstrap-icons.css \
+ && curl -fsSL https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/bootstrap-icons.woff2 -o static/vendor/fonts/bootstrap-icons.woff2 \
+ && curl -fsSL https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/fonts/bootstrap-icons.woff -o static/vendor/fonts/bootstrap-icons.woff
 RUN useradd -m app && mkdir -p /data/media /data/backups && chown -R app /app /data \
  && chmod +x /app/entrypoint.sh /app/scripts/*.sh
 USER app

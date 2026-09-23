@@ -27,3 +27,10 @@ Commit-Nachrichten: **Deutsch**.
 * Sensible Daten (IBAN) nur über `VerschluesseltesTextField`; nicht in Logs/Exports ohne Berechtigung.
 * Steuerlich/rechtlich Relevantes (Spendenquittung, Freibeträge, Sphären) nur als Vorschlag kennzeichnen; Texte gegen amtliche Muster prüfen lassen.
 * Neue Funktionen mit Tests in der jeweiligen `tests.py` absichern.
+
+## Versionierung
+Die Datei `VERSION` folgt Semantic Versioning (`MAJOR.MINOR.PATCH`), bei jeder nennenswerten Änderung erhöhen:
+* **PATCH** (`1.0.0` → `1.0.1`): Bugfixes, kleine Korrekturen ohne neues Verhalten.
+* **MINOR** (`1.0.0` → `1.1.0`): Neue Funktionen/Module, abwärtskompatible Erweiterungen.
+* **MAJOR** (`1.0.0` → `2.0.0`): Große strukturelle Änderungen (z. B. Datenmodell-Umbau, Architekturwechsel).
+Bei jeder Version zusätzlich die Versionsnummer im Titel von `docs/HANDBUCH.md` (Zeile 1) synchron halten.

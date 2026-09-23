@@ -4,9 +4,9 @@
   <h3 class="mb-0">{{ cfg.label_plural }}</h3>
   <div class="d-flex gap-2 flex-wrap">
     {% include "core/_buttons.html" with buttons=aktionen %}
-    <a class="btn btn-sm btn-outline-secondary" href="?{{ export_qs }}&export=csv">CSV</a>
-    <a class="btn btn-sm btn-outline-secondary" href="?{{ export_qs }}&export=xlsx">Excel</a>
-    {% if can_add %}<a class="btn btn-sm btn-primary" href="{{ add_url }}">+ Neu</a>{% endif %}
+    <a class="btn btn-sm btn-outline-secondary" href="?{{ export_qs }}&export=csv"><i class="bi bi-filetype-csv"></i> CSV</a>
+    <a class="btn btn-sm btn-outline-secondary" href="?{{ export_qs }}&export=xlsx"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+    {% if can_add %}<a class="btn btn-sm btn-primary" href="{{ add_url }}"><i class="bi bi-plus-lg"></i> Neu</a>{% endif %}
   </div>
 </div>
 <form method="get" class="row g-2 mb-3" hx-get="" hx-target="#tabelle" hx-select="#tabelle" hx-trigger="keyup changed delay:300ms from:input[name=q], change from:select" hx-push-url="true">
@@ -22,7 +22,7 @@
     <div class="col-auto"><a class="badge text-bg-secondary text-decoration-none" href="?">Filter {{ f.name }}={{ f.wert }} ✕</a></div>
     {% endif %}
   {% endfor %}
-  <div class="col-auto"><button class="btn btn-sm btn-outline-primary">Filtern</button></div>
+  <div class="col-auto"><button class="btn btn-sm btn-outline-primary"><i class="bi bi-funnel"></i> Filtern</button></div>
 </form>
 <div id="tabelle">
 <div class="card shadow-sm"><div class="table-responsive">

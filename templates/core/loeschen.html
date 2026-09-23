@@ -5,8 +5,8 @@
   <h4>{{ titel }}</h4>
   <p>Möchten Sie <strong>{{ object }}</strong> wirklich löschen? Die Löschung wird im Änderungsprotokoll festgehalten.</p>
   <form method="post">{% csrf_token %}
-    <button class="btn btn-danger">Endgültig löschen</button>
-    <a class="btn btn-outline-secondary" href="{{ liste_url }}">Abbrechen</a>
+    <button class="btn btn-danger"><i class="bi bi-trash"></i> Endgültig löschen</button>
+    <a class="btn btn-outline-secondary" href="{{ liste_url }}"><i class="bi bi-x-lg"></i> Abbrechen</a>
   </form>
 </div></div></div></div>
 {% endblock %}

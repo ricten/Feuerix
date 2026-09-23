@@ -246,3 +246,37 @@ class MandantenfaehigkeitGesperrtTests(TestCase):
     def test_add_formular_im_admin_ohne_bestehenden_verein_erlaubt(self):
         r = self.client.get(reverse("admin:core_verein_add"))
         self.assertEqual(r.status_code, 200)
+
+
+class WeboberflaechenDesignTests(TestCase):
+    """Die Akzentfarbe aus den Vereinseinstellungen wird auch in der Weboberfläche verwendet (Navigation,
+    Schaltflächen) - je Verein einstellbar, mit automatisch berechneter, lesbarer Textfarbe."""
+
+    def test_lesbare_textfarbe_bei_dunklem_hintergrund_ist_weiss(self):
+        from apps.core.util import lesbare_textfarbe
+        self.assertEqual(lesbare_textfarbe("#1F4E79"), "#fff")
+
+    def test_lesbare_textfarbe_bei_hellem_hintergrund_ist_schwarz(self):
+        from apps.core.util import lesbare_textfarbe
+        self.assertEqual(lesbare_textfarbe("#FFEE00"), "#000")
+
+    def test_lesbare_textfarbe_bei_ungueltigem_wert_stuerzt_nicht_ab(self):
+        from apps.core.util import lesbare_textfarbe
+        self.assertIn(lesbare_textfarbe("keine-farbe"), ("#000", "#fff"))
+        self.assertIn(lesbare_textfarbe(""), ("#000", "#fff"))
+        self.assertIn(lesbare_textfarbe(None), ("#000", "#fff"))
+
+    def test_navigation_zeigt_eigene_akzentfarbe_und_icons(self):
+        User = get_user_model()
+        v = Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe="#EA580C")
+        admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=v, user=admin, rolle=Rolle.objects.get(verein=v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "#EA580C")
+        self.assertContains(r, "bi-people")
+
+    def test_login_seite_zeigt_akzentfarbe_des_einzigen_vereins(self):
+        Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe="#EA580C")
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, "#EA580C")

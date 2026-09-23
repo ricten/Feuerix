@@ -38,8 +38,9 @@ class Verein(models.Model):
                                                default=960)
     logo = models.ImageField("Vereinslogo (PNG oder JPG)", upload_to=logo_pfad, blank=True,
                              help_text="Wird auf Briefen, Rechnungen und Word-Dokumenten oben rechts gedruckt.")
-    akzentfarbe = models.CharField("Akzentfarbe für Briefe/PDFs", max_length=7, default="#1F4E79",
-                                   help_text="Hex-Code, z. B. #1F4E79 – für Überschrift und Linie im Briefkopf.")
+    akzentfarbe = models.CharField("Akzentfarbe (Briefe, PDFs und Weboberfläche)", max_length=7, default="#1F4E79",
+                                   help_text="Hex-Code, z. B. #1F4E79 – für Überschrift/Linie im Briefkopf sowie "
+                                             "Navigationsleiste und Schaltflächen in der Weboberfläche.")
     akzentfarbe_fuss = models.CharField("Zweite Akzentfarbe (Linie über der Fußzeile)", max_length=7, blank=True,
                                         help_text="Optional, Hex-Code z. B. #005199. Leer = gleiche Farbe wie oben.")
     unterschrift_1 = models.CharField("Unterschrift 1 (Briefe)", max_length=150, blank=True,

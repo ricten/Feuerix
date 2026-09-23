@@ -4,7 +4,7 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~170 Tests) und eine GitHub-Actions-CI prüfen
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~175 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz verifiziert sind
 > die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – dafür vor dem
 > Verlass darauf eine Testphase einplanen.
@@ -12,9 +12,10 @@ Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Ex
 **Handbuch:** Eine ausführliche Bedienungsanleitung für Vorstand, Kassenwart, Schriftführer & Co. steht in
 **[docs/HANDBUCH.md](docs/HANDBUCH.md)**.
 
-**Version:** Die Datei `VERSION` enthält die aktuelle Versionsnummer (Semantic Versioning) und wird bei jedem
-nennenswerten Deploy erhöht. Sie erscheint im Footer jeder Seite und hilft bei der Fehlersuche/Support, den
-laufenden Stand zu identifizieren.
+**Version:** Die Datei `VERSION` enthält die aktuelle Versionsnummer nach Semantic Versioning (`MAJOR.MINOR.PATCH`)
+und wird bei jedem nennenswerten Deploy erhöht: **PATCH** für Bugfixes (`1.0.0` → `1.0.1`), **MINOR** für neue
+Funktionen (`1.0.0` → `1.1.0`), **MAJOR** für große strukturelle Änderungen (`1.0.0` → `2.0.0`). Sie erscheint im
+Footer jeder Seite und hilft bei der Fehlersuche/Support, den laufenden Stand zu identifizieren.
 
 ## Start
 
@@ -44,6 +45,13 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
 * Vereins-Administratoren verwalten ihre Benutzer selbst (*Verwaltung › Benutzer*). Ein Benutzer kann Zugang zu
   mehreren Vereinen haben (Umschalter in der Kopfzeile) und sieht nur diese.
 * Rechte: Rolle je Verein + individuelle Einzelrechte je Modul (Anzeigen/Erstellen/Bearbeiten/Löschen).
+
+## Design der Weboberfläche
+
+Navigation, Buttons und Links verwenden die pro Verein einstellbare **Akzentfarbe** (*Verwaltung ›
+Verein/Einstellungen*, dieselbe Farbe wie auf Briefen/PDFs) – die Textfarbe in der Navigationsleiste wird
+automatisch für Lesbarkeit berechnet. Icons stammen von [Bootstrap Icons](https://icons.getbootstrap.com/), lokal
+ausgeliefert wie Bootstrap/HTMX (kein CDN, DSGVO-freundlich).
 
 ## Module
 

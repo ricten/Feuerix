@@ -28,8 +28,8 @@
       {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
     </div>
   {% endfor %}
-  <button class="btn btn-primary">Speichern</button>
-  <a href="{{ abbrechen_url }}" class="btn btn-outline-secondary">Abbrechen</a>
+  <button class="btn btn-primary"><i class="bi bi-check-lg"></i> Speichern</button>
+  <a href="{{ abbrechen_url }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i> Abbrechen</a>
 </form>
 </div></div></div></div>
 {% endblock %}

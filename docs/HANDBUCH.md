@@ -1,4 +1,4 @@
-# Handbuch – Vereinsverwaltung (Version 1.10.0)
+# Handbuch – Vereinsverwaltung (Version 1.11.0)
 
 Dieses Handbuch beschreibt die Bedienung der Vereinsverwaltung für Vorstand, Kassenwart, Schriftführer und
 alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente [README.md](../README.md) (Überblick,
@@ -293,7 +293,9 @@ oben links, Logo oben rechts (unter *Verwaltung › Verein/Einstellungen* hochla
 **Akzentfarbe**, und eine Fußzeile mit Registereintrag/E-Mail, Vertretungsberechtigtem/Anschrift sowie
 Bankverbindung – getrennt durch eine zweite Trennlinie in der optionalen **zweiten Akzentfarbe** (fällt auf die
 erste zurück, wenn nicht gesetzt). Kein Vorlagen-Code nötig: jeder Verein bekommt automatisch sein eigenes Design
-aus den Vereinseinstellungen.
+aus den Vereinseinstellungen. Dieselbe Akzentfarbe wird auch in der **Weboberfläche** verwendet (Navigationsleiste,
+Schaltflächen, Links) – Logo, Navigation und Icons (Bootstrap Icons) ergeben ein einheitliches Erscheinungsbild
+zwischen Anwendung, Briefen und PDFs.
 
 **Öffentliche Dokumente**: Beim Anlegen/Bearbeiten eines Ablage-Dokuments lässt sich „Öffentlich auf der
 Startseite sichtbar“ aktivieren (Standard: aus). Ein so markiertes Dokument – z. B. die Datenschutzerklärung

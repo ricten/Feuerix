@@ -2,14 +2,14 @@ from django.conf import settings
 from django.urls import NoReverseMatch, reverse
 
 NAV = [
-    ("Mitglieder", [
+    ("Mitglieder", "bi-people", [
         ("Mitglieder", "mitglied_list", "mitglieder"),
         ("Mitglieder-Import", "mitglieder_import", "mitglieder"),
         ("Jubiläen", "jubilaeen", "ehrungen"),
         ("Ehrungen", "ehrung_list", "ehrungen"),
         ("Dokumente", "dokument_list", "dokumente"),
     ]),
-    ("Schriftverkehr", [
+    ("Schriftverkehr", "bi-envelope-paper", [
         ("Schriftstücke (Einladung, Protokoll …)", "schriftstueck_list", "schriftverkehr"),
         ("Serienbriefe", "serienbrief_list", "schriftverkehr"),
         ("Vorlagen", "vorlage_list", "schriftverkehr"),
@@ -17,7 +17,7 @@ NAV = [
         ("Ablage", "ablagedokument_list", "ablage"),
         ("Ablage-Ordner", "ordner_list", "ablage"),
     ]),
-    ("Finanzen", [
+    ("Finanzen", "bi-cash-coin", [
         ("Beitragsjahre", "beitragsjahr_list", "beitraege"),
         ("Rechnungen", "rechnung_list", "rechnungen"),
         ("Zahlungen", "zahlung_list", "zahlungen"),
@@ -27,25 +27,25 @@ NAV = [
         ("Spendenquittungen", "zuwendungsbestaetigung_list", "spenden"),
         ("Aufwandsentschädigungen", "aufwandsentschaedigung_list", "aufwand"),
     ]),
-    ("Kasse", [
+    ("Kasse", "bi-wallet2", [
         ("Kassenbuch (Buchungen)", "buchung_list", "kassenbuch"),
         ("Kassenberichte", "kassenbericht_list", "kassenbuch"),
         ("Konten", "konto_list", "kassenbuch"),
         ("Buchungskategorien", "buchungskategorie_list", "kassenbuch"),
     ]),
-    ("Inventar", [
+    ("Inventar", "bi-box-seam", [
         ("Gegenstände", "gegenstand_list", "inventar"),
         ("Verleih", "verleih_list", "verleih"),
         ("Inventuren", "inventur_list", "inventur"),
     ]),
-    ("Veranstaltungen", [
+    ("Veranstaltungen", "bi-calendar-event", [
         ("Veranstaltungen", "veranstaltung_list", "veranstaltungen"),
     ]),
-    ("Auswertung", [
+    ("Auswertung", "bi-bar-chart-line", [
         ("Auswertungen", "auswertungen", "auswertungen"),
         ("Änderungsprotokoll", "auditlog_list", "audit"),
     ]),
-    ("Verwaltung", [
+    ("Verwaltung", "bi-gear", [
         ("Verein / Einstellungen / Logo", "verein_einstellungen", "verwaltung"),
         ("OpenSlides-Anbindung", "openslides_einstellungen", "openslides"),
         ("Paperless-Anbindung", "paperless_einstellungen", "paperless"),
@@ -73,21 +73,35 @@ def version(request):
     return {"app_version": app_version}
 
 
+def _farbkontext(verein):
+    """CSS-Variablen fuer die Akzentfarbe der Weboberflaeche - je Verein einstellbar (Vereinseinstellungen)."""
+    from .util import hex_zu_rgb, lesbare_textfarbe
+    akzent = (verein.akzentfarbe if verein and verein.akzentfarbe else "") or "#1F4E79"
+    r, g, b = hex_zu_rgb(akzent)
+    return {
+        "web_akzentfarbe": akzent,
+        "web_akzent_rgb": f"{r},{g},{b}",
+        "web_akzenttextfarbe": lesbare_textfarbe(akzent),
+    }
+
+
 def oeffentlich(request):
     """Impressum/Downloads-Links im Footer - auch ohne Anmeldung (z. B. auf der Login-Seite) sichtbar.
-    Bei genau einem aktiven Verein wird direkt verlinkt, bei mehreren (Mandantenfaehigkeit) je Verein einzeln."""
+    Bei genau einem aktiven Verein wird direkt verlinkt, bei mehreren (Mandantenfaehigkeit) je Verein einzeln.
+    Liefert ausserdem die Akzentfarbe fuer anonyme Seiten (Login, Impressum), da mandant() dort leer bleibt."""
     from .models import Verein
     vereine = list(Verein.objects.filter(aktiv=True))
-    if len(vereine) == 1:
-        return {"einzelverein": vereine[0]}
-    return {"mehrere_vereine_oeffentlich": vereine}
+    ctx = {"einzelverein": vereine[0]} if len(vereine) == 1 else {"mehrere_vereine_oeffentlich": vereine}
+    if not getattr(request, "verein", None):
+        ctx.update(_farbkontext(vereine[0] if len(vereine) == 1 else None))
+    return ctx
 
 
 def mandant(request):
     if not getattr(request, "user", None) or not request.user.is_authenticated:
         return {}
     navigation = []
-    for gruppe, eintraege in NAV:
+    for gruppe, icon, eintraege in NAV:
         punkte = []
         for label, url_name, modul in eintraege:
             if request.rechte.darf(modul, "view"):
@@ -96,10 +110,10 @@ def mandant(request):
                 except NoReverseMatch:
                     pass
         if punkte:
-            navigation.append((gruppe, punkte))
+            navigation.append((gruppe, icon, punkte))
     verein = request.verein
     if verein is None:
         m = getattr(request.user, "mitglied_zugang", None)
         if m is not None:
             verein = m.verein
-    return {"verein": verein, "vereine": request.vereine, "navigation": navigation}
+    return {"verein": verein, "vereine": request.vereine, "navigation": navigation, **_farbkontext(verein)}

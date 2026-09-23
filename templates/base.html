@@ -6,28 +6,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ titel|default:"Vereinsverwaltung" }}{% endblock %} – Vereinsverwaltung</title>
   <link rel="stylesheet" href="{% static 'vendor/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap-icons.css' %}">
   <link rel="stylesheet" href="{% static 'app.css' %}">
   <script src="{% static 'vendor/htmx.min.js' %}" defer></script>
   <script src="{% static 'vendor/bootstrap.bundle.min.js' %}" defer></script>
+  <style>
+    :root {
+      --bs-primary: {{ web_akzentfarbe|default:"#1F4E79" }};
+      --bs-primary-rgb: {{ web_akzent_rgb|default:"31,78,121" }};
+      --bs-link-color: var(--bs-primary);
+      --bs-link-color-rgb: var(--bs-primary-rgb);
+      --bs-link-hover-color: color-mix(in srgb, var(--bs-primary) 80%, black);
+      --bs-link-hover-color-rgb: var(--bs-primary-rgb);
+    }
+    .btn-primary {
+      --bs-btn-bg: var(--bs-primary); --bs-btn-border-color: var(--bs-primary);
+      --bs-btn-color: {{ web_akzenttextfarbe|default:"#fff" }};
+      --bs-btn-hover-bg: color-mix(in srgb, var(--bs-primary) 85%, black);
+      --bs-btn-hover-border-color: color-mix(in srgb, var(--bs-primary) 80%, black);
+      --bs-btn-hover-color: {{ web_akzenttextfarbe|default:"#fff" }};
+      --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 75%, black);
+      --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 70%, black);
+      --bs-btn-active-color: {{ web_akzenttextfarbe|default:"#fff" }};
+    }
+    .btn-outline-primary {
+      --bs-btn-color: var(--bs-primary); --bs-btn-border-color: var(--bs-primary);
+      --bs-btn-hover-bg: var(--bs-primary); --bs-btn-hover-border-color: var(--bs-primary);
+      --bs-btn-hover-color: {{ web_akzenttextfarbe|default:"#fff" }};
+      --bs-btn-active-bg: var(--bs-primary); --bs-btn-active-border-color: var(--bs-primary);
+      --bs-btn-active-color: {{ web_akzenttextfarbe|default:"#fff" }};
+    }
+    .form-check-input:checked { background-color: var(--bs-primary); border-color: var(--bs-primary); }
+    .page-item.active .page-link { background-color: var(--bs-primary); border-color: var(--bs-primary); }
+    .dropdown-item.active, .dropdown-item:active { background-color: var(--bs-primary); }
+  </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
+<nav class="navbar navbar-expand-lg {% if web_akzenttextfarbe == '#000' %}navbar-light{% else %}navbar-dark{% endif %} mb-3"
+     style="background-color: {{ web_akzentfarbe|default:'#1F4E79' }};">
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'nach_login' %}{% else %}{% url 'dashboard' %}{% endif %}">{% if verein.logo %}<img src="{% url 'verein_logo' %}" alt="" style="height:30px;background:#fff;border-radius:4px;padding:2px">{% endif %}{{ verein.name|default:"Vereinsverwaltung" }}</a>
     {% if user.is_authenticated %}
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="nav">
       <ul class="navbar-nav me-auto">
-        {% for gruppe, punkte in navigation %}
+        {% for gruppe, icon, punkte in navigation %}
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">{{ gruppe }}</a>
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi {{ icon }} me-1"></i>{{ gruppe }}</a>
           <ul class="dropdown-menu">
             {% for label, url in punkte %}<li><a class="dropdown-item" href="{{ url }}">{{ label }}</a></li>{% endfor %}
           </ul>
         </li>
         {% endfor %}
       </ul>
-      <div class="d-flex align-items-center gap-2 text-light">
+      <div class="d-flex align-items-center gap-2">
         {% if vereine|length > 1 %}
         <form method="post" action="{% url 'verein_waehlen' %}" class="d-flex">{% csrf_token %}
           <select name="verein" class="form-select form-select-sm" onchange="this.form.submit()" title="Verein wechseln">
@@ -35,9 +67,9 @@
           </select>
         </form>
         {% endif %}
-        <span class="small">{{ user.get_username }}</span>
-        <a class="btn btn-sm btn-outline-light" href="{% url 'password_change' %}">Passwort</a>
-        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-light">Abmelden</button></form>
+        <span class="small"><i class="bi bi-person-circle me-1"></i>{{ user.get_username }}</span>
+        <a class="btn btn-sm {% if web_akzenttextfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}" href="{% url 'password_change' %}"><i class="bi bi-key"></i> Passwort</a>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-sm {% if web_akzenttextfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}"><i class="bi bi-box-arrow-right"></i> Abmelden</button></form>
       </div>
     </div>
     {% endif %}
