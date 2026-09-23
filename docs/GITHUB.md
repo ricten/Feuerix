@@ -8,9 +8,9 @@ Das Projekt ist so vorbereitet, dass es direkt in ein Git-Repository passt:
 
 ## Einmalig auf GitHub (im Browser)
 1. Konto anlegen bzw. anmelden, **New repository**.
-2. Name z. B. `vereinsverwaltung`, Sichtbarkeit **Private** (enthält Vereinskonzepte, sollte nicht öffentlich sein).
+2. Name z. B. `feuerix`, Sichtbarkeit **Private** (enthält Vereinskonzepte, sollte nicht öffentlich sein).
 3. **Keine** README/.gitignore/Lizenz vorab hinzufügen lassen (das Repository muss leer sein).
-4. Adresse kopieren, z. B. `git@github.com:IHR-NAME/vereinsverwaltung.git` (SSH) oder `https://github.com/IHR-NAME/vereinsverwaltung.git`.
+4. Adresse kopieren, z. B. `git@github.com:IHR-NAME/feuerix.git` (SSH) oder `https://github.com/IHR-NAME/feuerix.git`.
 
 ## Auf Ihrem Rechner
 Voraussetzung: `git` installiert und bei GitHub angemeldet – am einfachsten mit der GitHub-CLI (`gh auth login`) oder mit einem
@@ -20,8 +20,8 @@ SSH-Schlüssel (GitHub › Settings › SSH keys).
 git config --global user.name  "Ihr Name"
 git config --global user.email "ihre@mail.de"
 
-unzip vereinsverwaltung.zip && cd vereinsverwaltung
-./scripts/github_einrichten.sh git@github.com:IHR-NAME/vereinsverwaltung.git
+unzip feuerix.zip && cd feuerix
+./scripts/github_einrichten.sh git@github.com:IHR-NAME/feuerix.git
 ```
 
 Das Skript entspricht diesen Befehlen:
@@ -30,11 +30,11 @@ Das Skript entspricht diesen Befehlen:
 git init -b main
 git add -A
 git commit -m "Erstversion"
-git remote add origin git@github.com:IHR-NAME/vereinsverwaltung.git
+git remote add origin git@github.com:IHR-NAME/feuerix.git
 git push -u origin main
 ```
 
-Mit GitHub-CLI geht es noch kürzer: `gh repo create vereinsverwaltung --private --source=. --push`
+Mit GitHub-CLI geht es noch kürzer: `gh repo create feuerix --private --source=. --push`
 
 ## Danach
 * **Actions-Reiter** öffnen: der erste CI-Lauf zeigt, ob alles startet. Da das Projekt bisher nie ausgeführt wurde, sind
