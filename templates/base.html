@@ -39,6 +39,10 @@
     .form-check-input:checked { background-color: var(--bs-primary); border-color: var(--bs-primary); }
     .page-item.active .page-link { background-color: var(--bs-primary); border-color: var(--bs-primary); }
     .dropdown-item.active, .dropdown-item:active { background-color: var(--bs-primary); }
+    .navbar .nav-link, .navbar .navbar-brand { border-radius: .375rem; transition: background-color .15s ease; }
+    .navbar .nav-link:hover, .navbar .nav-link:focus, .navbar .nav-link.show, .navbar .navbar-brand:hover {
+      background-color: rgba({% if web_akzenttextfarbe == '#000' %}0,0,0{% else %}255,255,255{% endif %}, .16);
+    }
   </style>
 </head>
 <body>

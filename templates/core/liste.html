@@ -2,7 +2,8 @@
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
   <h3 class="mb-0">{{ cfg.label_plural }}</h3>
-  <div class="d-flex gap-2 flex-wrap">
+  <div class="d-flex gap-2 flex-wrap align-items-center">
+    {% if aktive_icon %}<i class="bi {{ aktive_icon }} fs-4 me-1" style="color: var(--bs-primary);"></i>{% endif %}
     {% include "core/_buttons.html" with buttons=aktionen %}
     <a class="btn btn-sm btn-outline-secondary" href="?{{ export_qs }}&export=csv"><i class="bi bi-filetype-csv"></i> CSV</a>
     <a class="btn btn-sm btn-outline-secondary" href="?{{ export_qs }}&export=xlsx"><i class="bi bi-file-earmark-excel"></i> Excel</a>

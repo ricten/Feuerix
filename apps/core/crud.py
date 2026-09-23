@@ -80,9 +80,49 @@ def spalten_def(model, liste):
     return out
 
 
+_ICON_REGELN = [
+    ("löschen", "bi-trash"), ("bearbeiten", "bi-pencil"), ("sperren", "bi-lock-fill"),
+    ("abschließen", "bi-lock"), ("abschluss", "bi-lock"), ("öffnen", "bi-unlock"),
+    ("genehmigen", "bi-check-circle"), ("ausgezahlt", "bi-check-circle"), ("ablehnen", "bi-x-circle"),
+    ("stornieren", "bi-x-circle"), ("storno", "bi-x-circle"), ("ausstellen", "bi-check2-square"),
+    ("anonymisieren", "bi-incognito"), ("zurückgezahlt", "bi-arrow-counterclockwise"),
+    ("rückzahlung", "bi-arrow-counterclockwise"), ("rückgabe", "bi-box-arrow-in-down"),
+    ("ausgeben", "bi-box-arrow-up"), ("reservier", "bi-calendar-plus"), ("verleih", "bi-arrow-left-right"),
+    ("vollexport", "bi-download"), ("import", "bi-upload"), ("hochladen", "bi-upload"),
+    ("export", "bi-download"), ("herunterladen", "bi-download"), ("download", "bi-download"),
+    ("drucken", "bi-printer"), ("etikett", "bi-tag"), ("zuordnen", "bi-link-45deg"),
+    ("ignorieren", "bi-slash-circle"), ("ansehen", "bi-eye"), ("anzeigen", "bi-eye"), ("vorschau", "bi-eye"),
+    ("übersicht", "bi-bar-chart-line"), ("übernehmen", "bi-arrow-down-circle"),
+    ("mahnung", "bi-exclamation-triangle"), ("einladung", "bi-envelope-open"), ("e-mail", "bi-envelope"),
+    ("mail", "bi-envelope"), ("senden", "bi-send"), ("versand", "bi-send"), ("protokoll", "bi-journal-text"),
+    ("tagesordnung", "bi-list-check"), ("openslides", "bi-box-arrow-up-right"), ("kalender", "bi-calendar3"),
+    ("kontoauszug", "bi-bank"), ("einzug", "bi-arrow-repeat"), ("verbindung testen", "bi-plug"),
+    ("inventur", "bi-clipboard-check"), ("warenkorb", "bi-cart"), ("vorgang", "bi-diagram-3"),
+    ("bestätigung", "bi-patch-check"), ("auskunft", "bi-file-earmark-text"), ("word", "bi-file-earmark-word"),
+    ("docx", "bi-file-earmark-word"), ("excel", "bi-file-earmark-excel"), ("pdf", "bi-file-earmark-pdf"),
+    ("beleg", "bi-receipt"), ("zugangsdaten", "bi-key"), ("zugang", "bi-key"), ("standard", "bi-stars"),
+    ("rechnung", "bi-receipt-cutoff"), ("zahlung", "bi-cash-coin"),
+    ("hinzufügen", "bi-plus-lg"), ("anlegen", "bi-plus-lg"), ("erstellen", "bi-plus-lg"),
+    ("einrichten", "bi-plus-lg"), ("erzeugen", "bi-plus-lg"),
+]
+
+
+def _icon_fuer(label):
+    """Errät ein passendes Bootstrap-Icon anhand von Schlüsselwörtern im Button-Label - so bekommen auch die
+    vielen app-spezifischen Aktions-Buttons (Stornieren, Ausstellen, Import, ...) automatisch ein Icon,
+    ohne dass jede einzelne knopf()-Stelle im Code angepasst werden muss."""
+    text = str(label).lower()
+    if len(text.strip(" ✓✗⚠→")) <= 2:
+        return None
+    for schluessel, icon in _ICON_REGELN:
+        if schluessel in text:
+            return icon
+    return "bi-arrow-right-circle"
+
+
 def knopf(label, url, post=False, stil="outline-secondary", bestaetigung=None, felder=None):
     return {"label": label, "url": url, "post": post, "stil": stil, "bestaetigung": bestaetigung,
-            "felder": felder or {}}
+            "felder": felder or {}, "icon": _icon_fuer(label)}
 
 
 def abschnitt(request, titel, qs, spalten, add_name=None, add_params=None, max_zeilen=50):

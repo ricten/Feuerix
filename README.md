@@ -4,7 +4,7 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~175 Tests) und eine GitHub-Actions-CI prüfen
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~178 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz verifiziert sind
 > die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – dafür vor dem
 > Verlass darauf eine Testphase einplanen.
@@ -50,8 +50,10 @@ angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte a
 
 Navigation, Buttons und Links verwenden die pro Verein einstellbare **Akzentfarbe** (*Verwaltung ›
 Verein/Einstellungen*, dieselbe Farbe wie auf Briefen/PDFs) – die Textfarbe in der Navigationsleiste wird
-automatisch für Lesbarkeit berechnet. Icons stammen von [Bootstrap Icons](https://icons.getbootstrap.com/), lokal
-ausgeliefert wie Bootstrap/HTMX (kein CDN, DSGVO-freundlich).
+automatisch für Lesbarkeit berechnet, farbig unterlegte Hover-Effekte markieren den aktiven/angehovten Menüpunkt.
+Icons stammen von [Bootstrap Icons](https://icons.getbootstrap.com/), lokal ausgeliefert wie Bootstrap/HTMX (kein
+CDN, DSGVO-freundlich); nahezu jeder Button bekommt anhand seines Labels automatisch ein passendes Icon
+(`apps/core/crud.py::_icon_fuer`), zusätzlich zeigt jede Unterseite oben rechts das Icon ihrer Navigationsgruppe.
 
 ## Module
 

@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from apps.core.crud import _sortierbar
+from apps.core.crud import _icon_fuer, _sortierbar, knopf
 from apps.core.models import AuditLog, Rolle, Verein, Zugang, naechste_nummer
 from apps.members.models import Mitglied
 
@@ -280,3 +280,26 @@ class WeboberflaechenDesignTests(TestCase):
         Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe="#EA580C")
         r = self.client.get(reverse("login"))
         self.assertContains(r, "#EA580C")
+
+    def test_knopf_bekommt_automatisch_ein_passendes_icon(self):
+        self.assertEqual(knopf("Löschen", "#")["icon"], "bi-trash")
+        self.assertEqual(knopf("Import (Excel/CSV)", "#")["icon"], "bi-upload")
+        self.assertEqual(knopf("Vollexport (Excel)", "#")["icon"], "bi-download")
+        self.assertEqual(knopf("Stornieren", "#")["icon"], "bi-x-circle")
+        self.assertEqual(knopf("Zur Veranstaltung", "#")["icon"], "bi-arrow-right-circle")
+
+    def test_icon_fuer_kurzes_symbol_label_liefert_kein_icon(self):
+        """Einzelne Symbol-Labels (✓/✗/⚠, z. B. bei der Inventur) sollen kein zusätzliches Icon davor bekommen -
+        das wäre doppelt gemoppelt."""
+        self.assertIsNone(_icon_fuer("✓"))
+        self.assertIsNone(_icon_fuer("✗"))
+
+    def test_unterseite_zeigt_icon_der_eigenen_nav_gruppe(self):
+        User = get_user_model()
+        v = Verein.objects.create(name="Verein A", kuerzel="a")
+        admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=v, user=admin, rolle=Rolle.objects.get(verein=v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        m = Mitglied.objects.create(verein=v, vorname="Anton", nachname="Eins")
+        r = self.client.get(reverse("mitglied_detail", args=[m.pk]))
+        self.assertContains(r, "bi-people")

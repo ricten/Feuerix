@@ -64,6 +64,26 @@ NAV = [
 ]
 
 
+_SUFFIXE = ("_list", "_add", "_detail", "_edit", "_delete")
+
+
+def _basisname(url_name):
+    """'mitglied_detail' -> 'mitglied' (Grundname ohne CRUD-Endung), damit z. B. auch die Bearbeiten-Seite
+    eines Mitglieds als zur NAV-Gruppe 'Mitglieder' gehoerig erkannt wird, nicht nur die Listenseite selbst."""
+    for suf in _SUFFIXE:
+        if url_name and url_name.endswith(suf):
+            return url_name[:-len(suf)]
+    return url_name
+
+
+_URL_ICON = {_basisname(url_name): icon for _, icon, eintraege in NAV for _, url_name, _ in eintraege}
+
+
+def _aktive_icon(request):
+    aktueller_name = getattr(getattr(request, "resolver_match", None), "url_name", None)
+    return _URL_ICON.get(_basisname(aktueller_name))
+
+
 def version(request):
     """Version aus der VERSION-Datei im Projektwurzelverzeichnis - fuer Footer/Support (welcher Stand laeuft)."""
     try:
@@ -116,4 +136,5 @@ def mandant(request):
         m = getattr(request.user, "mitglied_zugang", None)
         if m is not None:
             verein = m.verein
-    return {"verein": verein, "vereine": request.vereine, "navigation": navigation, **_farbkontext(verein)}
+    return {"verein": verein, "vereine": request.vereine, "navigation": navigation,
+            "aktive_icon": _aktive_icon(request), **_farbkontext(verein)}
