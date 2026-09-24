@@ -1,6 +1,10 @@
+from datetime import timedelta
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from apps.core.crud import _icon_fuer, _sortierbar, knopf
 from apps.core.models import AuditLog, Rolle, Systemeinstellung, Verein, Zugang, naechste_nummer
@@ -467,3 +471,107 @@ class SystemeinstellungTests(TestCase):
         Systemeinstellung.objects.create(fints_produkt_id="ABC123")
         r = self.client.get("/admin/core/systemeinstellung/add/")
         self.assertEqual(r.status_code, 403)
+
+
+class UpdateAnzeigenTests(TestCase):
+    """Systemeinstellung.update_anzeigen() vergleicht Versionsnummern rein numerisch (Semantic Versioning) -
+    kein String-Vergleich, sonst waere z. B. "1.9.0" > "1.10.0"."""
+
+    def test_neuere_version_wird_gemeldet(self):
+        se = Systemeinstellung(update_verfuegbare_version="1.10.0")
+        self.assertEqual(se.update_anzeigen("1.9.0"), "1.10.0")
+
+    def test_gleiche_version_wird_nicht_gemeldet(self):
+        se = Systemeinstellung(update_verfuegbare_version="1.9.0")
+        self.assertEqual(se.update_anzeigen("1.9.0"), "")
+
+    def test_aeltere_version_wird_nicht_gemeldet(self):
+        se = Systemeinstellung(update_verfuegbare_version="1.8.0")
+        self.assertEqual(se.update_anzeigen("1.9.0"), "")
+
+    def test_leerer_wert_wird_nicht_gemeldet(self):
+        se = Systemeinstellung(update_verfuegbare_version="")
+        self.assertEqual(se.update_anzeigen("1.9.0"), "")
+
+    def test_kaputter_wert_stuerzt_nicht_ab(self):
+        se = Systemeinstellung(update_verfuegbare_version="nicht-numerisch")
+        self.assertEqual(se.update_anzeigen("1.9.0"), "")
+
+
+class UpdatePruefenTaskTests(TestCase):
+    def test_erfolgreiche_pruefung_speichert_version_und_zeitpunkt(self):
+        from apps.core.tasks import update_pruefen_task
+        antwort = type("R", (), {"text": "1.99.0\n", "raise_for_status": lambda self: None})()
+        with patch("requests.get", return_value=antwort):
+            update_pruefen_task()
+        se = Systemeinstellung.laden()
+        self.assertEqual(se.update_verfuegbare_version, "1.99.0")
+        self.assertIsNotNone(se.update_geprueft_am)
+
+    def test_netzwerkfehler_aendert_bekannte_version_nicht_aber_zeitpunkt(self):
+        from apps.core.tasks import update_pruefen_task
+        Systemeinstellung.objects.create(update_verfuegbare_version="1.50.0")
+        with patch("requests.get", side_effect=OSError("nicht erreichbar")):
+            update_pruefen_task()
+        se = Systemeinstellung.laden()
+        self.assertEqual(se.update_verfuegbare_version, "1.50.0")
+        self.assertIsNotNone(se.update_geprueft_am)
+
+    def test_leere_check_url_macht_gar_nichts(self):
+        from apps.core.tasks import update_pruefen_task
+        with self.settings(UPDATE_CHECK_URL=""), patch("requests.get") as mock_get:
+            update_pruefen_task()
+        mock_get.assert_not_called()
+        self.assertFalse(Systemeinstellung.objects.exists())
+
+
+class UpdateBenachrichtigungAnzeigeTests(TestCase):
+    """Die Update-Benachrichtigung im UI ist ausschliesslich fuer Superadministratoren sichtbar und stoesst
+    die Hintergrundpruefung hoechstens einmal pro UPDATE_CHECK_INTERVALL_STUNDEN an."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Verein A", kuerzel="a")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.user = User.objects.create_user("vorstand", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Vorstand"))
+
+    def test_banner_nur_fuer_superadmin_bei_neuerer_version(self):
+        Systemeinstellung.objects.create(update_verfuegbare_version="99.0.0",
+                                         update_geprueft_am=timezone.now())
+        self.client.login(username="admin", password="pw-Test-12345")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "99.0.0")
+
+        self.client.logout()
+        self.client.login(username="vorstand", password="pw-Test-12345")
+        r2 = self.client.get(reverse("dashboard"))
+        self.assertNotContains(r2, "99.0.0")
+
+    def test_kein_banner_ohne_neuere_version(self):
+        Systemeinstellung.objects.create(update_verfuegbare_version="0.1.0", update_geprueft_am=timezone.now())
+        self.client.login(username="admin", password="pw-Test-12345")
+        r = self.client.get(reverse("dashboard"))
+        self.assertNotContains(r, "Eine neue Feuerix-Version")
+
+    def test_pruefung_wird_nicht_erneut_angestossen_wenn_kuerzlich_geprueft(self):
+        Systemeinstellung.objects.create(update_geprueft_am=timezone.now())
+        self.client.login(username="admin", password="pw-Test-12345")
+        with patch("apps.core.tasks.update_pruefen_task.delay") as mock_delay:
+            self.client.get(reverse("dashboard"))
+        mock_delay.assert_not_called()
+
+    def test_pruefung_wird_angestossen_wenn_ueberfaellig(self):
+        Systemeinstellung.objects.create(update_geprueft_am=timezone.now() - timedelta(hours=25))
+        self.client.login(username="admin", password="pw-Test-12345")
+        with patch("apps.core.tasks.update_pruefen_task.delay") as mock_delay:
+            self.client.get(reverse("dashboard"))
+        mock_delay.assert_called_once()
+
+    def test_lizenzhinweis_im_footer_sichtbar(self):
+        self.client.login(username="admin", password="pw-Test-12345")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "AGPL-3.0")
+        self.assertContains(r, "ist freie Software")

@@ -142,3 +142,11 @@ FINTS_PRODUCT_ID = os.environ.get("FINTS_PRODUCT_ID", "")
 # Software-Marke (nicht zu verwechseln mit dem Namen/Logo des einzelnen Vereins)
 PRODUCT_NAME = "Feuerix"
 PRODUCT_TAGLINE = "Verwaltung für Feuerwehr-Fördervereine"
+# AGPL-3.0 verlangt bei Netzwerknutzung Zugriff auf den zum laufenden Stand passenden Quellcode - bei eigenen
+# Änderungen bitte auf die eigene Quellcode-Adresse anpassen.
+PRODUCT_SOURCE_URL = os.environ.get("PRODUCT_SOURCE_URL", "https://github.com/ricten/Feuerix")
+
+# Prüft periodisch (höchstens einmal pro UPDATE_CHECK_INTERVALL_STUNDEN) gegen diese Adresse auf eine neuere
+# Version - leer lassen, um die Prüfung ganz abzuschalten (z. B. in Intranet-Installationen ohne Internetzugang).
+UPDATE_CHECK_URL = os.environ.get("UPDATE_CHECK_URL", "https://raw.githubusercontent.com/ricten/Feuerix/main/VERSION")
+UPDATE_CHECK_INTERVALL_STUNDEN = int(os.environ.get("UPDATE_CHECK_INTERVALL_STUNDEN", "24"))

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.20.1)
+# Handbuch – Feuerix (Version 1.21.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -407,6 +407,12 @@ erreichbaren Seite angezeigt, verlinkt in der Fußzeile jeder Seite (auch vor de
 mit der Satzung/dem Vereinsregister abgleichen – die Software übernimmt keine rechtliche Prüfung. Läuft die
 Installation für mehrere Vereine (Kapitel 1), erscheint pro Verein ein eigener Impressum-Link.
 
+**Lizenzhinweis**: Ebenfalls in der Fußzeile jeder Seite steht ein Hinweis, dass Feuerix freie Software
+(AGPL-3.0) ist, mit einem Link zum Quellcode. Das erfüllt die AGPL-Pflicht, Nutzern einer über das Netzwerk
+angebotenen (auch veränderten) Version Zugriff auf den passenden Quellcode zu geben (§ 13 AGPL) - bei eigenen
+Änderungen am Code muss der Betreiber die Adresse (`PRODUCT_SOURCE_URL` in der `.env`) auf seine eigene,
+tatsächlich passende Quellcode-Ablage umstellen, siehe README.
+
 ## 16. Datenschutz und Sicherheit
 
 - IBANs (Mitglieder wie Verein) werden verschlüsselt in der Datenbank gespeichert, nicht im Klartext.
@@ -420,6 +426,12 @@ Installation für mehrere Vereine (Kapitel 1), erscheint pro Verein ein eigener 
 - **Cookies:** Es werden ausschließlich technisch notwendige Cookies gesetzt (Anmeldung/Sitzung, CSRF-Schutz,
   Spracheinstellung) – keine Tracking- oder Marketing-Cookies. Ein entsprechender Hinweis erscheint einmalig am
   unteren Bildschirmrand (auch ohne Anmeldung), bis er bestätigt wird.
+- **Update-Benachrichtigung:** Superadministratoren sehen einen abweisbaren Hinweisbanner, sobald eine neuere
+  Feuerix-Version veröffentlicht wurde. Die Prüfung läuft im Hintergrund (Celery), höchstens einmal pro Tag,
+  ausgelöst beim nächsten Seitenaufruf eines Superadministrators – kein automatisches Herunterladen oder
+  Einspielen, nur ein Hinweis. Einstellbar bzw. abschaltbar über `UPDATE_CHECK_URL` und
+  `UPDATE_CHECK_INTERVALL_STUNDEN` in der `.env` (leer lassen für Installationen ohne Internetzugang). Der zuletzt
+  bekannte Stand lässt sich auch unter `/admin/` › Systemeinstellungen einsehen.
 
 ## 17. Bekannte Grenzen
 

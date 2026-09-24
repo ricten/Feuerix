@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.urls import NoReverseMatch, reverse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 NAV = [
@@ -88,12 +91,27 @@ def _aktive_icon(request):
 
 
 def version(request):
-    """Version aus der VERSION-Datei im Projektwurzelverzeichnis - fuer Footer/Support (welcher Stand laeuft)."""
+    """Version aus der VERSION-Datei im Projektwurzelverzeichnis - fuer Footer/Support (welcher Stand laeuft).
+    Fuer Superadministratoren wird ausserdem (hoechstens einmal pro UPDATE_CHECK_INTERVALL_STUNDEN, im
+    Hintergrund per Celery) geprueft, ob eine neuere Version veroeffentlicht wurde - das Ergebnis der
+    VORHERIGEN Pruefung wird sofort angezeigt, die neu angestossene erst beim naechsten Seitenaufruf."""
     try:
         app_version = (settings.BASE_DIR / "VERSION").read_text(encoding="utf-8").strip()
     except OSError:
         app_version = ""
-    return {"app_version": app_version}
+    ctx = {"app_version": app_version}
+    if getattr(request.user, "is_superuser", False):
+        from .models import Systemeinstellung
+        se = Systemeinstellung.laden()
+        intervall = timedelta(hours=settings.UPDATE_CHECK_INTERVALL_STUNDEN)
+        if settings.UPDATE_CHECK_URL and (se.update_geprueft_am is None
+                                          or timezone.now() - se.update_geprueft_am > intervall):
+            from .tasks import update_pruefen_task
+            update_pruefen_task.delay()
+        neu = se.update_anzeigen(app_version)
+        if neu:
+            ctx["update_verfuegbare_version"] = neu
+    return ctx
 
 
 def _farbkontext(verein):
@@ -121,7 +139,8 @@ def oeffentlich(request):
 
 
 def mandant(request):
-    produkt = {"product_name": settings.PRODUCT_NAME, "product_tagline": settings.PRODUCT_TAGLINE}
+    produkt = {"product_name": settings.PRODUCT_NAME, "product_tagline": settings.PRODUCT_TAGLINE,
+              "product_source_url": settings.PRODUCT_SOURCE_URL}
     if not getattr(request, "user", None) or not request.user.is_authenticated:
         return produkt
     navigation = []

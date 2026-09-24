@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Feuerix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 23:18+0200\n"
+"POT-Creation-Date: 2026-09-25 00:30+0200\n"
 "PO-Revision-Date: 2026-09-24 07:41+0200\n"
 "Last-Translator: Feuerix\n"
 "Language-Team: English\n"
@@ -32,210 +32,210 @@ msgstr "Other compensation: check for tax purposes"
 msgid "Freibeträge"
 msgstr "Tax-free allowances"
 
-#: .\apps\core\context.py:6 .\apps\core\context.py:7
+#: .\apps\core\context.py:9 .\apps\core\context.py:10
 msgid "Mitglieder"
 msgstr "Members"
 
-#: .\apps\core\context.py:8 .\apps\honors\views.py:27
+#: .\apps\core\context.py:11 .\apps\honors\views.py:27
 #: .\templates\core\dashboard.html:14
 msgid "Jubiläen"
 msgstr "Anniversaries"
 
-#: .\apps\core\context.py:9 .\templates\core\dashboard.html:15
+#: .\apps\core\context.py:12 .\templates\core\dashboard.html:15
 msgid "Ehrungen"
 msgstr "Honours"
 
-#: .\apps\core\context.py:10
+#: .\apps\core\context.py:13
 msgid "Dokumente"
 msgstr "Documents"
 
-#: .\apps\core\context.py:12
+#: .\apps\core\context.py:15
 msgid "Schriftverkehr"
 msgstr "Correspondence"
 
-#: .\apps\core\context.py:13
+#: .\apps\core\context.py:16
 msgid "Schriftstücke (Einladung, Protokoll …)"
 msgstr "Documents (invitation, minutes …)"
 
-#: .\apps\core\context.py:14
+#: .\apps\core\context.py:17
 msgid "Serienbriefe"
 msgstr "Mail merges"
 
-#: .\apps\core\context.py:15
+#: .\apps\core\context.py:18
 msgid "Vorlagen"
 msgstr "Templates"
 
-#: .\apps\core\context.py:16
+#: .\apps\core\context.py:19
 msgid "Platzhalter-Hilfe"
 msgstr "Placeholder help"
 
-#: .\apps\core\context.py:17
+#: .\apps\core\context.py:20
 msgid "Ablage"
 msgstr "Archive"
 
-#: .\apps\core\context.py:18
+#: .\apps\core\context.py:21
 msgid "Ablage-Ordner"
 msgstr "Archive folders"
 
-#: .\apps\core\context.py:20
+#: .\apps\core\context.py:23
 msgid "Finanzen"
 msgstr "Finance"
 
-#: .\apps\core\context.py:21
+#: .\apps\core\context.py:24
 msgid "Beitragsjahre"
 msgstr "Membership-fee years"
 
-#: .\apps\core\context.py:22
+#: .\apps\core\context.py:25
 msgid "Rechnungen"
 msgstr "Invoices"
 
-#: .\apps\core\context.py:23
+#: .\apps\core\context.py:26
 msgid "Zahlungen"
 msgstr "Payments"
 
-#: .\apps\core\context.py:24
+#: .\apps\core\context.py:27
 msgid "Bankumsätze"
 msgstr "Bank transactions"
 
-#: .\apps\core\context.py:25
+#: .\apps\core\context.py:28
 msgid "SEPA-Einzüge"
 msgstr "SEPA direct debits"
 
-#: .\apps\core\context.py:26
+#: .\apps\core\context.py:29
 msgid "Spenden"
 msgstr "Donations"
 
-#: .\apps\core\context.py:27
+#: .\apps\core\context.py:30
 msgid "Spendenquittungen"
 msgstr "Donation receipts"
 
-#: .\apps\core\context.py:28
+#: .\apps\core\context.py:31
 msgid "Aufwandsentschädigungen"
 msgstr "Expense allowances"
 
-#: .\apps\core\context.py:30
+#: .\apps\core\context.py:33
 msgid "Kasse"
 msgstr "Cash book"
 
-#: .\apps\core\context.py:31
+#: .\apps\core\context.py:34
 msgid "Kassenbuch (Buchungen)"
 msgstr "Cash book (entries)"
 
-#: .\apps\core\context.py:32
+#: .\apps\core\context.py:35
 msgid "Kassenberichte"
 msgstr "Cash book reports"
 
-#: .\apps\core\context.py:33
+#: .\apps\core\context.py:36
+msgid "Konten"
+msgstr "Accounts"
+
+#: .\apps\core\context.py:37
 msgid "Buchungskategorien"
 msgstr "Booking categories"
 
-#: .\apps\core\context.py:35 .\apps\core\views.py:205
+#: .\apps\core\context.py:39 .\apps\core\views.py:205
 msgid "Inventar"
 msgstr "Inventory"
 
-#: .\apps\core\context.py:36 .\apps\core\views.py:205
+#: .\apps\core\context.py:40 .\apps\core\views.py:205
 msgid "Gegenstände"
 msgstr "Items"
 
-#: .\apps\core\context.py:37 .\templates\inventory\vorgang.html:5
+#: .\apps\core\context.py:41 .\templates\inventory\vorgang.html:5
 msgid "Verleih"
 msgstr "Rentals"
 
-#: .\apps\core\context.py:38
+#: .\apps\core\context.py:42
 msgid "Inventuren"
 msgstr "Stocktakes"
 
-#: .\apps\core\context.py:40 .\apps\core\context.py:41
+#: .\apps\core\context.py:44 .\apps\core\context.py:45
 msgid "Veranstaltungen"
 msgstr "Events"
 
-#: .\apps\core\context.py:43
+#: .\apps\core\context.py:47
 msgid "Auswertung"
 msgstr "Reports"
 
-#: .\apps\core\context.py:44 .\apps\core\views.py:220
+#: .\apps\core\context.py:48 .\apps\core\views.py:220
 #: .\templates\core\auswertungen.html:4
 msgid "Auswertungen"
 msgstr "Reports"
 
-#: .\apps\core\context.py:45
+#: .\apps\core\context.py:49
 msgid "Änderungsprotokoll"
 msgstr "Change log"
 
-#: .\apps\core\context.py:47
+#: .\apps\core\context.py:51
 msgid "Verwaltung"
 msgstr "Administration"
 
-#: .\apps\core\context.py:48
+#: .\apps\core\context.py:52
 msgid "Verein / Einstellungen / Logo"
 msgstr "Club / settings / logo"
 
-#: .\apps\core\context.py:49 .\templates\openslides\einstellungen.html:4
+#: .\apps\core\context.py:53 .\templates\openslides\einstellungen.html:4
 msgid "OpenSlides-Anbindung"
 msgstr "OpenSlides connection"
 
-#: .\apps\core\context.py:50 .\templates\paperless\einstellungen.html:4
+#: .\apps\core\context.py:54 .\templates\paperless\einstellungen.html:4
 msgid "Paperless-Anbindung"
 msgstr "Paperless connection"
 
-#: .\apps\core\context.py:51 .\templates\finance\fints_abrufen.html:20
+#: .\apps\core\context.py:55 .\templates\finance\fints_abrufen.html:20
 #: .\templates\finance\fints_kontodaten.html:20
 msgid "FinTS-Zugänge"
 msgstr "FinTS connections"
 
-#: .\apps\core\context.py:52
-msgid "Konten"
-msgstr "Accounts"
-
-#: .\apps\core\context.py:53
+#: .\apps\core\context.py:56
 msgid "Benutzer"
 msgstr "Users"
 
-#: .\apps\core\context.py:54
+#: .\apps\core\context.py:57
 msgid "Rollen"
 msgstr "Roles"
 
-#: .\apps\core\context.py:55
+#: .\apps\core\context.py:58
 msgid "Beitragsregeln"
 msgstr "Membership-fee rules"
 
-#: .\apps\core\context.py:56
+#: .\apps\core\context.py:59
 msgid "Mitgliedsarten / Beiträge"
 msgstr "Membership types / fees"
 
-#: .\apps\core\context.py:57
+#: .\apps\core\context.py:60
 msgid "Abteilungen"
 msgstr "Departments"
 
-#: .\apps\core\context.py:58
+#: .\apps\core\context.py:61
 msgid "Funktionen"
 msgstr "Functions"
 
-#: .\apps\core\context.py:59
+#: .\apps\core\context.py:62
 msgid "Familien"
 msgstr "Families"
 
-#: .\apps\core\context.py:60
+#: .\apps\core\context.py:63
 msgid "Ehrungsarten"
 msgstr "Honour types"
 
-#: .\apps\core\context.py:61
+#: .\apps\core\context.py:64
 msgid "Jubiläumsregeln"
 msgstr "Anniversary rules"
 
-#: .\apps\core\context.py:62
+#: .\apps\core\context.py:65
 msgid "Inventar-Kategorien"
 msgstr "Inventory categories"
 
-#: .\apps\core\context.py:63
+#: .\apps\core\context.py:66
 msgid "Inventar-Standorte"
 msgstr "Inventory locations"
 
-#: .\apps\core\context.py:64
+#: .\apps\core\context.py:67
 msgid "Mitglieder-Import"
 msgstr "Member import"
 
-#: .\apps\core\context.py:65
+#: .\apps\core\context.py:68
 msgid "Inventar-Import"
 msgstr "Inventory import"
 
@@ -473,19 +473,37 @@ msgstr "Password"
 msgid "Abmelden"
 msgstr "Log out"
 
-#: .\templates\base.html:92
+#: .\templates\base.html:89
+#, python-format
+msgid "Eine neue Feuerix-Version ist verfügbar: %(version)s."
+msgstr "A new Feuerix version is available: %(version)s."
+
+#: .\templates\base.html:90
+msgid "Änderungen ansehen"
+msgstr "View changes"
+
+#: .\templates\base.html:100
 msgid "Version"
 msgstr "Version"
 
-#: .\templates\base.html:94 .\templates\base.html:97
+#: .\templates\base.html:102 .\templates\base.html:105
 msgid "Impressum"
 msgstr "Legal notice"
 
-#: .\templates\base.html:95
+#: .\templates\base.html:103
 msgid "Downloads"
 msgstr "Downloads"
 
-#: .\templates\base.html:102
+#: .\templates\base.html:109
+#, python-format
+msgid "%(product_name)s ist freie Software"
+msgstr "%(product_name)s is free software"
+
+#: .\templates\base.html:109
+msgid "Quellcode"
+msgstr "Source code"
+
+#: .\templates\base.html:112
 msgid ""
 "Diese Seite verwendet ausschließlich technisch notwendige Cookies "
 "(Anmeldung, Sicherheit, Spracheinstellung) – keine Tracking- oder Marketing-"
@@ -494,7 +512,7 @@ msgstr ""
 "This site uses only strictly necessary cookies (login, security, language "
 "preference) – no tracking or marketing cookies."
 
-#: .\templates\base.html:103
+#: .\templates\base.html:113
 msgid "Verstanden"
 msgstr "Got it"
 

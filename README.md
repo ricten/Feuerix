@@ -7,7 +7,7 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~231 Tests) und eine GitHub-Actions-CI prüfen
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~244 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz bzw. eine echte Bank
 > verifiziert sind die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt)
 > sowie der FinTS-Abruf (nach der `python-fints`-Dokumentation umgesetzt, TAN-Ablauf mit simulierten Antworten
@@ -104,6 +104,13 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 ## Wichtige Hinweise
 
 * **FIELD_ENCRYPTION_KEY sichern!** Ohne ihn sind verschlüsselte IBANs nicht lesbar. Backup: `docker compose exec web /app/scripts/backup.sh`.
+* **Update-Benachrichtigung:** Superadministratoren sehen einen Hinweisbanner, sobald eine neuere Feuerix-Version
+  veröffentlicht wurde – geprüft im Hintergrund (Celery), höchstens einmal pro Tag, ausgelöst beim nächsten
+  Seitenaufruf (`UPDATE_CHECK_URL`/`UPDATE_CHECK_INTERVALL_STUNDEN` in der `.env`, leer lassen zum Abschalten,
+  z. B. ohne Internetzugang). Löst nur einen Hinweis aus, aktualisiert nichts automatisch.
+* **Lizenzhinweis:** Der Footer jeder Seite verweist auf die AGPL-3.0-Lizenz und den Quellcode
+  (`PRODUCT_SOURCE_URL` in der `.env`) – bei einem eigenen Fork bitte auf die eigene Quellcode-Adresse anpassen,
+  siehe Abschnitt „Lizenz“.
 * **Spendenquittungen:** Die PDF-Textbausteine folgen dem Aufbau des amtlichen Musters, ersetzen aber nicht dessen
   Prüfung. Vor dem ersten Einsatz mit dem aktuellen BMF-Muster bzw. Steuerberater/Finanzamt abgleichen. Vereinsdaten
   (Finanzamt, Steuernummer, Bescheiddatum, Zwecke) müssen unter *Verwaltung › Verein* gepflegt sein.
@@ -182,4 +189,6 @@ Copyright (C) 2026 Rico Tengler
 [GNU Affero General Public License v3.0](LICENSE) ([inoffizielle deutsche Übersetzung](LICENSE.de.md) zum
 besseren Verständnis – rechtlich verbindlich ist nur der englische Originaltext). Wird der Code (auch
 verändert) als Netzwerkdienst betrieben, muss der Quellcode dieser Version den Nutzern zugänglich gemacht
-werden (§ 13 AGPL).
+werden (§ 13 AGPL). Feuerix bringt dafür bereits einen Lizenzhinweis mit Quellcode-Link im Footer jeder Seite
+mit (`PRODUCT_SOURCE_URL`) – bei eigenen Änderungen bitte diese Adresse auf die eigene, tatsächlich passende
+Quellcode-Ablage umstellen, sonst ist die AGPL-Pflicht nicht erfüllt.

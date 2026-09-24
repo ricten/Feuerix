@@ -189,6 +189,9 @@ class Systemeinstellung(models.Model):
         help_text="Alternative zur Umgebungsvariable FINTS_PRODUCT_ID - wird bevorzugt verwendet, wenn gesetzt. "
                   "Kostenlos zu registrieren bei der Deutschen Kreditwirtschaft: "
                   "https://www.hbci-zka.de/register/prod_register.htm")
+    update_verfuegbare_version = models.CharField("Verfügbare neue Version", max_length=20, blank=True,
+                                                  editable=False)
+    update_geprueft_am = models.DateTimeField("Zuletzt auf Updates geprüft", null=True, blank=True, editable=False)
 
     class Meta:
         verbose_name = "Systemeinstellung"
@@ -211,3 +214,13 @@ class Systemeinstellung(models.Model):
     @classmethod
     def fints_produkt_id_aktuell(cls):
         return cls.laden().fints_produkt_id or settings.FINTS_PRODUCT_ID
+
+    def update_anzeigen(self, aktuelle_version):
+        """Gibt die bekannte neue Versionsnummer zurück, wenn sie höher als aktuelle_version ist, sonst ''."""
+        def teile(s):
+            try:
+                return tuple(int(x) for x in (s or "").strip().split("."))
+            except ValueError:
+                return None
+        neu, akt = teile(self.update_verfuegbare_version), teile(aktuelle_version)
+        return self.update_verfuegbare_version if (neu is not None and akt is not None and neu > akt) else ""

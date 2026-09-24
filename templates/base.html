@@ -83,6 +83,14 @@
   </div>
 </nav>
 <main class="container-fluid px-4 pb-5">
+  {% if update_verfuegbare_version %}
+  <div class="alert alert-info alert-dismissible fade show d-flex align-items-center gap-2">
+    <i class="bi bi-arrow-up-circle"></i>
+    <div>{% blocktrans with version=update_verfuegbare_version %}Eine neue Feuerix-Version ist verfügbar: {{ version }}.{% endblocktrans %}
+      {% if product_source_url %}<a href="{{ product_source_url }}" target="_blank" rel="noopener">{% trans "Änderungen ansehen" %}</a>{% endif %}</div>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+  </div>
+  {% endif %}
   {% for m in messages %}
   <div class="alert alert-{% if m.level_tag == 'error' %}danger{% else %}{{ m.level_tag }}{% endif %} alert-dismissible fade show">{{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
   {% endfor %}
@@ -97,6 +105,8 @@
     · {% trans "Impressum" %}:
     {% for v in mehrere_vereine_oeffentlich %}<a href="{% url 'impressum' v.kuerzel %}">{{ v.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
   {% endif %}
+  <br>
+  {% blocktrans %}{{ product_name }} ist freie Software{% endblocktrans %} (<a href="https://www.gnu.org/licenses/agpl-3.0.html" target="_blank" rel="noopener">AGPL-3.0</a>{% if product_source_url %}, <a href="{{ product_source_url }}" target="_blank" rel="noopener">{% trans "Quellcode" %}</a>{% endif %})
 </footer>
 <div id="cookie-hinweis" class="d-none position-fixed bottom-0 start-0 end-0 text-white p-3 d-flex flex-wrap align-items-center justify-content-between gap-3" style="z-index:2000; background:#1c1c1c;">
   <span class="small">{% blocktrans %}Diese Seite verwendet ausschließlich technisch notwendige Cookies (Anmeldung, Sicherheit, Spracheinstellung) – keine Tracking- oder Marketing-Cookies.{% endblocktrans %}</span>

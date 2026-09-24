@@ -26,6 +26,7 @@ admin.site.register(Zugang)
 class SystemeinstellungAdmin(admin.ModelAdmin):
     """Genau ein Datensatz (Singleton) - die Liste führt direkt auf die Bearbeitungsseite, "Hinzufügen" ist
     nur möglich, solange noch keiner existiert."""
+    readonly_fields = ("update_verfuegbare_version", "update_geprueft_am")
 
     def has_add_permission(self, request):
         return not Systemeinstellung.objects.exists()
