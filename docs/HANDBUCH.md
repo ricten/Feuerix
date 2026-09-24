@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.20.0)
+# Handbuch – Feuerix (Version 1.20.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -187,7 +187,7 @@ bestehen. Voraussetzung ist außerdem eine kostenlose FinTS-Produkt-ID, die der 
 der Deutschen Kreditwirtschaft registriert (wird nicht mit der Software mitgeliefert) und entweder als
 Umgebungsvariable oder – verschlüsselt und ohne Serverzugriff änderbar – unter `/admin/` › Systemeinstellungen
 hinterlegt (nur für technische Administratoren, nicht Teil der normalen Vereinsverwaltung). Jedes Kassenbuch-Konto
-(*Verwaltung › Konten*) kann optional einem dieser Zugänge zugeordnet werden – Konten ohne Zuordnung laufen
+(*Kasse › Konten*) kann optional einem dieser Zugänge zugeordnet werden – Konten ohne Zuordnung laufen
 unverändert über den manuellen Kontoauszug-Import weiter.
 Auf der Detailseite eines Zugangs steht „Kontodaten abrufen“ (zeigt nur IBAN/BIC der beim Kreditinstitut
 hinterlegten Konten – nützlich, um die Verbindung zu prüfen und die richtige Zuordnung zum Kassenbuch-Konto zu

@@ -143,7 +143,7 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 * **FinTS-Abruf** (*Verwaltung › FinTS-Zugänge*): Kontoumsätze direkt aus der Weboberfläche abrufen, inkl.
   TAN-Abfrage (App-/SMS-/chipTAN, mit Grafikanzeige bei chipTAN) – als Alternative zum manuellen
   Kontoauszug-Import. Ein Verein kann **mehrere FinTS-Zugänge** anlegen (z. B. bei verschiedenen Banken); jedes
-  Kassenbuch-Konto (*Verwaltung › Konten*) kann optional einem davon zugeordnet werden – Konten ohne Zuordnung
+  Kassenbuch-Konto (*Kasse › Konten*) kann optional einem davon zugeordnet werden – Konten ohne Zuordnung
   laufen unverändert über den manuellen Kontoauszug-Import. „Kontodaten abrufen“ auf der Detailseite eines Zugangs
   zeigt nur IBAN/BIC der beim Kreditinstitut hinterlegten Konten (Verbindungstest/Zuordnungshilfe, ohne
   Transaktions-Import). Die Bank-PIN wird **nie gespeichert**, sondern bei jedem Abruf neu abgefragt und liegt nur
