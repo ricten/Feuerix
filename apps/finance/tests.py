@@ -713,34 +713,54 @@ class FinTSAbrufTests(TestCase):
         self.user = User.objects.create_user("kasse", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
         self.client.login(username="kasse", password="pw-Test-12345")
-        self.zugang = FinTSZugang.objects.create(verein=self.v, blz="12030000", kennung="test-kennung",
-                                                 bank_url="https://fints.beispielbank.de", tage=30)
+        self.zugang = FinTSZugang.objects.create(verein=self.v, bezeichnung="Testbank", blz="12030000",
+                                                 kennung="test-kennung", bank_url="https://fints.beispielbank.de",
+                                                 tage=30)
         self.konto = SEPAAccount(iban="DE02120300000000202051", bic="BYLADEM1001", accountnumber="202051",
                                  subaccount="", blz="12030000")
 
-    def test_einstellungen_speichern(self):
-        r = self.client.post(reverse("fints_einstellungen"), {
-            "blz": "50010517", "kennung": "meine-kennung", "bank_url": "https://banking.example.org",
-            "tage": "60"}, follow=True)
-        self.assertContains(r, "Einstellungen gespeichert")
-        self.zugang.refresh_from_db()
-        self.assertEqual(self.zugang.blz, "50010517")
+    def test_mehrere_zugaenge_pro_verein_moeglich(self):
+        zweiter = FinTSZugang.objects.create(verein=self.v, bezeichnung="Zweitbank", blz="50010517",
+                                             kennung="andere-kennung", bank_url="https://banking.example.org")
+        self.assertEqual(FinTSZugang.objects.filter(verein=self.v).count(), 2)
+        r = self.client.get(reverse("fintszugang_list"))
+        self.assertContains(r, "Testbank")
+        self.assertContains(r, "Zweitbank")
+        self.assertEqual(zweiter.blz, "50010517")
+
+    def test_konto_kann_einem_zugang_zugeordnet_werden(self):
+        from apps.accounting.models import Konto
+        konto = Konto.objects.create(verein=self.v, name="Vereinskonto", typ="bank", fints_zugang=self.zugang)
+        self.assertEqual(konto.fints_zugang, self.zugang)
+        r = self.client.get(reverse("fintszugang_detail", args=[self.zugang.pk]))
+        self.assertContains(r, "Vereinskonto")
+
+        # Wird der Zugang geloescht, bleibt das Konto erhalten (nur die Zuordnung faellt weg) - kein CASCADE.
+        self.zugang.delete()
+        konto.refresh_from_db()
+        self.assertIsNone(konto.fints_zugang)
+
+    def test_konto_ohne_zugang_bleibt_unveraendert_manueller_import(self):
+        from apps.accounting.models import Konto
+        konto = Konto.objects.get(verein=self.v, name="Barkasse")
+        self.assertIsNone(konto.fints_zugang)
 
     def test_abruf_ohne_tan_importiert_und_erkennt_duplikate(self):
         transaktionen = [_FakeTransaction(date(2026, 3, 15), Decimal("60.00"), "Max Muster",
                                           "DE89370400440532013000", "Mitgliedsbeitrag")]
         fake = _FakeFinTSClient(konten=[self.konto], kontenabruf_ergebnis=transaktionen)
         with patch("fints.client.FinTS3PinTanClient", return_value=fake):
-            r = self.client.post(reverse("fints_abrufen"), {"pin": "1234"}, follow=True)
+            r = self.client.post(reverse("fints_abrufen", args=[self.zugang.pk]), {"pin": "1234"}, follow=True)
         self.assertContains(r, "1 neue Umsätze importiert")
         self.assertEqual(Bankumsatz.objects.filter(verein=self.v).count(), 1)
+        self.assertEqual(Bankumsatz.objects.get(verein=self.v).fints_zugang, self.zugang)
         self.zugang.refresh_from_db()
         self.assertIsNotNone(self.zugang.letzter_abruf)
 
         # Zweiter Abruf mit denselben Umsaetzen -> Duplikat wird per Pruefsumme erkannt, kein neuer Bankumsatz
         fake2 = _FakeFinTSClient(konten=[self.konto], kontenabruf_ergebnis=transaktionen)
         with patch("fints.client.FinTS3PinTanClient", return_value=fake2):
-            r2 = self.client.post(reverse("fints_abrufen"), {"pin": "1234"}, follow=True)
+            r2 = self.client.post(reverse("fints_abrufen", args=[self.zugang.pk]), {"pin": "1234"}, follow=True)
         self.assertContains(r2, "0 neue Umsätze importiert")
         self.assertEqual(Bankumsatz.objects.filter(verein=self.v).count(), 1)
 
@@ -750,7 +770,7 @@ class FinTSAbrufTests(TestCase):
         with patch("fints.client.FinTS3PinTanClient", return_value=fake1), \
              patch("fints.client.NeedTANResponse", _FakeNeedTANResponse), \
              patch("fints.client.NeedRetryResponse", _FakeNeedRetryResponse):
-            r1 = self.client.post(reverse("fints_abrufen"), {"pin": "1234"}, follow=True)
+            r1 = self.client.post(reverse("fints_abrufen", args=[self.zugang.pk]), {"pin": "1234"}, follow=True)
             self.assertContains(r1, "TAN erforderlich")
             self.assertContains(r1, "Bitte die App-TAN bestätigen")
             self.assertIn("fints_tan", self.client.session)
@@ -759,9 +779,10 @@ class FinTSAbrufTests(TestCase):
                                               "DE12500105170648489890", "Vereinsbedarf")]
             fake2 = _FakeFinTSClient(send_tan_ergebnis=transaktionen)
             with patch("fints.client.FinTS3PinTanClient", return_value=fake2):
-                r2 = self.client.post(reverse("fints_abrufen"), {"tan": "999999"}, follow=True)
+                r2 = self.client.post(reverse("fints_abrufen", args=[self.zugang.pk]), {"tan": "999999"}, follow=True)
         self.assertContains(r2, "1 neue Umsätze importiert")
         self.assertEqual(Bankumsatz.objects.filter(verein=self.v).count(), 1)
+        self.assertEqual(Bankumsatz.objects.get(verein=self.v).fints_zugang, self.zugang)
         self.assertNotIn("fints_tan", self.client.session)
 
     def test_leere_tan_wird_bei_normalem_verfahren_abgelehnt(self):
@@ -770,25 +791,30 @@ class FinTSAbrufTests(TestCase):
         with patch("fints.client.FinTS3PinTanClient", return_value=fake), \
              patch("fints.client.NeedTANResponse", _FakeNeedTANResponse), \
              patch("fints.client.NeedRetryResponse", _FakeNeedRetryResponse):
-            self.client.post(reverse("fints_abrufen"), {"pin": "1234"})
-            r = self.client.post(reverse("fints_abrufen"), {"tan": ""})
+            self.client.post(reverse("fints_abrufen", args=[self.zugang.pk]), {"pin": "1234"})
+            r = self.client.post(reverse("fints_abrufen", args=[self.zugang.pk]), {"tan": ""})
         self.assertContains(r, "TAN erforderlich")
         self.assertIn("fints_tan", self.client.session)
 
     def test_verbindungsfehler_wird_abgefangen(self):
         fake = _FakeFinTSClient(fehler=Exception("Zeitüberschreitung"))
         with patch("fints.client.FinTS3PinTanClient", return_value=fake):
-            r = self.client.post(reverse("fints_abrufen"), {"pin": "1234"}, follow=True)
+            r = self.client.post(reverse("fints_abrufen", args=[self.zugang.pk]), {"pin": "1234"}, follow=True)
         self.assertContains(r, "fehlgeschlagen")
         self.zugang.refresh_from_db()
         self.assertIn("Zeitüberschreitung", self.zugang.letzte_meldung)
         self.assertNotIn("fints_tan", self.client.session)
 
-    def test_ohne_add_recht_kein_abruf_aber_einstellungen_lesbar(self):
+    def test_ohne_produkt_id_klare_fehlermeldung(self):
+        with self.settings(FINTS_PRODUCT_ID=""):
+            r = self.client.get(reverse("fints_abrufen", args=[self.zugang.pk]), follow=True)
+        self.assertContains(r, "FinTS-Produkt-ID")
+
+    def test_ohne_add_recht_kein_abruf_aber_liste_lesbar(self):
         User = get_user_model()
         leser = User.objects.create_user("leser", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=leser, rolle=Rolle.objects.get(verein=self.v, name="Kassenprüfer"))
         self.client.logout()
         self.client.login(username="leser", password="pw-Test-12345")
-        self.assertEqual(self.client.get(reverse("fints_abrufen")).status_code, 403)
-        self.assertEqual(self.client.get(reverse("fints_einstellungen")).status_code, 200)
+        self.assertEqual(self.client.get(reverse("fints_abrufen", args=[self.zugang.pk])).status_code, 403)
+        self.assertEqual(self.client.get(reverse("fintszugang_list")).status_code, 200)

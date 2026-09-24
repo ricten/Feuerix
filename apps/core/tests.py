@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from apps.core.crud import _icon_fuer, _sortierbar, knopf
-from apps.core.models import AuditLog, Rolle, Verein, Zugang, naechste_nummer
+from apps.core.models import AuditLog, Rolle, Systemeinstellung, Verein, Zugang, naechste_nummer
 from apps.members.models import Mitglied
 
 
@@ -424,3 +424,46 @@ class DetailSeitenLayoutTests(TestCase):
         fam = Familie.objects.create(verein=self.v, name="Testfamilie")
         r = self.client.get(reverse("familie_detail", args=[fam.pk]))
         self.assertContains(r, "Keine weiteren Angaben.")
+
+
+class SystemeinstellungTests(TestCase):
+    """Instanzweite Einstellungen (z. B. FinTS-Produkt-ID) - genau ein Datensatz, verschlüsselt gespeichert,
+    nur über /admin/ bearbeitbar, da sie keinem einzelnen Verein gehören."""
+
+    def test_ist_singleton_unabhaengig_von_der_anzahl_save_aufrufe(self):
+        Systemeinstellung.objects.create(fints_produkt_id="ABC123")
+        obj = Systemeinstellung.laden()
+        obj.fints_produkt_id = "NEU456"
+        obj.save()
+        self.assertEqual(Systemeinstellung.objects.count(), 1)
+        self.assertEqual(Systemeinstellung.objects.get().fints_produkt_id, "NEU456")
+
+    def test_loeschen_wird_ignoriert(self):
+        Systemeinstellung.objects.create(fints_produkt_id="ABC123")
+        Systemeinstellung.laden().delete()
+        self.assertEqual(Systemeinstellung.objects.count(), 1)
+
+    def test_wert_ist_in_der_datenbank_verschluesselt(self):
+        Systemeinstellung.objects.create(fints_produkt_id="GEHEIM123")
+        from django.db import connection
+        with connection.cursor() as cur:
+            cur.execute("SELECT fints_produkt_id FROM core_systemeinstellung")
+            roh = cur.fetchone()[0]
+        self.assertNotIn("GEHEIM123", roh)
+
+    def test_ohne_datenbankwert_greift_die_umgebungsvariable(self):
+        with self.settings(FINTS_PRODUCT_ID="AUS-ENV"):
+            self.assertEqual(Systemeinstellung.fints_produkt_id_aktuell(), "AUS-ENV")
+
+    def test_datenbankwert_hat_vorrang_vor_der_umgebungsvariable(self):
+        Systemeinstellung.objects.create(fints_produkt_id="AUS-DB")
+        with self.settings(FINTS_PRODUCT_ID="AUS-ENV"):
+            self.assertEqual(Systemeinstellung.fints_produkt_id_aktuell(), "AUS-DB")
+
+    def test_admin_erlaubt_kein_zweites_hinzufuegen(self):
+        User = get_user_model()
+        superuser = User.objects.create_superuser("root", password="pw-Test-12345")
+        self.client.login(username="root", password="pw-Test-12345")
+        Systemeinstellung.objects.create(fints_produkt_id="ABC123")
+        r = self.client.get("/admin/core/systemeinstellung/add/")
+        self.assertEqual(r.status_code, 403)

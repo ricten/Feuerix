@@ -49,7 +49,7 @@ NAV = [
         (_("Verein / Einstellungen / Logo"), "verein_einstellungen", "verwaltung"),
         (_("OpenSlides-Anbindung"), "openslides_einstellungen", "openslides"),
         (_("Paperless-Anbindung"), "paperless_einstellungen", "paperless"),
-        (_("FinTS-Anbindung"), "fints_einstellungen", "bank"),
+        (_("FinTS-Zugänge"), "fintszugang_list", "bank"),
         (_("Benutzer"), "zugang_list", "verwaltung"),
         (_("Rollen"), "rolle_list", "verwaltung"),
         (_("Beitragsregeln"), "beitragsregel_list", "beitraege"),

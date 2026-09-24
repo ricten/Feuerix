@@ -18,13 +18,14 @@ def _pruefsumme(d, b, iban, zweck):
     return hashlib.sha1(f"{d}|{b}|{iban}|{zweck}".encode()).hexdigest()
 
 
-def _anlegen(verein, d, b, name, iban, zweck):
-    """-> True wenn neu angelegt, False wenn Duplikat (bereits importierter Umsatz)."""
+def _anlegen(verein, d, b, name, iban, zweck, **extra):
+    """-> True wenn neu angelegt, False wenn Duplikat (bereits importierter Umsatz). **extra erlaubt zusaetzliche
+    Felder (z. B. fints_zugang beim FinTS-Abruf)."""
     summe = _pruefsumme(d, b, iban, zweck)
     if Bankumsatz.objects.filter(verein=verein, pruefsumme=summe).exists():
         return False
     Bankumsatz.objects.create(verein=verein, buchungsdatum=d, betrag=b, gegenkonto_name=(name or "")[:200],
-                              gegenkonto_iban=iban or "", verwendungszweck=zweck or "", pruefsumme=summe)
+                              gegenkonto_iban=iban or "", verwendungszweck=zweck or "", pruefsumme=summe, **extra)
     return True
 
 

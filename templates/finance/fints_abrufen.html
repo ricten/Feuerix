@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-<a href="{% url 'fints_einstellungen' %}" class="text-decoration-none small d-block mb-1"><i class="bi bi-arrow-left"></i> {% trans "FinTS-Anbindung" %}</a>
 {% if schritt == "pin" %}
+<a href="{% url 'fintszugang_detail' zugang.pk %}" class="text-decoration-none small d-block mb-1"><i class="bi bi-arrow-left"></i> {{ zugang.bezeichnung }}</a>
 <h3 class="mb-3">{% trans "FinTS-Abruf" %}</h3>
 <div class="card shadow-sm" style="max-width: 32rem;"><div class="card-body">
   <p>{% blocktrans with blz=zugang.blz tage=zugang.tage %}Abruf für Bankleitzahl {{ blz }}, letzte {{ tage }} Tage.{% endblocktrans %}</p>
@@ -17,6 +17,7 @@
   </form>
 </div></div>
 {% else %}
+<a href="{% url 'fintszugang_detail' zustand.zugang_pk %}" class="text-decoration-none small d-block mb-1"><i class="bi bi-arrow-left"></i> {% trans "FinTS-Zugänge" %}</a>
 <h3 class="mb-3">{% trans "TAN erforderlich" %}</h3>
 <div class="card shadow-sm" style="max-width: 32rem;"><div class="card-body">
   {% if zustand.challenge_html %}<p>{{ zustand.challenge_html|safe }}</p>{% endif %}

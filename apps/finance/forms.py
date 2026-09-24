@@ -4,7 +4,7 @@ from django import forms
 
 from apps.core.forms import TenantModelForm, stilisieren_felder
 
-from .models import FinTSZugang, Rechnung, Rechnungsposition
+from .models import Rechnung, Rechnungsposition
 
 
 class RechnungForm(TenantModelForm):
@@ -29,12 +29,6 @@ class RechnungspositionForm(TenantModelForm):
         super().__init__(*args, **kwargs)
         if not self.instance.pk and self.verein and self.verein.umsatzsteuerpflichtig:
             self.fields["steuersatz"].initial = Decimal("19.00")
-
-
-class FinTSZugangForm(TenantModelForm):
-    class Meta:
-        model = FinTSZugang
-        exclude = ("verein",)
 
 
 class FinTSPinForm(forms.Form):

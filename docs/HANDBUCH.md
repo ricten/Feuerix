@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.17.0)
+# Handbuch – Feuerix (Version 1.18.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -179,12 +179,20 @@ Verwendungszweck (Feld `:86:`) nach den seit der SEPA-Umstellung üblichen deuts
 Verwendungszweck statt in Einzelfeldern.
 
 **FinTS-Abruf** (experimentell, siehe Kapitel 17): Alternative zum manuellen Kontoauszug-Import – unter
-*Verwaltung › FinTS-Anbindung* einmalig Bankleitzahl, Online-Banking-Kennung und FinTS-Adresse der Bank hinterlegen
-(diese Angaben stehen in den Unterlagen der Bank zum Online-Banking bzw. lassen sich beim Kreditinstitut
-erfragen). Über *Bankumsätze › FinTS-Abruf* dann die PIN eingeben – verlangt die Bank eine TAN (üblich), erscheint
-im nächsten Schritt die Bank-Aufforderung (Text, oder bei chipTAN eine zu scannende Grafik) mitsamt Eingabefeld.
-Nach Bestätigung werden neue Kontobewegungen genauso wie beim Datei-Import als Bankumsätze angelegt (Duplikate
-werden übersprungen) und können anschließend wie gewohnt zugeordnet werden. Die Bank-PIN wird **nie gespeichert**.
+*Verwaltung › FinTS-Zugänge* einen oder mehrere Zugänge anlegen (Bezeichnung, Bankleitzahl, Online-Banking-Kennung
+und FinTS-Adresse der Bank; diese Angaben stehen in den Unterlagen zum Online-Banking bzw. lassen sich beim
+Kreditinstitut erfragen) – ein Verein kann **mehrere Zugänge** führen, z. B. wenn Konten bei verschiedenen Banken
+bestehen. Voraussetzung ist außerdem eine kostenlose FinTS-Produkt-ID, die der Betreiber der Instanz einmalig bei
+der Deutschen Kreditwirtschaft registriert (wird nicht mit der Software mitgeliefert) und entweder als
+Umgebungsvariable oder – verschlüsselt und ohne Serverzugriff änderbar – unter `/admin/` › Systemeinstellungen
+hinterlegt (nur für technische Administratoren, nicht Teil der normalen Vereinsverwaltung). Jedes Kassenbuch-Konto
+(*Kasse › Konten*) kann optional einem dieser Zugänge zugeordnet werden – Konten ohne Zuordnung laufen unverändert
+über den manuellen Kontoauszug-Import weiter.
+Auf der Detailseite eines Zugangs dann „Jetzt abrufen“ und die PIN eingeben – verlangt die Bank eine TAN (üblich),
+erscheint im nächsten Schritt die Bank-Aufforderung (Text, oder bei chipTAN eine zu scannende Grafik) mitsamt
+Eingabefeld. Nach Bestätigung werden neue Kontobewegungen genauso wie beim Datei-Import als Bankumsätze angelegt
+(Duplikate werden übersprungen) und können anschließend wie gewohnt zugeordnet werden. Die Bank-PIN wird **nie
+gespeichert**.
 
 **SEPA-Einzüge**: Unter *Finanzen › SEPA-Einzüge* → „Neuen Einzug erstellen“ werden alle offenen/teilbezahlten
 Rechnungen von Mitgliedern mit Zahlungsart „SEPA-Lastschrift“ und vollständigem Mandat (IBAN, Mandatsreferenz,
@@ -410,7 +418,9 @@ OpenSlides-Anbindung folgt der offiziellen Dokumentation, wurde aber nicht gegen
 verifiziert – bitte im Testbetrieb prüfen, bevor Sie sich darauf verlassen. Die Paperless-ngx-Anbindung wurde nach
 der offiziellen REST-API-Dokumentation umgesetzt, aber ebenfalls nicht gegen eine laufende Instanz getestet – vor
 dem produktiven Einsatz mit „Verbindung testen“ und einem echten Testdokument prüfen. Der **FinTS-Abruf**
-(*Verwaltung › FinTS-Anbindung*, siehe Kapitel 4) wurde nach der Dokumentation der Bibliothek `python-fints`
+(*Verwaltung › FinTS-Zugänge*, siehe Kapitel 4) wurde nach der Dokumentation der Bibliothek `python-fints`
 umgesetzt und deckt auch die TAN-Abfrage (App-/SMS-/chipTAN) ab, wurde aber noch gegen keine echte Bank
 getestet – vor dem produktiven Einsatz mit der eigenen Bank ausprobieren. Die Bank-PIN wird dabei nie
-gespeichert, sondern bei jedem Abruf neu abgefragt.
+gespeichert, sondern bei jedem Abruf neu abgefragt. Zusätzlich ist eine vom Betreiber selbst zu registrierende,
+kostenlose FinTS-Produkt-ID erforderlich (`FINTS_PRODUCT_ID` bzw. verschlüsselt unter `/admin/` ›
+Systemeinstellungen) – sie liegt nicht automatisch vor.

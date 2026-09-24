@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models, transaction
 
+from .fields import VerschluesseltesTextField
 from .util import logo_pfad
 
 
@@ -177,3 +178,36 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.zeit:%d.%m.%Y %H:%M} {self.user_name} {self.aktion} {self.objekt_repr}"
+
+
+class Systemeinstellung(models.Model):
+    """Instanzweite (nicht vereinsgebundene) Einstellungen - genau ein Datensatz (pk=1). Bearbeitbar nur über die
+    Django-Admin-Oberfläche (/admin/), da sie nicht zu einem einzelnen Verein gehören und ihre Änderung Rechte
+    braucht, die über die normale Rollen-/Rechteverwaltung eines Vereins hinausgehen (Serverbetrieb)."""
+    fints_produkt_id = VerschluesseltesTextField(
+        "FinTS-Produkt-ID", blank=True,
+        help_text="Alternative zur Umgebungsvariable FINTS_PRODUCT_ID - wird bevorzugt verwendet, wenn gesetzt. "
+                  "Kostenlos zu registrieren bei der Deutschen Kreditwirtschaft: "
+                  "https://www.hbci-zka.de/register/prod_register.htm")
+
+    class Meta:
+        verbose_name = "Systemeinstellung"
+        verbose_name_plural = "Systemeinstellungen"
+
+    def __str__(self):
+        return "Systemeinstellungen"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass  # Singleton - Löschen wird stillschweigend ignoriert statt eine Ausnahme zu werfen.
+
+    @classmethod
+    def laden(cls):
+        return cls.objects.first() or cls()
+
+    @classmethod
+    def fints_produkt_id_aktuell(cls):
+        return cls.laden().fints_produkt_id or settings.FINTS_PRODUCT_ID

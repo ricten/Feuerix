@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Feuerix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 21:22+0200\n"
+"POT-Creation-Date: 2026-09-24 22:46+0200\n"
 "PO-Revision-Date: 2026-09-24 07:41+0200\n"
 "Last-Translator: Feuerix\n"
 "Language-Team: English\n"
@@ -182,10 +182,9 @@ msgstr "OpenSlides connection"
 msgid "Paperless-Anbindung"
 msgstr "Paperless connection"
 
-#: .\apps\core\context.py:52 .\templates\finance\fints_abrufen.html:4
-#: .\templates\finance\fints_einstellungen.html:4
-msgid "FinTS-Anbindung"
-msgstr "FinTS connection"
+#: .\apps\core\context.py:52 .\templates\finance\fints_abrufen.html:20
+msgid "FinTS-Zugänge"
+msgstr "FinTS connections"
 
 #: .\apps\core\context.py:53
 msgid "Benutzer"
@@ -566,7 +565,6 @@ msgid "Keine weiteren Angaben."
 msgstr "No further details."
 
 #: .\templates\core\formular.html:32
-#: .\templates\finance\fints_einstellungen.html:18
 #: .\templates\openslides\einstellungen.html:18
 #: .\templates\paperless\einstellungen.html:18
 msgid "Speichern"
@@ -727,84 +725,17 @@ msgstr "Retrieval for bank code %(blz)s, last %(tage)s days."
 msgid "Abrufen"
 msgstr "Retrieve"
 
-#: .\templates\finance\fints_abrufen.html:20
+#: .\templates\finance\fints_abrufen.html:21
 msgid "TAN erforderlich"
 msgstr "TAN required"
 
-#: .\templates\finance\fints_abrufen.html:24
+#: .\templates\finance\fints_abrufen.html:25
 msgid "chipTAN-Grafik"
 msgstr "chipTAN graphic"
 
-#: .\templates\finance\fints_abrufen.html:34
+#: .\templates\finance\fints_abrufen.html:35
 msgid "Bestätigen"
 msgstr "Confirm"
-
-#: .\templates\finance\fints_einstellungen.html:5
-msgid ""
-"Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
-"Die Bank-PIN wird nie gespeichert."
-msgstr ""
-"Experimental: this method has not yet been tested against a real bank. "
-"The bank PIN is never stored."
-
-#: .\templates\finance\fints_einstellungen.html:24
-#: .\templates\inventory\vorgang.html:10
-#: .\templates\openslides\einstellungen.html:24
-#: .\templates\paperless\einstellungen.html:24
-#: .\templates\paperless\sammelversand.html:11
-msgid "Status"
-msgstr "Status"
-
-#: .\templates\finance\fints_einstellungen.html:25
-#: .\templates\openslides\einstellungen.html:25
-#: .\templates\paperless\einstellungen.html:25
-msgid "noch nicht durchgeführt"
-msgstr "not yet performed"
-
-#: .\templates\finance\fints_einstellungen.html:26
-msgid "Letzter Abruf:"
-msgstr "Last retrieval:"
-
-#: .\templates\finance\fints_einstellungen.html:29
-msgid "Jetzt abrufen"
-msgstr "Retrieve now"
-
-#: .\templates\finance\fints_einstellungen.html:33
-#: .\templates\openslides\einstellungen.html:39
-#: .\templates\paperless\einstellungen.html:33
-msgid "So läuft es ab:"
-msgstr "How it works:"
-
-#: .\templates\finance\fints_einstellungen.html:35
-msgid ""
-"Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
-"eintragen und speichern."
-msgstr ""
-"Enter and save the connection details here (bank code, user ID, the bank's "
-"FinTS address)."
-
-#: .\templates\finance\fints_einstellungen.html:36
-msgid ""
-"„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
-"nie gespeichert."
-msgstr ""
-"“Retrieve now” starts the retrieval – the PIN is asked for once and never "
-"stored."
-
-#: .\templates\finance\fints_einstellungen.html:37
-msgid ""
-"Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
-"abgefragt."
-msgstr ""
-"If the bank requires a TAN (usual), it is requested on the next page."
-
-#: .\templates\finance\fints_einstellungen.html:38
-msgid ""
-"Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
-"übersprungen."
-msgstr ""
-"New transactions are created as bank transactions, duplicates are skipped "
-"automatically."
 
 #: .\templates\finance\sepa_einzug_neu.html:4
 msgid "Neuen SEPA-Einzug erstellen"
@@ -1039,6 +970,13 @@ msgstr "Book return"
 msgid "Inventarnr."
 msgstr "Inventory no."
 
+#: .\templates\inventory\vorgang.html:10
+#: .\templates\openslides\einstellungen.html:24
+#: .\templates\paperless\einstellungen.html:24
+#: .\templates\paperless\sammelversand.html:11
+msgid "Status"
+msgstr "Status"
+
 #: .\templates\inventory\vorgang.html:21
 msgid "einbehalten"
 msgstr "retained"
@@ -1106,6 +1044,11 @@ msgstr ""
 msgid "Unbekannte Mitgliedsarten und Abteilungen automatisch anlegen"
 msgstr "Automatically create unknown membership types and departments"
 
+#: .\templates\openslides\einstellungen.html:25
+#: .\templates\paperless\einstellungen.html:25
+msgid "noch nicht durchgeführt"
+msgstr "not yet performed"
+
 #: .\templates\openslides\einstellungen.html:26
 #: .\templates\paperless\einstellungen.html:26
 msgid "Letzter Verbindungstest:"
@@ -1144,6 +1087,11 @@ msgstr "Permanently delete stored initial passwords?"
 #: .\templates\openslides\einstellungen.html:35
 msgid "Startpasswörter löschen"
 msgstr "Delete initial passwords"
+
+#: .\templates\openslides\einstellungen.html:39
+#: .\templates\paperless\einstellungen.html:33
+msgid "So läuft es ab:"
+msgstr "How it works:"
 
 #: .\templates\openslides\einstellungen.html:41
 msgid "Verbindung einrichten und testen."
@@ -1280,3 +1228,43 @@ msgstr "Username"
 #: .\templates\registration\login.html:17
 msgid "Anmelden"
 msgstr "Sign in"
+
+#~ msgid ""
+#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank "
+#~ "getestet. Die Bank-PIN wird nie gespeichert."
+#~ msgstr ""
+#~ "Experimental: this method has not yet been tested against a real bank. "
+#~ "The bank PIN is never stored."
+
+#~ msgid "Letzter Abruf:"
+#~ msgstr "Last retrieval:"
+
+#~ msgid "Jetzt abrufen"
+#~ msgstr "Retrieve now"
+
+#~ msgid ""
+#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
+#~ "eintragen und speichern."
+#~ msgstr ""
+#~ "Enter and save the connection details here (bank code, user ID, the "
+#~ "bank's FinTS address)."
+
+#~ msgid ""
+#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig "
+#~ "abgefragt, nie gespeichert."
+#~ msgstr ""
+#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
+#~ "stored."
+
+#~ msgid ""
+#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
+#~ "abgefragt."
+#~ msgstr ""
+#~ "If the bank requires a TAN (usual), it is requested on the next page."
+
+#~ msgid ""
+#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate "
+#~ "automatisch übersprungen."
+#~ msgstr ""
+#~ "New transactions are created as bank transactions, duplicates are skipped "
+#~ "automatically."

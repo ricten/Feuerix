@@ -3,7 +3,7 @@
 Die Bank-PIN wird NICHT gespeichert, sondern interaktiv abgefragt. Fuer die Nutzung ist eine bei der
 Deutschen Kreditwirtschaft registrierte FinTS-Produkt-ID (FINTS_PRODUCT_ID) erforderlich. Banken verlangen
 i.d.R. eine TAN-Freigabe (PSD2) - dieser Kommandozeilen-Weg deckt das NICHT ab und schlaegt bei den meisten
-Banken fehl. Fuer den ueblichen Fall (TAN erforderlich) bitte stattdessen *Verwaltung > FinTS-Anbindung* in
+Banken fehl. Fuer den ueblichen Fall (TAN erforderlich) bitte stattdessen *Verwaltung > FinTS-Zugaenge* in
 der Weboberflaeche nutzen, die den TAN-Dialog abbildet. Dieses Kommando bleibt fuer Banken/Konfigurationen
 ohne TAN-Pflicht bzw. fuer Cron-Jobs nuetzlich.
 """
@@ -40,7 +40,7 @@ class Command(BaseCommand):
         client = FinTS3PinTanClient(o["blz"], o["kennung"], pin, o["url"], product_id=settings.FINTS_PRODUCT_ID)
         if client.init_tan_response:
             raise CommandError("Die Bank verlangt eine TAN-Freigabe - bitte stattdessen Verwaltung > "
-                               "FinTS-Anbindung in der Weboberflaeche nutzen.")
+                               "FinTS-Zugaenge in der Weboberflaeche nutzen.")
         neu = 0
         for konto in client.get_sepa_accounts():
             for t in client.get_transactions(konto, date.today() - timedelta(days=o["tage"]), date.today()):

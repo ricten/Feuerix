@@ -10,7 +10,7 @@ Bank-Nachrichten erneut zu signieren) und wird nach Abschluss (Erfolg oder endgu
 Gegen keine echte Bank getestet - vor dem produktiven Einsatz mit der eigenen Bank pruefen."""
 from base64 import b64decode, b64encode
 
-from django.conf import settings
+from apps.core.models import Systemeinstellung
 
 from . import kontoauszug
 from .models import Bankumsatz
@@ -22,23 +22,29 @@ class FinTSAblaufFehler(Exception):
     pass
 
 
+def produkt_id_vorhanden():
+    return bool(Systemeinstellung.fints_produkt_id_aktuell())
+
+
 def neuer_client(zugang, pin, from_data=None):
     from fints.client import FinTS3PinTanClient
 
-    if not settings.FINTS_PRODUCT_ID:
-        raise FinTSAblaufFehler("FINTS_PRODUCT_ID ist nicht gesetzt (siehe Einstellungen des Servers).")
+    produkt_id = Systemeinstellung.fints_produkt_id_aktuell()
+    if not produkt_id:
+        raise FinTSAblaufFehler("Es liegt noch keine FinTS-Produkt-ID vor (siehe Einstellungen des Servers).")
     return FinTS3PinTanClient(zugang.blz, zugang.kennung, pin, zugang.bank_url,
-                              product_id=settings.FINTS_PRODUCT_ID, from_data=from_data)
+                              product_id=produkt_id, from_data=from_data)
 
 
-def _importieren(verein, konto, transaktionen):
+def _importieren(verein, konto, transaktionen, zugang):
     neu = 0
     for t in transaktionen:
         d = t.data
         betrag = d["amount"].amount
         zweck = d.get("purpose") or ""
         iban = d.get("applicant_iban") or ""
-        if kontoauszug._anlegen(verein, d["date"], betrag, d.get("applicant_name") or "", iban, zweck):
+        if kontoauszug._anlegen(verein, d["date"], betrag, d.get("applicant_name") or "", iban, zweck,
+                                fints_zugang=zugang):
             neu += 1
     return neu
 
@@ -52,7 +58,7 @@ def _konto_von_dict(d):
     return SEPAAccount(**d)
 
 
-def naechster_schritt(client, verein, von, bis, konten_rest):
+def naechster_schritt(client, verein, von, bis, konten_rest, zugang):
     """Muss innerhalb von `with client:` bzw. `with client.resume_dialog(...):` aufgerufen werden.
 
     konten_rest=None bedeutet: Die Kontenliste wurde noch nicht abgerufen (ganz am Anfang des Ablaufs, oder direkt
@@ -73,12 +79,12 @@ def naechster_schritt(client, verein, von, bis, konten_rest):
         antwort = client.get_transactions(konto, von, bis)
         if isinstance(antwort, NeedTANResponse):
             return "tan", antwort, konten_rest
-        neu += _importieren(verein, konto, antwort)
+        neu += _importieren(verein, konto, antwort, zugang)
         konten_rest = konten_rest[1:]
     return "fertig", neu, None
 
 
-def naechster_schritt_nach_tan(client, verein, von, bis, konten_rest, ergebnis):
+def naechster_schritt_nach_tan(client, verein, von, bis, konten_rest, ergebnis, zugang):
     """Wie naechster_schritt(), aber die Antwort fuer konten_rest[0] (bzw. fuer die Dialog-Initialisierung, wenn
     konten_rest None ist) liegt bereits vor (Ergebnis von client.send_tan())."""
     from fints.client import NeedTANResponse
@@ -87,9 +93,9 @@ def naechster_schritt_nach_tan(client, verein, von, bis, konten_rest, ergebnis):
         return "tan", ergebnis, konten_rest
     if konten_rest is None:
         # Die aufgeloeste TAN betraf die Dialog-Initialisierung, nicht einen konkreten Abruf.
-        return naechster_schritt(client, verein, von, bis, None)
-    neu = _importieren(verein, konten_rest[0], ergebnis)
-    status, wert, rest = naechster_schritt(client, verein, von, bis, konten_rest[1:])
+        return naechster_schritt(client, verein, von, bis, None, zugang)
+    neu = _importieren(verein, konten_rest[0], ergebnis, zugang)
+    status, wert, rest = naechster_schritt(client, verein, von, bis, konten_rest[1:], zugang)
     if status == "fertig":
         wert += neu
     return status, wert, rest

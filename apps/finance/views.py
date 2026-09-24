@@ -10,12 +10,11 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from apps.core import audit
 from apps.core.crud import abschnitt, knopf, wert
 from apps.core.util import geld
 
 from . import erechnung, fints_service, kontoauszug, sepa, services
-from .forms import FinTSPinForm, FinTSTanForm, FinTSZugangForm
+from .forms import FinTSPinForm, FinTSTanForm
 from .models import Bankumsatz, Beitragsjahr, FinTSZugang, Mahnung, Rechnung, SepaEinzug, SepaEinzugPosition, Zahlung, wirksame_summe
 from .pdf import mahnung_pdf, rechnung_pdf
 
@@ -231,7 +230,7 @@ def bank_listen_aktionen(request):
     a = []
     if request.rechte.darf("bank", "add"):
         a.append(knopf("Kontoauszug importieren", reverse("bank_import"), stil="primary"))
-        a.append(knopf("FinTS-Abruf", reverse("fints_abrufen")))
+        a.append(knopf("FinTS-Zugänge", reverse("fintszugang_list")))
     if request.rechte.darf("bank", "change"):
         a.append(knopf("Automatisch zuordnen", reverse("bank_zuordnen"), post=True, stil="success"))
     return a
@@ -295,23 +294,18 @@ def bankumsatz_ignorieren(request, pk):
     return redirect("bankumsatz_detail", pk=u.pk)
 
 
-@login_required
-def fints_einstellungen(request):
-    _pruefen(request, "bank", "view")
-    inst = FinTSZugang.objects.filter(verein=request.verein).first() or FinTSZugang(verein=request.verein)
-    kann = request.rechte.darf("bank", "change")
-    form = FinTSZugangForm(request.POST or None, instance=inst, verein=request.verein)
-    if request.method == "POST":
-        if not kann:
-            raise PermissionDenied
-        if form.is_valid():
-            audit.kontext_setzen(grund=form.cleaned_data.get("aenderungsgrund"))
-            form.instance.verein = request.verein
-            form.save()
-            messages.success(request, "Einstellungen gespeichert.")
-            return redirect("fints_einstellungen")
-    return render(request, "finance/fints_einstellungen.html", {
-        "titel": "FinTS-Anbindung", "form": form, "inst": inst if inst.pk else None, "kann": kann})
+def fints_zugang_kontext(request, z):
+    aktionen = []
+    if request.rechte.darf("bank", "add") and fints_service.produkt_id_vorhanden():
+        aktionen.append(knopf("Jetzt abrufen", reverse("fints_abrufen", args=[z.pk]), stil="success"))
+    hinweise = []
+    if not fints_service.produkt_id_vorhanden():
+        hinweise.append("Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss zuerst eine "
+                        "kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft registrieren und entweder "
+                        "verschlüsselt unter /admin/ (Systemeinstellungen) oder als Umgebungsvariable "
+                        "FINTS_PRODUCT_ID hinterlegen, bevor ein Abruf möglich ist.")
+    return {"aktionen": aktionen, "hinweise": hinweise,
+            "abschnitte": [abschnitt(request, "Verknüpfte Kassenbuch-Konten", z.konten.all(), ("name", "typ"))]}
 
 
 def _fints_abbrechen(request, zugang, fehler):
@@ -319,7 +313,7 @@ def _fints_abbrechen(request, zugang, fehler):
     zugang.letzte_meldung = f"Fehler: {fehler}"[:300]
     zugang.save(update_fields=["letzte_meldung", "geaendert"])
     messages.error(request, f"FinTS-Abruf fehlgeschlagen: {fehler}")
-    return redirect("fints_abrufen")
+    return redirect("fints_abrufen", pk=zugang.pk)
 
 
 def _fints_abschliessen(request, zugang, anzahl_neu):
@@ -332,12 +326,15 @@ def _fints_abschliessen(request, zugang, anzahl_neu):
 
 
 @login_required
-def fints_abrufen(request):
+def fints_abrufen(request, pk):
     _pruefen(request, "bank", "add")
-    zugang = FinTSZugang.objects.filter(verein=request.verein).first()
-    if zugang is None:
-        messages.error(request, "Bitte zuerst die FinTS-Anbindung einrichten.")
-        return redirect("fints_einstellungen")
+    zugang = get_object_or_404(FinTSZugang, pk=pk, verein=request.verein)
+    if not fints_service.produkt_id_vorhanden():
+        messages.error(request, "Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss "
+                                "zuerst eine kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft registrieren "
+                                "und entweder verschlüsselt unter /admin/ (Systemeinstellungen) oder als "
+                                "Umgebungsvariable FINTS_PRODUCT_ID hinterlegen.")
+        return redirect("fintszugang_detail", pk=zugang.pk)
 
     zustand = fints_service.zustand_laden(request)
     if zustand and zustand.get("zugang_pk") != zugang.pk:
@@ -353,14 +350,14 @@ def fints_abrufen(request):
                 with client.resume_dialog(dialog_data):
                     ergebnis = client.send_tan(tan_response, tan_form.cleaned_data["tan"])
                     status, wert, rest = fints_service.naechster_schritt_nach_tan(
-                        client, request.verein, von, bis, konten_rest, ergebnis)
+                        client, request.verein, von, bis, konten_rest, ergebnis, zugang)
                     if status == "tan":
                         neue_dialog_data = client.pause_dialog()
                 if status == "tan":
                     fints_service.zustand_speichern(request, zugang, zustand["pin"], von, bis, client, wert, rest,
                                                     neue_dialog_data)
                     messages.info(request, "Die Bank verlangt eine weitere TAN.")
-                    return redirect("fints_abrufen")
+                    return redirect("fints_abrufen", pk=zugang.pk)
                 return _fints_abschliessen(request, zugang, wert)
             except Exception as e:
                 return _fints_abbrechen(request, zugang, e)
@@ -374,12 +371,12 @@ def fints_abrufen(request):
         try:
             client = fints_service.neuer_client(zugang, pin)
             with client:
-                status, wert, rest = fints_service.naechster_schritt(client, request.verein, von, bis, None)
+                status, wert, rest = fints_service.naechster_schritt(client, request.verein, von, bis, None, zugang)
                 if status == "tan":
                     dialog_data = client.pause_dialog()
             if status == "tan":
                 fints_service.zustand_speichern(request, zugang, pin, von, bis, client, wert, rest, dialog_data)
-                return redirect("fints_abrufen")
+                return redirect("fints_abrufen", pk=zugang.pk)
             return _fints_abschliessen(request, zugang, wert)
         except Exception as e:
             return _fints_abbrechen(request, zugang, e)

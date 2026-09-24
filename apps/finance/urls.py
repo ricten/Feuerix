@@ -6,8 +6,8 @@ from apps.core.crud import crud
 
 from . import views
 from .forms import RechnungForm, RechnungspositionForm
-from .models import (Bankumsatz, Beitragsjahr, Beitragsregel, Mahnung, Rechnung, Rechnungsposition, SepaEinzug,
-                     SepaEinzugPosition, Zahlung)
+from .models import (Bankumsatz, Beitragsjahr, Beitragsregel, FinTSZugang, Mahnung, Rechnung, Rechnungsposition,
+                     SepaEinzug, SepaEinzugPosition, Zahlung)
 
 
 def _rechnung_nach_speichern(request, obj, neu):
@@ -36,8 +36,7 @@ urlpatterns = [
     path("bank/zuordnen/", views.bank_zuordnen, name="bank_zuordnen"),
     path("bank/<int:pk>/zuweisen/", views.bankumsatz_zuweisen, name="bankumsatz_zuweisen"),
     path("bank/<int:pk>/ignorieren/", views.bankumsatz_ignorieren, name="bankumsatz_ignorieren"),
-    path("fints/", views.fints_einstellungen, name="fints_einstellungen"),
-    path("fints/abrufen/", views.fints_abrufen, name="fints_abrufen"),
+    path("fints-zugaenge/<int:pk>/abrufen/", views.fints_abrufen, name="fints_abrufen"),
     path("sepa-einzuege/neu/", views.sepa_einzug_neu, name="sepa_einzug_neu"),
 ]
 urlpatterns += crud("beitragsjahre", Beitragsjahr, "beitraege", list_display=("jahr", "faelligkeit", "alters_stichtag",
@@ -62,6 +61,8 @@ urlpatterns += crud("bankumsaetze", Bankumsatz, "bank", list_display=("buchungsd
                     "verwendungszweck", "status"), suche=("gegenkonto_name", "verwendungszweck"), filter=("status",),
                     kontext=views.bankumsatz_kontext, listen_aktionen=views.bank_listen_aktionen, delete=False,
                     ordering=("-buchungsdatum", "-id"))
+urlpatterns += crud("fints-zugaenge", FinTSZugang, "bank", list_display=("bezeichnung", "blz", "letzter_abruf"),
+                    kontext=views.fints_zugang_kontext, ordering=("bezeichnung",))
 urlpatterns += crud("sepa-einzuege", SepaEinzug, "zahlungen", list_display=("nummer", "faelligkeitsdatum", "anzahl",
                     "summe", "erstellt"), kontext=views.sepa_einzug_kontext,
                     listen_aktionen=views.sepa_einzuege_listen_aktionen, add=False, edit=False, delete=False,

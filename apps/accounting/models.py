@@ -23,6 +23,11 @@ class Konto(TenantModel):
     eroeffnungsdatum = models.DateField("Eröffnungsdatum", default=date.today,
                                         help_text="Buchungen sind erst ab diesem Datum möglich")
     aktiv = models.BooleanField("Aktiv", default=True)
+    fints_zugang = models.ForeignKey("finance.FinTSZugang", on_delete=models.SET_NULL, null=True, blank=True,
+                                     related_name="konten", verbose_name="FinTS-Zugang",
+                                     help_text="Nur setzen, wenn dieses Konto automatisch per FinTS abgerufen werden "
+                                               "soll (Verwaltung › FinTS-Zugänge) - sonst weiterhin manueller "
+                                               "Kontoauszug-Import.")
 
     class Meta:
         verbose_name = "Konto"

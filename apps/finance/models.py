@@ -235,6 +235,8 @@ class Bankumsatz(TenantModel):
     verwendungszweck = models.TextField("Verwendungszweck", blank=True)
     status = models.CharField("Status", max_length=12, choices=STATUS, default="neu")
     pruefsumme = models.CharField(max_length=40, blank=True, editable=False)
+    fints_zugang = models.ForeignKey("FinTSZugang", on_delete=models.SET_NULL, null=True, blank=True,
+                                     editable=False, related_name="bankumsaetze", verbose_name="FinTS-Zugang")
 
     AUDIT_MASK = ("gegenkonto_iban",)
 
@@ -330,7 +332,10 @@ class SepaEinzugPosition(TenantModel):
 
 class FinTSZugang(TenantModel):
     """Verbindungsdaten fuer den FinTS-Abruf (experimentell) - die Bank-PIN wird bewusst NICHT gespeichert,
-    sondern bei jedem Abruf erneut eingegeben."""
+    sondern bei jedem Abruf erneut eingegeben. Ein Verein kann mehrere Zugaenge anlegen (z. B. je Bank); jedes
+    Kassenbuch-Konto kann optional einem davon zugeordnet werden (accounting.Konto.fints_zugang)."""
+    bezeichnung = models.CharField("Bezeichnung", max_length=100, default="",
+                                   help_text="Zur Unterscheidung, wenn mehrere Zugänge angelegt sind, z. B. Name der Bank")
     blz = models.CharField("Bankleitzahl", max_length=8)
     kennung = models.CharField("Online-Banking-Kennung", max_length=100,
                                help_text="Die Kennung fürs Online-Banking, nicht die PIN")
@@ -343,10 +348,10 @@ class FinTSZugang(TenantModel):
     class Meta:
         verbose_name = "FinTS-Zugang"
         verbose_name_plural = "FinTS-Zugänge"
-        constraints = [models.UniqueConstraint(fields=["verein"], name="ein_fints_zugang_je_verein")]
+        ordering = ["bezeichnung"]
 
     def __str__(self):
-        return f"FinTS {self.blz}"
+        return self.bezeichnung
 
 
 class Mahnung(TenantModel):

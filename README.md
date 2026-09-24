@@ -7,7 +7,7 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~204 Tests) und eine GitHub-Actions-CI prüfen
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~213 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz bzw. eine echte Bank
 > verifiziert sind die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt)
 > sowie der FinTS-Abruf (nach der `python-fints`-Dokumentation umgesetzt, TAN-Ablauf mit simulierten Antworten
@@ -132,13 +132,19 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 * **Kontoauszug-Import:** CSV, MT940 und CAMT.053 werden anhand Dateiendung/Inhalt automatisch erkannt; bei MT940
   wird der Verwendungszweck nur nach den gängigen deutschen SEPA-Feldkennungen (`SVWZ+` u. a.) durchsucht – weicht
   eine Bank davon ab, landet der komplette Text unstrukturiert im Verwendungszweck.
-* **FinTS-Abruf** (*Verwaltung › FinTS-Anbindung*): Kontoumsätze direkt aus der Weboberfläche abrufen, inkl.
+* **FinTS-Abruf** (*Verwaltung › FinTS-Zugänge*): Kontoumsätze direkt aus der Weboberfläche abrufen, inkl.
   TAN-Abfrage (App-/SMS-/chipTAN, mit Grafikanzeige bei chipTAN) – als Alternative zum manuellen
-  Kontoauszug-Import. Die Bank-PIN wird **nie gespeichert**, sondern bei jedem Abruf neu abgefragt und liegt nur
-  kurzzeitig (bis der TAN-Vorgang abgeschlossen ist) serverseitig in der Sitzung. Umgesetzt nach der Dokumentation
-  von `python-fints`, aber **noch gegen keine echte Bank getestet** – vor dem produktiven Einsatz mit der eigenen
-  Bank ausprobieren. Werden mehrere TANs hintereinander verlangt, wird das unterstützt; ein einzelner Abruf
-  verarbeitet dabei alle beim Kreditinstitut hinterlegten Konten.
+  Kontoauszug-Import. Ein Verein kann **mehrere FinTS-Zugänge** anlegen (z. B. bei verschiedenen Banken); jedes
+  Kassenbuch-Konto (*Kasse › Konten*) kann optional einem davon zugeordnet werden – Konten ohne Zuordnung laufen
+  unverändert über den manuellen Kontoauszug-Import. Die Bank-PIN wird **nie gespeichert**, sondern bei jedem Abruf
+  neu abgefragt und liegt nur kurzzeitig (bis der TAN-Vorgang abgeschlossen ist) serverseitig in der Sitzung.
+  Erfordert zusätzlich eine kostenlose, bei der Deutschen Kreditwirtschaft registrierte FinTS-Produkt-ID – wird
+  **nicht** mit Feuerix mitgeliefert, jeder Betreiber registriert seine eigene und hinterlegt sie entweder als
+  `FINTS_PRODUCT_ID` in der `.env` oder (bevorzugt, weil verschlüsselt in der Datenbank statt im Klartext in der
+  Konfigurationsdatei) unter `/admin/` › Systemeinstellungen. Umgesetzt nach der Dokumentation von `python-fints`,
+  aber **noch gegen keine echte Bank getestet** – vor
+  dem produktiven Einsatz mit der eigenen Bank ausprobieren. Werden mehrere TANs hintereinander verlangt, wird das
+  unterstützt; ein einzelner Abruf verarbeitet dabei alle beim jeweiligen Kreditinstitut hinterlegten Konten.
 * **Betrieb:** Hinter einen Reverse Proxy mit HTTPS setzen und `HTTPS=1` in der `.env` aktivieren.
   Bootstrap/HTMX werden beim Build lokal eingebunden (keine externen CDNs).
 

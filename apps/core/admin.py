@@ -1,7 +1,8 @@
 from django.apps import apps as django_apps
 from django.contrib import admin
+from django.shortcuts import redirect
 
-from .models import AuditLog, Rolle, TenantModel, Verein, Zugang
+from .models import AuditLog, Rolle, Systemeinstellung, TenantModel, Verein, Zugang
 
 
 class TenantAdmin(admin.ModelAdmin):
@@ -19,6 +20,24 @@ class VereinAdmin(admin.ModelAdmin):
 
 admin.site.register(Rolle)
 admin.site.register(Zugang)
+
+
+@admin.register(Systemeinstellung)
+class SystemeinstellungAdmin(admin.ModelAdmin):
+    """Genau ein Datensatz (Singleton) - die Liste führt direkt auf die Bearbeitungsseite, "Hinzufügen" ist
+    nur möglich, solange noch keiner existiert."""
+
+    def has_add_permission(self, request):
+        return not Systemeinstellung.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def changelist_view(self, request, extra_context=None):
+        obj = Systemeinstellung.laden()
+        if not obj.pk:
+            return super().changelist_view(request, extra_context)
+        return redirect("admin:core_systemeinstellung_change", obj.pk)
 
 
 @admin.register(AuditLog)
