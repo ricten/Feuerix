@@ -1,66 +1,67 @@
 from django.conf import settings
 from django.urls import NoReverseMatch, reverse
+from django.utils.translation import gettext_lazy as _
 
 NAV = [
-    ("Mitglieder", "bi-people", [
-        ("Mitglieder", "mitglied_list", "mitglieder"),
-        ("Jubiläen", "jubilaeen", "ehrungen"),
-        ("Ehrungen", "ehrung_list", "ehrungen"),
-        ("Dokumente", "dokument_list", "dokumente"),
+    (_("Mitglieder"), "bi-people", [
+        (_("Mitglieder"), "mitglied_list", "mitglieder"),
+        (_("Jubiläen"), "jubilaeen", "ehrungen"),
+        (_("Ehrungen"), "ehrung_list", "ehrungen"),
+        (_("Dokumente"), "dokument_list", "dokumente"),
     ]),
-    ("Schriftverkehr", "bi-envelope-paper", [
-        ("Schriftstücke (Einladung, Protokoll …)", "schriftstueck_list", "schriftverkehr"),
-        ("Serienbriefe", "serienbrief_list", "schriftverkehr"),
-        ("Vorlagen", "vorlage_list", "schriftverkehr"),
-        ("Platzhalter-Hilfe", "platzhalter_hilfe", "schriftverkehr"),
-        ("Ablage", "ablagedokument_list", "ablage"),
-        ("Ablage-Ordner", "ordner_list", "ablage"),
+    (_("Schriftverkehr"), "bi-envelope-paper", [
+        (_("Schriftstücke (Einladung, Protokoll …)"), "schriftstueck_list", "schriftverkehr"),
+        (_("Serienbriefe"), "serienbrief_list", "schriftverkehr"),
+        (_("Vorlagen"), "vorlage_list", "schriftverkehr"),
+        (_("Platzhalter-Hilfe"), "platzhalter_hilfe", "schriftverkehr"),
+        (_("Ablage"), "ablagedokument_list", "ablage"),
+        (_("Ablage-Ordner"), "ordner_list", "ablage"),
     ]),
-    ("Finanzen", "bi-cash-coin", [
-        ("Beitragsjahre", "beitragsjahr_list", "beitraege"),
-        ("Rechnungen", "rechnung_list", "rechnungen"),
-        ("Zahlungen", "zahlung_list", "zahlungen"),
-        ("Bankumsätze", "bankumsatz_list", "bank"),
-        ("SEPA-Einzüge", "sepaeinzug_list", "zahlungen"),
-        ("Spenden", "spende_list", "spenden"),
-        ("Spendenquittungen", "zuwendungsbestaetigung_list", "spenden"),
-        ("Aufwandsentschädigungen", "aufwandsentschaedigung_list", "aufwand"),
+    (_("Finanzen"), "bi-cash-coin", [
+        (_("Beitragsjahre"), "beitragsjahr_list", "beitraege"),
+        (_("Rechnungen"), "rechnung_list", "rechnungen"),
+        (_("Zahlungen"), "zahlung_list", "zahlungen"),
+        (_("Bankumsätze"), "bankumsatz_list", "bank"),
+        (_("SEPA-Einzüge"), "sepaeinzug_list", "zahlungen"),
+        (_("Spenden"), "spende_list", "spenden"),
+        (_("Spendenquittungen"), "zuwendungsbestaetigung_list", "spenden"),
+        (_("Aufwandsentschädigungen"), "aufwandsentschaedigung_list", "aufwand"),
     ]),
-    ("Kasse", "bi-wallet2", [
-        ("Kassenbuch (Buchungen)", "buchung_list", "kassenbuch"),
-        ("Kassenberichte", "kassenbericht_list", "kassenbuch"),
-        ("Konten", "konto_list", "kassenbuch"),
-        ("Buchungskategorien", "buchungskategorie_list", "kassenbuch"),
+    (_("Kasse"), "bi-wallet2", [
+        (_("Kassenbuch (Buchungen)"), "buchung_list", "kassenbuch"),
+        (_("Kassenberichte"), "kassenbericht_list", "kassenbuch"),
+        (_("Konten"), "konto_list", "kassenbuch"),
+        (_("Buchungskategorien"), "buchungskategorie_list", "kassenbuch"),
     ]),
-    ("Inventar", "bi-box-seam", [
-        ("Gegenstände", "gegenstand_list", "inventar"),
-        ("Verleih", "verleih_list", "verleih"),
-        ("Inventuren", "inventur_list", "inventur"),
+    (_("Inventar"), "bi-box-seam", [
+        (_("Gegenstände"), "gegenstand_list", "inventar"),
+        (_("Verleih"), "verleih_list", "verleih"),
+        (_("Inventuren"), "inventur_list", "inventur"),
     ]),
-    ("Veranstaltungen", "bi-calendar-event", [
-        ("Veranstaltungen", "veranstaltung_list", "veranstaltungen"),
+    (_("Veranstaltungen"), "bi-calendar-event", [
+        (_("Veranstaltungen"), "veranstaltung_list", "veranstaltungen"),
     ]),
-    ("Auswertung", "bi-bar-chart-line", [
-        ("Auswertungen", "auswertungen", "auswertungen"),
-        ("Änderungsprotokoll", "auditlog_list", "audit"),
+    (_("Auswertung"), "bi-bar-chart-line", [
+        (_("Auswertungen"), "auswertungen", "auswertungen"),
+        (_("Änderungsprotokoll"), "auditlog_list", "audit"),
     ]),
-    ("Verwaltung", "bi-gear", [
-        ("Verein / Einstellungen / Logo", "verein_einstellungen", "verwaltung"),
-        ("OpenSlides-Anbindung", "openslides_einstellungen", "openslides"),
-        ("Paperless-Anbindung", "paperless_einstellungen", "paperless"),
-        ("Benutzer", "zugang_list", "verwaltung"),
-        ("Rollen", "rolle_list", "verwaltung"),
-        ("Beitragsregeln", "beitragsregel_list", "beitraege"),
-        ("Mitgliedsarten / Beiträge", "mitgliedsart_list", "beitraege"),
-        ("Abteilungen", "abteilung_list", "mitglieder"),
-        ("Funktionen", "funktion_list", "mitglieder"),
-        ("Familien", "familie_list", "mitglieder"),
-        ("Ehrungsarten", "ehrungsart_list", "ehrungen"),
-        ("Jubiläumsregeln", "jubilaeumsregel_list", "ehrungen"),
-        ("Inventar-Kategorien", "kategorie_list", "inventar"),
-        ("Inventar-Standorte", "standort_list", "inventar"),
-        ("Mitglieder-Import", "mitglieder_import", "mitglieder"),
-        ("Inventar-Import", "gegenstand_import", "inventar"),
+    (_("Verwaltung"), "bi-gear", [
+        (_("Verein / Einstellungen / Logo"), "verein_einstellungen", "verwaltung"),
+        (_("OpenSlides-Anbindung"), "openslides_einstellungen", "openslides"),
+        (_("Paperless-Anbindung"), "paperless_einstellungen", "paperless"),
+        (_("Benutzer"), "zugang_list", "verwaltung"),
+        (_("Rollen"), "rolle_list", "verwaltung"),
+        (_("Beitragsregeln"), "beitragsregel_list", "beitraege"),
+        (_("Mitgliedsarten / Beiträge"), "mitgliedsart_list", "beitraege"),
+        (_("Abteilungen"), "abteilung_list", "mitglieder"),
+        (_("Funktionen"), "funktion_list", "mitglieder"),
+        (_("Familien"), "familie_list", "mitglieder"),
+        (_("Ehrungsarten"), "ehrungsart_list", "ehrungen"),
+        (_("Jubiläumsregeln"), "jubilaeumsregel_list", "ehrungen"),
+        (_("Inventar-Kategorien"), "kategorie_list", "inventar"),
+        (_("Inventar-Standorte"), "standort_list", "inventar"),
+        (_("Mitglieder-Import"), "mitglieder_import", "mitglieder"),
+        (_("Inventar-Import"), "gegenstand_import", "inventar"),
     ]),
 ]
 
@@ -77,7 +78,7 @@ def _basisname(url_name):
     return url_name
 
 
-_URL_ICON = {_basisname(url_name): icon for _, icon, eintraege in NAV for _, url_name, _ in eintraege}
+_URL_ICON = {_basisname(url_name): icon for gruppe, icon, eintraege in NAV for label, url_name, modul in eintraege}
 
 
 def _aktive_icon(request):

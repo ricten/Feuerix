@@ -1,24 +1,25 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
   <div><a href="{{ liste_url }}" class="text-decoration-none small"><i class="bi bi-arrow-left"></i> {{ cfg.label_plural }}</a><h3 class="mb-0">{{ titel }}</h3></div>
   <div class="d-flex gap-2 flex-wrap align-items-center kopf-aktionen">
     {% if aktive_icon %}<i class="bi {{ aktive_icon }} fs-4 me-1" style="color: var(--bs-primary);"></i>{% endif %}
     {% include "core/_buttons.html" with buttons=aktionen %}
-    {% if can_change %}<a class="btn btn-sm btn-outline-primary" href="{% url cfg.name|add:'_edit' object.pk %}"><i class="bi bi-pencil"></i> Bearbeiten</a>{% endif %}
-    {% if can_delete %}<a class="btn btn-sm btn-outline-danger" href="{% url cfg.name|add:'_delete' object.pk %}"><i class="bi bi-trash"></i> Löschen</a>{% endif %}
+    {% if can_change %}<a class="btn btn-sm btn-outline-primary" href="{% url cfg.name|add:'_edit' object.pk %}"><i class="bi bi-pencil"></i> {% trans "Bearbeiten" %}</a>{% endif %}
+    {% if can_delete %}<a class="btn btn-sm btn-outline-danger" href="{% url cfg.name|add:'_delete' object.pk %}"><i class="bi bi-trash"></i> {% trans "Löschen" %}</a>{% endif %}
   </div>
 </div>
 {% for h in hinweise %}<div class="alert alert-info py-2">{{ h }}</div>{% endfor %}
 {% if zuweisen %}
 <div class="card shadow-sm mb-3"><div class="card-body">
-  <h6>Einer Rechnung zuordnen</h6>
+  <h6>{% trans "Einer Rechnung zuordnen" %}</h6>
   <form method="post" action="{{ zuweisen.url }}" class="row g-2">{% csrf_token %}
     <div class="col-md-6"><select name="rechnung" class="form-select form-select-sm" required>
-      <option value="">– offene Rechnung wählen –</option>
+      <option value="">– {% trans "offene Rechnung wählen" %} –</option>
       {% for r in zuweisen.rechnungen %}<option value="{{ r.pk }}">{{ r.nummer }} · {{ r.empfaenger_name }} · {{ r.betrag }} €</option>{% endfor %}
     </select></div>
-    <div class="col-auto"><button class="btn btn-sm btn-success">Zahlung buchen</button></div>
+    <div class="col-auto"><button class="btn btn-sm btn-success">{% trans "Zahlung buchen" %}</button></div>
   </form>
 </div></div>
 {% endif %}
@@ -33,14 +34,14 @@
 {% for a in abschnitte %}
 <div class="card shadow-sm mb-3">
   <div class="card-header d-flex justify-content-between align-items-center"><strong>{{ a.titel }}</strong>
-    {% if a.add_url %}<a class="btn btn-sm btn-outline-primary" href="{{ a.add_url }}"><i class="bi bi-plus-lg"></i> Hinzufügen</a>{% endif %}</div>
+    {% if a.add_url %}<a class="btn btn-sm btn-outline-primary" href="{{ a.add_url }}"><i class="bi bi-plus-lg"></i> {% trans "Hinzufügen" %}</a>{% endif %}</div>
   <div class="table-responsive"><table class="table table-sm table-hover mb-0 tabelle">
     <thead class="table-light"><tr>{% for s in a.spalten %}<th>{{ s }}</th>{% endfor %}{% if a.mit_aktionen %}<th></th>{% endif %}</tr></thead>
     <tbody>
     {% for z in a.zeilen %}
       <tr>{% for c in z.zellen %}<td>{% if forloop.first and z.url %}<a href="{{ z.url }}">{{ c }}</a>{% else %}{{ c }}{% endif %}</td>{% endfor %}
       {% if a.mit_aktionen %}<td class="text-end">{% include "core/_buttons.html" with buttons=z.aktionen %}</td>{% endif %}</tr>
-    {% empty %}<tr><td colspan="{{ a.spalten|length }}" class="text-muted">Keine Einträge.</td></tr>{% endfor %}
+    {% empty %}<tr><td colspan="{{ a.spalten|length }}" class="text-muted">{% trans "Keine Einträge." %}</td></tr>{% endfor %}
     </tbody></table></div>
 </div>
 {% endfor %}

@@ -1,0 +1,384 @@
+# English translation of Feuerix's core UI chrome (navigation, generic CRUD screens, login).
+# Copyright (C) 2026 Rico Tengler
+# This file is distributed under the same license as the Feuerix package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Feuerix\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-24 01:42+0200\n"
+"PO-Revision-Date: 2026-09-24 01:42+0200\n"
+"Last-Translator: Feuerix\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\apps\core\context.py:6 .\apps\core\context.py:7
+msgid "Mitglieder"
+msgstr "Members"
+
+#: .\apps\core\context.py:8 .\templates\core\dashboard.html:14
+msgid "Jubiläen"
+msgstr "Anniversaries"
+
+#: .\apps\core\context.py:9 .\templates\core\dashboard.html:15
+msgid "Ehrungen"
+msgstr "Honours"
+
+#: .\apps\core\context.py:10
+msgid "Dokumente"
+msgstr "Documents"
+
+#: .\apps\core\context.py:12
+msgid "Schriftverkehr"
+msgstr "Correspondence"
+
+#: .\apps\core\context.py:13
+msgid "Schriftstücke (Einladung, Protokoll …)"
+msgstr "Documents (invitation, minutes …)"
+
+#: .\apps\core\context.py:14
+msgid "Serienbriefe"
+msgstr "Mail merges"
+
+#: .\apps\core\context.py:15
+msgid "Vorlagen"
+msgstr "Templates"
+
+#: .\apps\core\context.py:16
+msgid "Platzhalter-Hilfe"
+msgstr "Placeholder help"
+
+#: .\apps\core\context.py:17
+msgid "Ablage"
+msgstr "Archive"
+
+#: .\apps\core\context.py:18
+msgid "Ablage-Ordner"
+msgstr "Archive folders"
+
+#: .\apps\core\context.py:20
+msgid "Finanzen"
+msgstr "Finance"
+
+#: .\apps\core\context.py:21
+msgid "Beitragsjahre"
+msgstr "Membership-fee years"
+
+#: .\apps\core\context.py:22
+msgid "Rechnungen"
+msgstr "Invoices"
+
+#: .\apps\core\context.py:23
+msgid "Zahlungen"
+msgstr "Payments"
+
+#: .\apps\core\context.py:24
+msgid "Bankumsätze"
+msgstr "Bank transactions"
+
+#: .\apps\core\context.py:25
+msgid "SEPA-Einzüge"
+msgstr "SEPA direct debits"
+
+#: .\apps\core\context.py:26
+msgid "Spenden"
+msgstr "Donations"
+
+#: .\apps\core\context.py:27
+msgid "Spendenquittungen"
+msgstr "Donation receipts"
+
+#: .\apps\core\context.py:28
+msgid "Aufwandsentschädigungen"
+msgstr "Expense allowances"
+
+#: .\apps\core\context.py:30
+msgid "Kasse"
+msgstr "Cash book"
+
+#: .\apps\core\context.py:31
+msgid "Kassenbuch (Buchungen)"
+msgstr "Cash book (entries)"
+
+#: .\apps\core\context.py:32
+msgid "Kassenberichte"
+msgstr "Cash book reports"
+
+#: .\apps\core\context.py:33
+msgid "Konten"
+msgstr "Accounts"
+
+#: .\apps\core\context.py:34
+msgid "Buchungskategorien"
+msgstr "Booking categories"
+
+#: .\apps\core\context.py:36
+msgid "Inventar"
+msgstr "Inventory"
+
+#: .\apps\core\context.py:37
+msgid "Gegenstände"
+msgstr "Items"
+
+#: .\apps\core\context.py:38
+msgid "Verleih"
+msgstr "Rentals"
+
+#: .\apps\core\context.py:39
+msgid "Inventuren"
+msgstr "Stocktakes"
+
+#: .\apps\core\context.py:41 .\apps\core\context.py:42
+msgid "Veranstaltungen"
+msgstr "Events"
+
+#: .\apps\core\context.py:44
+msgid "Auswertung"
+msgstr "Reports"
+
+#: .\apps\core\context.py:45
+msgid "Auswertungen"
+msgstr "Reports"
+
+#: .\apps\core\context.py:46
+msgid "Änderungsprotokoll"
+msgstr "Change log"
+
+#: .\apps\core\context.py:48
+msgid "Verwaltung"
+msgstr "Administration"
+
+#: .\apps\core\context.py:49
+msgid "Verein / Einstellungen / Logo"
+msgstr "Club / settings / logo"
+
+#: .\apps\core\context.py:50
+msgid "OpenSlides-Anbindung"
+msgstr "OpenSlides connection"
+
+#: .\apps\core\context.py:51
+msgid "Paperless-Anbindung"
+msgstr "Paperless connection"
+
+#: .\apps\core\context.py:52
+msgid "Benutzer"
+msgstr "Users"
+
+#: .\apps\core\context.py:53
+msgid "Rollen"
+msgstr "Roles"
+
+#: .\apps\core\context.py:54
+msgid "Beitragsregeln"
+msgstr "Membership-fee rules"
+
+#: .\apps\core\context.py:55
+msgid "Mitgliedsarten / Beiträge"
+msgstr "Membership types / fees"
+
+#: .\apps\core\context.py:56
+msgid "Abteilungen"
+msgstr "Departments"
+
+#: .\apps\core\context.py:57
+msgid "Funktionen"
+msgstr "Functions"
+
+#: .\apps\core\context.py:58
+msgid "Familien"
+msgstr "Families"
+
+#: .\apps\core\context.py:59
+msgid "Ehrungsarten"
+msgstr "Honour types"
+
+#: .\apps\core\context.py:60
+msgid "Jubiläumsregeln"
+msgstr "Anniversary rules"
+
+#: .\apps\core\context.py:61
+msgid "Inventar-Kategorien"
+msgstr "Inventory categories"
+
+#: .\apps\core\context.py:62
+msgid "Inventar-Standorte"
+msgstr "Inventory locations"
+
+#: .\apps\core\context.py:63
+msgid "Mitglieder-Import"
+msgstr "Member import"
+
+#: .\apps\core\context.py:64
+msgid "Inventar-Import"
+msgstr "Inventory import"
+
+#: .\templates\base.html:72
+msgid "Verein wechseln"
+msgstr "Switch club"
+
+#: .\templates\base.html:78 .\templates\registration\login.html:16
+msgid "Passwort"
+msgstr "Password"
+
+#: .\templates\base.html:79
+msgid "Abmelden"
+msgstr "Log out"
+
+#: .\templates\base.html:92
+msgid "Version"
+msgstr "Version"
+
+#: .\templates\base.html:94 .\templates\base.html:97
+msgid "Impressum"
+msgstr "Legal notice"
+
+#: .\templates\base.html:95
+msgid "Downloads"
+msgstr "Downloads"
+
+#: .\templates\base.html:102
+msgid ""
+"Diese Seite verwendet ausschließlich technisch notwendige Cookies "
+"(Anmeldung, Sicherheit, Spracheinstellung) – keine Tracking- oder Marketing-"
+"Cookies."
+msgstr ""
+"This site uses only strictly necessary cookies (login, security, language "
+"preference) – no tracking or marketing cookies."
+
+#: .\templates\base.html:103
+msgid "Verstanden"
+msgstr "Got it"
+
+#: .\templates\core\_sprachauswahl.html:7
+msgid "Sprache"
+msgstr "Language"
+
+#: .\templates\core\dashboard.html:4
+msgid "Übersicht"
+msgstr "Overview"
+
+#: .\templates\core\dashboard.html:16
+msgid "Überfällige Verleihe"
+msgstr "Overdue rentals"
+
+#: .\templates\core\dashboard.html:17
+msgid "Offene Aufgaben (Veranstaltungen)"
+msgstr "Open tasks (events)"
+
+#: .\templates\core\dashboard.html:18
+msgid "Aufwandsanträge zur Genehmigung"
+msgstr "Expense requests awaiting approval"
+
+#: .\templates\core\dashboard.html:20
+msgid "Nächste Veranstaltungen"
+msgstr "Upcoming events"
+
+#: .\templates\core\dashboard.html:23
+msgid "Keine anstehenden Veranstaltungen."
+msgstr "No upcoming events."
+
+#: .\templates\core\detail.html:9
+msgid "Bearbeiten"
+msgstr "Edit"
+
+#: .\templates\core\detail.html:10
+msgid "Löschen"
+msgstr "Delete"
+
+#: .\templates\core\detail.html:16
+msgid "Einer Rechnung zuordnen"
+msgstr "Assign to an invoice"
+
+#: .\templates\core\detail.html:19
+msgid "offene Rechnung wählen"
+msgstr "select an open invoice"
+
+#: .\templates\core\detail.html:22
+msgid "Zahlung buchen"
+msgstr "Book payment"
+
+#: .\templates\core\detail.html:37
+msgid "Hinzufügen"
+msgstr "Add"
+
+#: .\templates\core\detail.html:44 .\templates\core\liste.html:40
+msgid "Keine Einträge."
+msgstr "No entries."
+
+#: .\templates\core\formular.html:32
+msgid "Speichern"
+msgstr "Save"
+
+#: .\templates\core\formular.html:33 .\templates\core\loeschen.html:10
+msgid "Abbrechen"
+msgstr "Cancel"
+
+#: .\templates\core\liste.html:11
+msgid "Neu"
+msgstr "New"
+
+#: .\templates\core\liste.html:15
+msgid "Suchen …"
+msgstr "Search …"
+
+#: .\templates\core\liste.html:19
+msgid "alle"
+msgstr "all"
+
+#: .\templates\core\liste.html:24
+msgid "Filter"
+msgstr "Filter"
+
+#: .\templates\core\liste.html:27
+msgid "Filtern"
+msgstr "Filter"
+
+#: .\templates\core\liste.html:47
+#, python-format
+msgid "Seite %(nr)s / %(anzahl)s (%(gesamt)s Einträge)"
+msgstr "Page %(nr)s / %(anzahl)s (%(gesamt)s entries)"
+
+#: .\templates\core\loeschen.html:7
+#, python-format
+msgid ""
+"Möchten Sie <strong>%(object)s</strong> wirklich löschen? Die Löschung wird "
+"im Änderungsprotokoll festgehalten."
+msgstr ""
+"Do you really want to delete <strong>%(object)s</strong>? The deletion "
+"will be recorded in the change log."
+
+#: .\templates\core\loeschen.html:9
+msgid "Endgültig löschen"
+msgstr "Delete permanently"
+
+#: .\templates\core\verein_waehlen.html:8
+msgid "Verein wählen"
+msgstr "Select club"
+
+#: .\templates\core\verein_waehlen.html:16
+msgid ""
+"Ihrem Benutzer ist noch kein Verein zugeordnet. Bitte wenden Sie sich an "
+"einen Administrator."
+msgstr ""
+"Your user account is not yet assigned to a club. Please contact an "
+"administrator."
+
+#: .\templates\registration\login.html:11
+msgid "Anmeldung"
+msgstr "Sign in"
+
+#: .\templates\registration\login.html:12
+msgid "Benutzername oder Passwort falsch."
+msgstr "Incorrect username or password."
+
+#: .\templates\registration\login.html:15
+msgid "Benutzername"
+msgstr "Username"
+
+#: .\templates\registration\login.html:17
+msgid "Anmelden"
+msgstr "Sign in"

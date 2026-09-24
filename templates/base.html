@@ -1,6 +1,6 @@
-{% load static verein_tags %}
+{% load static verein_tags i18n %}
 <!doctype html>
-<html lang="de">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -52,9 +52,10 @@
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'nach_login' %}{% else %}{% url 'dashboard' %}{% endif %}">{% if verein.logo %}<img src="{% url 'verein_logo' %}" alt="" style="height:30px;background:#fff;border-radius:4px;padding:2px">{% endif %}{{ verein.name|default:product_name|default:"Feuerix" }}</a>
     {% if verein and product_name %}<span class="navbar-text small d-none d-md-inline ms-2" style="opacity:.65">{{ product_name }}</span>{% endif %}
+    <div class="ms-auto ms-lg-0 order-lg-2">{% include "core/_sprachauswahl.html" %}</div>
     {% if user.is_authenticated %}
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
-    <div class="collapse navbar-collapse" id="nav">
+    <div class="collapse navbar-collapse order-lg-1" id="nav">
       <ul class="navbar-nav me-auto">
         {% for gruppe, icon, punkte in navigation %}
         <li class="nav-item dropdown">
@@ -68,14 +69,14 @@
       <div class="d-flex align-items-center gap-2">
         {% if vereine|length > 1 %}
         <form method="post" action="{% url 'verein_waehlen' %}" class="d-flex">{% csrf_token %}
-          <select name="verein" class="form-select form-select-sm" onchange="this.form.submit()" title="Verein wechseln">
+          <select name="verein" class="form-select form-select-sm" onchange="this.form.submit()" title="{% trans 'Verein wechseln' %}">
             {% for v in vereine %}<option value="{{ v.pk }}" {% if v.pk == verein.pk %}selected{% endif %}>{{ v.name }}</option>{% endfor %}
           </select>
         </form>
         {% endif %}
         <span class="small"><i class="bi bi-person-circle me-1"></i>{{ user.get_username }}</span>
-        <a class="btn btn-sm {% if web_akzenttextfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}" href="{% url 'password_change' %}"><i class="bi bi-key"></i> Passwort</a>
-        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-sm {% if web_akzenttextfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}"><i class="bi bi-box-arrow-right"></i> Abmelden</button></form>
+        <a class="btn btn-sm {% if web_akzenttextfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}" href="{% url 'password_change' %}"><i class="bi bi-key"></i> {% trans "Passwort" %}</a>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-sm {% if web_akzenttextfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}"><i class="bi bi-box-arrow-right"></i> {% trans "Abmelden" %}</button></form>
       </div>
     </div>
     {% endif %}
@@ -88,14 +89,31 @@
   {% block content %}{% endblock %}
 </main>
 <footer class="text-center text-muted small py-3">
-  © {% now "Y" %} {{ verein.name|default:"Vereinsverwaltung" }}{% if app_version %} · Version {{ app_version }}{% endif %}
+  © {% now "Y" %} {{ verein.name|default:product_name|default:"Feuerix" }}{% if app_version %} · {% trans "Version" %} {{ app_version }}{% endif %}
   {% if einzelverein %}
-    · <a href="{% url 'impressum' einzelverein.kuerzel %}">Impressum</a>
-    · <a href="{% url 'oeffentliche_dokumente' einzelverein.kuerzel %}">Downloads</a>
+    · <a href="{% url 'impressum' einzelverein.kuerzel %}">{% trans "Impressum" %}</a>
+    · <a href="{% url 'oeffentliche_dokumente' einzelverein.kuerzel %}">{% trans "Downloads" %}</a>
   {% elif mehrere_vereine_oeffentlich %}
-    · Impressum:
+    · {% trans "Impressum" %}:
     {% for v in mehrere_vereine_oeffentlich %}<a href="{% url 'impressum' v.kuerzel %}">{{ v.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
   {% endif %}
 </footer>
+<div id="cookie-hinweis" class="d-none position-fixed bottom-0 start-0 end-0 text-white p-3 d-flex flex-wrap align-items-center justify-content-between gap-3" style="z-index:2000; background:#1c1c1c;">
+  <span class="small">{% blocktrans %}Diese Seite verwendet ausschließlich technisch notwendige Cookies (Anmeldung, Sicherheit, Spracheinstellung) – keine Tracking- oder Marketing-Cookies.{% endblocktrans %}</span>
+  <button type="button" id="cookie-hinweis-ok" class="btn btn-sm btn-light flex-shrink-0">{% trans "Verstanden" %}</button>
+</div>
+<script>
+(function () {
+  var KEY = "cookie_hinweis_ok";
+  if (!document.cookie.split("; ").some(function (c) { return c.indexOf(KEY + "=") === 0; })) {
+    var banner = document.getElementById("cookie-hinweis");
+    banner.classList.remove("d-none");
+    document.getElementById("cookie-hinweis-ok").addEventListener("click", function () {
+      document.cookie = KEY + "=1; max-age=31536000; path=/; samesite=lax";
+      banner.remove();
+    });
+  }
+})();
+</script>
 </body>
 </html>

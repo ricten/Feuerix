@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static i18n %}
 {% block content %}
 <div class="row justify-content-center mt-4"><div class="col-md-5">
   <div class="d-flex align-items-center gap-2 mb-3 text-muted small">
     <img src="{% static 'branding/icon.svg' %}" alt="" style="height:20px">{{ product_name|default:"Feuerix" }}
   </div>
-  <h4>Verein wählen</h4>
+  <h4>{% trans "Verein wählen" %}</h4>
   {% if vereine %}
   <form method="post">{% csrf_token %}
     <div class="list-group">
@@ -13,7 +13,7 @@
     </div>
   </form>
   {% else %}
-  <div class="alert alert-warning">Ihrem Benutzer ist noch kein Verein zugeordnet. Bitte wenden Sie sich an einen Administrator.</div>
+  <div class="alert alert-warning">{% trans "Ihrem Benutzer ist noch kein Verein zugeordnet. Bitte wenden Sie sich an einen Administrator." %}</div>
   {% endif %}
 </div></div>
 {% endblock %}

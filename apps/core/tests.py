@@ -339,3 +339,46 @@ class FeuerixBrandingTests(TestCase):
         r = self.client.get(reverse("dashboard"))
         self.assertContains(r, "Verein A")
         self.assertContains(r, "Feuerix")
+
+
+class SprachauswahlTests(TestCase):
+    """Englische Übersetzung mit Sprachauswahl (oben im Menü bzw. auf dem Anmeldefenster) - Standard bleibt
+    Deutsch, nichts ändert sich für Benutzer, die nie umschalten."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Verein A", kuerzel="a")
+
+    def test_login_seite_ist_standardmaessig_deutsch(self):
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, "Anmeldung")
+        self.assertContains(r, "Passwort")
+
+    def test_login_seite_zeigt_cookie_hinweis(self):
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, "technisch notwendige Cookies")
+        self.assertContains(r, "cookie-hinweis")
+
+    def test_sprachauswahl_schaltet_login_seite_auf_englisch(self):
+        r = self.client.post(reverse("set_language"), {"language": "en", "next": reverse("login")})
+        self.assertEqual(r.status_code, 302)
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, "Sign in")
+        self.assertNotContains(r, "Anmeldung")
+
+    def test_sprachauswahl_schaltet_navigation_auf_englisch(self):
+        User = get_user_model()
+        admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.client.post(reverse("set_language"), {"language": "en", "next": reverse("dashboard")})
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, 'lang="en"')
+        self.assertContains(r, "Members")
+        self.assertContains(r, "Log out")
+        self.assertContains(r, "Overview")
+
+    def test_ungueltige_sprache_wird_abgelehnt(self):
+        r = self.client.post(reverse("set_language"), {"language": "fr", "next": reverse("login")})
+        r2 = self.client.get(reverse("login"))
+        self.assertContains(r2, "Anmeldung")

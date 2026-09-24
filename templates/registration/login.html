@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static i18n %}
 {% block content %}
 <div class="row justify-content-center mt-5"><div class="col-md-4">
   <div class="text-center mb-3">
@@ -8,13 +8,13 @@
     <div class="text-muted small">{{ product_tagline|default:"Verwaltung für Feuerwehr-Fördervereine" }}</div>
   </div>
   <div class="card shadow-sm"><div class="card-body">
-    <h4 class="mb-3"><i class="bi bi-box-arrow-in-right me-1"></i>Anmeldung</h4>
-    {% if form.errors %}<div class="alert alert-danger">Benutzername oder Passwort falsch.</div>{% endif %}
+    <h4 class="mb-3"><i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Anmeldung" %}</h4>
+    {% if form.errors %}<div class="alert alert-danger">{% trans "Benutzername oder Passwort falsch." %}</div>{% endif %}
     <form method="post">{% csrf_token %}
       <input type="hidden" name="next" value="{{ next }}">
-      <div class="mb-3"><label class="form-label">Benutzername</label><input name="username" class="form-control" autofocus required></div>
-      <div class="mb-3"><label class="form-label">Passwort</label><input name="password" type="password" class="form-control" required></div>
-      <button class="btn btn-primary w-100"><i class="bi bi-box-arrow-in-right"></i> Anmelden</button>
+      <div class="mb-3"><label class="form-label">{% trans "Benutzername" %}</label><input name="username" class="form-control" autofocus required></div>
+      <div class="mb-3"><label class="form-label">{% trans "Passwort" %}</label><input name="password" type="password" class="form-control" required></div>
+      <button class="btn btn-primary w-100"><i class="bi bi-box-arrow-in-right"></i> {% trans "Anmelden" %}</button>
     </form>
   </div></div>
 </div></div>

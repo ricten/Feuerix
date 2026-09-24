@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.14.0)
+# Handbuch – Feuerix (Version 1.15.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -52,6 +52,12 @@ Installationen mit mehreren Vereinen sind davon nicht betroffen.
 Die Navigation oben ist nach Themen gruppiert (Mitglieder, Schriftverkehr, Finanzen, Kasse, Inventar,
 Veranstaltungen, Auswertung, Verwaltung) und zeigt nur die Punkte, für die die eigene Rolle mindestens Lesezugriff
 hat.
+
+**Sprache:** Oben rechts in der Menüleiste (auch auf der Anmeldeseite, vor dem Einloggen) lässt sich zwischen
+**Deutsch** und **Englisch** wechseln. Die Auswahl wird in einem Cookie gespeichert und gilt browserweit, bis sie
+erneut geändert wird. Übersetzt sind aktuell die Navigation, An-/Abmeldung, das Dashboard sowie die
+Listen-/Detail-/Formularseiten (Buttons, Filter, Meldungen); die fachlichen Feldnamen und Meldetexte einzelner
+Module folgen nach und nach.
 
 **Listen sortieren:** In jeder Tabelle lässt sich auf eine Spaltenüberschrift klicken, um danach zu sortieren
 (Pfeil zeigt die Richtung); ein zweiter Klick kehrt die Richtung um. Das funktioniert für alle Spalten, die ein
@@ -380,6 +386,9 @@ Installation für mehrere Vereine (Kapitel 1), erscheint pro Verein ein eigener 
   anderen Vereins einzusehen oder zu exportieren.
 - Rechteprüfung erfolgt konsequent serverseitig je Modul und Aktion (Anzeigen/Erstellen/Bearbeiten/Löschen) –
   nicht nur durch Ausblenden von Menüpunkten.
+- **Cookies:** Es werden ausschließlich technisch notwendige Cookies gesetzt (Anmeldung/Sitzung, CSRF-Schutz,
+  Spracheinstellung) – keine Tracking- oder Marketing-Cookies. Ein entsprechender Hinweis erscheint einmalig am
+  unteren Bildschirmrand (auch ohne Anmeldung), bis er bestätigt wird.
 
 ## 17. Bekannte Grenzen
 

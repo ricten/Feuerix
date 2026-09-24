@@ -7,7 +7,7 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~190 Tests) und eine GitHub-Actions-CI prüfen
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~195 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz verifiziert sind
 > die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – dafür vor dem
 > Verlass darauf eine Testphase einplanen.
@@ -57,6 +57,16 @@ automatisch für Lesbarkeit berechnet, farbig unterlegte Hover-Effekte markieren
 Icons stammen von [Bootstrap Icons](https://icons.getbootstrap.com/), lokal ausgeliefert wie Bootstrap/HTMX (kein
 CDN, DSGVO-freundlich); nahezu jeder Button bekommt anhand seines Labels automatisch ein passendes Icon
 (`apps/core/crud.py::_icon_fuer`), zusätzlich zeigt jede Unterseite oben rechts das Icon ihrer Navigationsgruppe.
+
+## Sprache und Cookie-Hinweis
+
+Deutsch/Englisch umschaltbar über die Sprachauswahl oben in der Menüleiste (auch auf der Anmeldeseite) –
+Standard-Django-i18n (`django.middleware.locale.LocaleMiddleware`, Auswahl per Cookie). Übersetzt: Navigation,
+An-/Abmeldung, Dashboard, generische Listen-/Detail-/Formularseiten. Neue Übersetzungen ergänzen:
+`django-admin makemessages -l en`, Texte in `locale/en/LC_MESSAGES/django.po` eintragen, dann
+`django-admin compilemessages` (braucht GNU `gettext`, das `.mo`-Ergebnis wird mit eingecheckt). Da eine
+Spracheinstellung als Cookie gespeichert wird, zeigt die Seite einmalig einen Cookie-Hinweis (nur technisch
+notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 
 ## Module
 
