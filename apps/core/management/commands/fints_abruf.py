@@ -1,9 +1,11 @@
-"""EXPERIMENTELL / UNGETESTET: Kontoumsaetze per FinTS abrufen und als Bankumsaetze speichern.
+"""EXPERIMENTELL: Kontoumsaetze per FinTS abrufen und als Bankumsaetze speichern (Kommandozeile, ohne TAN-Freigabe).
 
 Die Bank-PIN wird NICHT gespeichert, sondern interaktiv abgefragt. Fuer die Nutzung ist eine bei der
 Deutschen Kreditwirtschaft registrierte FinTS-Produkt-ID (FINTS_PRODUCT_ID) erforderlich. Banken verlangen
-i.d.R. eine TAN-Freigabe (PSD2); diese Umsetzung deckt nur den einfachen Fall ab und muss mit der eigenen
-Bank getestet werden. Alternative: CSV-Import ueber die Weboberflaeche.
+i.d.R. eine TAN-Freigabe (PSD2) - dieser Kommandozeilen-Weg deckt das NICHT ab und schlaegt bei den meisten
+Banken fehl. Fuer den ueblichen Fall (TAN erforderlich) bitte stattdessen *Verwaltung > FinTS-Anbindung* in
+der Weboberflaeche nutzen, die den TAN-Dialog abbildet. Dieses Kommando bleibt fuer Banken/Konfigurationen
+ohne TAN-Pflicht bzw. fuer Cron-Jobs nuetzlich.
 """
 import getpass
 import hashlib
@@ -37,7 +39,8 @@ class Command(BaseCommand):
         pin = getpass.getpass("Bank-PIN: ")
         client = FinTS3PinTanClient(o["blz"], o["kennung"], pin, o["url"], product_id=settings.FINTS_PRODUCT_ID)
         if client.init_tan_response:
-            raise CommandError("Die Bank verlangt eine TAN-Freigabe - dieser Weg ist hier nicht umgesetzt.")
+            raise CommandError("Die Bank verlangt eine TAN-Freigabe - bitte stattdessen Verwaltung > "
+                               "FinTS-Anbindung in der Weboberflaeche nutzen.")
         neu = 0
         for konto in client.get_sepa_accounts():
             for t in client.get_transactions(konto, date.today() - timedelta(days=o["tage"]), date.today()):

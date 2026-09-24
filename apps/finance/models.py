@@ -328,6 +328,27 @@ class SepaEinzugPosition(TenantModel):
         return f"{self.mitglied.name}: {self.betrag} € ({self.rechnung})"
 
 
+class FinTSZugang(TenantModel):
+    """Verbindungsdaten fuer den FinTS-Abruf (experimentell) - die Bank-PIN wird bewusst NICHT gespeichert,
+    sondern bei jedem Abruf erneut eingegeben."""
+    blz = models.CharField("Bankleitzahl", max_length=8)
+    kennung = models.CharField("Online-Banking-Kennung", max_length=100,
+                               help_text="Die Kennung fürs Online-Banking, nicht die PIN")
+    bank_url = models.URLField("FinTS-Adresse der Bank",
+                               help_text="Von der Bank vorgegebene FinTS-Serveradresse, z. B. https://banking.beispielbank.de/fints30")
+    tage = models.PositiveIntegerField("Tage rückwirkend abrufen", default=60)
+    letzter_abruf = models.DateTimeField("Letzter erfolgreicher Abruf", null=True, blank=True, editable=False)
+    letzte_meldung = models.CharField("Letzte Meldung", max_length=300, blank=True, editable=False)
+
+    class Meta:
+        verbose_name = "FinTS-Zugang"
+        verbose_name_plural = "FinTS-Zugänge"
+        constraints = [models.UniqueConstraint(fields=["verein"], name="ein_fints_zugang_je_verein")]
+
+    def __str__(self):
+        return f"FinTS {self.blz}"
+
+
 class Mahnung(TenantModel):
     STUFE = [(1, "Zahlungserinnerung"), (2, "1. Mahnung"), (3, "2. Mahnung / letzte Mahnung")]
     rechnung = models.ForeignKey(Rechnung, on_delete=models.PROTECT, related_name="mahnungen", verbose_name="Rechnung")

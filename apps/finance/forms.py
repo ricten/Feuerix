@@ -1,8 +1,10 @@
 from decimal import Decimal
 
-from apps.core.forms import TenantModelForm
+from django import forms
 
-from .models import Rechnung, Rechnungsposition
+from apps.core.forms import TenantModelForm, stilisieren_felder
+
+from .models import FinTSZugang, Rechnung, Rechnungsposition
 
 
 class RechnungForm(TenantModelForm):
@@ -27,3 +29,29 @@ class RechnungspositionForm(TenantModelForm):
         super().__init__(*args, **kwargs)
         if not self.instance.pk and self.verein and self.verein.umsatzsteuerpflichtig:
             self.fields["steuersatz"].initial = Decimal("19.00")
+
+
+class FinTSZugangForm(TenantModelForm):
+    class Meta:
+        model = FinTSZugang
+        exclude = ("verein",)
+
+
+class FinTSPinForm(forms.Form):
+    pin = forms.CharField(label="Bank-PIN", widget=forms.PasswordInput(render_value=False))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        stilisieren_felder(self.fields)
+
+
+class FinTSTanForm(forms.Form):
+    tan = forms.CharField(label="TAN", required=False)
+
+    def __init__(self, *args, decoupled=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if decoupled:
+            self.fields["tan"].help_text = "Bitte in der Banking-App bestätigen und danach hier weiter klicken."
+        else:
+            self.fields["tan"].required = True
+        stilisieren_felder(self.fields)

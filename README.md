@@ -7,10 +7,11 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~198 Tests) und eine GitHub-Actions-CI prüfen
-> bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz verifiziert sind
-> die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – dafür vor dem
-> Verlass darauf eine Testphase einplanen.
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~204 Tests) und eine GitHub-Actions-CI prüfen
+> bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz bzw. eine echte Bank
+> verifiziert sind die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt)
+> sowie der FinTS-Abruf (nach der `python-fints`-Dokumentation umgesetzt, TAN-Ablauf mit simulierten Antworten
+> getestet) – dafür vor dem Verlass darauf eine Testphase einplanen.
 
 **Handbuch:** Eine ausführliche Bedienungsanleitung für Vorstand, Kassenwart, Schriftführer & Co. steht in
 **[docs/HANDBUCH.md](docs/HANDBUCH.md)**.
@@ -85,7 +86,7 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 | Ehrungen | Ehrungsarten, Ehrungen, konfigurierbare Jubiläumsregeln, Jubiläumsliste mit Direktanlage |
 | Beiträge | Mitgliedsarten, Regeln (Alter, Familie, Gültigkeitsjahre, Priorität), individuelle Beiträge, Beitragsjahre mit Rechnungslauf; Beträge werden in der Rechnung eingefroren |
 | Rechnungen | Nummernkreis `RE-JJJJ-000001`, Entwurf → Ausstellen (danach unveränderbar), PDF, **E-Rechnung (ZUGFeRD/Factur-X-PDF, EN16931, XSD-validiert)**, E-Mail, Storno (mit buchbarer **Rückzahlung** bei bereits bezahlten Rechnungen), Gutschrift, Mahnstufen mit PDF; **Umsatzsteuer je Position** (0 % Standard, auch gemischt auf einer Rechnung) für nicht gemeinnützige Vereine/den wirtschaftlichen Geschäftsbetrieb, mit Netto/Steuer/Brutto-Aufschlüsselung auf PDF und E-Rechnung |
-| Zahlungen/Bank | Zahlungen je Rechnung inkl. Rücklastschrift, Kontoauszug-Import in **CSV, MT940 und CAMT.053** (Format wird automatisch erkannt) mit Dublettenerkennung, automatische Zuordnung (Rechnungsnr. → Mitgliedsnr. → IBAN), Liste „manuelle Zuordnung erforderlich“; **SEPA-Sammellastschrift-Export** (pain.008/CORE) für offene Rechnungen mit SEPA-Mandat, automatische Erst-/Folgelastschrift-Erkennung |
+| Zahlungen/Bank | Zahlungen je Rechnung inkl. Rücklastschrift, Kontoauszug-Import in **CSV, MT940 und CAMT.053** (Format wird automatisch erkannt) mit Dublettenerkennung, automatische Zuordnung (Rechnungsnr. → Mitgliedsnr. → IBAN), Liste „manuelle Zuordnung erforderlich“; **SEPA-Sammellastschrift-Export** (pain.008/CORE) für offene Rechnungen mit SEPA-Mandat, automatische Erst-/Folgelastschrift-Erkennung; **FinTS-Abruf** direkt aus der Weboberfläche inkl. TAN-Abfrage (experimentell, siehe unten) als Alternative zum manuellen Kontoauszug-Import |
 | Kassenbuch | Konten (Bank/Bar), Buchungskategorien mit steuerlicher Sphäre, Buchungen mit Belegnummer und Belegupload, Übernahme aus Zahlungen/Spenden/Aufwandsentschädigungen/Veranstaltungen (idempotent), **E-Rechnung importieren** (XRechnung/ZUGFeRD einlesen und als vorausgefüllte Ausgabe mit Beleg ablegen), **Beleg in Ablage übernehmen** (zusätzlich im allgemeinen Dokumentenarchiv einordnen) |
 | Kassenbericht | Zeitraumbericht mit Kontenübersicht, Einnahmen/Ausgaben je Kategorie und Sphäre, Vorjahresvergleich, Soll/Ist-Abgleich, Prüfungsbemerkung, Unterschriftszeilen, Kassenbuch-Anlage; PDF + Excel; Abschluss sperrt den Zeitraum und legt das PDF in der Ablage ab |
 | Inventar | Inventarnummern `INV-000001`, Kategorien, Standorte, Zustand, Garantie, Fotos/Dokumente, **Import** aus Excel/CSV (wie Mitglieder), Etikettendruck mit **QR-Code** je Gegenstand |
@@ -131,6 +132,13 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 * **Kontoauszug-Import:** CSV, MT940 und CAMT.053 werden anhand Dateiendung/Inhalt automatisch erkannt; bei MT940
   wird der Verwendungszweck nur nach den gängigen deutschen SEPA-Feldkennungen (`SVWZ+` u. a.) durchsucht – weicht
   eine Bank davon ab, landet der komplette Text unstrukturiert im Verwendungszweck.
+* **FinTS-Abruf** (*Verwaltung › FinTS-Anbindung*): Kontoumsätze direkt aus der Weboberfläche abrufen, inkl.
+  TAN-Abfrage (App-/SMS-/chipTAN, mit Grafikanzeige bei chipTAN) – als Alternative zum manuellen
+  Kontoauszug-Import. Die Bank-PIN wird **nie gespeichert**, sondern bei jedem Abruf neu abgefragt und liegt nur
+  kurzzeitig (bis der TAN-Vorgang abgeschlossen ist) serverseitig in der Sitzung. Umgesetzt nach der Dokumentation
+  von `python-fints`, aber **noch gegen keine echte Bank getestet** – vor dem produktiven Einsatz mit der eigenen
+  Bank ausprobieren. Werden mehrere TANs hintereinander verlangt, wird das unterstützt; ein einzelner Abruf
+  verarbeitet dabei alle beim Kreditinstitut hinterlegten Konten.
 * **Betrieb:** Hinter einen Reverse Proxy mit HTTPS setzen und `HTTPS=1` in der `.env` aktivieren.
   Bootstrap/HTMX werden beim Build lokal eingebunden (keine externen CDNs).
 
@@ -146,7 +154,6 @@ Produktivbetrieb gedacht.
 
 ## Noch nicht enthalten
 
-FinTS-Live-Abruf (nur experimentelles Kommando `fints_abruf`, ungetestet, ohne TAN-Verfahren),
 Abstimmungsergebnisse aus OpenSlides zurück ins Protokoll, REST-API (DRF), anteilige Beiträge, Update-/Restore-Oberfläche.
 Der SEPA-Einzug erzeugt nur die Einzugsdatei (pain.008) – der Rückkanal (eingegangen/zurückgebucht) läuft weiterhin
 über den normalen Kontoauszug-Import.

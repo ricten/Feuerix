@@ -2,15 +2,16 @@ import io
 import xml.etree.ElementTree as ET
 from datetime import date
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from apps.accounting import erechnung as erechnung_import
 from apps.core.models import Rolle, Verein, Zugang
 from apps.finance import erechnung, kontoauszug, sepa, services
-from apps.finance.models import Bankumsatz, Beitragsjahr, Rechnung, Rechnungsposition, SepaEinzug, Zahlung
+from apps.finance.models import Bankumsatz, Beitragsjahr, FinTSZugang, Rechnung, Rechnungsposition, SepaEinzug, Zahlung
 from apps.members.models import Mitglied, Mitgliedsart
 
 MT940_BEISPIEL = (
@@ -618,3 +619,176 @@ class ErechnungViewTests(TestCase):
         self.assertNotContains(r1, "E-Rechnung (ZUGFeRD-PDF)")
         r2 = self.client.get(reverse("rechnung_detail", args=[self.r.pk]))
         self.assertContains(r2, "E-Rechnung (ZUGFeRD-PDF)")
+
+
+# ---------------------------------------------------------------- FinTS (mit Testdouble statt echter Bank)
+class _FakeAmount:
+    def __init__(self, amount):
+        self.amount = amount
+
+
+class _FakeTransaction:
+    def __init__(self, datum, betrag, name="", iban="", zweck=""):
+        self.data = {"date": datum, "amount": _FakeAmount(Decimal(str(betrag))), "purpose": zweck,
+                     "applicant_iban": iban, "applicant_name": name}
+
+
+class _FakeNeedTANResponse:
+    """Ersetzt fints.client.NeedTANResponse in Tests - echte Instanzen brauchen eine echte Bankverbindung."""
+
+    def __init__(self, challenge="Bitte TAN eingeben", decoupled=False):
+        self.challenge = challenge
+        self.challenge_html = challenge
+        self.challenge_matrix = None
+        self.decoupled = decoupled
+
+    def get_data(self):
+        import pickle
+        return pickle.dumps(self)
+
+
+class _FakeNeedRetryResponse:
+    @staticmethod
+    def from_data(blob):
+        import pickle
+        return pickle.loads(blob)
+
+
+class _FakeResumeDialog:
+    def __init__(self, client):
+        self.client = client
+
+    def __enter__(self):
+        return self.client
+
+    def __exit__(self, *a):
+        return False
+
+
+class _FakeFinTSClient:
+    """Testdouble fuer fints.client.FinTS3PinTanClient - bildet genau die Schritte nach, die fints_service nutzt."""
+
+    def __init__(self, blz="", kennung="", pin="", url="", product_id=None, from_data=None, konten=None,
+                kontenabruf_ergebnis=None, send_tan_ergebnis=None, init_tan_response=None, fehler=None):
+        self.from_data = from_data
+        self.init_tan_response = init_tan_response
+        self._konten = konten or []
+        self._kontenabruf_ergebnis = kontenabruf_ergebnis
+        self._send_tan_ergebnis = send_tan_ergebnis
+        self._fehler = fehler
+
+    def __enter__(self):
+        if self._fehler:
+            raise self._fehler
+        return self
+
+    def __exit__(self, *a):
+        return False
+
+    def get_sepa_accounts(self):
+        return self._konten
+
+    def get_transactions(self, konto, von, bis):
+        return self._kontenabruf_ergebnis
+
+    def deconstruct(self, including_private=False):
+        return b"client-blob"
+
+    def pause_dialog(self):
+        return b"dialog-blob"
+
+    def resume_dialog(self, dialog_data):
+        return _FakeResumeDialog(self)
+
+    def send_tan(self, tan_response, tan):
+        return self._send_tan_ergebnis
+
+
+@override_settings(FINTS_PRODUCT_ID="TEST123456")
+class FinTSAbrufTests(TestCase):
+    def setUp(self):
+        from fints.models import SEPAAccount
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.user = User.objects.create_user("kasse", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        self.client.login(username="kasse", password="pw-Test-12345")
+        self.zugang = FinTSZugang.objects.create(verein=self.v, blz="12030000", kennung="test-kennung",
+                                                 bank_url="https://fints.beispielbank.de", tage=30)
+        self.konto = SEPAAccount(iban="DE02120300000000202051", bic="BYLADEM1001", accountnumber="202051",
+                                 subaccount="", blz="12030000")
+
+    def test_einstellungen_speichern(self):
+        r = self.client.post(reverse("fints_einstellungen"), {
+            "blz": "50010517", "kennung": "meine-kennung", "bank_url": "https://banking.example.org",
+            "tage": "60"}, follow=True)
+        self.assertContains(r, "Einstellungen gespeichert")
+        self.zugang.refresh_from_db()
+        self.assertEqual(self.zugang.blz, "50010517")
+
+    def test_abruf_ohne_tan_importiert_und_erkennt_duplikate(self):
+        transaktionen = [_FakeTransaction(date(2026, 3, 15), Decimal("60.00"), "Max Muster",
+                                          "DE89370400440532013000", "Mitgliedsbeitrag")]
+        fake = _FakeFinTSClient(konten=[self.konto], kontenabruf_ergebnis=transaktionen)
+        with patch("fints.client.FinTS3PinTanClient", return_value=fake):
+            r = self.client.post(reverse("fints_abrufen"), {"pin": "1234"}, follow=True)
+        self.assertContains(r, "1 neue Umsätze importiert")
+        self.assertEqual(Bankumsatz.objects.filter(verein=self.v).count(), 1)
+        self.zugang.refresh_from_db()
+        self.assertIsNotNone(self.zugang.letzter_abruf)
+
+        # Zweiter Abruf mit denselben Umsaetzen -> Duplikat wird per Pruefsumme erkannt, kein neuer Bankumsatz
+        fake2 = _FakeFinTSClient(konten=[self.konto], kontenabruf_ergebnis=transaktionen)
+        with patch("fints.client.FinTS3PinTanClient", return_value=fake2):
+            r2 = self.client.post(reverse("fints_abrufen"), {"pin": "1234"}, follow=True)
+        self.assertContains(r2, "0 neue Umsätze importiert")
+        self.assertEqual(Bankumsatz.objects.filter(verein=self.v).count(), 1)
+
+    def test_abruf_mit_tan_ueber_zwei_schritte(self):
+        tan_response = _FakeNeedTANResponse(challenge="Bitte die App-TAN bestätigen")
+        fake1 = _FakeFinTSClient(konten=[self.konto], kontenabruf_ergebnis=tan_response)
+        with patch("fints.client.FinTS3PinTanClient", return_value=fake1), \
+             patch("fints.client.NeedTANResponse", _FakeNeedTANResponse), \
+             patch("fints.client.NeedRetryResponse", _FakeNeedRetryResponse):
+            r1 = self.client.post(reverse("fints_abrufen"), {"pin": "1234"}, follow=True)
+            self.assertContains(r1, "TAN erforderlich")
+            self.assertContains(r1, "Bitte die App-TAN bestätigen")
+            self.assertIn("fints_tan", self.client.session)
+
+            transaktionen = [_FakeTransaction(date(2026, 3, 16), Decimal("25.50"), "Beispiel GmbH",
+                                              "DE12500105170648489890", "Vereinsbedarf")]
+            fake2 = _FakeFinTSClient(send_tan_ergebnis=transaktionen)
+            with patch("fints.client.FinTS3PinTanClient", return_value=fake2):
+                r2 = self.client.post(reverse("fints_abrufen"), {"tan": "999999"}, follow=True)
+        self.assertContains(r2, "1 neue Umsätze importiert")
+        self.assertEqual(Bankumsatz.objects.filter(verein=self.v).count(), 1)
+        self.assertNotIn("fints_tan", self.client.session)
+
+    def test_leere_tan_wird_bei_normalem_verfahren_abgelehnt(self):
+        tan_response = _FakeNeedTANResponse(challenge="Bitte TAN eingeben", decoupled=False)
+        fake = _FakeFinTSClient(konten=[self.konto], kontenabruf_ergebnis=tan_response)
+        with patch("fints.client.FinTS3PinTanClient", return_value=fake), \
+             patch("fints.client.NeedTANResponse", _FakeNeedTANResponse), \
+             patch("fints.client.NeedRetryResponse", _FakeNeedRetryResponse):
+            self.client.post(reverse("fints_abrufen"), {"pin": "1234"})
+            r = self.client.post(reverse("fints_abrufen"), {"tan": ""})
+        self.assertContains(r, "TAN erforderlich")
+        self.assertIn("fints_tan", self.client.session)
+
+    def test_verbindungsfehler_wird_abgefangen(self):
+        fake = _FakeFinTSClient(fehler=Exception("Zeitüberschreitung"))
+        with patch("fints.client.FinTS3PinTanClient", return_value=fake):
+            r = self.client.post(reverse("fints_abrufen"), {"pin": "1234"}, follow=True)
+        self.assertContains(r, "fehlgeschlagen")
+        self.zugang.refresh_from_db()
+        self.assertIn("Zeitüberschreitung", self.zugang.letzte_meldung)
+        self.assertNotIn("fints_tan", self.client.session)
+
+    def test_ohne_add_recht_kein_abruf_aber_einstellungen_lesbar(self):
+        User = get_user_model()
+        leser = User.objects.create_user("leser", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=leser, rolle=Rolle.objects.get(verein=self.v, name="Kassenprüfer"))
+        self.client.logout()
+        self.client.login(username="leser", password="pw-Test-12345")
+        self.assertEqual(self.client.get(reverse("fints_abrufen")).status_code, 403)
+        self.assertEqual(self.client.get(reverse("fints_einstellungen")).status_code, 200)

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.16.0)
+# Handbuch – Feuerix (Version 1.17.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -177,6 +177,14 @@ erkennbar danach klingt; sonst „manuell“ zur Nachbearbeitung markiert. **Hin
 Verwendungszweck (Feld `:86:`) nach den seit der SEPA-Umstellung üblichen deutschen Feldkennungen durchsucht
 (`SVWZ+`, `ABWA+`/`ABWE+`, `IBAN+`); weicht eine Bank davon ab, landet der komplette Text unverändert im
 Verwendungszweck statt in Einzelfeldern.
+
+**FinTS-Abruf** (experimentell, siehe Kapitel 17): Alternative zum manuellen Kontoauszug-Import – unter
+*Verwaltung › FinTS-Anbindung* einmalig Bankleitzahl, Online-Banking-Kennung und FinTS-Adresse der Bank hinterlegen
+(diese Angaben stehen in den Unterlagen der Bank zum Online-Banking bzw. lassen sich beim Kreditinstitut
+erfragen). Über *Bankumsätze › FinTS-Abruf* dann die PIN eingeben – verlangt die Bank eine TAN (üblich), erscheint
+im nächsten Schritt die Bank-Aufforderung (Text, oder bei chipTAN eine zu scannende Grafik) mitsamt Eingabefeld.
+Nach Bestätigung werden neue Kontobewegungen genauso wie beim Datei-Import als Bankumsätze angelegt (Duplikate
+werden übersprungen) und können anschließend wie gewohnt zugeordnet werden. Die Bank-PIN wird **nie gespeichert**.
 
 **SEPA-Einzüge**: Unter *Finanzen › SEPA-Einzüge* → „Neuen Einzug erstellen“ werden alle offenen/teilbezahlten
 Rechnungen von Mitgliedern mit Zahlungsart „SEPA-Lastschrift“ und vollständigem Mandat (IBAN, Mandatsreferenz,
@@ -393,8 +401,7 @@ Installation für mehrere Vereine (Kapitel 1), erscheint pro Verein ein eigener 
 
 ## 17. Bekannte Grenzen
 
-Aktuell **nicht** enthalten: Live-Abruf von Kontoumsätzen per FinTS (nur ein experimentelles,
-ungetestetes Kommando ohne TAN-Verfahren), automatischer Rückfluss von OpenSlides-Abstimmungsergebnissen ins
+Aktuell **nicht** enthalten: automatischer Rückfluss von OpenSlides-Abstimmungsergebnissen ins
 Protokoll, eine REST-API, anteilige Beitragsberechnung bei unterjährigem Ein-/Austritt, sowie eine Oberfläche für
 Datenbank-Wiederherstellung (Restore geschieht über die Kommandozeile, siehe INSTALL.md). Der SEPA-Einzug
 (Kapitel 4) erzeugt nur die Einzugsdatei; ein Rückkanal, der eine tatsächlich eingegangene oder zurückgebuchte
@@ -402,4 +409,8 @@ Lastschrift automatisch erkennt, existiert nicht – das läuft weiterhin über 
 OpenSlides-Anbindung folgt der offiziellen Dokumentation, wurde aber nicht gegen eine produktive Instanz
 verifiziert – bitte im Testbetrieb prüfen, bevor Sie sich darauf verlassen. Die Paperless-ngx-Anbindung wurde nach
 der offiziellen REST-API-Dokumentation umgesetzt, aber ebenfalls nicht gegen eine laufende Instanz getestet – vor
-dem produktiven Einsatz mit „Verbindung testen“ und einem echten Testdokument prüfen.
+dem produktiven Einsatz mit „Verbindung testen“ und einem echten Testdokument prüfen. Der **FinTS-Abruf**
+(*Verwaltung › FinTS-Anbindung*, siehe Kapitel 4) wurde nach der Dokumentation der Bibliothek `python-fints`
+umgesetzt und deckt auch die TAN-Abfrage (App-/SMS-/chipTAN) ab, wurde aber noch gegen keine echte Bank
+getestet – vor dem produktiven Einsatz mit der eigenen Bank ausprobieren. Die Bank-PIN wird dabei nie
+gespeichert, sondern bei jedem Abruf neu abgefragt.

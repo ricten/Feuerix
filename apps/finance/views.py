@@ -10,11 +10,13 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
+from apps.core import audit
 from apps.core.crud import abschnitt, knopf, wert
 from apps.core.util import geld
 
-from . import erechnung, kontoauszug, sepa, services
-from .models import Bankumsatz, Beitragsjahr, Mahnung, Rechnung, SepaEinzug, SepaEinzugPosition, Zahlung, wirksame_summe
+from . import erechnung, fints_service, kontoauszug, sepa, services
+from .forms import FinTSPinForm, FinTSTanForm, FinTSZugangForm
+from .models import Bankumsatz, Beitragsjahr, FinTSZugang, Mahnung, Rechnung, SepaEinzug, SepaEinzugPosition, Zahlung, wirksame_summe
 from .pdf import mahnung_pdf, rechnung_pdf
 
 
@@ -229,6 +231,7 @@ def bank_listen_aktionen(request):
     a = []
     if request.rechte.darf("bank", "add"):
         a.append(knopf("Kontoauszug importieren", reverse("bank_import"), stil="primary"))
+        a.append(knopf("FinTS-Abruf", reverse("fints_abrufen")))
     if request.rechte.darf("bank", "change"):
         a.append(knopf("Automatisch zuordnen", reverse("bank_zuordnen"), post=True, stil="success"))
     return a
@@ -290,6 +293,98 @@ def bankumsatz_ignorieren(request, pk):
     u.status = "ignoriert"
     u.save(update_fields=["status", "geaendert"])
     return redirect("bankumsatz_detail", pk=u.pk)
+
+
+@login_required
+def fints_einstellungen(request):
+    _pruefen(request, "bank", "view")
+    inst = FinTSZugang.objects.filter(verein=request.verein).first() or FinTSZugang(verein=request.verein)
+    kann = request.rechte.darf("bank", "change")
+    form = FinTSZugangForm(request.POST or None, instance=inst, verein=request.verein)
+    if request.method == "POST":
+        if not kann:
+            raise PermissionDenied
+        if form.is_valid():
+            audit.kontext_setzen(grund=form.cleaned_data.get("aenderungsgrund"))
+            form.instance.verein = request.verein
+            form.save()
+            messages.success(request, "Einstellungen gespeichert.")
+            return redirect("fints_einstellungen")
+    return render(request, "finance/fints_einstellungen.html", {
+        "titel": "FinTS-Anbindung", "form": form, "inst": inst if inst.pk else None, "kann": kann})
+
+
+def _fints_abbrechen(request, zugang, fehler):
+    fints_service.zustand_loeschen(request)
+    zugang.letzte_meldung = f"Fehler: {fehler}"[:300]
+    zugang.save(update_fields=["letzte_meldung", "geaendert"])
+    messages.error(request, f"FinTS-Abruf fehlgeschlagen: {fehler}")
+    return redirect("fints_abrufen")
+
+
+def _fints_abschliessen(request, zugang, anzahl_neu):
+    fints_service.zustand_loeschen(request)
+    zugang.letzter_abruf = timezone.now()
+    zugang.letzte_meldung = f"{anzahl_neu} neue Umsätze importiert."
+    zugang.save(update_fields=["letzter_abruf", "letzte_meldung", "geaendert"])
+    messages.success(request, zugang.letzte_meldung)
+    return redirect("bankumsatz_list")
+
+
+@login_required
+def fints_abrufen(request):
+    _pruefen(request, "bank", "add")
+    zugang = FinTSZugang.objects.filter(verein=request.verein).first()
+    if zugang is None:
+        messages.error(request, "Bitte zuerst die FinTS-Anbindung einrichten.")
+        return redirect("fints_einstellungen")
+
+    zustand = fints_service.zustand_laden(request)
+    if zustand and zustand.get("zugang_pk") != zugang.pk:
+        fints_service.zustand_loeschen(request)
+        zustand = None
+
+    if zustand:
+        tan_form = FinTSTanForm(request.POST or None, decoupled=zustand.get("decoupled", False))
+        if request.method == "POST" and tan_form.is_valid():
+            von, bis = date.fromisoformat(zustand["von"]), date.fromisoformat(zustand["bis"])
+            try:
+                client, dialog_data, tan_response, konten_rest = fints_service.client_und_dialog_aus_zustand(zustand, zugang)
+                with client.resume_dialog(dialog_data):
+                    ergebnis = client.send_tan(tan_response, tan_form.cleaned_data["tan"])
+                    status, wert, rest = fints_service.naechster_schritt_nach_tan(
+                        client, request.verein, von, bis, konten_rest, ergebnis)
+                    if status == "tan":
+                        neue_dialog_data = client.pause_dialog()
+                if status == "tan":
+                    fints_service.zustand_speichern(request, zugang, zustand["pin"], von, bis, client, wert, rest,
+                                                    neue_dialog_data)
+                    messages.info(request, "Die Bank verlangt eine weitere TAN.")
+                    return redirect("fints_abrufen")
+                return _fints_abschliessen(request, zugang, wert)
+            except Exception as e:
+                return _fints_abbrechen(request, zugang, e)
+        return render(request, "finance/fints_abrufen.html", {
+            "titel": "FinTS-Abruf – TAN erforderlich", "tan_form": tan_form, "zustand": zustand, "schritt": "tan"})
+
+    pin_form = FinTSPinForm(request.POST or None)
+    if request.method == "POST" and pin_form.is_valid():
+        pin = pin_form.cleaned_data["pin"]
+        von, bis = date.today() - timedelta(days=zugang.tage), date.today()
+        try:
+            client = fints_service.neuer_client(zugang, pin)
+            with client:
+                status, wert, rest = fints_service.naechster_schritt(client, request.verein, von, bis, None)
+                if status == "tan":
+                    dialog_data = client.pause_dialog()
+            if status == "tan":
+                fints_service.zustand_speichern(request, zugang, pin, von, bis, client, wert, rest, dialog_data)
+                return redirect("fints_abrufen")
+            return _fints_abschliessen(request, zugang, wert)
+        except Exception as e:
+            return _fints_abbrechen(request, zugang, e)
+    return render(request, "finance/fints_abrufen.html", {
+        "titel": "FinTS-Abruf", "pin_form": pin_form, "zugang": zugang, "schritt": "pin"})
 
 
 # ---------------------------------------------------------------- SEPA-Einzug
