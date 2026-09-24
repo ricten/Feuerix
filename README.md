@@ -15,6 +15,11 @@ Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Ex
 **Handbuch:** Eine ausführliche Bedienungsanleitung für Vorstand, Kassenwart, Schriftführer & Co. steht in
 **[docs/HANDBUCH.md](docs/HANDBUCH.md)**.
 
+**Entwicklung mit KI-Unterstützung:** Ein erheblicher Teil des Codes in diesem Repository wurde mit Unterstützung
+von KI-Coding-Werkzeugen (Claude Code) geschrieben – Anforderungen, Architekturentscheidungen, Code-Review und
+die fachliche Verantwortung liegen beim menschlichen Autor. Die Software selbst enthält zur Laufzeit keine
+KI-Funktionen; dieser Hinweis dient der Transparenz, nicht einer gesetzlichen Kennzeichnungspflicht.
+
 **Version:** Die Datei `VERSION` enthält die aktuelle Versionsnummer nach Semantic Versioning (`MAJOR.MINOR.PATCH`)
 und wird bei jedem nennenswerten Deploy erhöht: **PATCH** für Bugfixes (`1.0.0` → `1.0.1`), **MINOR** für neue
 Funktionen (`1.0.0` → `1.1.0`), **MAJOR** für große strukturelle Änderungen (`1.0.0` → `2.0.0`). Sie erscheint im
