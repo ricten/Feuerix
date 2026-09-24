@@ -1,25 +1,34 @@
 {% extends "base.html" %}
 {% load verein_tags i18n %}
 {% block content %}
-<h3 class="mb-3">{% trans "Übersicht" %} {{ jahr }}</h3>
+<h3 class="mb-3"><i class="bi bi-speedometer2" style="color: var(--bs-primary);"></i> {% trans "Übersicht" %} {{ jahr }}</h3>
 <div class="row g-3 mb-3">
   {% for label, wert in kennzahlen %}
-  <div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
+  <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
   {% endfor %}
   {% if request.rechte|darf:"beitraege.view" %}
   {% for label, wert in finanzen %}
-  <div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
+  <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
   {% endfor %}
   {% endif %}
-  <div class="col-6 col-lg-3"><a class="text-decoration-none text-reset" href="{% url 'jubilaeen' %}"><div class="card card-kennzahl shadow-sm"><div class="card-body"><div class="text-muted small">{% trans "Jubiläen" %} {{ jahr }}</div><div class="zahl">{{ jubilaeen }}</div></div></div></a></div>
-  <div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm"><div class="card-body"><div class="text-muted small">{% trans "Ehrungen" %} {{ jahr }}</div><div class="zahl">{{ ehrungen }}</div></div></div></div>
-  <div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm {% if ueberfaellig %}border-danger{% endif %}"><div class="card-body"><div class="text-muted small">{% trans "Überfällige Verleihe" %}</div><div class="zahl">{{ ueberfaellig }}</div></div></div></div>
-  <div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm"><div class="card-body"><div class="text-muted small">{% trans "Offene Aufgaben (Veranstaltungen)" %}</div><div class="zahl">{{ offene_aufgaben }}</div></div></div></div>
-  {% if aufwand_offen %}<div class="col-6 col-lg-3"><div class="card card-kennzahl shadow-sm border-warning"><div class="card-body"><div class="text-muted small">{% trans "Aufwandsanträge zur Genehmigung" %}</div><div class="zahl">{{ aufwand_offen }}</div></div></div></div>{% endif %}
+  <div class="col-6 col-lg-3 col-xxl-2"><a class="text-decoration-none text-reset" href="{% url 'jubilaeen' %}"><div class="card card-kennzahl card-klickbar"><div class="card-body"><div class="text-muted small"><i class="bi bi-award"></i> {% trans "Jubiläen" %} {{ jahr }}</div><div class="zahl">{{ jubilaeen }}</div></div></div></a></div>
+  <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small"><i class="bi bi-award"></i> {% trans "Ehrungen" %} {{ jahr }}</div><div class="zahl">{{ ehrungen }}</div></div></div></div>
+  <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl {% if ueberfaellig %}border-danger{% endif %}"><div class="card-body"><div class="text-muted small"><i class="bi bi-exclamation-triangle"></i> {% trans "Überfällige Verleihe" %}</div><div class="zahl">{{ ueberfaellig }}</div></div></div></div>
+  <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small"><i class="bi bi-calendar-check"></i> {% trans "Offene Aufgaben (Veranstaltungen)" %}</div><div class="zahl">{{ offene_aufgaben }}</div></div></div></div>
+  {% if aufwand_offen %}<div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl border-warning"><div class="card-body"><div class="text-muted small"><i class="bi bi-cash-coin"></i> {% trans "Aufwandsanträge zur Genehmigung" %}</div><div class="zahl">{{ aufwand_offen }}</div></div></div></div>{% endif %}
 </div>
-<div class="card shadow-sm"><div class="card-header"><strong>{% trans "Nächste Veranstaltungen" %}</strong></div>
-  <ul class="list-group list-group-flush">
-  {% for v in kommende %}<li class="list-group-item"><a href="{% url 'veranstaltung_detail' v.pk %}">{{ v.beginn|date:"d.m.Y H:i" }} – {{ v.titel }}</a> <span class="text-muted">{{ v.ort }}</span></li>
-  {% empty %}<li class="list-group-item text-muted">{% trans "Keine anstehenden Veranstaltungen." %}</li>{% endfor %}
-  </ul></div>
+<div class="row g-3">
+  <div class="col-xl-8">
+    <div class="card">
+      <div class="card-header d-flex align-items-center gap-2"><i class="bi bi-calendar-event" style="color: var(--bs-primary);"></i> <strong>{% trans "Nächste Veranstaltungen" %}</strong></div>
+      <ul class="list-group list-group-flush">
+      {% for v in kommende %}<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <a href="{% url 'veranstaltung_detail' v.pk %}" class="text-decoration-none">{{ v.titel }}</a>
+        <span class="text-muted small">{{ v.beginn|date:"d.m.Y H:i" }}{% if v.ort %} · {{ v.ort }}{% endif %}</span>
+      </li>
+      {% empty %}<li class="list-group-item text-muted">{% trans "Keine anstehenden Veranstaltungen." %}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
 {% endblock %}

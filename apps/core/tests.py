@@ -398,3 +398,29 @@ class SprachauswahlTests(TestCase):
         self.assertNotContains(r, "Mitglied<")
         r = self.client.get(reverse("auswertungen"))
         self.assertContains(r, "Membership trend")
+
+
+class DetailSeitenLayoutTests(TestCase):
+    """Detailseiten nutzen bei breiten Bildschirmen eine zweispaltige Sidebar-Ansicht (Felder links, Abschnitte
+    rechts) statt einer einzigen langen Spalte - muss sowohl mit als auch ohne Abschnitte funktionieren."""
+
+    def setUp(self):
+        User = get_user_model()
+        self.v = Verein.objects.create(name="Verein A", kuerzel="a")
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+
+    def test_seite_mit_abschnitten_zeigt_keinen_platzhalter(self):
+        m = Mitglied.objects.create(verein=self.v, vorname="Anton", nachname="Eins")
+        r = self.client.get(reverse("mitglied_detail", args=[m.pk]))
+        self.assertContains(r, "felder-sidebar")
+        self.assertContains(r, "col-xl-4")
+        self.assertNotContains(r, "Keine weiteren Angaben.")
+
+    def test_seite_ohne_abschnitte_zeigt_platzhalter(self):
+        from apps.members.models import Familie
+        fam = Familie.objects.create(verein=self.v, name="Testfamilie")
+        r = self.client.get(reverse("familie_detail", args=[fam.pk]))
+        self.assertContains(r, "Keine weiteren Angaben.")

@@ -1,7 +1,62 @@
-body { background: #f6f7f9; }
+body { background: #eef1f5; }
 .navbar-brand { font-weight: 600; }
-.card-kennzahl .zahl { font-size: 1.8rem; font-weight: 600; line-height: 1.1; }
+
+/* ---------------------------------------------------------------- Karten */
+.card {
+  border: 1px solid rgba(0, 0, 0, .06);
+  border-radius: .9rem;
+  box-shadow: 0 2px 10px rgba(20, 20, 40, .06), 0 1px 2px rgba(20, 20, 40, .04);
+}
+.card-header { border-radius: .9rem .9rem 0 0 !important; background: rgba(0, 0, 0, .015); }
+.card-footer { border-radius: 0 0 .9rem .9rem !important; }
+a.text-reset .card, .card.card-klickbar {
+  transition: transform .15s ease, box-shadow .15s ease;
+}
+a.text-reset .card:hover, .card.card-klickbar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(20, 20, 40, .1), 0 2px 6px rgba(20, 20, 40, .06);
+}
+
+/* ---------------------------------------------------------------- Kennzahlen (Dashboard) */
+.card-kennzahl {
+  border-left: 4px solid var(--bs-primary);
+  border-left-color: color-mix(in srgb, var(--bs-primary) 70%, transparent);
+}
+.card-kennzahl .zahl { font-size: 1.9rem; font-weight: 700; line-height: 1.1; color: #1f2937; }
+.card-kennzahl .bi { font-size: 1.3rem; color: var(--bs-primary); opacity: .8; }
+.card-kennzahl.border-danger { border-left-color: var(--bs-danger) !important; }
+.card-kennzahl.border-warning { border-left-color: var(--bs-warning) !important; }
+
+/* ---------------------------------------------------------------- Tabellen */
 table.tabelle td, table.tabelle th { vertical-align: middle; }
+.table-light, table.tabelle thead th {
+  background-color: color-mix(in srgb, var(--bs-primary) 6%, white) !important;
+}
+.table-hover > tbody > tr:hover > * {
+  background-color: color-mix(in srgb, var(--bs-primary) 5%, white);
+}
+
+/* ---------------------------------------------------------------- Überschriften */
+main h3 {
+  padding-bottom: .5rem;
+  border-bottom: 3px solid color-mix(in srgb, var(--bs-primary) 25%, transparent);
+  display: inline-block;
+}
+
+/* ---------------------------------------------------------------- Formulare / Sidebar-Felder */
 .form-check-input { margin-right: .35rem; }
 dl.felder dt { font-weight: 500; color: #555; }
 .kopf-aktionen form { display: inline; }
+
+.felder-sidebar dt {
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  font-weight: 600;
+  color: #8a94a6;
+  margin-bottom: .1rem;
+}
+.felder-sidebar dd {
+  margin-bottom: .9rem;
+  font-size: 1rem;
+}

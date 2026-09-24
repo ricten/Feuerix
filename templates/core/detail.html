@@ -12,7 +12,7 @@
 </div>
 {% for h in hinweise %}<div class="alert alert-info py-2">{{ h }}</div>{% endfor %}
 {% if zuweisen %}
-<div class="card shadow-sm mb-3"><div class="card-body">
+<div class="card mb-3"><div class="card-body">
   <h6>{% trans "Einer Rechnung zuordnen" %}</h6>
   <form method="post" action="{{ zuweisen.url }}" class="row g-2">{% csrf_token %}
     <div class="col-md-6"><select name="rechnung" class="form-select form-select-sm" required>
@@ -23,26 +23,34 @@
   </form>
 </div></div>
 {% endif %}
-<div class="card shadow-sm mb-4"><div class="card-body">
-  <dl class="row felder mb-0">
-    {% for f in felder %}
-      <dt class="col-sm-3">{{ f.label }}</dt>
-      <dd class="col-sm-9">{% if f.url %}<a href="{{ f.url }}">{{ f.wert }}</a>{% else %}{{ f.wert|linebreaksbr }}{% endif %}</dd>
+<div class="row g-3">
+  <div class="col-xl-4">
+    <div class="card mb-4 mb-xl-0"><div class="card-body">
+      <dl class="felder-sidebar mb-0">
+        {% for f in felder %}
+          <dt>{{ f.label }}</dt>
+          <dd>{% if f.url %}<a href="{{ f.url }}">{{ f.wert }}</a>{% else %}{{ f.wert|default:"–"|linebreaksbr }}{% endif %}</dd>
+        {% endfor %}
+      </dl>
+    </div></div>
+  </div>
+  <div class="col-xl-8">
+    {% for a in abschnitte %}
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center"><strong>{{ a.titel }}</strong>
+        {% if a.add_url %}<a class="btn btn-sm btn-outline-primary" href="{{ a.add_url }}"><i class="bi bi-plus-lg"></i> {% trans "Hinzufügen" %}</a>{% endif %}</div>
+      <div class="table-responsive"><table class="table table-sm table-hover mb-0 tabelle">
+        <thead class="table-light"><tr>{% for s in a.spalten %}<th>{{ s }}</th>{% endfor %}{% if a.mit_aktionen %}<th></th>{% endif %}</tr></thead>
+        <tbody>
+        {% for z in a.zeilen %}
+          <tr>{% for c in z.zellen %}<td>{% if forloop.first and z.url %}<a href="{{ z.url }}">{{ c }}</a>{% else %}{{ c }}{% endif %}</td>{% endfor %}
+          {% if a.mit_aktionen %}<td class="text-end">{% include "core/_buttons.html" with buttons=z.aktionen %}</td>{% endif %}</tr>
+        {% empty %}<tr><td colspan="{{ a.spalten|length }}" class="text-muted">{% trans "Keine Einträge." %}</td></tr>{% endfor %}
+        </tbody></table></div>
+    </div>
+    {% empty %}
+    <div class="card"><div class="card-body text-muted">{% trans "Keine weiteren Angaben." %}</div></div>
     {% endfor %}
-  </dl>
-</div></div>
-{% for a in abschnitte %}
-<div class="card shadow-sm mb-3">
-  <div class="card-header d-flex justify-content-between align-items-center"><strong>{{ a.titel }}</strong>
-    {% if a.add_url %}<a class="btn btn-sm btn-outline-primary" href="{{ a.add_url }}"><i class="bi bi-plus-lg"></i> {% trans "Hinzufügen" %}</a>{% endif %}</div>
-  <div class="table-responsive"><table class="table table-sm table-hover mb-0 tabelle">
-    <thead class="table-light"><tr>{% for s in a.spalten %}<th>{{ s }}</th>{% endfor %}{% if a.mit_aktionen %}<th></th>{% endif %}</tr></thead>
-    <tbody>
-    {% for z in a.zeilen %}
-      <tr>{% for c in z.zellen %}<td>{% if forloop.first and z.url %}<a href="{{ z.url }}">{{ c }}</a>{% else %}{{ c }}{% endif %}</td>{% endfor %}
-      {% if a.mit_aktionen %}<td class="text-end">{% include "core/_buttons.html" with buttons=z.aktionen %}</td>{% endif %}</tr>
-    {% empty %}<tr><td colspan="{{ a.spalten|length }}" class="text-muted">{% trans "Keine Einträge." %}</td></tr>{% endfor %}
-    </tbody></table></div>
+  </div>
 </div>
-{% endfor %}
 {% endblock %}

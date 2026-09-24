@@ -7,7 +7,7 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~196 Tests) und eine GitHub-Actions-CI prüfen
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~198 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz verifiziert sind
 > die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – dafür vor dem
 > Verlass darauf eine Testphase einplanen.
@@ -62,6 +62,10 @@ automatisch für Lesbarkeit berechnet, farbig unterlegte Hover-Effekte markieren
 Icons stammen von [Bootstrap Icons](https://icons.getbootstrap.com/), lokal ausgeliefert wie Bootstrap/HTMX (kein
 CDN, DSGVO-freundlich); nahezu jeder Button bekommt anhand seines Labels automatisch ein passendes Icon
 (`apps/core/crud.py::_icon_fuer`), zusätzlich zeigt jede Unterseite oben rechts das Icon ihrer Navigationsgruppe.
+Karten sind durchgehend abgerundet mit weichem Schatten und akzentfarbenen Details (Kennzahlen-Karten mit
+farbiger Linie links, Tabellenköpfe leicht eingefärbt, Karten mit Link-Ziel heben sich beim Hover leicht an).
+Detailseiten nutzen ab `xl`-Breite eine zweispaltige Ansicht (Stammdaten als Sidebar links, verknüpfte Listen
+rechts) statt einer einzigen langen Spalte, um breite Bildschirme besser auszunutzen.
 
 ## Sprache und Cookie-Hinweis
 
