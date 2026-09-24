@@ -38,6 +38,7 @@ table.tabelle td, table.tabelle th { vertical-align: middle; }
 
 /* ---------------------------------------------------------------- Überschriften */
 main h3 {
+  font-size: 1.5rem;
   padding-bottom: .5rem;
   border-bottom: 3px solid color-mix(in srgb, var(--bs-primary) 25%, transparent);
   display: inline-block;

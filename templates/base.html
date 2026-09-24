@@ -51,7 +51,7 @@
      style="background-color: {{ web_akzentfarbe|default:'#1F4E79' }};">
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'nach_login' %}{% else %}{% url 'dashboard' %}{% endif %}">{% if verein.logo %}<img src="{% url 'verein_logo' %}" alt="" style="height:30px;background:#fff;border-radius:4px;padding:2px">{% endif %}{{ verein.name|default:product_name|default:"Feuerix" }}</a>
-    {% if verein and product_name %}<span class="navbar-text small d-none d-md-inline ms-2" style="opacity:.65">{{ product_name }}</span>{% endif %}
+    {% if verein and product_name %}<span class="navbar-text small d-none d-md-inline ms-2 px-2 py-1 rounded-pill" style="background-color: rgba({% if web_akzenttextfarbe == '#000' %}0,0,0{% else %}255,255,255{% endif %}, .2);">{{ product_name }}</span>{% endif %}
     <div class="ms-auto ms-lg-0 order-lg-2">{% include "core/_sprachauswahl.html" %}</div>
     {% if user.is_authenticated %}
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>

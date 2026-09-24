@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
-  <div><a href="{{ liste_url }}" class="text-decoration-none small"><i class="bi bi-arrow-left"></i> {{ cfg.label_plural }}</a><h3 class="mb-0">{{ titel }}</h3></div>
+  <div><a href="{{ liste_url }}" class="text-decoration-none small d-block mb-1"><i class="bi bi-arrow-left"></i> {{ cfg.label_plural }}</a><h3 class="mb-0">{{ titel }}</h3></div>
   <div class="d-flex gap-2 flex-wrap align-items-center kopf-aktionen">
     {% if aktive_icon %}<i class="bi {{ aktive_icon }} fs-4 me-1" style="color: var(--bs-primary);"></i>{% endif %}
     {% include "core/_buttons.html" with buttons=aktionen %}
