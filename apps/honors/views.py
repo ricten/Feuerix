@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from .services import jubilare
 
@@ -23,5 +24,5 @@ def jubilaeen(request):
         e["ehrung_url"] = (reverse("ehrung_add") + f"?mitglied={e['mitglied'].pk}&datum={e['datum']:%Y-%m-%d}"
                            f"&anlass={e['jahre']}+Jahre+Mitgliedschaft")
     return render(request, "honors/jubilaeen.html", {
-        "eintraege": eintraege, "jahr": jahr, "titel": f"Jubiläen {jahr}",
+        "eintraege": eintraege, "jahr": jahr, "titel": _("Jubiläen") + f" {jahr}",
         "kann_anlegen": request.rechte.darf("ehrungen", "add")})

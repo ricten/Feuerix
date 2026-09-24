@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
 <div class="row justify-content-center"><div class="col-xl-8">
 <h3 class="mb-3">{{ titel }}</h3>
 <div class="card shadow-sm"><div class="card-body">
 <form method="post">{% csrf_token %}
   <table class="table table-sm align-middle mb-3">
-    <thead><tr><th>Gegenstand</th><th>Zustand bei Rückgabe</th><th>Kaution</th></tr></thead>
+    <thead><tr><th>{% trans "Gegenstand" %}</th><th>{% trans "Zustand bei Rückgabe" %}</th><th>{% trans "Kaution" %}</th></tr></thead>
     <tbody>
     {% for v in positionen %}
       <tr>
@@ -20,8 +21,8 @@
         <td>
           {% if v.kaution %}
           <select name="kaution_{{ v.pk }}" class="form-select form-select-sm">
-            <option value="zurueckzahlen">Zurückzahlen ({{ v.kaution }} €)</option>
-            <option value="einbehalten">Einbehalten (auf Rechnung)</option>
+            <option value="zurueckzahlen">{% blocktrans with betrag=v.kaution %}Zurückzahlen ({{ betrag }} €){% endblocktrans %}</option>
+            <option value="einbehalten">{% trans "Einbehalten (auf Rechnung)" %}</option>
           </select>
           {% else %}
           <span class="text-muted">–</span>
@@ -31,8 +32,8 @@
     {% endfor %}
     </tbody>
   </table>
-  <button class="btn btn-primary">Rückgabe buchen</button>
-  <a href="{{ abbrechen_url }}" class="btn btn-outline-secondary">Abbrechen</a>
+  <button class="btn btn-primary"><i class="bi bi-box-arrow-in-down"></i> {% trans "Rückgabe buchen" %}</button>
+  <a href="{{ abbrechen_url }}" class="btn btn-outline-secondary">{% trans "Abbrechen" %}</a>
 </form>
 </div></div>
 </div></div>

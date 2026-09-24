@@ -1,20 +1,21 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
 <div class="row justify-content-center"><div class="col-lg-7">
-<h3>Buchungen übernehmen</h3>
+<h3>{% trans "Buchungen übernehmen" %}</h3>
 <div class="card shadow-sm"><div class="card-body">
-  <p>Erzeugt Kassenbuch-Einträge für den gewählten Zeitraum aus:</p>
+  <p>{% trans "Erzeugt Kassenbuch-Einträge für den gewählten Zeitraum aus:" %}</p>
   <ul>
-    <li><strong>Zahlungen</strong> auf Rechnungen (Rücklastschriften als Ausgabe, Barzahlungen auf die Barkasse)</li>
-    <li><strong>Geldspenden</strong></li>
-    <li><strong>ausgezahlten Aufwandsentschädigungen</strong></li>
-    <li><strong>Ist-Beträgen</strong> aus dem Budget von Veranstaltungen</li>
+    <li>{% blocktrans %}<strong>Zahlungen</strong> auf Rechnungen (Rücklastschriften als Ausgabe, Barzahlungen auf die Barkasse){% endblocktrans %}</li>
+    <li>{% blocktrans %}<strong>Geldspenden</strong>{% endblocktrans %}</li>
+    <li>{% blocktrans %}<strong>ausgezahlten Aufwandsentschädigungen</strong>{% endblocktrans %}</li>
+    <li>{% blocktrans %}<strong>Ist-Beträgen</strong> aus dem Budget von Veranstaltungen{% endblocktrans %}</li>
   </ul>
-  <p class="text-muted small">Jede Quelle wird nur einmal gebucht (mehrfaches Übernehmen ist gefahrlos). Zeiträume abgeschlossener Kassenberichte und Daten vor der Kontoeröffnung werden übersprungen. Sachspenden und Aufwandsverzicht sind kein Geldfluss und werden nicht gebucht. Bankgebühren, Zinsen und sonstige Kontobewegungen erfassen Sie manuell im Kassenbuch.</p>
+  <p class="text-muted small">{% blocktrans %}Jede Quelle wird nur einmal gebucht (mehrfaches Übernehmen ist gefahrlos). Zeiträume abgeschlossener Kassenberichte und Daten vor der Kontoeröffnung werden übersprungen. Sachspenden und Aufwandsverzicht sind kein Geldfluss und werden nicht gebucht. Bankgebühren, Zinsen und sonstige Kontobewegungen erfassen Sie manuell im Kassenbuch.{% endblocktrans %}</p>
   <form method="post" class="row g-2 align-items-end">{% csrf_token %}
-    <div class="col-auto"><label class="form-label">Von</label><input type="date" name="von" value="{{ von|date:'Y-m-d' }}" class="form-control" required></div>
-    <div class="col-auto"><label class="form-label">Bis</label><input type="date" name="bis" value="{{ bis|date:'Y-m-d' }}" class="form-control" required></div>
-    <div class="col-auto"><button class="btn btn-primary">Übernehmen</button> <a class="btn btn-outline-secondary" href="{% url 'buchung_list' %}">Abbrechen</a></div>
+    <div class="col-auto"><label class="form-label">{% trans "Von" %}</label><input type="date" name="von" value="{{ von|date:'Y-m-d' }}" class="form-control" required></div>
+    <div class="col-auto"><label class="form-label">{% trans "Bis" %}</label><input type="date" name="bis" value="{{ bis|date:'Y-m-d' }}" class="form-control" required></div>
+    <div class="col-auto"><button class="btn btn-primary"><i class="bi bi-arrow-down-circle"></i> {% trans "Übernehmen" %}</button> <a class="btn btn-outline-secondary" href="{% url 'buchung_list' %}">{% trans "Abbrechen" %}</a></div>
   </form>
 </div></div></div></div>
 {% endblock %}

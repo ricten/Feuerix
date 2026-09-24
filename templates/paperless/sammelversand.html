@@ -1,13 +1,14 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
-<h3 class="mb-3">Sammelversand an Paperless</h3>
-<p class="text-muted">Dokumente auswählen und gesammelt an Paperless senden. Der Versand läuft im Hintergrund; das
-  Ergebnis erscheint am jeweiligen Dokument in der Ablage.</p>
+<h3 class="mb-3">{% trans "Sammelversand an Paperless" %}</h3>
+<p class="text-muted">{% blocktrans %}Dokumente auswählen und gesammelt an Paperless senden. Der Versand läuft im Hintergrund; das
+  Ergebnis erscheint am jeweiligen Dokument in der Ablage.{% endblocktrans %}</p>
 <form method="post">{% csrf_token %}
   <div class="card shadow-sm mb-3"><div class="table-responsive"><table class="table table-sm table-hover mb-0 tabelle">
     <thead class="table-light"><tr>
       <th><input type="checkbox" onclick="document.querySelectorAll('.doku-cb').forEach(c => c.checked = this.checked)"></th>
-      <th>Datum</th><th>Titel</th><th>Kategorie</th><th>Ordner</th><th>Datei</th><th>Status</th>
+      <th>{% trans "Datum" %}</th><th>{% trans "Titel" %}</th><th>{% trans "Kategorie" %}</th><th>{% trans "Ordner" %}</th><th>{% trans "Datei" %}</th><th>{% trans "Status" %}</th>
     </tr></thead>
     <tbody>
     {% for d in dokumente %}
@@ -19,14 +20,14 @@
         <td>{{ d.ordner|default:"–" }}</td>
         <td>{{ d.dateiname }}</td>
         <td>
-          {% if d.paperless_fehler %}<span class="text-danger">Fehler: {{ d.paperless_fehler }}</span>
-          {% elif d.paperless_gesendet_am %}<span class="text-success">Gesendet {{ d.paperless_gesendet_am|date:"d.m.Y H:i" }}</span>
-          {% else %}<span class="text-muted">noch nicht gesendet</span>{% endif %}
+          {% if d.paperless_fehler %}<span class="text-danger">{% trans "Fehler:" %} {{ d.paperless_fehler }}</span>
+          {% elif d.paperless_gesendet_am %}<span class="text-success">{% trans "Gesendet" %} {{ d.paperless_gesendet_am|date:"d.m.Y H:i" }}</span>
+          {% else %}<span class="text-muted">{% trans "noch nicht gesendet" %}</span>{% endif %}
         </td>
       </tr>
-    {% empty %}<tr><td colspan="7" class="text-muted">Keine Dokumente mit Datei vorhanden.</td></tr>{% endfor %}
+    {% empty %}<tr><td colspan="7" class="text-muted">{% trans "Keine Dokumente mit Datei vorhanden." %}</td></tr>{% endfor %}
     </tbody></table></div>
   </div>
-  <button class="btn btn-primary">Ausgewählte an Paperless senden</button>
+  <button class="btn btn-primary"><i class="bi bi-send"></i> {% trans "Ausgewählte an Paperless senden" %}</button>
 </form>
 {% endblock %}

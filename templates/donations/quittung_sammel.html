@@ -1,13 +1,14 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h3 class="mb-0">Sammelbestätigungen {{ jahr }}</h3>
-  <form method="get" class="d-flex gap-2"><input type="number" name="jahr" value="{{ jahr }}" class="form-control form-control-sm" style="width:6rem"><button class="btn btn-sm btn-outline-primary">Anzeigen</button></form>
+  <h3 class="mb-0">{% trans "Sammelbestätigungen" %} {{ jahr }}</h3>
+  <form method="get" class="d-flex gap-2"><input type="number" name="jahr" value="{{ jahr }}" class="form-control form-control-sm" style="width:6rem"><button class="btn btn-sm btn-outline-primary">{% trans "Anzeigen" %}</button></form>
 </div>
-<div class="alert alert-info">Es werden alle noch nicht bestätigten Geld-Zuwendungen des Jahres je Spender zusammengefasst. Es entstehen <strong>Entwürfe</strong>, die Sie prüfen und einzeln ausstellen.</div>
+<div class="alert alert-info">{% blocktrans %}Es werden alle noch nicht bestätigten Geld-Zuwendungen des Jahres je Spender zusammengefasst. Es entstehen <strong>Entwürfe</strong>, die Sie prüfen und einzeln ausstellen.{% endblocktrans %}</div>
 <div class="card shadow-sm mb-3"><table class="table table-sm mb-0 tabelle">
-  <thead class="table-light"><tr><th>Spender</th><th>Anzahl</th><th>Summe</th></tr></thead>
-  <tbody>{% for n, a, s in zeilen %}<tr><td>{{ n }}</td><td>{{ a }}</td><td>{{ s }}</td></tr>{% empty %}<tr><td colspan="3" class="text-muted p-3">Keine offenen Spenden in diesem Jahr.</td></tr>{% endfor %}</tbody>
+  <thead class="table-light"><tr><th>{% trans "Spender" %}</th><th>{% trans "Anzahl" %}</th><th>{% trans "Summe" %}</th></tr></thead>
+  <tbody>{% for n, a, s in zeilen %}<tr><td>{{ n }}</td><td>{{ a }}</td><td>{{ s }}</td></tr>{% empty %}<tr><td colspan="3" class="text-muted p-3">{% trans "Keine offenen Spenden in diesem Jahr." %}</td></tr>{% endfor %}</tbody>
 </table></div>
-{% if zeilen %}<form method="post">{% csrf_token %}<input type="hidden" name="jahr" value="{{ jahr }}"><button class="btn btn-primary">{{ zeilen|length }} Entwürfe erstellen</button></form>{% endif %}
+{% if zeilen %}<form method="post">{% csrf_token %}<input type="hidden" name="jahr" value="{{ jahr }}"><button class="btn btn-primary">{% blocktrans count anzahl=zeilen|length %}{{ anzahl }} Entwurf erstellen{% plural %}{{ anzahl }} Entwürfe erstellen{% endblocktrans %}</button></form>{% endif %}
 {% endblock %}

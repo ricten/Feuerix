@@ -9,6 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Sum
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from . import audit
@@ -170,8 +171,9 @@ def auswertungen(request):
     for j in jahre:
         bestand += eintritte[j] - austritte[j]
         zeilen.append([j, eintritte[j], austritte[j], bestand])
-    abschnitte.append(("Mitgliederentwicklung (Ein-/Austritte)", ["Jahr", "Eintritte", "Austritte", "Bestand (kumuliert)"],
-                       zeilen, "Bestand nur aus erfassten Ein-/Austrittsdaten berechnet."))
+    abschnitte.append((_("Mitgliederentwicklung (Ein-/Austritte)"),
+                       [_("Jahr"), _("Eintritte"), _("Austritte"), _("Bestand (kumuliert)")],
+                       zeilen, _("Bestand nur aus erfassten Ein-/Austrittsdaten berechnet.")))
 
     klassen = [("0–17", 0, 17), ("18–25", 18, 25), ("26–40", 26, 40), ("41–60", 41, 60), ("61+", 61, 200)]
     zaehler = defaultdict(int)
@@ -183,8 +185,8 @@ def auswertungen(request):
         for label, lo, hi in klassen:
             if lo <= a <= hi:
                 zaehler[label] += 1
-    abschnitte.append(("Altersstruktur", ["Altersgruppe", "Anzahl"],
-                       [[k, zaehler[k]] for k, _, _ in klassen] + [["unbekannt", zaehler["unbekannt"]]], ""))
+    abschnitte.append((_("Altersstruktur"), [_("Altersgruppe"), _("Anzahl")],
+                       [[k, zaehler[k]] for k, _lo, _hi in klassen] + [[_("unbekannt"), zaehler["unbekannt"]]], ""))
 
     zeilen = []
     for j in sorted(set(Rechnung.objects.filter(verein=v, typ="beitrag").values_list("jahr", flat=True))):
@@ -192,30 +194,30 @@ def auswertungen(request):
         soll = qs.aggregate(s=Sum("betrag"))["s"] or 0
         ist = wirksame_summe(qs)
         zeilen.append([j, geld(soll), geld(ist), geld(soll - ist)])
-    abschnitte.append(("Beitragsaufkommen", ["Jahr", "Soll", "Bezahlt", "Offen"], zeilen, ""))
+    abschnitte.append((_("Beitragsaufkommen"), [_("Jahr"), _("Soll"), _("Bezahlt"), _("Offen")], zeilen, ""))
 
     rl = defaultdict(int)
     for z in Zahlung.objects.filter(verein=v, ruecklastschrift=True):
         rl[z.datum.year] += 1
-    abschnitte.append(("Rücklastschriften", ["Jahr", "Anzahl"], [[j, rl[j]] for j in sorted(rl)], ""))
+    abschnitte.append((_("Rücklastschriften"), [_("Jahr"), _("Anzahl")], [[j, rl[j]] for j in sorted(rl)], ""))
 
     inv = Gegenstand.objects.filter(verein=v).exclude(zustand="ausgesondert")
-    abschnitte.append(("Inventar", ["Gegenstände", "Aktueller Wert", "Anschaffungswert"],
+    abschnitte.append((_("Inventar"), [_("Gegenstände"), _("Aktueller Wert"), _("Anschaffungswert")],
                        [[inv.count(), geld(inv.aggregate(s=Sum("aktueller_wert"))["s"] or 0),
                          geld(inv.aggregate(s=Sum("anschaffungspreis"))["s"] or 0)]], ""))
 
     sp = defaultdict(lambda: 0)
     for s in Spende.objects.filter(verein=v):
         sp[s.datum.year] += s.betrag
-    abschnitte.append(("Spenden je Jahr", ["Jahr", "Summe"], [[j, geld(sp[j])] for j in sorted(sp)], ""))
+    abschnitte.append((_("Spenden je Jahr"), [_("Jahr"), _("Summe")], [[j, geld(sp[j])] for j in sorted(sp)], ""))
 
     if request.rechte.darf("aufwand", "view"):
         au = defaultdict(lambda: 0)
         for a in Aufwandsentschaedigung.objects.filter(verein=v, status__in=["genehmigt", "ausgezahlt"]):
             au[a.datum.year] += a.betrag
-        abschnitte.append(("Aufwandsentschädigungen je Jahr", ["Jahr", "Summe"],
+        abschnitte.append((_("Aufwandsentschädigungen je Jahr"), [_("Jahr"), _("Summe")],
                            [[j, geld(au[j])] for j in sorted(au)], ""))
-    return render(request, "core/auswertungen.html", {"abschnitte": abschnitte, "titel": "Auswertungen"})
+    return render(request, "core/auswertungen.html", {"abschnitte": abschnitte, "titel": _("Auswertungen")})
 
 
 # ---------------------------------------------------------------- Öffentliche Seiten (ohne Anmeldung)

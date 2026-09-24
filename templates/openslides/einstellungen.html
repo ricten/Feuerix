@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
-<h3 class="mb-3">OpenSlides-Anbindung</h3>
+<h3 class="mb-3">{% trans "OpenSlides-Anbindung" %}</h3>
 <div class="row g-3">
   <div class="col-xl-7">
     <div class="card shadow-sm"><div class="card-body">
@@ -14,33 +15,34 @@
             {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
           </div>
         {% endfor %}
-        {% if kann %}<button class="btn btn-primary">Speichern</button>{% endif %}
+        {% if kann %}<button class="btn btn-primary">{% trans "Speichern" %}</button>{% endif %}
       </form>
     </div></div>
   </div>
   <div class="col-xl-5">
     <div class="card shadow-sm mb-3"><div class="card-body">
-      <h6>Status</h6>
-      <p class="mb-1">Letzter Verbindungstest: <strong>{{ inst.letzter_test|default:"noch nicht durchgeführt" }}</strong></p>
-      <p class="mb-1">Verknüpfte Mitglieder-Konten: <strong>{{ verknuepft }}</strong></p>
-      <p class="mb-2">Gespeicherte Startpasswörter: <strong>{{ mit_pw }}</strong></p>
-      {% if inst.letzter_abgleich_am %}<p class="mb-1">Letzter Abgleich: {{ inst.letzter_abgleich_am|date:"d.m.Y H:i" }}</p>
+      <h6>{% trans "Status" %}</h6>
+      {% trans "noch nicht durchgeführt" as noch_nicht %}
+      <p class="mb-1">{% trans "Letzter Verbindungstest:" %} <strong>{{ inst.letzter_test|default:noch_nicht }}</strong></p>
+      <p class="mb-1">{% trans "Verknüpfte Mitglieder-Konten:" %} <strong>{{ verknuepft }}</strong></p>
+      <p class="mb-2">{% trans "Gespeicherte Startpasswörter:" %} <strong>{{ mit_pw }}</strong></p>
+      {% if inst.letzter_abgleich_am %}<p class="mb-1">{% trans "Letzter Abgleich:" %} {{ inst.letzter_abgleich_am|date:"d.m.Y H:i" }}</p>
       <pre class="small bg-light p-2 border rounded" style="white-space:pre-wrap">{{ inst.letzter_abgleich_info }}</pre>{% endif %}
       {% if kann and inst %}
       <div class="d-flex flex-wrap gap-2 mt-2">
-        <form method="post" action="{% url 'openslides_test' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary">Verbindung testen</button></form>
-        <form method="post" action="{% url 'openslides_abgleich' %}" onsubmit="return confirm('Mitglieder jetzt mit OpenSlides abgleichen? Neue Konten werden angelegt.')">{% csrf_token %}<button class="btn btn-sm btn-success">Mitglieder abgleichen</button></form>
-        <form method="post" action="{% url 'openslides_passwoerter_loeschen' %}" onsubmit="return confirm('Gespeicherte Startpasswörter unwiderruflich löschen?')">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Startpasswörter löschen</button></form>
+        <form method="post" action="{% url 'openslides_test' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary"><i class="bi bi-plug"></i> {% trans "Verbindung testen" %}</button></form>
+        <form method="post" action="{% url 'openslides_abgleich' %}" onsubmit="return confirm('{% trans "Mitglieder jetzt mit OpenSlides abgleichen? Neue Konten werden angelegt." %}')">{% csrf_token %}<button class="btn btn-sm btn-success"><i class="bi bi-arrow-repeat"></i> {% trans "Mitglieder abgleichen" %}</button></form>
+        <form method="post" action="{% url 'openslides_passwoerter_loeschen' %}" onsubmit="return confirm('{% trans "Gespeicherte Startpasswörter unwiderruflich löschen?" %}')">{% csrf_token %}<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> {% trans "Startpasswörter löschen" %}</button></form>
       </div>{% endif %}
     </div></div>
     <div class="alert alert-secondary small">
-      <strong>So läuft es ab:</strong>
+      <strong>{% trans "So läuft es ab:" %}</strong>
       <ol class="mb-0 ps-3">
-        <li>Verbindung einrichten und testen.</li>
-        <li>„Mitglieder abgleichen“ legt für aktive Mitglieder OpenSlides-Konten an (Benutzername + zufälliges Startpasswort).</li>
-        <li>Zugangsdaten per Serienbrief (Vorlage „Zugangsdaten OpenSlides“) verteilen, danach Startpasswörter hier löschen.</li>
-        <li>In einer Veranstaltung „In OpenSlides anlegen“ – Versammlung und Tagesordnung werden übertragen.</li>
-        <li>Teilnehmer in OpenSlides der Versammlung hinzufügen (dort unter Teilnehmer › vorhandene Konten).</li>
+        <li>{% trans "Verbindung einrichten und testen." %}</li>
+        <li>{% trans "„Mitglieder abgleichen“ legt für aktive Mitglieder OpenSlides-Konten an (Benutzername + zufälliges Startpasswort)." %}</li>
+        <li>{% trans "Zugangsdaten per Serienbrief (Vorlage „Zugangsdaten OpenSlides“) verteilen, danach Startpasswörter hier löschen." %}</li>
+        <li>{% trans "In einer Veranstaltung „In OpenSlides anlegen“ – Versammlung und Tagesordnung werden übertragen." %}</li>
+        <li>{% trans "Teilnehmer in OpenSlides der Versammlung hinzufügen (dort unter Teilnehmer › vorhandene Konten)." %}</li>
       </ol>
     </div>
   </div>

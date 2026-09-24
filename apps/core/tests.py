@@ -382,3 +382,19 @@ class SprachauswahlTests(TestCase):
         r = self.client.post(reverse("set_language"), {"language": "fr", "next": reverse("login")})
         r2 = self.client.get(reverse("login"))
         self.assertContains(r2, "Anmeldung")
+
+    def test_eigenstaendige_unterseiten_sind_ebenfalls_uebersetzt(self):
+        """Regressionsschutz: Seiten außerhalb des generischen CRUD-Frameworks (z. B. Jubiläen, Auswertungen)
+        wurden im ersten Übersetzungsdurchgang übersehen - genau das hatte der Nutzer gemeldet."""
+        User = get_user_model()
+        admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.client.post(reverse("set_language"), {"language": "en", "next": reverse("jubilaeen")})
+        r = self.client.get(reverse("jubilaeen"))
+        self.assertContains(r, "Member")
+        self.assertContains(r, "Joined")
+        self.assertNotContains(r, "Mitglied<")
+        r = self.client.get(reverse("auswertungen"))
+        self.assertContains(r, "Membership trend")

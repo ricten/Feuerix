@@ -1,4 +1,4 @@
-# English translation of Feuerix's core UI chrome (navigation, generic CRUD screens, login).
+# English translation of Feuerix's core UI chrome (navigation, generic CRUD screens, login, custom subpages).
 # Copyright (C) 2026 Rico Tengler
 # This file is distributed under the same license as the Feuerix package.
 #
@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Feuerix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 01:42+0200\n"
-"PO-Revision-Date: 2026-09-24 01:42+0200\n"
+"POT-Creation-Date: 2026-09-24 07:41+0200\n"
+"PO-Revision-Date: 2026-09-24 07:41+0200\n"
 "Last-Translator: Feuerix\n"
 "Language-Team: English\n"
 "Language: en\n"
@@ -16,231 +16,353 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\apps\core\context.py:6 .\apps\core\context.py:7
+msgid "Ehrenamtsfreibetrag überschritten"
+msgstr "Honorary allowance exceeded"
+
+msgid "Übungsleiterfreibetrag überschritten"
+msgstr "Coaching allowance exceeded"
+
+msgid "Sonstige Vergütung: steuerlich prüfen"
+msgstr "Other compensation: check for tax purposes"
+
+msgid "Freibeträge"
+msgstr "Tax-free allowances"
+
 msgid "Mitglieder"
 msgstr "Members"
 
-#: .\apps\core\context.py:8 .\templates\core\dashboard.html:14
 msgid "Jubiläen"
 msgstr "Anniversaries"
 
-#: .\apps\core\context.py:9 .\templates\core\dashboard.html:15
 msgid "Ehrungen"
 msgstr "Honours"
 
-#: .\apps\core\context.py:10
 msgid "Dokumente"
 msgstr "Documents"
 
-#: .\apps\core\context.py:12
 msgid "Schriftverkehr"
 msgstr "Correspondence"
 
-#: .\apps\core\context.py:13
 msgid "Schriftstücke (Einladung, Protokoll …)"
 msgstr "Documents (invitation, minutes …)"
 
-#: .\apps\core\context.py:14
 msgid "Serienbriefe"
 msgstr "Mail merges"
 
-#: .\apps\core\context.py:15
 msgid "Vorlagen"
 msgstr "Templates"
 
-#: .\apps\core\context.py:16
 msgid "Platzhalter-Hilfe"
 msgstr "Placeholder help"
 
-#: .\apps\core\context.py:17
 msgid "Ablage"
 msgstr "Archive"
 
-#: .\apps\core\context.py:18
 msgid "Ablage-Ordner"
 msgstr "Archive folders"
 
-#: .\apps\core\context.py:20
 msgid "Finanzen"
 msgstr "Finance"
 
-#: .\apps\core\context.py:21
 msgid "Beitragsjahre"
 msgstr "Membership-fee years"
 
-#: .\apps\core\context.py:22
 msgid "Rechnungen"
 msgstr "Invoices"
 
-#: .\apps\core\context.py:23
 msgid "Zahlungen"
 msgstr "Payments"
 
-#: .\apps\core\context.py:24
 msgid "Bankumsätze"
 msgstr "Bank transactions"
 
-#: .\apps\core\context.py:25
 msgid "SEPA-Einzüge"
 msgstr "SEPA direct debits"
 
-#: .\apps\core\context.py:26
 msgid "Spenden"
 msgstr "Donations"
 
-#: .\apps\core\context.py:27
 msgid "Spendenquittungen"
 msgstr "Donation receipts"
 
-#: .\apps\core\context.py:28
 msgid "Aufwandsentschädigungen"
 msgstr "Expense allowances"
 
-#: .\apps\core\context.py:30
 msgid "Kasse"
 msgstr "Cash book"
 
-#: .\apps\core\context.py:31
 msgid "Kassenbuch (Buchungen)"
 msgstr "Cash book (entries)"
 
-#: .\apps\core\context.py:32
 msgid "Kassenberichte"
 msgstr "Cash book reports"
 
-#: .\apps\core\context.py:33
 msgid "Konten"
 msgstr "Accounts"
 
-#: .\apps\core\context.py:34
 msgid "Buchungskategorien"
 msgstr "Booking categories"
 
-#: .\apps\core\context.py:36
 msgid "Inventar"
 msgstr "Inventory"
 
-#: .\apps\core\context.py:37
 msgid "Gegenstände"
 msgstr "Items"
 
-#: .\apps\core\context.py:38
 msgid "Verleih"
 msgstr "Rentals"
 
-#: .\apps\core\context.py:39
 msgid "Inventuren"
 msgstr "Stocktakes"
 
-#: .\apps\core\context.py:41 .\apps\core\context.py:42
 msgid "Veranstaltungen"
 msgstr "Events"
 
-#: .\apps\core\context.py:44
 msgid "Auswertung"
 msgstr "Reports"
 
-#: .\apps\core\context.py:45
 msgid "Auswertungen"
 msgstr "Reports"
 
-#: .\apps\core\context.py:46
 msgid "Änderungsprotokoll"
 msgstr "Change log"
 
-#: .\apps\core\context.py:48
 msgid "Verwaltung"
 msgstr "Administration"
 
-#: .\apps\core\context.py:49
 msgid "Verein / Einstellungen / Logo"
 msgstr "Club / settings / logo"
 
-#: .\apps\core\context.py:50
 msgid "OpenSlides-Anbindung"
 msgstr "OpenSlides connection"
 
-#: .\apps\core\context.py:51
 msgid "Paperless-Anbindung"
 msgstr "Paperless connection"
 
-#: .\apps\core\context.py:52
 msgid "Benutzer"
 msgstr "Users"
 
-#: .\apps\core\context.py:53
 msgid "Rollen"
 msgstr "Roles"
 
-#: .\apps\core\context.py:54
 msgid "Beitragsregeln"
 msgstr "Membership-fee rules"
 
-#: .\apps\core\context.py:55
 msgid "Mitgliedsarten / Beiträge"
 msgstr "Membership types / fees"
 
-#: .\apps\core\context.py:56
 msgid "Abteilungen"
 msgstr "Departments"
 
-#: .\apps\core\context.py:57
 msgid "Funktionen"
 msgstr "Functions"
 
-#: .\apps\core\context.py:58
 msgid "Familien"
 msgstr "Families"
 
-#: .\apps\core\context.py:59
 msgid "Ehrungsarten"
 msgstr "Honour types"
 
-#: .\apps\core\context.py:60
 msgid "Jubiläumsregeln"
 msgstr "Anniversary rules"
 
-#: .\apps\core\context.py:61
 msgid "Inventar-Kategorien"
 msgstr "Inventory categories"
 
-#: .\apps\core\context.py:62
 msgid "Inventar-Standorte"
 msgstr "Inventory locations"
 
-#: .\apps\core\context.py:63
 msgid "Mitglieder-Import"
 msgstr "Member import"
 
-#: .\apps\core\context.py:64
 msgid "Inventar-Import"
 msgstr "Inventory import"
 
-#: .\templates\base.html:72
+msgid "Mitgliederentwicklung (Ein-/Austritte)"
+msgstr "Membership trend (joins/leaves)"
+
+msgid "Jahr"
+msgstr "Year"
+
+msgid "Eintritte"
+msgstr "Joins"
+
+msgid "Austritte"
+msgstr "Leaves"
+
+msgid "Bestand (kumuliert)"
+msgstr "Total (cumulative)"
+
+msgid "Bestand nur aus erfassten Ein-/Austrittsdaten berechnet."
+msgstr "Total calculated only from recorded join/leave dates."
+
+msgid "Altersstruktur"
+msgstr "Age structure"
+
+msgid "Altersgruppe"
+msgstr "Age group"
+
+msgid "Anzahl"
+msgstr "Count"
+
+msgid "unbekannt"
+msgstr "unknown"
+
+msgid "Beitragsaufkommen"
+msgstr "Membership-fee revenue"
+
+msgid "Soll"
+msgstr "Due"
+
+msgid "Bezahlt"
+msgstr "Paid"
+
+msgid "Offen"
+msgstr "Outstanding"
+
+msgid "Rücklastschriften"
+msgstr "Returned direct debits"
+
+msgid "Aktueller Wert"
+msgstr "Current value"
+
+msgid "Anschaffungswert"
+msgstr "Purchase value"
+
+msgid "Spenden je Jahr"
+msgstr "Donations per year"
+
+msgid "Summe"
+msgstr "Total"
+
+msgid "Aufwandsentschädigungen je Jahr"
+msgstr "Expense allowances per year"
+
+msgid "E-Rechnung importieren"
+msgstr "Import e-invoice"
+
+msgid ""
+"Liest eine empfangene E-Rechnung ein (<strong>XRechnung</strong> als .xml "
+"oder <strong>ZUGFeRD/Faktur-X</strong>\n"
+"    als .pdf mit eingebetteter XML) und legt daraus eine vorausgefüllte "
+"Ausgabe im Kassenbuch an - die Datei selbst\n"
+"    wird als Beleg angehängt. Erkannte Angaben (Rechnungsnummer, Datum, "
+"Betrag, Aussteller) werden übernommen;\n"
+"    Konto und Kategorie danach bitte prüfen und ggf. anpassen."
+msgstr ""
+"Reads a received e-invoice (<strong>XRechnung</strong> as .xml or "
+"<strong>ZUGFeRD/Factur-X</strong> as .pdf with embedded XML) and creates a "
+"pre-filled expense entry in the cash book from it - the file itself is "
+"attached as the receipt. Recognised details (invoice number, date, amount, "
+"issuer) are taken over; please check and adjust the account and category "
+"afterwards."
+
+msgid "Einlesen"
+msgstr "Import"
+
+msgid "Abbrechen"
+msgstr "Cancel"
+
+msgid "Buchungen übernehmen"
+msgstr "Import entries"
+
+msgid "Erzeugt Kassenbuch-Einträge für den gewählten Zeitraum aus:"
+msgstr "Creates cash-book entries for the selected period from:"
+
+msgid ""
+"<strong>Zahlungen</strong> auf Rechnungen (Rücklastschriften als Ausgabe, "
+"Barzahlungen auf die Barkasse)"
+msgstr ""
+"<strong>Payments</strong> on invoices (returned direct debits as an "
+"expense, cash payments to the cash box)"
+
+msgid "<strong>Geldspenden</strong>"
+msgstr "<strong>Cash donations</strong>"
+
+msgid "<strong>ausgezahlten Aufwandsentschädigungen</strong>"
+msgstr "<strong>paid-out expense allowances</strong>"
+
+msgid "<strong>Ist-Beträgen</strong> aus dem Budget von Veranstaltungen"
+msgstr "<strong>actual amounts</strong> from event budgets"
+
+msgid ""
+"Jede Quelle wird nur einmal gebucht (mehrfaches Übernehmen ist gefahrlos). "
+"Zeiträume abgeschlossener Kassenberichte und Daten vor der Kontoeröffnung "
+"werden übersprungen. Sachspenden und Aufwandsverzicht sind kein Geldfluss "
+"und werden nicht gebucht. Bankgebühren, Zinsen und sonstige Kontobewegungen "
+"erfassen Sie manuell im Kassenbuch."
+msgstr ""
+"Each source is only booked once (importing repeatedly is safe). Periods of "
+"closed cash-book reports and dates before the account was opened are "
+"skipped. Donations in kind and waived expenses are not a flow of money and "
+"are not booked. Enter bank fees, interest and other account movements "
+"manually in the cash book."
+
+msgid "Von"
+msgstr "From"
+
+msgid "Bis"
+msgstr "To"
+
+msgid "Übernehmen"
+msgstr "Import"
+
+msgid "Anzeigen"
+msgstr "Show"
+
+#, python-format
+msgid ""
+"Freibeträge laut Vereinseinstellungen: Ehrenamt %(ehrenamt)s, Übungsleiter "
+"%(uebungsleiter)s je Person und Jahr. Berücksichtigt werden genehmigte und "
+"ausgezahlte Beträge. Ob der Freibetrag bei anderen Auftraggebern bereits "
+"verbraucht wurde, kann das System nicht wissen (Erklärung des Empfängers "
+"einholen)."
+msgstr ""
+"Tax-free allowances per club settings: honorary %(ehrenamt)s, coaching "
+"%(uebungsleiter)s per person and year. Approved and paid-out amounts are "
+"taken into account. The system cannot know whether the allowance has "
+"already been used up with other principals (obtain a declaration from the "
+"recipient)."
+
+msgid "Empfänger"
+msgstr "Recipient"
+
+msgid "Ehrenamtspauschale"
+msgstr "Honorary allowance"
+
+msgid "Übungsleiterpauschale"
+msgstr "Coaching allowance"
+
+msgid "Aufwandsersatz"
+msgstr "Expense reimbursement"
+
+msgid "Sonstige"
+msgstr "Other"
+
+msgid "Hinweis"
+msgstr "Note"
+
+msgid "Keine Einträge."
+msgstr "No entries."
+
 msgid "Verein wechseln"
 msgstr "Switch club"
 
-#: .\templates\base.html:78 .\templates\registration\login.html:16
 msgid "Passwort"
 msgstr "Password"
 
-#: .\templates\base.html:79
 msgid "Abmelden"
 msgstr "Log out"
 
-#: .\templates\base.html:92
 msgid "Version"
 msgstr "Version"
 
-#: .\templates\base.html:94 .\templates\base.html:97
 msgid "Impressum"
 msgstr "Legal notice"
 
-#: .\templates\base.html:95
 msgid "Downloads"
 msgstr "Downloads"
 
-#: .\templates\base.html:102
 msgid ""
 "Diese Seite verwendet ausschließlich technisch notwendige Cookies "
 "(Anmeldung, Sicherheit, Spracheinstellung) – keine Tracking- oder Marketing-"
@@ -249,100 +371,80 @@ msgstr ""
 "This site uses only strictly necessary cookies (login, security, language "
 "preference) – no tracking or marketing cookies."
 
-#: .\templates\base.html:103
 msgid "Verstanden"
 msgstr "Got it"
 
-#: .\templates\core\_sprachauswahl.html:7
 msgid "Sprache"
 msgstr "Language"
 
-#: .\templates\core\dashboard.html:4
+msgid "Keine Daten."
+msgstr "No data."
+
+msgid ""
+"Detailauswertungen lassen sich in den jeweiligen Listen als CSV oder Excel "
+"exportieren."
+msgstr ""
+"Detailed reports can be exported as CSV or Excel from the respective "
+"lists."
+
 msgid "Übersicht"
 msgstr "Overview"
 
-#: .\templates\core\dashboard.html:16
 msgid "Überfällige Verleihe"
 msgstr "Overdue rentals"
 
-#: .\templates\core\dashboard.html:17
 msgid "Offene Aufgaben (Veranstaltungen)"
 msgstr "Open tasks (events)"
 
-#: .\templates\core\dashboard.html:18
 msgid "Aufwandsanträge zur Genehmigung"
 msgstr "Expense requests awaiting approval"
 
-#: .\templates\core\dashboard.html:20
 msgid "Nächste Veranstaltungen"
 msgstr "Upcoming events"
 
-#: .\templates\core\dashboard.html:23
 msgid "Keine anstehenden Veranstaltungen."
 msgstr "No upcoming events."
 
-#: .\templates\core\detail.html:9
 msgid "Bearbeiten"
 msgstr "Edit"
 
-#: .\templates\core\detail.html:10
 msgid "Löschen"
 msgstr "Delete"
 
-#: .\templates\core\detail.html:16
 msgid "Einer Rechnung zuordnen"
 msgstr "Assign to an invoice"
 
-#: .\templates\core\detail.html:19
 msgid "offene Rechnung wählen"
 msgstr "select an open invoice"
 
-#: .\templates\core\detail.html:22
 msgid "Zahlung buchen"
 msgstr "Book payment"
 
-#: .\templates\core\detail.html:37
 msgid "Hinzufügen"
 msgstr "Add"
 
-#: .\templates\core\detail.html:44 .\templates\core\liste.html:40
-msgid "Keine Einträge."
-msgstr "No entries."
-
-#: .\templates\core\formular.html:32
 msgid "Speichern"
 msgstr "Save"
 
-#: .\templates\core\formular.html:33 .\templates\core\loeschen.html:10
-msgid "Abbrechen"
-msgstr "Cancel"
-
-#: .\templates\core\liste.html:11
 msgid "Neu"
 msgstr "New"
 
-#: .\templates\core\liste.html:15
 msgid "Suchen …"
 msgstr "Search …"
 
-#: .\templates\core\liste.html:19
 msgid "alle"
 msgstr "all"
 
-#: .\templates\core\liste.html:24
 msgid "Filter"
 msgstr "Filter"
 
-#: .\templates\core\liste.html:27
 msgid "Filtern"
 msgstr "Filter"
 
-#: .\templates\core\liste.html:47
 #, python-format
 msgid "Seite %(nr)s / %(anzahl)s (%(gesamt)s Einträge)"
 msgstr "Page %(nr)s / %(anzahl)s (%(gesamt)s entries)"
 
-#: .\templates\core\loeschen.html:7
 #, python-format
 msgid ""
 "Möchten Sie <strong>%(object)s</strong> wirklich löschen? Die Löschung wird "
@@ -351,15 +453,12 @@ msgstr ""
 "Do you really want to delete <strong>%(object)s</strong>? The deletion "
 "will be recorded in the change log."
 
-#: .\templates\core\loeschen.html:9
 msgid "Endgültig löschen"
 msgstr "Delete permanently"
 
-#: .\templates\core\verein_waehlen.html:8
 msgid "Verein wählen"
 msgstr "Select club"
 
-#: .\templates\core\verein_waehlen.html:16
 msgid ""
 "Ihrem Benutzer ist noch kein Verein zugeordnet. Bitte wenden Sie sich an "
 "einen Administrator."
@@ -367,18 +466,469 @@ msgstr ""
 "Your user account is not yet assigned to a club. Please contact an "
 "administrator."
 
-#: .\templates\registration\login.html:11
+msgid "Platzhalter für Vorlagen, Briefe und Serienbriefe"
+msgstr "Placeholders for templates, letters and mail merges"
+
+#, python-brace-format
+msgid ""
+"Platzhalter werden in geschweifte Klammern geschrieben, z. B. "
+"<code>{briefanrede}</code>. Beim Erzeugen des Dokuments werden sie durch die "
+"Daten des Mitglieds, der Veranstaltung und des Vereins ersetzt. Ist für "
+"einen Platzhalter kein Bezug vorhanden (z. B. <code>{vorname}</code> in "
+"einem Brief ohne Empfänger), bleibt er sichtbar stehen – die Detailseite "
+"weist darauf hin."
+msgstr ""
+"Placeholders are written in curly braces, e.g. <code>{briefanrede}</code>. "
+"When the document is generated, they are replaced with data from the "
+"member, the event and the club. If no data is available for a placeholder "
+"(e.g. <code>{vorname}</code> in a letter without a recipient), it remains "
+"visible as-is - the detail page points this out."
+
+msgid ""
+"Das Vereinslogo und die Unterschriften-Zeilen pflegen Sie unter "
+"<strong>Verwaltung › Verein / Einstellungen / Logo</strong>. Das Logo "
+"erscheint automatisch oben rechts auf allen PDFs (Briefe, Rechnungen, "
+"Mahnungen, Spendenquittungen) und im Word-Export."
+msgstr ""
+"You maintain the club logo and signature lines under <strong>Administration "
+"› Club / settings / logo</strong>. The logo automatically appears at the "
+"top right of all PDFs (letters, invoices, reminders, donation receipts) "
+"and in the Word export."
+
+msgid "Sammelbestätigungen"
+msgstr "Collective receipts"
+
+msgid ""
+"Es werden alle noch nicht bestätigten Geld-Zuwendungen des Jahres je Spender "
+"zusammengefasst. Es entstehen <strong>Entwürfe</strong>, die Sie prüfen und "
+"einzeln ausstellen."
+msgstr ""
+"All not-yet-confirmed cash donations for the year are grouped per donor. "
+"This creates <strong>drafts</strong>, which you review and issue "
+"individually."
+
+msgid "Spender"
+msgstr "Donor"
+
+msgid "Keine offenen Spenden in diesem Jahr."
+msgstr "No open donations this year."
+
+#, python-format
+msgid "%(anzahl)s Entwurf erstellen"
+msgid_plural "%(anzahl)s Entwürfe erstellen"
+msgstr[0] "Create %(anzahl)s draft"
+msgstr[1] "Create %(anzahl)s drafts"
+
+msgid "Kontoauszug importieren"
+msgstr "Import bank statement"
+
+msgid ""
+"Unterstützt werden drei Formate, die die meisten Banken zum Download "
+"anbieten: <strong>CSV</strong>\n"
+"    (Semikolon-getrennt, Kopfzeile mit z. B. <em>Buchungstag</em>, "
+"<em>Betrag</em>, <em>Name</em>, <em>IBAN</em>,\n"
+"    <em>Verwendungszweck</em>), <strong>MT940</strong> (SWIFT-Kontoauszug, "
+"meist Dateiendung <code>.sta</code>) und\n"
+"    <strong>CAMT.053</strong> (ISO-20022-XML). Das Format wird automatisch "
+"erkannt. Doppelte Umsätze werden erkannt\n"
+"    und übersprungen. Anschließend wird automatisch versucht, Zahlungen "
+"offenen Rechnungen zuzuordnen\n"
+"    (Rechnungsnummer, Mitgliedsnummer oder IBAN)."
+msgstr ""
+"Three formats are supported, which most banks offer for download: "
+"<strong>CSV</strong> (semicolon-separated, header row with e.g. "
+"<em>booking date</em>, <em>amount</em>, <em>name</em>, <em>IBAN</em>, "
+"<em>reference</em>), <strong>MT940</strong> (SWIFT statement, usually file "
+"extension <code>.sta</code>) and <strong>CAMT.053</strong> (ISO 20022 "
+"XML). The format is detected automatically. Duplicate transactions are "
+"detected and skipped. The system then automatically tries to match "
+"payments to open invoices (invoice number, member number or IBAN)."
+
+msgid "Importieren"
+msgstr "Import"
+
+msgid "Neuen SEPA-Einzug erstellen"
+msgstr "Create new SEPA direct debit"
+
+msgid ""
+"Erzeugt eine SEPA-Lastschrift-Sammeldatei (pain.008) zum Hochladen ins "
+"Online-Banking. Die\n"
+"  tatsächliche Gutschrift wird weiterhin über den Kontoauszug-Import "
+"verbucht."
+msgstr ""
+"Creates a SEPA direct-debit collection file (pain.008) to upload to your "
+"online banking. The actual credit is still booked via the bank-statement "
+"import."
+
+#, python-format
+msgid ""
+"Bitte zuerst IBAN und Gläubiger-ID des Vereins unter\n"
+"  <a href=\"%(einstellungen_url)s\">Verwaltung › Verein</a> hinterlegen."
+msgstr ""
+"Please enter the club's IBAN and creditor ID first under\n"
+"  <a href=\"%(einstellungen_url)s\">Administration › Club</a>."
+
+msgid "Fälligkeitsdatum (Einzugstermin)"
+msgstr "Due date (collection date)"
+
+msgid ""
+"Hinweis: Für Erstlastschriften (FRST) i. d. R. mindestens 5, für "
+"Folgelastschriften\n"
+"        (RCUR) mindestens 2 Bankarbeitstage vor dem Einzugstermin einreichen."
+msgstr ""
+"Note: submit at least 5 bank business days before the collection date for "
+"first debits (FRST), and at least 2 for recurring debits (RCUR)."
+
+msgid "Mitglied"
+msgstr "Member"
+
+msgid "Rechnung"
+msgstr "Invoice"
+
+msgid "Fällig am"
+msgstr "Due on"
+
+msgid "Offener Betrag"
+msgstr "Outstanding amount"
+
+msgid "Sequenztyp"
+msgstr "Sequence type"
+
+msgid "Erstlastschrift"
+msgstr "First direct debit"
+
+msgid "Folgelastschrift"
+msgstr "Recurring direct debit"
+
+msgid ""
+"Keine offenen Lastschrift-Rechnungen mit vollständigem\n"
+"      SEPA-Mandat (IBAN, Mandatsreferenz, Mandatsdatum) gefunden."
+msgstr ""
+"No open direct-debit invoices found with a complete SEPA mandate (IBAN, "
+"mandate reference, mandate date)."
+
+msgid "SEPA-Einzug erstellen"
+msgstr "Create SEPA direct debit"
+
+msgid "Eintritt"
+msgstr "Joined"
+
+msgid "Jubiläum"
+msgstr "Anniversary"
+
+msgid "Datum"
+msgstr "Date"
+
+msgid "Geehrt"
+msgstr "Honoured"
+
+#, python-format
+msgid "%(jahre)s Jahre"
+msgstr "%(jahre)s years"
+
+msgid "Ehrung anlegen"
+msgstr "Create honour"
+
+msgid ""
+"Keine Jubiläen in diesem Jahr (Regeln unter Verwaltung › Jubiläumsregeln)."
+msgstr ""
+"No anniversaries this year (rules under Administration › Anniversary "
+"rules)."
+
+msgid "Inventar importieren"
+msgstr "Import inventory"
+
+msgid ""
+"Excel-Datei (<code>.xlsx</code>) oder CSV. Die erste Zeile enthält die "
+"Spaltenüberschriften (Pflicht: <strong>Bezeichnung</strong>). Übliche "
+"Überschriften wie „Inventarnr.“, „Standort“, „Anschaffungspreis“ werden "
+"erkannt."
+msgstr ""
+"Excel file (<code>.xlsx</code>) or CSV. The first row contains the column "
+"headers (required: <strong>Bezeichnung</strong>). Common headers such as "
+"„Inventarnr.“, „Standort“, „Anschaffungspreis“ are recognised."
+
+msgid "Vorlage herunterladen"
+msgstr "Download template"
+
+msgid ""
+"<strong>Nur Testlauf</strong> (es wird nichts gespeichert – erst prüfen, "
+"dann ohne Haken importieren)"
+msgstr ""
+"<strong>Test run only</strong> (nothing is saved – check first, then "
+"import with the box unchecked)"
+
+msgid "Bestehende Gegenstände aktualisieren (Abgleich über Inventarnummer)"
+msgstr "Update existing items (matched by inventory number)"
+
+msgid "Unbekannte Kategorien und Standorte automatisch anlegen"
+msgstr "Automatically create unknown categories and locations"
+
+msgid "Starten"
+msgstr "Start"
+
+msgid "Ergebnis des Testlaufs (nichts gespeichert)"
+msgstr "Test-run result (nothing saved)"
+
+msgid "Import abgeschlossen"
+msgstr "Import completed"
+
+#, python-format
+msgid "%(gesamt)s Zeilen gelesen"
+msgstr "%(gesamt)s rows read"
+
+msgid "neu"
+msgstr "new"
+
+msgid "aktualisiert"
+msgstr "updated"
+
+msgid "übersprungen"
+msgstr "skipped"
+
+#, python-format
+msgid "%(anzahl)s Fehler"
+msgstr "%(anzahl)s errors"
+
+#, python-format
+msgid "Erkannte Spalten: %(spalten)s"
+msgstr "Recognised columns: %(spalten)s"
+
+msgid "Zeile"
+msgstr "Row"
+
+msgid "Fehler"
+msgstr "Error"
+
+msgid "Fehlerhafte Zeilen werden nicht übernommen; alle anderen schon."
+msgstr "Rows with errors are not imported; all others are."
+
+msgid "Keine Fehler – Sie können jetzt ohne „Nur Testlauf“ importieren."
+msgstr "No errors – you can now import with \"Test run only\" unchecked."
+
+msgid "Gegenstand"
+msgstr "Item"
+
+msgid "Zustand bei Rückgabe"
+msgstr "Condition on return"
+
+msgid "Kaution"
+msgstr "Deposit"
+
+#, python-format
+msgid "Zurückzahlen (%(betrag)s €)"
+msgstr "Refund (€%(betrag)s)"
+
+msgid "Einbehalten (auf Rechnung)"
+msgstr "Retain (invoiced)"
+
+msgid "Rückgabe buchen"
+msgstr "Book return"
+
+msgid "Inventarnr."
+msgstr "Inventory no."
+
+msgid "Status"
+msgstr "Status"
+
+msgid "einbehalten"
+msgstr "retained"
+
+msgid "zurückgezahlt"
+msgstr "refunded"
+
+msgid "noch offen"
+msgstr "still open"
+
+msgid "Details"
+msgstr "Details"
+
+msgid "Entfernen"
+msgstr "Remove"
+
+#, python-format
+msgid "Verleih starten (%(anzahl)s Gegenstände)"
+msgstr "Start rental (%(anzahl)s items)"
+
+msgid "Warenkorb leeren"
+msgstr "Clear basket"
+
+msgid ""
+"Noch keine Gegenstände gescannt. Etikett am Gegenstand mit dem Handy "
+"scannen, um ihn\n"
+"    hier hinzuzufügen - danach lässt sich der nächste Aufkleber scannen, "
+"bevor der Verleih für alle gescannten\n"
+"    Gegenstände auf einmal gestartet wird."
+msgstr ""
+"No items scanned yet. Scan the label on the item with your phone to add "
+"it here - you can then scan the next label before starting the rental for "
+"all scanned items at once."
+
+msgid "Mitglieder importieren"
+msgstr "Import members"
+
+msgid ""
+"Excel-Datei (<code>.xlsx</code>) oder CSV. Die erste Zeile enthält die "
+"Spaltenüberschriften (Pflicht: <strong>Vorname</strong>, <strong>Nachname</"
+"strong>). Übliche Überschriften wie „Geburtstag“, „E-Mail“, „Straße“ werden "
+"erkannt."
+msgstr ""
+"Excel file (<code>.xlsx</code>) or CSV. The first row contains the column "
+"headers (required: <strong>Vorname</strong>, <strong>Nachname</strong>). "
+"Common headers such as „Geburtstag“, „E-Mail“, „Straße“ are recognised."
+
+msgid ""
+"Bestehende Mitglieder aktualisieren (Abgleich über Mitgliedsnummer bzw. Name "
+"+ Geburtsdatum)"
+msgstr ""
+"Update existing members (matched by member number or name + date of "
+"birth)"
+
+msgid "Unbekannte Mitgliedsarten und Abteilungen automatisch anlegen"
+msgstr "Automatically create unknown membership types and departments"
+
+msgid "noch nicht durchgeführt"
+msgstr "not yet performed"
+
+msgid "Letzter Verbindungstest:"
+msgstr "Last connection test:"
+
+msgid "Verknüpfte Mitglieder-Konten:"
+msgstr "Linked member accounts:"
+
+msgid "Gespeicherte Startpasswörter:"
+msgstr "Stored initial passwords:"
+
+msgid "Letzter Abgleich:"
+msgstr "Last sync:"
+
+msgid "Verbindung testen"
+msgstr "Test connection"
+
+msgid ""
+"Mitglieder jetzt mit OpenSlides abgleichen? Neue Konten werden angelegt."
+msgstr "Sync members with OpenSlides now? New accounts will be created."
+
+msgid "Mitglieder abgleichen"
+msgstr "Sync members"
+
+msgid "Gespeicherte Startpasswörter unwiderruflich löschen?"
+msgstr "Permanently delete stored initial passwords?"
+
+msgid "Startpasswörter löschen"
+msgstr "Delete initial passwords"
+
+msgid "So läuft es ab:"
+msgstr "How it works:"
+
+msgid "Verbindung einrichten und testen."
+msgstr "Set up and test the connection."
+
+msgid ""
+"„Mitglieder abgleichen“ legt für aktive Mitglieder OpenSlides-Konten an "
+"(Benutzername + zufälliges Startpasswort)."
+msgstr ""
+"\"Sync members\" creates OpenSlides accounts for active members (username "
+"+ random initial password)."
+
+msgid ""
+"Zugangsdaten per Serienbrief (Vorlage „Zugangsdaten OpenSlides“) verteilen, "
+"danach Startpasswörter hier löschen."
+msgstr ""
+"Distribute credentials via mail merge (template \"OpenSlides credentials"
+"\"), then delete the initial passwords here."
+
+msgid ""
+"In einer Veranstaltung „In OpenSlides anlegen“ – Versammlung und "
+"Tagesordnung werden übertragen."
+msgstr ""
+"In an event, use \"Create in OpenSlides\" – the meeting and agenda are "
+"transferred."
+
+msgid ""
+"Teilnehmer in OpenSlides der Versammlung hinzufügen (dort unter Teilnehmer › "
+"vorhandene Konten)."
+msgstr ""
+"Add participants to the meeting in OpenSlides (there, under Participants › "
+"existing accounts)."
+
+msgid ""
+"Adresse und API-Token (Paperless: Mein Profil › API-Token) eintragen, "
+"Verbindung testen."
+msgstr ""
+"Enter the address and API token (Paperless: My Profile › API Token), then "
+"test the connection."
+
+msgid ""
+"Optional Standard-Korrespondent/-Dokumenttyp/-Tags festlegen – werden in "
+"Paperless automatisch angelegt,\n"
+"          falls sie dort noch nicht existieren."
+msgstr ""
+"Optionally set a default correspondent/document type/tags – these are "
+"created automatically in Paperless if they don't already exist there."
+
+msgid ""
+"Anbindung aktivieren – danach erscheint bei jedem Dokument in der Ablage der "
+"Knopf „An Paperless senden“\n"
+"          sowie ein Sammelversand für mehrere Dokumente gleichzeitig."
+msgstr ""
+"Activate the connection – after that, every document in the archive gets "
+"a \"Send to Paperless\" button, plus a bulk send for multiple documents at "
+"once."
+
+msgid ""
+"Der Versand läuft im Hintergrund; das Ergebnis erscheint am Dokument (ggf. "
+"Seite neu laden)."
+msgstr ""
+"Sending runs in the background; the result appears on the document "
+"(reload the page if needed)."
+
+msgid "Sammelversand an Paperless"
+msgstr "Bulk send to Paperless"
+
+msgid ""
+"Dokumente auswählen und gesammelt an Paperless senden. Der Versand läuft im "
+"Hintergrund; das\n"
+"  Ergebnis erscheint am jeweiligen Dokument in der Ablage."
+msgstr ""
+"Select documents and send them to Paperless in bulk. Sending runs in the "
+"background; the result appears on the respective document in the archive."
+
+msgid "Titel"
+msgstr "Title"
+
+msgid "Kategorie"
+msgstr "Category"
+
+msgid "Ordner"
+msgstr "Folder"
+
+msgid "Datei"
+msgstr "File"
+
+msgid "Fehler:"
+msgstr "Error:"
+
+msgid "Gesendet"
+msgstr "Sent"
+
+msgid "noch nicht gesendet"
+msgstr "not yet sent"
+
+msgid "Keine Dokumente mit Datei vorhanden."
+msgstr "No documents with a file available."
+
+msgid "Ausgewählte an Paperless senden"
+msgstr "Send selected to Paperless"
+
 msgid "Anmeldung"
 msgstr "Sign in"
 
-#: .\templates\registration\login.html:12
 msgid "Benutzername oder Passwort falsch."
 msgstr "Incorrect username or password."
 
-#: .\templates\registration\login.html:15
 msgid "Benutzername"
 msgstr "Username"
 
-#: .\templates\registration\login.html:17
 msgid "Anmelden"
 msgstr "Sign in"

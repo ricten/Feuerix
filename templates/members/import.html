@@ -1,31 +1,32 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
-<h3 class="mb-3">Mitglieder importieren</h3>
+<h3 class="mb-3">{% trans "Mitglieder importieren" %}</h3>
 <div class="row g-3">
 <div class="col-xl-5">
   <div class="card shadow-sm"><div class="card-body">
-    <p>Excel-Datei (<code>.xlsx</code>) oder CSV. Die erste Zeile enthält die Spaltenüberschriften (Pflicht: <strong>Vorname</strong>, <strong>Nachname</strong>). Übliche Überschriften wie „Geburtstag“, „E-Mail“, „Straße“ werden erkannt.
-    <a href="{% url 'mitglieder_import_vorlage' %}">Vorlage herunterladen</a></p>
+    <p>{% blocktrans %}Excel-Datei (<code>.xlsx</code>) oder CSV. Die erste Zeile enthält die Spaltenüberschriften (Pflicht: <strong>Vorname</strong>, <strong>Nachname</strong>). Übliche Überschriften wie „Geburtstag“, „E-Mail“, „Straße“ werden erkannt.{% endblocktrans %}
+    <a href="{% url 'mitglieder_import_vorlage' %}">{% trans "Vorlage herunterladen" %}</a></p>
     <form method="post" enctype="multipart/form-data">{% csrf_token %}
       <input type="file" name="datei" accept=".xlsx,.xlsm,.csv,.txt" class="form-control mb-3" required>
-      <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="testlauf" id="t" {% if not post or post.testlauf %}checked{% endif %}><label class="form-check-label" for="t"><strong>Nur Testlauf</strong> (es wird nichts gespeichert – erst prüfen, dann ohne Haken importieren)</label></div>
-      <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="aktualisieren" id="a" {% if not post or post.aktualisieren %}checked{% endif %}><label class="form-check-label" for="a">Bestehende Mitglieder aktualisieren (Abgleich über Mitgliedsnummer bzw. Name + Geburtsdatum)</label></div>
-      <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="neu_anlegen" id="n" {% if post.neu_anlegen %}checked{% endif %}><label class="form-check-label" for="n">Unbekannte Mitgliedsarten und Abteilungen automatisch anlegen</label></div>
-      <button class="btn btn-primary">Starten</button>
+      <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="testlauf" id="t" {% if not post or post.testlauf %}checked{% endif %}><label class="form-check-label" for="t">{% blocktrans %}<strong>Nur Testlauf</strong> (es wird nichts gespeichert – erst prüfen, dann ohne Haken importieren){% endblocktrans %}</label></div>
+      <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="aktualisieren" id="a" {% if not post or post.aktualisieren %}checked{% endif %}><label class="form-check-label" for="a">{% trans "Bestehende Mitglieder aktualisieren (Abgleich über Mitgliedsnummer bzw. Name + Geburtsdatum)" %}</label></div>
+      <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="neu_anlegen" id="n" {% if post.neu_anlegen %}checked{% endif %}><label class="form-check-label" for="n">{% trans "Unbekannte Mitgliedsarten und Abteilungen automatisch anlegen" %}</label></div>
+      <button class="btn btn-primary"><i class="bi bi-play-fill"></i> {% trans "Starten" %}</button>
     </form>
   </div></div>
 </div>
 <div class="col-xl-7">
 {% if bericht %}
   <div class="card shadow-sm {% if bericht.testlauf %}border-warning{% else %}border-success{% endif %}"><div class="card-body">
-    <h5>{% if bericht.testlauf %}Ergebnis des Testlaufs (nichts gespeichert){% else %}Import abgeschlossen{% endif %}</h5>
-    <p class="mb-2">{{ bericht.gesamt }} Zeilen gelesen · <strong>{{ bericht.neu }}</strong> neu · <strong>{{ bericht.aktualisiert }}</strong> aktualisiert · {{ bericht.uebersprungen }} übersprungen · <strong class="{% if bericht.fehler %}text-danger{% endif %}">{{ bericht.fehler|length }} Fehler</strong></p>
-    <p class="small text-muted">Erkannte Spalten: {{ bericht.erkannte_spalten|join:", " }}</p>
+    <h5>{% if bericht.testlauf %}{% trans "Ergebnis des Testlaufs (nichts gespeichert)" %}{% else %}{% trans "Import abgeschlossen" %}{% endif %}</h5>
+    <p class="mb-2">{% blocktrans with gesamt=bericht.gesamt %}{{ gesamt }} Zeilen gelesen{% endblocktrans %} · <strong>{{ bericht.neu }}</strong> {% trans "neu" %} · <strong>{{ bericht.aktualisiert }}</strong> {% trans "aktualisiert" %} · {{ bericht.uebersprungen }} {% trans "übersprungen" %} · <strong class="{% if bericht.fehler %}text-danger{% endif %}">{% blocktrans with anzahl=bericht.fehler|length %}{{ anzahl }} Fehler{% endblocktrans %}</strong></p>
+    <p class="small text-muted">{% blocktrans with spalten=bericht.erkannte_spalten|join:", " %}Erkannte Spalten: {{ spalten }}{% endblocktrans %}</p>
     {% for w in bericht.warnungen %}<div class="alert alert-warning py-1 small">{{ w }}</div>{% endfor %}
-    {% if bericht.fehler %}<table class="table table-sm tabelle"><thead><tr><th>Zeile</th><th>Fehler</th></tr></thead><tbody>
+    {% if bericht.fehler %}<table class="table table-sm tabelle"><thead><tr><th>{% trans "Zeile" %}</th><th>{% trans "Fehler" %}</th></tr></thead><tbody>
       {% for z, f in bericht.fehler %}<tr><td>{{ z }}</td><td>{{ f }}</td></tr>{% endfor %}</tbody></table>
-      <p class="small">Fehlerhafte Zeilen werden nicht übernommen; alle anderen schon.</p>{% endif %}
-    {% if bericht.testlauf and not bericht.fehler %}<div class="alert alert-success py-2 mb-0">Keine Fehler – Sie können jetzt ohne „Nur Testlauf“ importieren.</div>{% endif %}
+      <p class="small">{% trans "Fehlerhafte Zeilen werden nicht übernommen; alle anderen schon." %}</p>{% endif %}
+    {% if bericht.testlauf and not bericht.fehler %}<div class="alert alert-success py-2 mb-0">{% trans "Keine Fehler – Sie können jetzt ohne „Nur Testlauf“ importieren." %}</div>{% endif %}
   </div></div>
 {% endif %}
 </div></div>

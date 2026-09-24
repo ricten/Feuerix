@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from apps.core.crud import knopf
@@ -110,13 +111,13 @@ def aufwand_uebersicht(request):
         ea, ul = st["ehrenamtspauschale"], st["uebungsleiterpauschale"]
         warn = []
         if ea[0] > ea[1]:
-            warn.append("Ehrenamtsfreibetrag überschritten")
+            warn.append(_("Ehrenamtsfreibetrag überschritten"))
         if ul[0] > ul[1]:
-            warn.append("Übungsleiterfreibetrag überschritten")
+            warn.append(_("Übungsleiterfreibetrag überschritten"))
         if sonst:
-            warn.append("Sonstige Vergütung: steuerlich prüfen")
+            warn.append(_("Sonstige Vergütung: steuerlich prüfen"))
         zeilen.append({"mitglied": m, "ea": geld(ea[0]), "ul": geld(ul[0]), "ersatz": geld(ersatz),
                        "sonst": geld(sonst), "warn": "; ".join(warn)})
     return render(request, "allowances/uebersicht.html", {
-        "titel": f"Freibeträge {jahr}", "jahr": jahr, "zeilen": zeilen,
+        "titel": _("Freibeträge") + f" {jahr}", "jahr": jahr, "zeilen": zeilen,
         "grenzen": (geld(v.ehrenamts_freibetrag), geld(v.uebungsleiter_freibetrag))})

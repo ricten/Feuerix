@@ -1,25 +1,27 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
-<h3 class="mb-3">Neuen SEPA-Einzug erstellen</h3>
-<p class="text-muted">Erzeugt eine SEPA-Lastschrift-Sammeldatei (pain.008) zum Hochladen ins Online-Banking. Die
-  tatsächliche Gutschrift wird weiterhin über den Kontoauszug-Import verbucht.</p>
+<h3 class="mb-3">{% trans "Neuen SEPA-Einzug erstellen" %}</h3>
+<p class="text-muted">{% blocktrans %}Erzeugt eine SEPA-Lastschrift-Sammeldatei (pain.008) zum Hochladen ins Online-Banking. Die
+  tatsächliche Gutschrift wird weiterhin über den Kontoauszug-Import verbucht.{% endblocktrans %}</p>
 {% if verein_unvollstaendig %}
-<div class="alert alert-danger">Bitte zuerst IBAN und Gläubiger-ID des Vereins unter
-  <a href="{% url 'verein_einstellungen' %}">Verwaltung › Verein</a> hinterlegen.</div>
+{% url 'verein_einstellungen' as einstellungen_url %}
+<div class="alert alert-danger">{% blocktrans %}Bitte zuerst IBAN und Gläubiger-ID des Vereins unter
+  <a href="{{ einstellungen_url }}">Verwaltung › Verein</a> hinterlegen.{% endblocktrans %}</div>
 {% endif %}
 <form method="post">{% csrf_token %}
   <div class="row g-3 mb-3">
     <div class="col-md-3">
-      <label class="form-label">Fälligkeitsdatum (Einzugstermin)</label>
+      <label class="form-label">{% trans "Fälligkeitsdatum (Einzugstermin)" %}</label>
       <input type="date" name="faelligkeitsdatum" class="form-control" value="{{ vorschlag_datum|date:'Y-m-d' }}" required>
-      <div class="form-text">Hinweis: Für Erstlastschriften (FRST) i. d. R. mindestens 5, für Folgelastschriften
-        (RCUR) mindestens 2 Bankarbeitstage vor dem Einzugstermin einreichen.</div>
+      <div class="form-text">{% blocktrans %}Hinweis: Für Erstlastschriften (FRST) i. d. R. mindestens 5, für Folgelastschriften
+        (RCUR) mindestens 2 Bankarbeitstage vor dem Einzugstermin einreichen.{% endblocktrans %}</div>
     </div>
   </div>
   <div class="card shadow-sm mb-3"><div class="table-responsive"><table class="table table-sm table-hover mb-0 tabelle">
     <thead class="table-light"><tr>
       <th><input type="checkbox" onclick="document.querySelectorAll('.re-cb').forEach(c => c.checked = this.checked)" checked></th>
-      <th>Mitglied</th><th>Rechnung</th><th>Fällig am</th><th>Offener Betrag</th><th>Sequenztyp</th>
+      <th>{% trans "Mitglied" %}</th><th>{% trans "Rechnung" %}</th><th>{% trans "Fällig am" %}</th><th>{% trans "Offener Betrag" %}</th><th>{% trans "Sequenztyp" %}</th>
     </tr></thead>
     <tbody>
     {% for z in zeilen %}
@@ -29,12 +31,12 @@
         <td><a href="{% url 'rechnung_detail' z.r.pk %}">{{ z.r.nummer }}</a></td>
         <td>{{ z.r.faellig_am|date:"d.m.Y" }}</td>
         <td>{{ z.r.offen_betrag }} €</td>
-        <td>{% if z.sequenztyp == "FRST" %}Erstlastschrift{% else %}Folgelastschrift{% endif %}</td>
+        <td>{% if z.sequenztyp == "FRST" %}{% trans "Erstlastschrift" %}{% else %}{% trans "Folgelastschrift" %}{% endif %}</td>
       </tr>
-    {% empty %}<tr><td colspan="6" class="text-muted">Keine offenen Lastschrift-Rechnungen mit vollständigem
-      SEPA-Mandat (IBAN, Mandatsreferenz, Mandatsdatum) gefunden.</td></tr>{% endfor %}
+    {% empty %}<tr><td colspan="6" class="text-muted">{% blocktrans %}Keine offenen Lastschrift-Rechnungen mit vollständigem
+      SEPA-Mandat (IBAN, Mandatsreferenz, Mandatsdatum) gefunden.{% endblocktrans %}</td></tr>{% endfor %}
     </tbody></table></div>
   </div>
-  {% if zeilen %}<button class="btn btn-primary" {% if verein_unvollstaendig %}disabled{% endif %}>SEPA-Einzug erstellen</button>{% endif %}
+  {% if zeilen %}<button class="btn btn-primary" {% if verein_unvollstaendig %}disabled{% endif %}><i class="bi bi-plus-lg"></i> {% trans "SEPA-Einzug erstellen" %}</button>{% endif %}
 </form>
 {% endblock %}
