@@ -173,3 +173,23 @@ class Tagesordnungspunkt(TenantModel):
 
     def __str__(self):
         return f"TOP {self.position}: {self.titel}"
+
+
+class Wahlergebnis(TenantModel):
+    """Aus OpenSlides zurückübertragenes Wahlergebnis (Rückfluss ins Protokoll) - je Amt und Wahlgang ein
+    Datensatz, mit der reinen Stimmenverteilung; wer gewählt ist, trägt der Protokollführer anhand der
+    Vereinssatzung (Mehrheitserfordernis, Stichwahl bei Gleichstand usw.) selbst ein, das entscheidet die
+    Software bewusst nicht."""
+    veranstaltung = models.ForeignKey(Veranstaltung, on_delete=models.CASCADE, related_name="wahlergebnisse",
+                                      verbose_name="Veranstaltung")
+    amt = models.CharField("Amt / Wahl", max_length=250)
+    wahlgang = models.CharField("Wahlgang", max_length=250, blank=True)
+    ergebnis = models.TextField("Stimmenverteilung")
+
+    class Meta:
+        verbose_name = "Wahlergebnis"
+        verbose_name_plural = "Wahlergebnisse"
+        ordering = ["amt", "wahlgang", "id"]
+
+    def __str__(self):
+        return f"{self.amt} ({self.wahlgang})" if self.wahlgang else self.amt

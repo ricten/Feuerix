@@ -51,6 +51,12 @@ def veranstaltung_kontext(request, v):
             aktionen.append(knopf("Tagesordnung nach OpenSlides übertragen" if v.openslides_meeting_id
                                   else "In OpenSlides anlegen", reverse("veranstaltung_openslides", args=[v.pk]), post=True,
                                   stil="outline-success"))
+            if v.openslides_meeting_id:
+                aktionen.append(knopf("Wahlergebnisse aus OpenSlides übernehmen",
+                                      reverse("veranstaltung_wahlergebnisse", args=[v.pk]), post=True,
+                                      stil="outline-success",
+                                      bestaetigung="Wahlergebnisse aus OpenSlides abrufen? Zuvor übernommene "
+                                                   "Ergebnisse dieser Veranstaltung werden dabei ersetzt."))
     s = v.summen()
     hinweise = [f"Plan: Einnahmen {geld(s['plan_ein'])} · Ausgaben {geld(s['plan_aus'])} · "
                 f"Ergebnis {geld(s['plan_ein'] - s['plan_aus'])}",
@@ -73,6 +79,8 @@ def veranstaltung_kontext(request, v):
                     "kostenposition_add", {"veranstaltung": v.pk})]
     ab.insert(0, abschnitt(request, "Tagesordnung", v.tagesordnung.all(), ("position", "titel", "openslides_topic_id"),
                            "tagesordnungspunkt_add", {"veranstaltung": v.pk, "position": v.tagesordnung.count() + 1}))
+    if v.wahlergebnisse.exists():
+        ab.append(abschnitt(request, "Wahlergebnisse (aus OpenSlides)", v.wahlergebnisse.all(), ("amt", "wahlgang")))
     if r.darf("verleih", "view"):
         ab.append(abschnitt(request, "Reserviertes Inventar", v.verleihe.all(), ("gegenstand", "von", "bis", "status")))
     if r.darf("schriftverkehr", "view"):

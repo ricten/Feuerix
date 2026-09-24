@@ -68,3 +68,25 @@ class OSClient:
             return int(res[0]["id"])
         except (IndexError, KeyError, TypeError, ValueError):
             raise OpenSlidesFehler(f"Keine ID in der Antwort: {res}")
+
+    def abfragen(self, anfrage, _erneut=True):
+        """Einmalige (nicht-streamende) Lese-Abfrage über den Autoupdate-Dienst (single=1) - fuer Daten, die
+        keine Action liefert (z. B. Wahlergebnisse). `anfrage` ist eine Liste von Request-Objekten nach dem
+        Schema des openslides-autoupdate-service (collection/ids/fields, mit optional verschachtelten
+        relation-list/generic-relation-Feldern fuer Verknuepfungen in einer einzigen Anfrage). Die Antwort ist ein
+        flaches Mapping "kollektion/id/feld" -> Wert."""
+        if not self.token:
+            self.login()
+        try:
+            r = self.s.post(f"{self.basis}/system/autoupdate?single=1", json=anfrage,
+                            headers={"Authentication": self.token, "Content-Type": "application/json"},
+                            timeout=self.timeout)
+        except requests.RequestException as e:
+            raise OpenSlidesFehler(f"Server nicht erreichbar: {e}")
+        if r.status_code in (401, 403) and _erneut:
+            self.token = None
+            return self.abfragen(anfrage, _erneut=False)
+        try:
+            return r.json()
+        except ValueError:
+            raise OpenSlidesFehler(f"Unerwartete Antwort (HTTP {r.status_code}): {r.text[:200]}")

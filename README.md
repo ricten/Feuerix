@@ -7,7 +7,7 @@ Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, R
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~218 Tests) und eine GitHub-Actions-CI prüfen
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~231 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine produktive Instanz bzw. eine echte Bank
 > verifiziert sind die OpenSlides- und die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt)
 > sowie der FinTS-Abruf (nach der `python-fints`-Dokumentation umgesetzt, TAN-Ablauf mit simulierten Antworten
@@ -97,7 +97,7 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 | Veranstaltungen | Planung, Aufgaben, Schichtplan mit Besetzung, Anmeldungen, Budget (Plan/Ist), Inventarreservierung, iCal-Export |
 | Schriftverkehr | Vereinslogo (auf allen PDFs), bearbeitbare Vorlagen (Einladung, Protokoll, Serienbrief …) mit Platzhaltern, Einzelschriftstücke mit PDF- und Word-Export, Serienbriefe mit Empfängerfilter (PDF-Sammeldatei oder E-Mail mit PDF-Anhang) – siehe [docs/SCHRIFTVERKEHR.md](docs/SCHRIFTVERKEHR.md) |
 | Ablage | Ordnerstruktur (Kategorie/Jahr), versionierte Dokumente, Zuordnung zu Veranstaltungen, geschützter Dateizugriff; erzeugte PDFs werden automatisch abgelegt; optionaler Versand an **Paperless-ngx** (einzeln oder gesammelt); einzelne Dokumente als **öffentlich** markierbar (Datenschutzerklärung, Aufnahmeformular u. Ä.) – erscheinen dann ohne Anmeldung auf einer öffentlichen Downloads-Seite |
-| OpenSlides | Anbindung an OpenSlides 4: Konten der Mitglieder anlegen/abgleichen, Versammlung + Tagesordnung aus der Veranstaltung anlegen (nach Dokumentation umgesetzt, ungetestet) |
+| OpenSlides | Anbindung an OpenSlides 4: Konten der Mitglieder anlegen/abgleichen, Versammlung + Tagesordnung aus der Veranstaltung anlegen, **Wahlergebnisse zurückholen** (Rückfluss der Stimmenverteilung abgeschlossener Personenwahlen in die Veranstaltung, per Platzhalter `{wahlergebnisse}` auch direkt im Protokoll) (nach Dokumentation umgesetzt, ungetestet) |
 | Paperless-ngx | Verbindung je Verein (Adresse, API-Token verschlüsselt gespeichert, Verbindungstest); Ablage-Dokumente per Knopf oder gesammelt an eine bestehende Paperless-Instanz senden (Korrespondent/Dokumenttyp/Tags werden dort bei Bedarf automatisch angelegt) |
 | Protokoll | Jede Änderung: wer, wann, IP, Feld alt → neu, optionaler Grund; sensible Felder maskiert |
 
@@ -125,6 +125,14 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
   (lassen) und die erzeugte Datei gegen ein offizielles Prüfwerkzeug (z. B. den KoSIT-Validator) laufen lassen.
   Für die üblichen Mitgliedsrechnungen ohnehin meist irrelevant, da Mitglieder keine Unternehmer sind und damit
   keine B2B-E-Rechnungspflicht besteht.
+* **OpenSlides-Wahlergebnisse:** „Wahlergebnisse aus OpenSlides übernehmen“ (auf der Veranstaltung, sobald eine
+  Versammlung verknüpft ist) holt die Stimmenverteilung aller **abgeschlossenen Personenwahlen** (Status
+  „finished“/„published“) – nicht die Ergebnisse von Abstimmungen über Anträge (Motions). Wer gewählt ist,
+  entscheidet die Software bewusst nicht selbst (Mehrheitserfordernisse/Stichwahlregeln stehen in der Satzung) –
+  angezeigt wird nur die reine Ja/Nein/Enthaltung-Verteilung je Kandidat:in, die per Platzhalter `{wahlergebnisse}`
+  auch direkt ins Protokoll übernommen werden kann. Technisch über eine einzelne, verschachtelte Abfrage an den
+  OpenSlides-Autoupdate-Dienst umgesetzt (nach dessen Dokumentation, ebenfalls nicht gegen eine echte Instanz
+  getestet). Ein erneuter Abruf ersetzt zuvor übernommene Ergebnisse derselben Veranstaltung vollständig.
 * **Paperless-ngx:** Entweder eine bereits laufende, separate Instanz verwenden (nur Adresse und API-Token unter
   *Verwaltung › Paperless-Anbindung* eintragen), oder optional über [paperless/](paperless/) als eigenen
   Docker-Compose-Stack auf diesem Server mitbetreiben (siehe INSTALL.md Abschnitt 9). Der Versand ist in jedem
@@ -162,7 +170,8 @@ Produktivbetrieb gedacht.
 
 ## Noch nicht enthalten
 
-Abstimmungsergebnisse aus OpenSlides zurück ins Protokoll, REST-API (DRF), anteilige Beiträge, Update-/Restore-Oberfläche.
+Abstimmungsergebnisse zu Anträgen (Motions) aus OpenSlides zurück ins Protokoll – **Wahlergebnisse** (Personenwahlen)
+fließen bereits zurück, siehe unten –, REST-API (DRF), anteilige Beiträge, Update-/Restore-Oberfläche.
 Der SEPA-Einzug erzeugt nur die Einzugsdatei (pain.008) – der Rückkanal (eingegangen/zurückgebucht) läuft weiterhin
 über den normalen Kontoauszug-Import.
 

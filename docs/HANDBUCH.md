@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.19.0)
+# Handbuch – Feuerix (Version 1.20.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -356,8 +356,19 @@ sind. Bei einer verknüpften Veranstaltung überträgt „In OpenSlides anlegen�
 gespeicherten OpenSlides-Anfangspasswörter (z. B. nachdem alle Zugangsdaten verteilt wurden).
 
 Diese Anbindung ist praktisch nur für den Superadministrator nutzbar, da das Modul `openslides` standardmäßig
-außer beim Vorstand (nur lesend) keiner Rolle zugewiesen ist. Ein automatischer Rückfluss (Anwesenheit/Abstimmungen
-aus OpenSlides zurück in Feuerix) ist nicht enthalten.
+außer beim Vorstand (nur lesend) keiner Rolle zugewiesen ist.
+
+**Wahlergebnisse zurückholen**: Ist eine Veranstaltung mit einer OpenSlides-Versammlung verknüpft, erscheint auf
+ihrer Seite zusätzlich „Wahlergebnisse aus OpenSlides übernehmen“. Das holt die Stimmenverteilung aller in
+OpenSlides bereits abgeschlossenen Personenwahlen (Wahlgang-Status „finished“ oder „published“ – noch laufende
+Wahlen liefern naturgemäß kein Ergebnis) und legt sie je Amt/Wahlgang als „Wahlergebnis“ auf der Veranstaltung ab
+(Abschnitt „Wahlergebnisse (aus OpenSlides)“). Angezeigt wird ausschließlich die reine Ja-/Nein-/Enthaltung-Verteilung
+je Kandidat:in – wer tatsächlich gewählt ist, muss anhand der Satzung (Mehrheitserfordernis, Umgang mit Gleichstand)
+selbst festgestellt und eingetragen werden, das entscheidet die Software bewusst nicht automatisch. Über den
+Platzhalter `{wahlergebnisse}` lässt sich die Stimmenverteilung auch direkt in ein Protokoll übernehmen (die
+mitgelieferte Vorlage „Protokoll Mitgliederversammlung“ nutzt ihn bereits). Ein erneuter Abruf ersetzt zuvor
+übernommene Ergebnisse dieser Veranstaltung vollständig. **Nicht** enthalten sind Ergebnisse von Abstimmungen über
+Anträge (Motions) sowie ein Rückfluss der Anwesenheit.
 
 ## 13. Paperless-ngx-Anbindung
 
@@ -412,8 +423,9 @@ Installation für mehrere Vereine (Kapitel 1), erscheint pro Verein ein eigener 
 
 ## 17. Bekannte Grenzen
 
-Aktuell **nicht** enthalten: automatischer Rückfluss von OpenSlides-Abstimmungsergebnissen ins
-Protokoll, eine REST-API, anteilige Beitragsberechnung bei unterjährigem Ein-/Austritt, sowie eine Oberfläche für
+Aktuell **nicht** enthalten: automatischer Rückfluss von Abstimmungsergebnissen zu Anträgen (Motions) aus
+OpenSlides ins Protokoll (Wahlergebnisse von Personenwahlen fließen bereits zurück, siehe Kapitel 12), eine
+REST-API, anteilige Beitragsberechnung bei unterjährigem Ein-/Austritt, sowie eine Oberfläche für
 Datenbank-Wiederherstellung (Restore geschieht über die Kommandozeile, siehe INSTALL.md). Der SEPA-Einzug
 (Kapitel 4) erzeugt nur die Einzugsdatei; ein Rückkanal, der eine tatsächlich eingegangene oder zurückgebuchte
 Lastschrift automatisch erkennt, existiert nicht – das läuft weiterhin über den normalen Kontoauszug-Import. Die

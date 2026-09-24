@@ -109,3 +109,20 @@ def veranstaltung_meeting(request, pk):
     except OpenSlidesFehler as e:
         messages.error(request, f"OpenSlides: {e}")
     return redirect("veranstaltung_detail", pk=ver.pk)
+
+
+@login_required
+@require_POST
+def veranstaltung_wahlergebnisse(request, pk):
+    _pruefen(request, "change")
+    ver = get_object_or_404(Veranstaltung, pk=pk, verein=request.verein)
+    try:
+        v = _verbindung(request)
+        n = services.wahlergebnisse_abrufen(v, ver)
+        if n:
+            messages.success(request, f"{n} Wahlergebnis(se) aus OpenSlides übernommen.")
+        else:
+            messages.warning(request, "Keine abgeschlossenen Wahlen mit Ergebnis gefunden.")
+    except OpenSlidesFehler as e:
+        messages.error(request, f"OpenSlides: {e}")
+    return redirect("veranstaltung_detail", pk=ver.pk)
