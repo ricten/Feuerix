@@ -818,3 +818,51 @@ class FinTSAbrufTests(TestCase):
         self.client.login(username="leser", password="pw-Test-12345")
         self.assertEqual(self.client.get(reverse("fints_abrufen", args=[self.zugang.pk])).status_code, 403)
         self.assertEqual(self.client.get(reverse("fintszugang_list")).status_code, 200)
+
+    def test_kontodaten_abrufen_ohne_tan(self):
+        fake = _FakeFinTSClient(konten=[self.konto])
+        with patch("fints.client.FinTS3PinTanClient", return_value=fake):
+            r = self.client.post(reverse("fints_kontodaten", args=[self.zugang.pk]), {"pin": "1234"})
+        self.assertContains(r, "DE02120300000000202051")
+        self.assertContains(r, "BYLADEM1001")
+        self.assertNotIn("fints_konten_tan", self.client.session)
+        # Wurde kein Bankumsatz erzeugt - reine Kontodaten-Abfrage, kein Transaktions-Import.
+        self.assertEqual(Bankumsatz.objects.filter(verein=self.v).count(), 0)
+
+    def test_kontodaten_abrufen_mit_tan(self):
+        tan_response = _FakeNeedTANResponse(challenge="Bitte TAN eingeben")
+        fake1 = _FakeFinTSClient(init_tan_response=tan_response)
+        with patch("fints.client.FinTS3PinTanClient", return_value=fake1), \
+             patch("fints.client.NeedTANResponse", _FakeNeedTANResponse), \
+             patch("fints.client.NeedRetryResponse", _FakeNeedRetryResponse):
+            r1 = self.client.post(reverse("fints_kontodaten", args=[self.zugang.pk]), {"pin": "1234"}, follow=True)
+            self.assertContains(r1, "TAN erforderlich")
+            self.assertIn("fints_konten_tan", self.client.session)
+
+            fake2 = _FakeFinTSClient(konten=[self.konto])
+            with patch("fints.client.FinTS3PinTanClient", return_value=fake2):
+                r2 = self.client.post(reverse("fints_kontodaten", args=[self.zugang.pk]), {"tan": "999999"}, follow=True)
+        self.assertContains(r2, "DE02120300000000202051")
+        self.assertNotIn("fints_konten_tan", self.client.session)
+
+    def test_kontodaten_ohne_add_recht_verboten(self):
+        User = get_user_model()
+        leser = User.objects.create_user("leser2", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=leser, rolle=Rolle.objects.get(verein=self.v, name="Kassenprüfer"))
+        self.client.logout()
+        self.client.login(username="leser2", password="pw-Test-12345")
+        self.assertEqual(self.client.get(reverse("fints_kontodaten", args=[self.zugang.pk])).status_code, 403)
+
+    def test_bankumsaetze_liste_zeigt_abrufknopf_je_zugang(self):
+        zweiter = FinTSZugang.objects.create(verein=self.v, bezeichnung="Zweitbank", blz="50010517",
+                                             kennung="andere-kennung", bank_url="https://banking.example.org")
+        r = self.client.get(reverse("bankumsatz_list"))
+        self.assertContains(r, "Umsätze abrufen: Testbank")
+        self.assertContains(r, "Umsätze abrufen: Zweitbank")
+        self.assertContains(r, reverse("fints_abrufen", args=[self.zugang.pk]))
+        self.assertContains(r, reverse("fints_abrufen", args=[zweiter.pk]))
+
+    def test_bankumsaetze_liste_ohne_produkt_id_ohne_abrufknopf(self):
+        with self.settings(FINTS_PRODUCT_ID=""):
+            r = self.client.get(reverse("bankumsatz_list"))
+        self.assertNotContains(r, "Umsätze abrufen:")

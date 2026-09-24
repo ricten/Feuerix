@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+{% if schritt == "pin" %}
+<a href="{% url 'fintszugang_detail' zugang.pk %}" class="text-decoration-none small d-block mb-1"><i class="bi bi-arrow-left"></i> {{ zugang.bezeichnung }}</a>
+<h3 class="mb-3">{% trans "Kontodaten abrufen" %}</h3>
+<div class="card shadow-sm" style="max-width: 32rem;"><div class="card-body">
+  <p>{% blocktrans with blz=zugang.blz %}Prüft die Verbindung und zeigt die Konten hinter Bankleitzahl {{ blz }}.{% endblocktrans %}</p>
+  <form method="post">{% csrf_token %}
+    {% for field in pin_form %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+        {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <button class="btn btn-primary">{% trans "Abrufen" %}</button>
+  </form>
+</div></div>
+{% elif schritt == "tan" %}
+<a href="{% url 'fintszugang_detail' zustand.zugang_pk %}" class="text-decoration-none small d-block mb-1"><i class="bi bi-arrow-left"></i> {% trans "FinTS-Zugänge" %}</a>
+<h3 class="mb-3">{% trans "TAN erforderlich" %}</h3>
+<div class="card shadow-sm" style="max-width: 32rem;"><div class="card-body">
+  {% if zustand.challenge_html %}<p>{{ zustand.challenge_html|safe }}</p>{% endif %}
+  {% if zustand.challenge_matrix_png %}
+    <img src="data:image/png;base64,{{ zustand.challenge_matrix_png }}" alt="{% trans 'chipTAN-Grafik' %}" class="img-fluid mb-3 border rounded">
+  {% endif %}
+  <form method="post">{% csrf_token %}
+    {% for field in tan_form %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}
+        {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+    <button class="btn btn-primary">{% trans "Bestätigen" %}</button>
+  </form>
+</div></div>
+{% else %}
+<a href="{% url 'fintszugang_detail' zugang.pk %}" class="text-decoration-none small d-block mb-1"><i class="bi bi-arrow-left"></i> {{ zugang.bezeichnung }}</a>
+<h3 class="mb-3">{% trans "Kontodaten" %}</h3>
+<div class="card shadow-sm"><div class="table-responsive"><table class="table table-sm mb-0 tabelle">
+  <thead class="table-light"><tr><th>{% trans "IBAN" %}</th><th>BIC</th><th>{% trans "Kontonummer" %}</th><th>{% trans "Unterkonto" %}</th></tr></thead>
+  <tbody>
+  {% for k in konten %}<tr><td>{{ k.iban }}</td><td>{{ k.bic }}</td><td>{{ k.accountnumber }}</td><td>{{ k.subaccount|default:"–" }}</td></tr>
+  {% empty %}<tr><td colspan="4" class="text-muted">{% trans "Keine Konten gefunden." %}</td></tr>{% endfor %}
+  </tbody>
+</table></div></div>
+{% endif %}
+{% endblock %}

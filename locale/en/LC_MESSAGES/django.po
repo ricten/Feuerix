@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Feuerix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-09-24 22:46+0200\n"
+"POT-Creation-Date: 2026-09-24 23:18+0200\n"
 "PO-Revision-Date: 2026-09-24 07:41+0200\n"
 "Last-Translator: Feuerix\n"
 "Language-Team: English\n"
@@ -126,65 +126,66 @@ msgid "Kassenberichte"
 msgstr "Cash book reports"
 
 #: .\apps\core\context.py:33
-msgid "Konten"
-msgstr "Accounts"
-
-#: .\apps\core\context.py:34
 msgid "Buchungskategorien"
 msgstr "Booking categories"
 
-#: .\apps\core\context.py:36 .\apps\core\views.py:205
+#: .\apps\core\context.py:35 .\apps\core\views.py:205
 msgid "Inventar"
 msgstr "Inventory"
 
-#: .\apps\core\context.py:37 .\apps\core\views.py:205
+#: .\apps\core\context.py:36 .\apps\core\views.py:205
 msgid "Gegenstände"
 msgstr "Items"
 
-#: .\apps\core\context.py:38 .\templates\inventory\vorgang.html:5
+#: .\apps\core\context.py:37 .\templates\inventory\vorgang.html:5
 msgid "Verleih"
 msgstr "Rentals"
 
-#: .\apps\core\context.py:39
+#: .\apps\core\context.py:38
 msgid "Inventuren"
 msgstr "Stocktakes"
 
-#: .\apps\core\context.py:41 .\apps\core\context.py:42
+#: .\apps\core\context.py:40 .\apps\core\context.py:41
 msgid "Veranstaltungen"
 msgstr "Events"
 
-#: .\apps\core\context.py:44
+#: .\apps\core\context.py:43
 msgid "Auswertung"
 msgstr "Reports"
 
-#: .\apps\core\context.py:45 .\apps\core\views.py:220
+#: .\apps\core\context.py:44 .\apps\core\views.py:220
 #: .\templates\core\auswertungen.html:4
 msgid "Auswertungen"
 msgstr "Reports"
 
-#: .\apps\core\context.py:46
+#: .\apps\core\context.py:45
 msgid "Änderungsprotokoll"
 msgstr "Change log"
 
-#: .\apps\core\context.py:48
+#: .\apps\core\context.py:47
 msgid "Verwaltung"
 msgstr "Administration"
 
-#: .\apps\core\context.py:49
+#: .\apps\core\context.py:48
 msgid "Verein / Einstellungen / Logo"
 msgstr "Club / settings / logo"
 
-#: .\apps\core\context.py:50 .\templates\openslides\einstellungen.html:4
+#: .\apps\core\context.py:49 .\templates\openslides\einstellungen.html:4
 msgid "OpenSlides-Anbindung"
 msgstr "OpenSlides connection"
 
-#: .\apps\core\context.py:51 .\templates\paperless\einstellungen.html:4
+#: .\apps\core\context.py:50 .\templates\paperless\einstellungen.html:4
 msgid "Paperless-Anbindung"
 msgstr "Paperless connection"
 
-#: .\apps\core\context.py:52 .\templates\finance\fints_abrufen.html:20
+#: .\apps\core\context.py:51 .\templates\finance\fints_abrufen.html:20
+#: .\templates\finance\fints_kontodaten.html:20
 msgid "FinTS-Zugänge"
 msgstr "FinTS connections"
+
+#: .\apps\core\context.py:52
+msgid "Konten"
+msgstr "Accounts"
 
 #: .\apps\core\context.py:53
 msgid "Benutzer"
@@ -722,20 +723,53 @@ msgid "Abruf für Bankleitzahl %(blz)s, letzte %(tage)s Tage."
 msgstr "Retrieval for bank code %(blz)s, last %(tage)s days."
 
 #: .\templates\finance\fints_abrufen.html:16
+#: .\templates\finance\fints_kontodaten.html:16
 msgid "Abrufen"
 msgstr "Retrieve"
 
 #: .\templates\finance\fints_abrufen.html:21
+#: .\templates\finance\fints_kontodaten.html:21
 msgid "TAN erforderlich"
 msgstr "TAN required"
 
 #: .\templates\finance\fints_abrufen.html:25
+#: .\templates\finance\fints_kontodaten.html:25
 msgid "chipTAN-Grafik"
 msgstr "chipTAN graphic"
 
 #: .\templates\finance\fints_abrufen.html:35
+#: .\templates\finance\fints_kontodaten.html:35
 msgid "Bestätigen"
 msgstr "Confirm"
+
+#: .\templates\finance\fints_kontodaten.html:6
+msgid "Kontodaten abrufen"
+msgstr "Retrieve account data"
+
+#: .\templates\finance\fints_kontodaten.html:8
+#, python-format
+msgid "Prüft die Verbindung und zeigt die Konten hinter Bankleitzahl %(blz)s."
+msgstr "Checks the connection and shows the accounts behind bank code %(blz)s."
+
+#: .\templates\finance\fints_kontodaten.html:40
+msgid "Kontodaten"
+msgstr "Account data"
+
+#: .\templates\finance\fints_kontodaten.html:42
+msgid "IBAN"
+msgstr "IBAN"
+
+#: .\templates\finance\fints_kontodaten.html:42
+msgid "Kontonummer"
+msgstr "Account number"
+
+#: .\templates\finance\fints_kontodaten.html:42
+msgid "Unterkonto"
+msgstr "Sub-account"
+
+#: .\templates\finance\fints_kontodaten.html:45
+msgid "Keine Konten gefunden."
+msgstr "No accounts found."
 
 #: .\templates\finance\sepa_einzug_neu.html:4
 msgid "Neuen SEPA-Einzug erstellen"
@@ -1238,9 +1272,6 @@ msgstr "Sign in"
 
 #~ msgid "Letzter Abruf:"
 #~ msgstr "Last retrieval:"
-
-#~ msgid "Jetzt abrufen"
-#~ msgstr "Retrieve now"
 
 #~ msgid ""
 #~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "

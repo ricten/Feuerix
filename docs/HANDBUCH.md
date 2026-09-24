@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.18.0)
+# Handbuch – Feuerix (Version 1.19.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -176,7 +176,8 @@ IBAN-Übereinstimmung. Rücklastschriften (negative Beträge) werden nur automat
 erkennbar danach klingt; sonst „manuell“ zur Nachbearbeitung markiert. **Hinweis:** Bei MT940 wird der
 Verwendungszweck (Feld `:86:`) nach den seit der SEPA-Umstellung üblichen deutschen Feldkennungen durchsucht
 (`SVWZ+`, `ABWA+`/`ABWE+`, `IBAN+`); weicht eine Bank davon ab, landet der komplette Text unverändert im
-Verwendungszweck statt in Einzelfeldern.
+Verwendungszweck statt in Einzelfeldern. Ist mindestens ein FinTS-Zugang eingerichtet, erscheint auf dieser Seite
+zusätzlich je Zugang ein „Umsätze abrufen“-Knopf als Abkürzung zum FinTS-Abruf (siehe unten).
 
 **FinTS-Abruf** (experimentell, siehe Kapitel 17): Alternative zum manuellen Kontoauszug-Import – unter
 *Verwaltung › FinTS-Zugänge* einen oder mehrere Zugänge anlegen (Bezeichnung, Bankleitzahl, Online-Banking-Kennung
@@ -186,13 +187,15 @@ bestehen. Voraussetzung ist außerdem eine kostenlose FinTS-Produkt-ID, die der 
 der Deutschen Kreditwirtschaft registriert (wird nicht mit der Software mitgeliefert) und entweder als
 Umgebungsvariable oder – verschlüsselt und ohne Serverzugriff änderbar – unter `/admin/` › Systemeinstellungen
 hinterlegt (nur für technische Administratoren, nicht Teil der normalen Vereinsverwaltung). Jedes Kassenbuch-Konto
-(*Kasse › Konten*) kann optional einem dieser Zugänge zugeordnet werden – Konten ohne Zuordnung laufen unverändert
-über den manuellen Kontoauszug-Import weiter.
-Auf der Detailseite eines Zugangs dann „Jetzt abrufen“ und die PIN eingeben – verlangt die Bank eine TAN (üblich),
-erscheint im nächsten Schritt die Bank-Aufforderung (Text, oder bei chipTAN eine zu scannende Grafik) mitsamt
-Eingabefeld. Nach Bestätigung werden neue Kontobewegungen genauso wie beim Datei-Import als Bankumsätze angelegt
-(Duplikate werden übersprungen) und können anschließend wie gewohnt zugeordnet werden. Die Bank-PIN wird **nie
-gespeichert**.
+(*Verwaltung › Konten*) kann optional einem dieser Zugänge zugeordnet werden – Konten ohne Zuordnung laufen
+unverändert über den manuellen Kontoauszug-Import weiter.
+Auf der Detailseite eines Zugangs steht „Kontodaten abrufen“ (zeigt nur IBAN/BIC der beim Kreditinstitut
+hinterlegten Konten – nützlich, um die Verbindung zu prüfen und die richtige Zuordnung zum Kassenbuch-Konto zu
+finden, ohne gleich Umsätze zu importieren) sowie „Jetzt abrufen“ für den eigentlichen Umsatz-Abruf. Beides fragt
+die PIN ab – verlangt die Bank eine TAN (üblich), erscheint im nächsten Schritt die Bank-Aufforderung (Text, oder
+bei chipTAN eine zu scannende Grafik) mitsamt Eingabefeld. Nach Bestätigung werden bei „Jetzt abrufen“ neue
+Kontobewegungen genauso wie beim Datei-Import als Bankumsätze angelegt (Duplikate werden übersprungen) und können
+anschließend wie gewohnt zugeordnet werden. Die Bank-PIN wird **nie gespeichert**.
 
 **SEPA-Einzüge**: Unter *Finanzen › SEPA-Einzüge* → „Neuen Einzug erstellen“ werden alle offenen/teilbezahlten
 Rechnungen von Mitgliedern mit Zahlungsart „SEPA-Lastschrift“ und vollständigem Mandat (IBAN, Mandatsreferenz,

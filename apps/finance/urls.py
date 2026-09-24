@@ -37,6 +37,7 @@ urlpatterns = [
     path("bank/<int:pk>/zuweisen/", views.bankumsatz_zuweisen, name="bankumsatz_zuweisen"),
     path("bank/<int:pk>/ignorieren/", views.bankumsatz_ignorieren, name="bankumsatz_ignorieren"),
     path("fints-zugaenge/<int:pk>/abrufen/", views.fints_abrufen, name="fints_abrufen"),
+    path("fints-zugaenge/<int:pk>/kontodaten/", views.fints_kontodaten, name="fints_kontodaten"),
     path("sepa-einzuege/neu/", views.sepa_einzug_neu, name="sepa_einzug_neu"),
 ]
 urlpatterns += crud("beitragsjahre", Beitragsjahr, "beitraege", list_display=("jahr", "faelligkeit", "alters_stichtag",

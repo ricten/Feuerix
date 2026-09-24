@@ -16,10 +16,21 @@ from . import kontoauszug
 from .models import Bankumsatz
 
 SESSION_KEY = "fints_tan"
+SESSION_KEY_KONTEN = "fints_konten_tan"
 
 
 class FinTSAblaufFehler(Exception):
     pass
+
+
+def _tan_challenge_felder(tan_response):
+    return {
+        "challenge": tan_response.challenge or "",
+        "challenge_html": str(tan_response.challenge_html or ""),
+        "challenge_matrix_png": b64encode(tan_response.challenge_matrix[1]).decode()
+        if tan_response.challenge_matrix and tan_response.challenge_matrix[0] == "image/png" else None,
+        "decoupled": bool(tan_response.decoupled),
+    }
 
 
 def produkt_id_vorhanden():
@@ -112,11 +123,7 @@ def zustand_speichern(request, zugang, pin, von, bis, client, tan_response, kont
         "response_data": b64encode(tan_response.get_data()).decode(),
         "phase": "init" if konten_rest is None else "konten",
         "konten_rest": [_konto_zu_dict(k) for k in konten_rest] if konten_rest else [],
-        "challenge": tan_response.challenge or "",
-        "challenge_html": str(tan_response.challenge_html or ""),
-        "challenge_matrix_png": b64encode(tan_response.challenge_matrix[1]).decode()
-        if tan_response.challenge_matrix and tan_response.challenge_matrix[0] == "image/png" else None,
-        "decoupled": bool(tan_response.decoupled),
+        **_tan_challenge_felder(tan_response),
     }
 
 
@@ -136,3 +143,64 @@ def client_und_dialog_aus_zustand(zustand, zugang):
     tan_response = NeedRetryResponse.from_data(b64decode(zustand["response_data"]))
     konten_rest = [_konto_von_dict(d) for d in zustand["konten_rest"]] if zustand["phase"] == "konten" else None
     return client, dialog_data, tan_response, konten_rest
+
+
+# ---------------------------------------------------------------- Kontodaten (nur Liste, kein Transaktions-Import)
+def konten_schritt(client):
+    """Ruft nur die Kontenliste ab (kein Transaktions-Import) - fuer den "Kontodaten abrufen"-Knopf, der die
+    Verbindung prueft und zeigt, welche Konten hinter einem FinTS-Zugang stehen. Muss innerhalb von
+    `with client:` bzw. `with client.resume_dialog(...):` aufgerufen werden.
+
+    Rueckgabe: ("tan", NeedTANResponse, phase) wobei phase angibt, ob die TAN die Dialog-Initialisierung ("init")
+    oder den eigentlichen Kontenabruf ("konten") betrifft - wird unveraendert an konten_schritt_nach_tan()
+    zurueckgegeben, da sich das am client-Objekt nach dem Aufloesen nicht zuverlaessig ablesen laesst.
+    Sonst ("fertig", [SEPAAccount, ...], None)."""
+    from fints.client import NeedTANResponse
+
+    if client.init_tan_response:
+        return "tan", client.init_tan_response, "init"
+    konten = client.get_sepa_accounts()
+    if isinstance(konten, NeedTANResponse):
+        return "tan", konten, "konten"
+    return "fertig", konten, None
+
+
+def konten_schritt_nach_tan(client, tan_response, tan, phase):
+    from fints.client import NeedTANResponse
+
+    ergebnis = client.send_tan(tan_response, tan)
+    if isinstance(ergebnis, NeedTANResponse):
+        return "tan", ergebnis, phase
+    if phase == "init":
+        # Die aufgeloeste TAN betraf die Dialog-Initialisierung - jetzt die eigentliche Kontenliste abrufen.
+        return konten_schritt(client)
+    return "fertig", ergebnis, None
+
+
+def konten_zustand_speichern(request, zugang, pin, client, tan_response, phase, dialog_data):
+    request.session[SESSION_KEY_KONTEN] = {
+        "zugang_pk": zugang.pk,
+        "pin": pin,
+        "phase": phase,
+        "client_data": b64encode(client.deconstruct()).decode(),
+        "dialog_data": b64encode(dialog_data).decode(),
+        "response_data": b64encode(tan_response.get_data()).decode(),
+        **_tan_challenge_felder(tan_response),
+    }
+
+
+def konten_zustand_laden(request):
+    return request.session.get(SESSION_KEY_KONTEN)
+
+
+def konten_zustand_loeschen(request):
+    request.session.pop(SESSION_KEY_KONTEN, None)
+
+
+def konten_client_und_dialog_aus_zustand(zustand, zugang):
+    from fints.client import NeedRetryResponse
+
+    client = neuer_client(zugang, zustand["pin"], from_data=b64decode(zustand["client_data"]))
+    dialog_data = b64decode(zustand["dialog_data"])
+    tan_response = NeedRetryResponse.from_data(b64decode(zustand["response_data"]))
+    return client, dialog_data, tan_response

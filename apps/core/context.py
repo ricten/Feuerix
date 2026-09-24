@@ -30,7 +30,6 @@ NAV = [
     (_("Kasse"), "bi-wallet2", [
         (_("Kassenbuch (Buchungen)"), "buchung_list", "kassenbuch"),
         (_("Kassenberichte"), "kassenbericht_list", "kassenbuch"),
-        (_("Konten"), "konto_list", "kassenbuch"),
         (_("Buchungskategorien"), "buchungskategorie_list", "kassenbuch"),
     ]),
     (_("Inventar"), "bi-box-seam", [
@@ -50,6 +49,7 @@ NAV = [
         (_("OpenSlides-Anbindung"), "openslides_einstellungen", "openslides"),
         (_("Paperless-Anbindung"), "paperless_einstellungen", "paperless"),
         (_("FinTS-Zugänge"), "fintszugang_list", "bank"),
+        (_("Konten"), "konto_list", "kassenbuch"),
         (_("Benutzer"), "zugang_list", "verwaltung"),
         (_("Rollen"), "rolle_list", "verwaltung"),
         (_("Beitragsregeln"), "beitragsregel_list", "beitraege"),

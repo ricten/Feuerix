@@ -230,6 +230,10 @@ def bank_listen_aktionen(request):
     a = []
     if request.rechte.darf("bank", "add"):
         a.append(knopf("Kontoauszug importieren", reverse("bank_import"), stil="primary"))
+        if fints_service.produkt_id_vorhanden():
+            for z in FinTSZugang.objects.filter(verein=request.verein):
+                a.append(knopf(f"Umsätze abrufen: {z.bezeichnung}", reverse("fints_abrufen", args=[z.pk]),
+                               stil="success"))
         a.append(knopf("FinTS-Zugänge", reverse("fintszugang_list")))
     if request.rechte.darf("bank", "change"):
         a.append(knopf("Automatisch zuordnen", reverse("bank_zuordnen"), post=True, stil="success"))
@@ -297,6 +301,7 @@ def bankumsatz_ignorieren(request, pk):
 def fints_zugang_kontext(request, z):
     aktionen = []
     if request.rechte.darf("bank", "add") and fints_service.produkt_id_vorhanden():
+        aktionen.append(knopf("Kontodaten abrufen", reverse("fints_kontodaten", args=[z.pk])))
         aktionen.append(knopf("Jetzt abrufen", reverse("fints_abrufen", args=[z.pk]), stil="success"))
     hinweise = []
     if not fints_service.produkt_id_vorhanden():
@@ -382,6 +387,71 @@ def fints_abrufen(request, pk):
             return _fints_abbrechen(request, zugang, e)
     return render(request, "finance/fints_abrufen.html", {
         "titel": "FinTS-Abruf", "pin_form": pin_form, "zugang": zugang, "schritt": "pin"})
+
+
+@login_required
+def fints_kontodaten(request, pk):
+    """Ruft nur die Kontenliste eines FinTS-Zugangs ab (kein Transaktions-Import) - zeigt, welche Konten
+    (IBAN/BIC) hinter der Verbindung stehen, z. B. um die richtige Zuordnung eines Kassenbuch-Kontos zu prüfen."""
+    _pruefen(request, "bank", "add")
+    zugang = get_object_or_404(FinTSZugang, pk=pk, verein=request.verein)
+    if not fints_service.produkt_id_vorhanden():
+        messages.error(request, "Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss "
+                                "zuerst eine kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft registrieren "
+                                "und entweder verschlüsselt unter /admin/ (Systemeinstellungen) oder als "
+                                "Umgebungsvariable FINTS_PRODUCT_ID hinterlegen.")
+        return redirect("fintszugang_detail", pk=zugang.pk)
+
+    zustand = fints_service.konten_zustand_laden(request)
+    if zustand and zustand.get("zugang_pk") != zugang.pk:
+        fints_service.konten_zustand_loeschen(request)
+        zustand = None
+
+    if zustand:
+        tan_form = FinTSTanForm(request.POST or None, decoupled=zustand.get("decoupled", False))
+        if request.method == "POST" and tan_form.is_valid():
+            try:
+                client, dialog_data, tan_response = fints_service.konten_client_und_dialog_aus_zustand(zustand, zugang)
+                with client.resume_dialog(dialog_data):
+                    status, wert, phase = fints_service.konten_schritt_nach_tan(
+                        client, tan_response, tan_form.cleaned_data["tan"], zustand["phase"])
+                    if status == "tan":
+                        neue_dialog_data = client.pause_dialog()
+                if status == "tan":
+                    fints_service.konten_zustand_speichern(request, zugang, zustand["pin"], client, wert, phase,
+                                                           neue_dialog_data)
+                    messages.info(request, "Die Bank verlangt eine weitere TAN.")
+                    return redirect("fints_kontodaten", pk=zugang.pk)
+                fints_service.konten_zustand_loeschen(request)
+                return render(request, "finance/fints_kontodaten.html", {
+                    "titel": "Kontodaten", "zugang": zugang, "schritt": "ergebnis", "konten": wert})
+            except Exception as e:
+                fints_service.konten_zustand_loeschen(request)
+                messages.error(request, f"Kontodaten-Abruf fehlgeschlagen: {e}")
+                return redirect("fints_kontodaten", pk=zugang.pk)
+        return render(request, "finance/fints_kontodaten.html", {
+            "titel": "Kontodaten – TAN erforderlich", "tan_form": tan_form, "zustand": zustand, "zugang": zugang,
+            "schritt": "tan"})
+
+    pin_form = FinTSPinForm(request.POST or None)
+    if request.method == "POST" and pin_form.is_valid():
+        pin = pin_form.cleaned_data["pin"]
+        try:
+            client = fints_service.neuer_client(zugang, pin)
+            with client:
+                status, wert, phase = fints_service.konten_schritt(client)
+                if status == "tan":
+                    dialog_data = client.pause_dialog()
+            if status == "tan":
+                fints_service.konten_zustand_speichern(request, zugang, pin, client, wert, phase, dialog_data)
+                return redirect("fints_kontodaten", pk=zugang.pk)
+            return render(request, "finance/fints_kontodaten.html", {
+                "titel": "Kontodaten", "zugang": zugang, "schritt": "ergebnis", "konten": wert})
+        except Exception as e:
+            messages.error(request, f"Kontodaten-Abruf fehlgeschlagen: {e}")
+            return redirect("fintszugang_detail", pk=zugang.pk)
+    return render(request, "finance/fints_kontodaten.html", {
+        "titel": "Kontodaten abrufen", "pin_form": pin_form, "zugang": zugang, "schritt": "pin"})
 
 
 # ---------------------------------------------------------------- SEPA-Einzug
