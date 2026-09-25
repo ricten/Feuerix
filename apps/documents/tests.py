@@ -48,3 +48,17 @@ class DocxExportTests(TestCase):
             xml = z.read("word/document.xml").decode("utf-8")
         self.assertNotIn("<w:tbl>", xml)
         self.assertIn("wp:anchor", xml)
+
+
+class StandardvorlagenFeldlaengenTest(TestCase):
+    """SQLite prueft Feldlaengen nicht - auf PostgreSQL brach die Ersteinrichtung an einem zu langen Hinweis."""
+
+    def test_alle_standardvorlagen_passen_in_ihre_felder(self):
+        from apps.documents.models import Vorlage
+        from apps.documents.vorlagen_defaults import STANDARDVORLAGEN
+        for d in STANDARDVORLAGEN:
+            for feld, wert in (("name", d["name"]), ("art", d["art"]), ("betreff", d["betreff"]),
+                               ("hinweis", d.get("hinweis", ""))):
+                maximal = Vorlage._meta.get_field(feld).max_length
+                if maximal:
+                    self.assertLessEqual(len(wert), maximal, f"{d['name']}: {feld} zu lang ({len(wert)}>{maximal})")

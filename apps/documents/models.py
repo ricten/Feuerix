@@ -96,7 +96,7 @@ class Vorlage(TenantModel):
     ist_standard = models.BooleanField("Standardvorlage dieser Art", default=False,
                                        help_text="Wird bei 'Einladung/Protokoll erstellen' in Veranstaltungen verwendet.")
     aktiv = models.BooleanField("Aktiv", default=True)
-    hinweis = models.CharField("Interner Hinweis", max_length=300, blank=True)
+    hinweis = models.TextField("Interner Hinweis", blank=True)
 
     class Meta:
         verbose_name = "Vorlage"
