@@ -45,6 +45,14 @@ def buchung_kontext(request, b):
     return {"aktionen": aktionen, "hinweise": hinweise}
 
 
+def _auto_uebergeben(dokument):
+    from apps.paperless import auto
+    try:
+        auto.ablage_fertig(dokument)
+    except Exception:  # Paperless-Probleme duerfen das Ablegen nie verhindern
+        pass
+
+
 @login_required
 @require_POST
 def buchung_beleg_ablegen(request, pk):
@@ -66,6 +74,7 @@ def buchung_beleg_ablegen(request, pk):
                  veranstaltung=b.veranstaltung, beschreibung=b.text[:300])
     b.ablage = doc
     b.save(update_fields=["ablage", "geaendert"])
+    _auto_uebergeben(doc)
     messages.success(request, "Beleg in der Ablage abgelegt.")
     return redirect("buchung_detail", pk=b.pk)
 
@@ -207,6 +216,7 @@ def kassenbericht_abschliessen(request, pk):
                   beschreibung=f"Zeitraum {b.von:%d.%m.%Y}–{b.bis:%d.%m.%Y}")
     b.ablage = doc
     b.save(update_fields=["ablage", "geaendert"])
+    _auto_uebergeben(doc)
     messages.success(request, "Kassenbericht abgeschlossen und als PDF in der Ablage gespeichert.")
     return redirect("kassenbericht_detail", pk=b.pk)
 

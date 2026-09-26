@@ -20,6 +20,11 @@ class PaperlessVerbindung(TenantModel):
         "Art und Jahr automatisch als Tag setzen", default=True,
         help_text="Gilt für Dokumente ohne eigene Tags (neue Dokumente bekommen Art und Jahr ohnehin als "
                   "bearbeitbare Tags vorbelegt).")
+    auto_uebergabe = models.BooleanField(
+        "Fertiggestellte Dokumente automatisch übergeben", default=True,
+        help_text="Rechnungen (beim Ausstellen), Zuwendungsbestätigungen, abgeschlossene Kassenberichte, "
+                  "abgelegte Schriftstücke (Status „Final“), Serienbriefe und Belege werden ohne weiteren Klick an "
+                  "Paperless übergeben.")
     tls_pruefen = models.BooleanField("TLS-Zertifikat prüfen", default=True,
                                       help_text="Nur zum Testen mit selbstsigniertem Zertifikat abschalten")
     aktiv = models.BooleanField("Anbindung aktiv", default=False)

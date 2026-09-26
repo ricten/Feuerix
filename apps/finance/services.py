@@ -13,6 +13,15 @@ from apps.members.models import Mitglied
 from .models import Bankumsatz, Beitragsjahr, Beitragsregel, Mahnung, Rechnung, Rechnungsposition, Zahlung
 
 
+def rechnung_fertig(rechnung):
+    """Automatische Paperless-Übergabe (falls aktiviert) - stört das Ausstellen nie."""
+    try:
+        from apps.paperless import auto
+        auto.fertiges_dokument("rechnung", rechnung.pk, rechnung.verein)
+    except Exception:
+        pass
+
+
 # ------------------------------------------------------------------ Beitrag
 def berechne_beitrag(mitglied, bj, regeln=None):
     """-> (betrag, grund). Reihenfolge: individueller Beitrag > erste passende Regel > Standard der Mitgliedsart."""
@@ -73,6 +82,7 @@ def beitragsjahr_abrechnen(bj):
             kopftext=v.rechnung_kopftext or f"Mitgliedsnummer: {m.mitgliedsnummer}\nBeitragsart: {art}")
         Rechnungsposition.objects.create(verein=v, rechnung=r, text=f"Vereinsbeitrag {jahr} ({art}), "
                                          f"{anfang:%d.%m.%Y} – {ende:%d.%m.%Y}", menge=1, einzelpreis=betrag)
+        rechnung_fertig(r)
         erstellt += 1
     bj.abgerechnet_am = timezone.now()
     bj.save(update_fields=["abgerechnet_am", "geaendert"])
@@ -95,6 +105,7 @@ def storniere(rechnung):
     rechnung.status = "storniert"
     rechnung.save(update_fields=["status", "geaendert"])
     s.refresh_from_db()
+    rechnung_fertig(s)
     return s
 
 
@@ -111,6 +122,7 @@ def gutschrift(rechnung, betrag, text):
     Rechnungsposition.objects.create(verein=rechnung.verein, rechnung=g, text=text or "Gutschrift", menge=1,
                                      einzelpreis=-betrag)
     g.refresh_from_db()
+    rechnung_fertig(g)
     return g
 
 
@@ -126,6 +138,7 @@ def rechnung_erstellen(verein, positionen, mitglied=None, empfaenger_name="", em
         Rechnungsposition.objects.create(verein=verein, rechnung=r, text=text, menge=menge, einzelpreis=einzelpreis,
                                          steuersatz=rest[0] if rest else Decimal("0"))
     r.refresh_from_db()
+    rechnung_fertig(r)
     return r
 
 

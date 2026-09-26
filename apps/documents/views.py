@@ -52,6 +52,14 @@ def ablage_vorschau(request, pk):
     return r
 
 
+def _auto_uebergeben(dokument):
+    from apps.paperless import auto
+    try:
+        auto.ablage_fertig(dokument)
+    except Exception:  # Paperless-Probleme duerfen das Ablegen nie verhindern
+        pass
+
+
 def _pdf_antwort(inhalt, name, inline=True):
     r = HttpResponse(inhalt, content_type="application/pdf")
     r["Content-Disposition"] = f'{"inline" if inline else "attachment"}; filename="{name}"'
@@ -104,6 +112,8 @@ def schriftstueck_ablegen(request, pk):
                          veranstaltung=s.veranstaltung)
     s.ablage = d
     s.save(update_fields=["ablage", "geaendert"])
+    if s.status == "final":
+        _auto_uebergeben(d)
     messages.success(request, f"In Ablage gespeichert: {d.ordner} · Version {d.version}.")
     return redirect("schriftstueck_detail", pk=s.pk)
 
@@ -159,6 +169,7 @@ def serienbrief_ablegen(request, pk):
                          beschreibung=f"{len(empf)} Briefe · Empfängerkreis: {sb.get_status_filter_display()}")
     sb.ablage = d
     sb.save(update_fields=["ablage", "geaendert"])
+    _auto_uebergeben(d)
     messages.success(request, f"{len(empf)} Briefe in der Ablage gespeichert ({d.ordner}, Version {d.version}).")
     return redirect("ablagedokument_detail", pk=d.pk)
 

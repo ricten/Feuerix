@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.24.0)
+# Handbuch – Feuerix (Version 1.25.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -391,6 +391,21 @@ haben keine Vorschau und werden wie bisher heruntergeladen).
 **Bestätigung:** Ob Paperless das Dokument fertig verarbeitet hat, wird über die Aufgaben-Abfrage von Paperless
 und zusätzlich über die Datei-Prüfsumme geprüft; auch früher übergebene Dokumente werden beim Öffnen nachträglich
 bestätigt.
+
+**Dokumenttyp:** Bei jeder Übergabe wird auch der Dokumenttyp gesetzt: standardmäßig die Art des Dokuments
+(z. B. Rechnung, Protokoll, Kassenbericht); im Feld „Dokumenttyp (Paperless)“ am Dokument lässt er sich
+überschreiben. Nur bei „Sonstiges“ gilt der Standard-Dokumenttyp der Anbindung. Fehlende Typen legt Paperless
+automatisch an.
+
+**Automatische Übergabe:** Ist in der Anbindung „Fertiggestellte Dokumente automatisch übergeben“ aktiv (Standard),
+werden folgende Dokumente ohne weiteren Klick übergeben, sobald sie fertig sind – inkl. Ablage, Tags, Dokumenttyp
+und Live-Status:
+Rechnungen (beim Ausstellen bzw. Rechnungslauf, Storno und Gutschrift; als E-Rechnung/ZUGFeRD-PDF, sonst als
+normale PDF), Zuwendungsbestätigungen (beim Ausstellen), abgeschlossene Kassenberichte, in die Ablage gelegte
+Schriftstücke (nur Status „Final“), Serienbriefe und Buchungsbelege. Manuell hochgeladene Ablage-Dokumente werden
+weiterhin per Knopf übergeben. Die Übergabe blockiert nie das Fertigstellen – Fehler erscheinen am Ablage-Dokument.
+Neue Versionen eines Dokuments entstehen über „Neue Version hochladen“ bzw. erneutes Ablegen und werden ebenfalls
+übergeben.
 
 **Live-Status:** Nach „An Paperless senden“ (auch im Sammelversand) zeigt die Seite den Fortschritt ohne manuelles
 Neuladen an: Warteschlange → wird gesendet → von Paperless verarbeitet → abgelegt bzw. Fehlermeldung. Während der

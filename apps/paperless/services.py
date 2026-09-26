@@ -27,6 +27,15 @@ def tags_fuer(v, dokument):
     return ergebnis
 
 
+def dokumenttyp_fuer(v, dokument):
+    """Eigener Dokumenttyp des Dokuments, sonst dessen Art (Kategorie); nur bei "Sonstiges" der Standard der Anbindung."""
+    if dokument.dokumenttyp:
+        return dokument.dokumenttyp
+    if dokument.kategorie != "sonstiges":
+        return str(dokument.get_kategorie_display())
+    return v.dokumenttyp
+
+
 def dokument_senden(v, dokument, erneut=False):
     """Lädt ein Ablagedokument zu Paperless hoch und vermerkt Task-ID/Fehler am Dokument.
 
@@ -73,7 +82,8 @@ def dokument_senden(v, dokument, erneut=False):
     tags = tags_fuer(v, dokument)
     try:
         task_id = c.dokument_senden(dokument.dateiname, inhalt, titel=dokument.titel, erstellt=dokument.datum,
-                                    korrespondent=v.korrespondent, dokumenttyp=v.dokumenttyp, tags=tags)
+                                    korrespondent=v.korrespondent, dokumenttyp=dokumenttyp_fuer(v, dokument),
+                                    tags=tags)
     except PaperlessFehler as e:
         dokument.paperless_fehler, dokument.paperless_status = str(e)[:300], "fehler"
         dokument.save(update_fields=["paperless_fehler", "paperless_status", "geaendert"])

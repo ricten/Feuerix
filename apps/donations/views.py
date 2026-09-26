@@ -108,6 +108,11 @@ def bestaetigung_ausstellen(request, pk):
     b = get_object_or_404(Zuwendungsbestaetigung, pk=pk, verein=request.verein)
     if b.status == "entwurf":
         b.ausstellen()
+        try:
+            from apps.paperless import auto
+            auto.fertiges_dokument("zuwendung", b.pk, b.verein)
+        except Exception:
+            pass
         messages.success(request, f"Bestätigung {b.nummer} ausgestellt.")
     return redirect("zuwendungsbestaetigung_detail", pk=b.pk)
 

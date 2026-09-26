@@ -112,6 +112,7 @@ def rechnung_ausstellen(request, pk):
         r.refresh_from_db()
         r.status = "offen"
         r.save()
+        services.rechnung_fertig(r)
         messages.success(request, f"Rechnung {r.nummer} ausgestellt.")
     return redirect("rechnung_detail", pk=r.pk)
 
