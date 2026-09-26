@@ -97,6 +97,18 @@ class Mitglied(TenantModel):
     mandatsreferenz = models.CharField("SEPA-Mandatsreferenz", max_length=35, blank=True)
     mandatsdatum = models.DateField("Datum des SEPA-Mandats", null=True, blank=True)
     abteilungen = models.ManyToManyField(Abteilung, blank=True, verbose_name="Abteilungen")
+    vorstandsmitglied = models.BooleanField(
+        "Vorstandsmitglied", default=False,
+        help_text="Setzt automatisch die Funktion „Vorstandsmitglied“. Nur Vorstandsmitglieder können mit Paperless "
+                  "abgeglichen werden (Verwaltung › Paperless-Anbindung).")
+    alters_ehrenabteilung = models.BooleanField("Alters- und Ehrenabteilung", default=False)
+    einsatzabteilung_aktiv = models.BooleanField("Aktives Mitglied der Einsatzabteilung", default=False)
+    vorstandsmitglied = models.BooleanField(
+        "Vorstandsmitglied", default=False,
+        help_text="Setzt automatisch die Funktion „Vorstandsmitglied“. Nur Vorstandsmitglieder können mit Paperless "
+                  "abgeglichen werden (Verwaltung › Paperless-Anbindung).")
+    alters_ehrenabteilung = models.BooleanField("Alters- und Ehrenabteilung", default=False)
+    einsatzabteilung_aktiv = models.BooleanField("Aktives Mitglied der Einsatzabteilung", default=False)
     foto = models.ImageField("Foto", upload_to=upload_pfad, blank=True)
     notizen = models.TextField("Notizen", blank=True)
     openslides_user_id = models.PositiveIntegerField("OpenSlides-Konto-ID", null=True, blank=True, editable=False)
@@ -125,6 +137,26 @@ class Mitglied(TenantModel):
                 n = naechste_nummer(self.verein_id, "MITGLIED")
             self.mitgliedsnummer = n
         super().save(*args, **kwargs)
+        self._vorstandsfunktion_abgleichen()
+
+    VORSTAND_FUNKTION = "Vorstandsmitglied"
+
+    def _vorstandsfunktion_abgleichen(self):
+        """Die Funktion „Vorstandsmitglied“ folgt dem Häkchen: gesetzt -> offene Funktion anlegen,
+        entfernt -> laufende Funktion beenden (der Verlauf bleibt erhalten)."""
+        from datetime import date as _date
+
+        from django.db.models import Q
+        offen = MitgliedFunktion.objects.filter(mitglied=self, funktion__name=self.VORSTAND_FUNKTION).filter(
+            Q(bis__isnull=True) | Q(bis__gte=_date.today()))
+        if self.vorstandsmitglied:
+            # nur eine unbefristet laufende Funktion zaehlt - eine heute beendete wird neu angelegt
+            if not offen.filter(bis__isnull=True).exists():
+                f, _ = Funktion.objects.get_or_create(verein_id=self.verein_id, name=self.VORSTAND_FUNKTION)
+                MitgliedFunktion.objects.create(verein_id=self.verein_id, mitglied=self, funktion=f,
+                                                von=_date.today())
+        else:
+            offen.update(bis=_date.today())
 
     @property
     def name(self):

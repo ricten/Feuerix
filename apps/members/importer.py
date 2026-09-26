@@ -32,7 +32,7 @@ def _wandeln(rohwerte, verein, neu_anlegen, warnungen, zeile):
             elif feld == "mitgliedsnummer":
                 s = t.text(wert)
                 d[feld] = int(float(s)) if s else None
-            elif feld == "ist_familienzahler":
+            elif feld in ("ist_familienzahler", "vorstandsmitglied", "alters_ehrenabteilung", "einsatzabteilung_aktiv"):
                 d[feld] = t.ja(wert)
             elif feld == "anrede":
                 d[feld] = t.anrede(wert)

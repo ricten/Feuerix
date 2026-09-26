@@ -29,6 +29,24 @@
         <form method="post" action="{% url 'paperless_test' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary"><i class="bi bi-plug"></i> {% trans "Verbindung testen" %}</button></form>
       </div>{% endif %}
     </div></div>
+    {% if inst %}
+    <div class="card shadow-sm mb-3"><div class="card-body">
+      <h6>{% trans "Vorstand in Paperless" %}</h6>
+      <p class="small text-muted mb-2">{% trans "Mitglieder mit dem Häkchen „Vorstandsmitglied“ erhalten ein Paperless-Konto (Gruppe siehe Einstellungen). Ausgeschiedene werden aus der Gruppe entfernt. Benötigt den Token eines Paperless-Administrators." %}</p>
+      <p class="mb-1">{% trans "Verknüpfte Konten:" %} <strong>{{ konten|length }}</strong> · {% trans "gespeicherte Startpasswörter:" %} <strong>{{ mit_pw }}</strong></p>
+      {% if inst.letzter_abgleich_am %}<p class="mb-1">{% trans "Letzter Abgleich:" %} {{ inst.letzter_abgleich_am|date:"d.m.Y H:i" }}</p>
+      <pre class="small bg-light p-2 border rounded" style="white-space:pre-wrap">{{ inst.letzter_abgleich_info }}</pre>{% endif %}
+      {% if kann %}
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        <form method="post" action="{% url 'paperless_vorstand_abgleich' %}" onsubmit="return confirm('{% trans "Vorstand jetzt mit Paperless abgleichen? Neue Konten werden angelegt." %}')">{% csrf_token %}<button class="btn btn-sm btn-success"><i class="bi bi-arrow-repeat"></i> {% trans "Vorstand abgleichen" %}</button></form>
+        <form method="post" action="{% url 'paperless_vorstand_passwoerter_loeschen' %}" onsubmit="return confirm('{% trans "Gespeicherte Startpasswörter unwiderruflich löschen?" %}')">{% csrf_token %}<button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> {% trans "Startpasswörter löschen" %}</button></form>
+      </div>{% endif %}
+      {% if konten %}
+      <table class="table table-sm mt-3 mb-0"><thead><tr><th>{% trans "Mitglied" %}</th><th>{% trans "Benutzername" %}</th><th>{% trans "Startpasswort" %}</th></tr></thead><tbody>
+      {% for k in konten %}<tr><td>{{ k.mitglied.name }}</td><td>{{ k.benutzername }}</td><td>{% if k.initialpasswort %}<code>{{ k.initialpasswort }}</code>{% else %}–{% endif %}</td></tr>{% endfor %}
+      </tbody></table>{% endif %}
+    </div></div>
+    {% endif %}
     <div class="alert alert-secondary small">
       <strong>{% trans "So läuft es ab:" %}</strong>
       <ol class="mb-0 ps-3">

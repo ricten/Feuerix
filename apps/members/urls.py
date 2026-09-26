@@ -31,8 +31,10 @@ def mitglieder_listen_aktionen(request):
 
 urlpatterns += crud(
     "mitglieder", Mitglied, "mitglieder", listen_aktionen=mitglieder_listen_aktionen,
-    list_display=("mitgliedsnummer", "nachname", "vorname", "mitgliedsart", "status", "eintrittsdatum", "ort"),
-    suche=("nachname", "vorname", "email", "ort", "mitgliedsnummer"), filter=("status", "mitgliedsart", "familie"),
+    list_display=("mitgliedsnummer", "nachname", "vorname", "mitgliedsart", "status", "vorstandsmitglied",
+                  "einsatzabteilung_aktiv", "alters_ehrenabteilung", "eintrittsdatum", "ort"),
+    suche=("nachname", "vorname", "email", "ort", "mitgliedsnummer"), filter=("status", "mitgliedsart", "familie", "vorstandsmitglied", "einsatzabteilung_aktiv",
+            "alters_ehrenabteilung"),
     select_related=("mitgliedsart",), ordering=("nachname", "vorname"), kontext=views.mitglied_kontext,
     detail_ausblenden=("openslides_initialpasswort", "selbstdienst_initialpasswort"))
 urlpatterns += crud("mitgliedsarten", Mitgliedsart, "beitraege", list_display=("name", "jahresbeitrag", "beschreibung"))

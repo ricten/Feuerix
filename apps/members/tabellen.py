@@ -32,6 +32,10 @@ SYNONYME = {
     "mandatsreferenz": ["mandatsreferenz", "sepamandat", "mandat"],
     "mandatsdatum": ["mandatsdatum", "datumdessepamandats", "mandatvom"],
     "abteilungen": ["abteilung", "abteilungen"],
+    "vorstandsmitglied": ["vorstandsmitglied", "vorstand"],
+    "alters_ehrenabteilung": ["altersundehrenabteilung", "altersehrenabteilung", "ehrenabteilung", "altersabteilung"],
+    "einsatzabteilung_aktiv": ["aktivesmitglieddereinsatzabteilung", "einsatzabteilung", "aktiveseinsatzabteilung",
+                               "einsatzabteilungaktiv"],
     "notizen": ["notizen", "notiz", "bemerkung", "bemerkungen", "anmerkung"],
 }
 SPALTEN_ANZEIGE = [  # Reihenfolge und Überschriften der Vorlage / des Exports
@@ -42,7 +46,9 @@ SPALTEN_ANZEIGE = [  # Reihenfolge und Überschriften der Vorlage / des Exports
     ("strasse", "Straße"), ("plz", "PLZ"), ("ort", "Ort"), ("email", "E-Mail"), ("telefon", "Telefon"),
     ("mobil", "Mobil"), ("zahlungsart", "Zahlungsart"), ("kontoinhaber", "Kontoinhaber"), ("iban", "IBAN"),
     ("bic", "BIC"), ("mandatsreferenz", "Mandatsreferenz"), ("mandatsdatum", "Mandatsdatum"),
-    ("abteilungen", "Abteilungen"), ("notizen", "Notizen"),
+    ("abteilungen", "Abteilungen"), ("vorstandsmitglied", "Vorstandsmitglied"),
+    ("alters_ehrenabteilung", "Alters- und Ehrenabteilung"),
+    ("einsatzabteilung_aktiv", "Aktives Mitglied der Einsatzabteilung"), ("notizen", "Notizen"),
 ]
 _LOOKUP = {}
 for _feld, _namen in SYNONYME.items():

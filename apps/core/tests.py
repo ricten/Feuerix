@@ -44,9 +44,9 @@ class MandantenTests(TestCase):
         Mitglied.objects.create(verein=self.v1, vorname="Zora", nachname="Adler")
         self.client.login(username="anna", password="pw-Test-12345")
         r = self.client.get(reverse("mitglied_list") + "?sort=nachname")
-        self.assertLess(r.content.find(b"Adler"), r.content.find(b"Eins"))
+        self.assertLess(r.content.find(b"Adler"), r.content.find(b"Eins</"))
         r = self.client.get(reverse("mitglied_list") + "?sort=-nachname")
-        self.assertLess(r.content.find(b"Eins"), r.content.find(b"Adler"))
+        self.assertLess(r.content.find(b"Eins</"), r.content.find(b"Adler"))
 
     def test_sortierbar_nur_bei_echten_modellfeldern(self):
         self.assertTrue(_sortierbar(Mitglied, "nachname"))

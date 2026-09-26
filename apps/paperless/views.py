@@ -41,8 +41,11 @@ def einstellungen(request):
             form.save()
             messages.success(request, "Einstellungen gespeichert.")
             return redirect("paperless_einstellungen")
+    from .models import PaperlessBenutzer
+    konten = PaperlessBenutzer.objects.filter(verein=request.verein).select_related("mitglied")
     return render(request, "paperless/einstellungen.html", {
-        "titel": "Paperless-Anbindung", "form": form, "inst": inst if inst.pk else None, "kann": kann})
+        "titel": "Paperless-Anbindung", "form": form, "inst": inst if inst.pk else None, "kann": kann,
+        "konten": konten, "mit_pw": konten.exclude(initialpasswort="").count()})
 
 
 @login_required
@@ -157,3 +160,28 @@ def sammelversand(request):
                                   "in Kürze in der Ablage (ggf. neu laden).")
         return redirect("ablage_paperless_sammelversand")
     return render(request, "paperless/sammelversand.html", {"titel": "Sammelversand an Paperless", "dokumente": qs})
+
+
+@login_required
+@require_POST
+def vorstand_abgleich(request):
+    _pruefen(request, "change")
+    try:
+        v = _verbindung(request)
+    except PaperlessFehler as e:
+        messages.error(request, str(e))
+        return redirect("paperless_einstellungen")
+    from .tasks import vorstand_abgleich_task
+    vorstand_abgleich_task.delay(v.pk)
+    messages.success(request, "Der Abgleich läuft im Hintergrund. Das Ergebnis erscheint auf dieser Seite (ggf. neu laden).")
+    return redirect("paperless_einstellungen")
+
+
+@login_required
+@require_POST
+def vorstand_passwoerter_loeschen(request):
+    _pruefen(request, "change")
+    from .models import PaperlessBenutzer
+    n = PaperlessBenutzer.objects.filter(verein=request.verein).exclude(initialpasswort="").update(initialpasswort="")
+    messages.success(request, f"{n} gespeicherte Startpasswörter gelöscht.")
+    return redirect("paperless_einstellungen")

@@ -54,3 +54,16 @@ def fertiges_dokument_task(art, pk):
         dokument_senden(v, d)
     except PaperlessFehler:
         pass  # Fehler steht am Ablage-Dokument
+
+
+@shared_task
+def vorstand_abgleich_task(verbindung_id):
+    from django.utils import timezone
+
+    from .services import vorstand_abgleichen
+    v = PaperlessVerbindung.objects.select_related("verein").get(pk=verbindung_id)
+    try:
+        vorstand_abgleichen(v)
+    except PaperlessFehler as e:
+        v.letzter_abgleich_am, v.letzter_abgleich_info = timezone.now(), f"Abbruch: {e}"
+        v.save(update_fields=["letzter_abgleich_am", "letzter_abgleich_info", "geaendert"])

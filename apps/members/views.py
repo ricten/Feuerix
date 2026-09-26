@@ -142,6 +142,20 @@ def mitglied_anonymisieren(request, pk):
             messages.warning(request, "Mitglied hat ein OpenSlides-Konto, die Anbindung ist aber nicht "
                                       "eingerichtet - bitte Name/E-Mail dort manuell prüfen und löschen.")
         m.openslides_username, m.openslides_initialpasswort = "", ""
+    if hasattr(m, "paperless_benutzer"):
+        from apps.paperless import services as pl_services
+        from apps.paperless.client import PaperlessFehler
+        from apps.paperless.models import PaperlessVerbindung
+        pv = PaperlessVerbindung.objects.filter(verein=request.verein, aktiv=True).first()
+        try:
+            if pv is None:
+                raise PaperlessFehler("Anbindung nicht aktiv")
+            pl_services.mitglied_anonymisieren(pv, m)
+        except PaperlessFehler as e:
+            messages.warning(request, f"Paperless-Konto konnte nicht angepasst werden ({e}) - bitte dort "
+                                      "Name/E-Mail manuell prüfen und das Konto deaktivieren.")
+            m.paperless_benutzer.delete()
+    m.vorstandsmitglied = False
     m.vorname, m.nachname = "Anonymisiert", f"#{m.mitgliedsnummer}"
     for f in ("anrede", "strasse", "plz", "ort", "email", "telefon", "mobil", "kontoinhaber", "iban", "bic",
               "mandatsreferenz", "notizen"):
@@ -255,8 +269,8 @@ def mitglieder_export(request):
             return m.get_anrede_display() if m.anrede else ""
         if f == "zahlungsart":
             return m.get_zahlungsart_display()
-        if f == "ist_familienzahler":
-            return "ja" if m.ist_familienzahler else ""
+        if f in ("ist_familienzahler", "vorstandsmitglied", "alters_ehrenabteilung", "einsatzabteilung_aktiv"):
+            return "ja" if getattr(m, f) else ""
         v = getattr(m, f)
         if hasattr(v, "strftime"):
             return v.strftime("%d.%m.%Y")

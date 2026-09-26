@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.26.0)
+# Handbuch – Feuerix (Version 1.27.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -87,6 +87,12 @@ Vereinseinstellungen, „Verwaltungszugang einrichten“ bei einem Mitglied). We
 machen.
 
 ## 3. Mitgliederverwaltung
+
+**Marker in der Mitgliederakte:** Drei Häkchen kennzeichnen Mitglieder: **Vorstandsmitglied** (setzt automatisch die
+Funktion „Vorstandsmitglied“ bzw. beendet sie beim Entfernen des Häkchens; Grundlage für den Paperless-Abgleich),
+**Alters- und Ehrenabteilung** und **Aktives Mitglied der Einsatzabteilung**. Alle drei erscheinen in der
+Mitgliederliste, sind dort filterbar und werden beim Import/Export (Spalten „Vorstandsmitglied“, „Alters- und
+Ehrenabteilung“, „Aktives Mitglied der Einsatzabteilung“; „ja“ oder „x“) berücksichtigt.
 
 Unter *Mitglieder* werden Personendaten, Anschrift, Bankverbindung (SEPA), Mitgliedsart, Familienzugehörigkeit,
 Abteilungen und ausgeübte Funktionen (z. B. „1. Vorsitzender“, mit Zeitraum) gepflegt. Die Mitgliedsnummer wird
@@ -411,6 +417,18 @@ Schriftstücke (nur Status „Final“), Serienbriefe und Buchungsbelege. Manuel
 weiterhin per Knopf übergeben. Die Übergabe blockiert nie das Fertigstellen – Fehler erscheinen am Ablage-Dokument.
 Neue Versionen eines Dokuments entstehen über „Neue Version hochladen“ bzw. erneutes Ablegen und werden ebenfalls
 übergeben.
+
+**Vorstand in Paperless:** Mitglieder mit dem Häkchen „Vorstandsmitglied“ (Mitgliederakte) können als
+Paperless-Benutzer abgeglichen werden – nur sie, keine anderen Mitglieder. Unter *Verwaltung › Paperless-Anbindung*
+löst „Vorstand abgleichen“ den Abgleich aus: Für aktive Vorstandsmitglieder wird ein Konto (ohne Administrator-Rechte)
+angelegt und der Gruppe „Vorstand“ zugeordnet (Name in den Einstellungen änderbar; die Gruppe wird bei Bedarf mit
+Rechten zum Ansehen, Hochladen und Bearbeiten von Dokumenten angelegt – Löschen und Verwalten sind nicht enthalten).
+Ausgeschiedene Vorstandsmitglieder werden aus der Gruppe entfernt und ihr Konto deaktiviert; es wird nie ein Konto
+gelöscht. Bereits vorhandene Paperless-Konten mit gleichem Benutzernamen werden nur der Gruppe zugeordnet, nie
+verändert oder deaktiviert. Die Startpasswörter neuer Konten stehen (verschlüsselt gespeichert) auf der Seite und
+lassen sich nach der Weitergabe löschen. Der Abgleich braucht den API-Token eines Paperless-Administrators. Bei einer
+DSGVO-Anonymisierung wird das Paperless-Konto mit angepasst. **Hinweis:** Ob Vorstandsmitglieder von anderen Benutzern
+hochgeladene Dokumente sehen, richtet sich nach den Dokumentberechtigungen in Paperless (nicht getestet).
 
 **Live-Status:** Nach „An Paperless senden“ (auch im Sammelversand) zeigt die Seite den Fortschritt ohne manuelles
 Neuladen an: Warteschlange → wird gesendet → von Paperless verarbeitet → abgelegt bzw. Fehlermeldung. Während der

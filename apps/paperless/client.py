@@ -36,6 +36,54 @@ class PaperlessClient:
             raise PaperlessFehler(f"Unerwartete Antwort (HTTP {r.status_code}): {r.text[:200]}")
         return "Verbindung erfolgreich."
 
+    # ---- Benutzer und Gruppen (Vorstands-Abgleich; benoetigt einen Token mit Administratorrechten)
+    def _liste(self, pfad, params):
+        r = self._anfrage("get", pfad, params=params)
+        if r.status_code in (401, 403):
+            raise PaperlessFehler("Keine Berechtigung für die Benutzerverwaltung (Token eines Paperless-"
+                                  "Administrators erforderlich).")
+        if r.status_code != 200:
+            raise PaperlessFehler(f"{pfad}: unerwartete Antwort (HTTP {r.status_code}): {r.text[:200]}")
+        daten = r.json() or {}
+        return daten.get("results", []) if isinstance(daten, dict) else daten
+
+    def _schreiben(self, methode, pfad, daten):
+        r = self._anfrage(methode, pfad, json=daten)
+        if r.status_code in (401, 403):
+            raise PaperlessFehler("Keine Berechtigung für die Benutzerverwaltung (Token eines Paperless-"
+                                  "Administrators erforderlich).")
+        if r.status_code not in (200, 201):
+            raise PaperlessFehler(f"{pfad}: HTTP {r.status_code}: {r.text[:300]}")
+        return r.json()
+
+    def gruppe_sicherstellen(self, name, rechte):
+        """-> ID der Gruppe; wird mit den Rechten `rechte` (Paperless-Rechtenamen) angelegt, falls sie fehlt."""
+        treffer = self._liste("/api/groups/", {"name__iexact": name})
+        if treffer:
+            return treffer[0]["id"]
+        return self._schreiben("post", "/api/groups/", {"name": name, "permissions": list(rechte)})["id"]
+
+    def benutzer_suchen(self, benutzername):
+        """-> dict des Benutzers oder None."""
+        treffer = self._liste("/api/users/", {"username__iexact": benutzername})
+        return treffer[0] if treffer else None
+
+    def benutzer_anlegen(self, daten):
+        return self._schreiben("post", "/api/users/", daten)["id"]
+
+    def benutzer_aendern(self, benutzer_id, daten):
+        return self._schreiben("patch", f"/api/users/{int(benutzer_id)}/", daten)
+
+    def gruppen_ohne(self, gruppen_ids, gruppenname):
+        """Gruppenliste ohne die Gruppe `gruppenname` (falls vorhanden)."""
+        treffer = self._liste("/api/groups/", {"name__iexact": gruppenname})
+        entfernen = {g["id"] for g in treffer}
+        return [g for g in gruppen_ids if g not in entfernen]
+
+    def benutzer_lesen(self, benutzer_id):
+        r = self._anfrage("get", f"/api/users/{int(benutzer_id)}/")
+        return r.json() if r.status_code == 200 else None
+
     def _id_ermitteln(self, art, name):
         """Sucht ein Objekt (Korrespondent/Dokumenttyp/Tag) per Namen, legt es bei Bedarf an -> ID."""
         ressource = RESSOURCEN[art]
