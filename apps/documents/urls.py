@@ -17,14 +17,18 @@ def ablage_kontext(request, d):
                        + (f"&ordner={d.ordner_id}" if d.ordner_id else "")))
     verbindung = PaperlessVerbindung.objects.filter(verein=request.verein, aktiv=True).first()
     if d.datei and verbindung and request.rechte.darf("ablage", "change"):
-        a.append(knopf("An Paperless senden", reverse("ablagedokument_paperless_senden", args=[d.pk]), post=True))
-        if d.paperless_gesendet_am:
+        if d.paperless_status in ("wartet", "sendet", "uebergeben"):
+            pass  # Übergabe läuft - keine Doppelklicks; der Status wird live angezeigt
+        elif not d.paperless_uebergeben:
+            a.append(knopf("An Paperless senden", reverse("ablagedokument_paperless_senden", args=[d.pk]), post=True))
+        else:
             a.append(knopf("Erneut an Paperless senden", reverse("ablagedokument_paperless_senden", args=[d.pk]),
                            post=True, felder={"erneut": "1"},
                            bestaetigung="Diese Datei wurde bereits übergeben. Wirklich erneut senden? "
                                         "Paperless kann Duplikate ablehnen."))
     frueher = Ablagedokument.objects.filter(verein=request.verein, ordner=d.ordner, titel=d.titel).exclude(pk=d.pk)
-    return {"aktionen": a, "abschnitte": [abschnitt(request, "Weitere Versionen", frueher.order_by("-version"),
+    live = reverse("ablagedokument_paperless_status", args=[d.pk]) if d.paperless_status else ""
+    return {"aktionen": a, "live_status_url": live, "abschnitte": [abschnitt(request, "Weitere Versionen", frueher.order_by("-version"),
                                                     ("titel", "version", "datum"))] if frueher.exists() else []}
 
 
@@ -60,10 +64,10 @@ urlpatterns += crud("vorlagen", Vorlage, "schriftverkehr", form=VorlageForm,
                     list_display=("name", "art", "ist_standard", "aktiv"), suche=("name", "betreff"), filter=("art",),
                     listen_aktionen=views.vorlagen_listen_aktionen, ordering=("art", "name"))
 urlpatterns += crud("ablage", Ablagedokument, "ablage", form=AblageForm,
-                    list_display=("datum", "titel", "kategorie", "ordner", "version", ("dateiname", "Datei"),
+                    list_display=("datum", "titel", "kategorie", "tags", "ordner", "version", ("dateiname", "Datei"),
                                  ("paperless_uebergeben", "Paperless")),
                     select_related=("ordner",), suche=("titel", "beschreibung"), filter=("kategorie", "ordner", "veranstaltung"),
                     kontext=ablage_kontext, listen_aktionen=ablage_listen_aktionen, ordering=("-datum", "-id"),
-                    detail_ausblenden=("paperless_task_id",))
+                    detail_ausblenden=("paperless_task_id", "paperless_pruefsumme", "paperless_status"))
 urlpatterns += crud("ablage-ordner", Ordner, "ablage", list_display=(("pfad", "Ordner"),), select_related=("uebergeordnet",),
                     ordering=("name",))

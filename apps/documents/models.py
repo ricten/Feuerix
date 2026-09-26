@@ -60,6 +60,11 @@ class Ablagedokument(TenantModel):
         "Öffentlich auf der Startseite sichtbar", default=False,
         help_text="Ohne Anmeldung für jeden abrufbar (z. B. Datenschutzerklärung, Aufnahmeformular). "
                   "Nur aktivieren, wenn das Dokument wirklich für die Öffentlichkeit bestimmt ist!")
+    tags = models.CharField(
+        "Tags", max_length=300, blank=True,
+        help_text="Kommagetrennt. Werden bei der Übergabe an Paperless als Tags gesetzt. Leer lassen = Art des "
+                  "Dokuments und Jahr werden automatisch eingetragen.")
+    paperless_status = models.CharField("Paperless-Status", max_length=15, blank=True, editable=False)
     paperless_gesendet_am = models.DateTimeField("An Paperless gesendet am", null=True, blank=True, editable=False)
     paperless_task_id = models.CharField("Paperless-Task-ID", max_length=50, blank=True, editable=False)
     paperless_fehler = models.CharField("Letzter Paperless-Fehler", max_length=300, blank=True, editable=False)
@@ -76,6 +81,15 @@ class Ablagedokument(TenantModel):
         return f"{self.titel} (v{self.version})"
 
     @property
+    def tag_liste(self):
+        return [t.strip() for t in self.tags.split(",") if t.strip()]
+
+    @property
+    def standard_tags(self):
+        """Art des Dokuments und Jahr - Vorbelegung der Tags."""
+        return [str(self.get_kategorie_display()), str(self.datum.year)]
+
+    @property
     def paperless_uebergeben(self):
         """True, wenn die Datei erfolgreich an Paperless übergeben wurde (sonst leer, für die Listenanzeige)."""
         return True if self.paperless_gesendet_am and not self.paperless_fehler else ""
@@ -86,6 +100,8 @@ class Ablagedokument(TenantModel):
 
     def save(self, *args, **kwargs):
         # Versionierung: gleicher Titel im gleichen Ordner -> neue Version; alte Dateien bleiben erhalten
+        if self._state.adding and not self.tags:
+            self.tags = ", ".join(self.standard_tags)
         if self._state.adding:
             h = Ablagedokument.objects.filter(verein_id=self.verein_id, ordner_id=self.ordner_id,
                                               titel=self.titel).aggregate(m=Max("version"))["m"]

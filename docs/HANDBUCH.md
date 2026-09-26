@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.22.1)
+# Handbuch – Feuerix (Version 1.23.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -386,9 +386,15 @@ wird nichts gesendet und am Dokument steht ein Hinweis. Eine geänderte Datei bz
 übergeben. Über „Erneut an Paperless senden“ (Dokument) bzw. das Häkchen im Sammelversand lässt sich der Schutz
 bewusst umgehen.
 
-**Automatische Tags:** Jedes Dokument erhält in Paperless zusätzlich zu den Standard-Tags die Ablage-Kategorie als
-Tag (z. B. „Protokoll“, „Belege“, „Kassenbericht“). In den Einstellungen unter „Kategorie als Tag setzen“
-abschaltbar.
+**Tags am Dokument:** Jedes Ablage-Dokument hat ein Feld „Tags“ (kommagetrennt). Neue Dokumente bekommen dort
+automatisch die **Art des Dokuments und das Jahr** eingetragen (z. B. „Protokoll, 2026“) – frei änderbar. Bei der
+Übergabe werden diese Tags zusammen mit den Standard-Tags der Anbindung in Paperless gesetzt. Dokumente ohne eigene
+Tags erhalten Art und Jahr beim Senden automatisch (abschaltbar unter „Art und Jahr automatisch als Tag setzen“).
+
+**Live-Status:** Nach „An Paperless senden“ (auch im Sammelversand) zeigt die Seite den Fortschritt ohne manuelles
+Neuladen an: Warteschlange → wird gesendet → von Paperless verarbeitet → abgelegt bzw. Fehlermeldung. Während der
+Übergabe sind die Sende-Knöpfe ausgeblendet. Nach erfolgreicher Übergabe verschwindet „An Paperless senden“; nur
+dann erscheint „Erneut an Paperless senden“.
 
 Diese Anbindung ist praktisch nur für den Superadministrator einrichtbar, da das Modul `paperless` standardmäßig
 außer beim Vorstand (nur lesend) keiner Rolle zugewiesen ist; den Versandknopf selbst können alle Rollen mit

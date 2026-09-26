@@ -1,0 +1,9 @@
+{% load i18n %}
+{% if kompakt %}
+<span {% if aktiv %}hx-get="{{ url }}?kompakt=1&amp;poll=1" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}
+      class="text-{{ farbe }}">{% if aktiv %}<span class="spinner-border spinner-border-sm" role="status"></span> {% endif %}{{ text }}</span>
+{% else %}
+<div class="alert alert-{{ farbe }} py-2" {% if aktiv %}hx-get="{{ url }}?poll=1" hx-trigger="every 2s" hx-swap="outerHTML"{% endif %}>
+  {% if aktiv %}<span class="spinner-border spinner-border-sm" role="status"></span> {% endif %}<strong>Paperless:</strong> {{ text }}
+</div>
+{% endif %}

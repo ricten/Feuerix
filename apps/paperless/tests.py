@@ -235,16 +235,29 @@ class DuplikatUndTagTests(TestCase):
             ergebnis = service_dokument_senden(self.verbindung, self.dok, erneut=kw.get("erneut", False))
         return ergebnis, finden, senden
 
-    def test_kategorie_wird_als_tag_gesetzt(self):
+    def test_neue_dokumente_bekommen_art_und_jahr_als_tags_vorbelegt(self):
+        self.assertEqual(self.dok.tags, "Protokoll, 2026")
         _, _, senden = self._senden()
-        self.assertEqual(senden.call_args.kwargs["tags"], ["Ablage", "Protokoll"])
+        self.assertEqual(senden.call_args.kwargs["tags"], ["Ablage", "Protokoll", "2026"])
 
-    def test_kategorie_tag_abschaltbar_und_ohne_doppelte(self):
+    def test_eigene_tags_haben_vorrang_vor_der_vorbelegung(self):
+        self.dok.tags = "Wichtig, Vorstand"
+        self.assertEqual(tags_fuer(self.verbindung, self.dok), ["Ablage", "Wichtig", "Vorstand"])
+
+    def test_dokumente_ohne_tags_fallen_auf_art_und_jahr_zurueck_abschaltbar(self):
+        self.dok.tags = ""
+        self.assertEqual(tags_fuer(self.verbindung, self.dok), ["Ablage", "Protokoll", "2026"])
         self.verbindung.kategorie_tags = False
         self.assertEqual(tags_fuer(self.verbindung, self.dok), ["Ablage"])
-        self.verbindung.kategorie_tags = True
+
+    def test_tags_ohne_doppelte(self):
         self.verbindung.tags = "protokoll, Ablage"
-        self.assertEqual(tags_fuer(self.verbindung, self.dok), ["protokoll", "Ablage"])
+        self.assertEqual(tags_fuer(self.verbindung, self.dok), ["protokoll", "Ablage", "2026"])
+
+    def test_gesetzte_tags_werden_beim_anlegen_nicht_ueberschrieben(self):
+        d = Ablagedokument.objects.create(verein=self.v, titel="X", tags="Nur-Das",
+                                          datei=SimpleUploadedFile("x.pdf", b"x"))
+        self.assertEqual(d.tags, "Nur-Das")
 
     def test_gleiche_version_wird_nicht_zweimal_uebergeben(self):
         self.assertEqual(self._senden()[0], "task-1")

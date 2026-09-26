@@ -10,6 +10,7 @@
     {% if can_delete %}<a class="btn btn-sm btn-outline-danger" href="{% url cfg.name|add:'_delete' object.pk %}"><i class="bi bi-trash"></i> {% trans "Löschen" %}</a>{% endif %}
   </div>
 </div>
+{% if live_status_url %}<div hx-get="{{ live_status_url }}" hx-trigger="load" hx-swap="outerHTML"></div>{% endif %}
 {% for h in hinweise %}<div class="alert alert-info py-2">{{ h }}</div>{% endfor %}
 {% if zuweisen %}
 <div class="card mb-3"><div class="card-body">

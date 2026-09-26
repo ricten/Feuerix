@@ -20,7 +20,9 @@
         <td>{{ d.ordner|default:"–" }}</td>
         <td>{{ d.dateiname }}</td>
         <td>
-          {% if d.paperless_fehler %}<span class="text-danger">{% trans "Fehler:" %} {{ d.paperless_fehler }}</span>
+          {% if d.paperless_status == "wartet" or d.paperless_status == "sendet" or d.paperless_status == "uebergeben" %}
+            <span hx-get="{% url 'ablagedokument_paperless_status' d.pk %}?kompakt=1" hx-trigger="load" hx-swap="outerHTML"></span>
+          {% elif d.paperless_fehler %}<span class="text-danger">{% trans "Fehler:" %} {{ d.paperless_fehler }}</span>
           {% elif d.paperless_gesendet_am %}<span class="text-success">{% trans "Gesendet" %} {{ d.paperless_gesendet_am|date:"d.m.Y H:i" }}</span>
             {% if d.paperless_info %}<br><small class="text-muted">{{ d.paperless_info }}</small>{% endif %}
           {% else %}<span class="text-muted">{% trans "noch nicht gesendet" %}</span>{% endif %}
