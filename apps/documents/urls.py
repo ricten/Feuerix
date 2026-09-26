@@ -60,7 +60,8 @@ urlpatterns += crud("vorlagen", Vorlage, "schriftverkehr", form=VorlageForm,
                     list_display=("name", "art", "ist_standard", "aktiv"), suche=("name", "betreff"), filter=("art",),
                     listen_aktionen=views.vorlagen_listen_aktionen, ordering=("art", "name"))
 urlpatterns += crud("ablage", Ablagedokument, "ablage", form=AblageForm,
-                    list_display=("datum", "titel", "kategorie", "ordner", "version", ("dateiname", "Datei")),
+                    list_display=("datum", "titel", "kategorie", "ordner", "version", ("dateiname", "Datei"),
+                                 ("paperless_uebergeben", "Paperless")),
                     select_related=("ordner",), suche=("titel", "beschreibung"), filter=("kategorie", "ordner", "veranstaltung"),
                     kontext=ablage_kontext, listen_aktionen=ablage_listen_aktionen, ordering=("-datum", "-id"),
                     detail_ausblenden=("paperless_task_id",))

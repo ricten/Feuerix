@@ -76,6 +76,11 @@ class Ablagedokument(TenantModel):
         return f"{self.titel} (v{self.version})"
 
     @property
+    def paperless_uebergeben(self):
+        """True, wenn die Datei erfolgreich an Paperless übergeben wurde (sonst leer, für die Listenanzeige)."""
+        return True if self.paperless_gesendet_am and not self.paperless_fehler else ""
+
+    @property
     def dateiname(self):
         return os.path.basename(self.datei.name) if self.datei else ""
 

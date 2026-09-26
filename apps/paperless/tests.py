@@ -293,3 +293,16 @@ class DuplikatUndTagTests(TestCase):
         req.return_value = _antwort(500, text="x")
         with self.assertRaises(PaperlessFehler):
             PaperlessClient(self.verbindung).dokument_finden("abc")
+
+
+class UebersichtHakenTests(TestCase):
+    def test_haken_nur_bei_uebergebenen_dokumenten(self):
+        from django.utils import timezone
+        from apps.core.crud import wert
+        v = Verein.objects.create(name="T e.V.", kuerzel="t")
+        d = Ablagedokument.objects.create(verein=v, titel="A", datei=SimpleUploadedFile("a.pdf", b"x"))
+        self.assertEqual(wert(d, "paperless_uebergeben"), "–")
+        d.paperless_gesendet_am = timezone.now()
+        self.assertEqual(wert(d, "paperless_uebergeben"), "✓")
+        d.paperless_fehler = "Fehler"
+        self.assertEqual(wert(d, "paperless_uebergeben"), "–")
