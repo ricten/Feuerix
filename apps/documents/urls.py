@@ -27,8 +27,11 @@ def ablage_kontext(request, d):
                            bestaetigung="Diese Datei wurde bereits übergeben. Wirklich erneut senden? "
                                         "Paperless kann Duplikate ablehnen."))
     frueher = Ablagedokument.objects.filter(verein=request.verein, ordner=d.ordner, titel=d.titel).exclude(pk=d.pk)
-    live = reverse("ablagedokument_paperless_status", args=[d.pk]) if d.paperless_status else ""
-    return {"aktionen": a, "live_status_url": live, "abschnitte": [abschnitt(request, "Weitere Versionen", frueher.order_by("-version"),
+    live = reverse("ablagedokument_paperless_status", args=[d.pk]) if (
+        d.paperless_status or (d.paperless_gesendet_am and not d.paperless_fehler)) else ""
+    art = views.vorschau_art(d.dateiname) if d.datei else None
+    vorschau = {"url": reverse("ablagedokument_vorschau", args=[d.pk]), "art": art} if art else None
+    return {"aktionen": a, "live_status_url": live, "vorschau": vorschau, "abschnitte": [abschnitt(request, "Weitere Versionen", frueher.order_by("-version"),
                                                     ("titel", "version", "datum"))] if frueher.exists() else []}
 
 
@@ -42,6 +45,7 @@ def ablage_listen_aktionen(request):
 
 
 urlpatterns = [
+    path("ablage/<int:pk>/vorschau/", views.ablage_vorschau, name="ablagedokument_vorschau"),
     path("vorlagen/standard/", views.vorlagen_standard, name="vorlagen_standard"),
     path("platzhalter/", views.platzhalter_hilfe, name="platzhalter_hilfe"),
     path("schriftstuecke/<int:pk>/pdf/", views.schriftstueck_pdf_view, name="schriftstueck_pdf"),
@@ -68,6 +72,6 @@ urlpatterns += crud("ablage", Ablagedokument, "ablage", form=AblageForm,
                                  ("paperless_uebergeben", "Paperless")),
                     select_related=("ordner",), suche=("titel", "beschreibung"), filter=("kategorie", "ordner", "veranstaltung"),
                     kontext=ablage_kontext, listen_aktionen=ablage_listen_aktionen, ordering=("-datum", "-id"),
-                    detail_ausblenden=("paperless_task_id", "paperless_pruefsumme", "paperless_status"))
+                    detail_ausblenden=("paperless_task_id", "paperless_status"))
 urlpatterns += crud("ablage-ordner", Ordner, "ablage", list_display=(("pfad", "Ordner"),), select_related=("uebergeordnet",),
                     ordering=("name",))

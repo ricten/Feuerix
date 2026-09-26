@@ -64,6 +64,8 @@ class Ablagedokument(TenantModel):
         "Tags", max_length=300, blank=True,
         help_text="Kommagetrennt. Werden bei der Übergabe an Paperless als Tags gesetzt. Leer lassen = Art des "
                   "Dokuments und Jahr werden automatisch eingetragen.")
+    paperless_tags = models.CharField("Tags in Paperless (zuletzt übergeben)", max_length=500, blank=True,
+                                      editable=False)
     paperless_status = models.CharField("Paperless-Status", max_length=15, blank=True, editable=False)
     paperless_gesendet_am = models.DateTimeField("An Paperless gesendet am", null=True, blank=True, editable=False)
     paperless_task_id = models.CharField("Paperless-Task-ID", max_length=50, blank=True, editable=False)

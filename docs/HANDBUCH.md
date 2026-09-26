@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.23.1)
+# Handbuch – Feuerix (Version 1.24.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -382,6 +382,15 @@ bewusst umgehen.
 automatisch die **Art des Dokuments und das Jahr** eingetragen (z. B. „Protokoll, 2026“) – frei änderbar. Bei der
 Übergabe werden diese Tags zusammen mit den Standard-Tags der Anbindung in Paperless gesetzt. Dokumente ohne eigene
 Tags erhalten Art und Jahr beim Senden automatisch (abschaltbar unter „Art und Jahr automatisch als Tag setzen“).
+
+**Anzeige im System:** In der Ablage-Detailansicht stehen die eigenen Tags, die zuletzt an Paperless übergebenen
+Tags („Tags in Paperless“) und die Prüfsumme der übergebenen Datei; im Sammelversand erscheinen die Tags als Etiketten.
+Bei PDF- und Bilddateien zeigt die Detailansicht außerdem eine **Vorschau** direkt auf der Seite (andere Dateitypen
+haben keine Vorschau und werden wie bisher heruntergeladen).
+
+**Bestätigung:** Ob Paperless das Dokument fertig verarbeitet hat, wird über die Aufgaben-Abfrage von Paperless
+und zusätzlich über die Datei-Prüfsumme geprüft; auch früher übergebene Dokumente werden beim Öffnen nachträglich
+bestätigt.
 
 **Live-Status:** Nach „An Paperless senden“ (auch im Sammelversand) zeigt die Seite den Fortschritt ohne manuelles
 Neuladen an: Warteschlange → wird gesendet → von Paperless verarbeitet → abgelegt bzw. Fehlermeldung. Während der

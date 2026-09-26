@@ -3,9 +3,12 @@ from datetime import date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
+import os
+
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
 from apps.core.crud import abschnitt, knopf
@@ -13,7 +16,7 @@ from apps.events.models import Veranstaltung
 
 from . import services
 from .docx_export import schriftstueck_docx
-from .models import Schriftstueck, Serienbrief, Vorlage
+from .models import Ablagedokument, Schriftstueck, Serienbrief, Vorlage
 from .pdf import schriftstueck_pdf, serienbrief_pdf
 from .platzhalter import PLATZHALTER, kontext, offene
 
@@ -21,6 +24,32 @@ from .platzhalter import PLATZHALTER, kontext, offene
 def _pruefen(request, modul, aktion):
     if request.verein is None or not request.rechte.darf(modul, aktion):
         raise PermissionDenied
+
+
+VORSCHAU_TYPEN = {".pdf": "application/pdf", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+                  ".gif": "image/gif", ".webp": "image/webp"}   # bewusst ohne SVG/HTML (aktive Inhalte)
+
+
+def vorschau_art(dateiname):
+    """-> "pdf", "bild" oder None (keine Vorschau moeglich)."""
+    endung = os.path.splitext(dateiname or "")[1].lower()
+    if endung not in VORSCHAU_TYPEN:
+        return None
+    return "pdf" if endung == ".pdf" else "bild"
+
+
+@login_required
+@xframe_options_sameorigin
+def ablage_vorschau(request, pk):
+    """Datei einer Ablage-Dokuments inline (Vorschau) - nur PDF/Bilder, mit Rechtepruefung und Vereinsfilter."""
+    _pruefen(request, "ablage", "view")
+    d = get_object_or_404(Ablagedokument, pk=pk, verein=request.verein)
+    endung = os.path.splitext(d.dateiname)[1].lower()
+    if not d.datei or endung not in VORSCHAU_TYPEN:
+        raise Http404
+    r = FileResponse(d.datei.open("rb"), content_type=VORSCHAU_TYPEN[endung])
+    r["Content-Disposition"] = f'inline; filename="{os.path.basename(d.datei.name)}"'
+    return r
 
 
 def _pdf_antwort(inhalt, name, inline=True):

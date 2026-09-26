@@ -70,10 +70,10 @@ def dokument_senden(v, dokument, erneut=False):
             dokument.save(update_fields=["paperless_gesendet_am", "paperless_pruefsumme", "paperless_fehler",
                                          "paperless_info", "paperless_status", "geaendert"])
             return None
+    tags = tags_fuer(v, dokument)
     try:
         task_id = c.dokument_senden(dokument.dateiname, inhalt, titel=dokument.titel, erstellt=dokument.datum,
-                                    korrespondent=v.korrespondent, dokumenttyp=v.dokumenttyp,
-                                    tags=tags_fuer(v, dokument))
+                                    korrespondent=v.korrespondent, dokumenttyp=v.dokumenttyp, tags=tags)
     except PaperlessFehler as e:
         dokument.paperless_fehler, dokument.paperless_status = str(e)[:300], "fehler"
         dokument.save(update_fields=["paperless_fehler", "paperless_status", "geaendert"])
@@ -84,8 +84,10 @@ def dokument_senden(v, dokument, erneut=False):
     dokument.paperless_pruefsumme = summe
     dokument.paperless_info = ""
     dokument.paperless_status = "uebergeben"
+    dokument.paperless_tags = ", ".join(tags)
     dokument.save(update_fields=["paperless_task_id", "paperless_gesendet_am", "paperless_fehler",
-                                 "paperless_pruefsumme", "paperless_info", "paperless_status", "geaendert"])
+                                 "paperless_pruefsumme", "paperless_info", "paperless_status", "paperless_tags",
+                                 "geaendert"])
     return task_id
 
 
@@ -96,12 +98,25 @@ VERARBEITUNG_TIMEOUT_MIN = 10
 def status_aktualisieren(v, dokument):
     """Fragt bei laufender Verarbeitung in Paperless den Status der Aufgabe ab (SUCCESS/FAILURE) und
     aktualisiert das Dokument. Nach VERARBEITUNG_TIMEOUT_MIN ohne Ergebnis endet die Abfrage."""
-    if dokument.paperless_status != "uebergeben" or not dokument.paperless_task_id:
+    if not dokument.paperless_status and dokument.paperless_gesendet_am and not dokument.paperless_fehler:
+        dokument.paperless_status = "uebergeben"   # vor Einfuehrung des Live-Status uebergeben
+    if dokument.paperless_status != "uebergeben":
         return dokument
-    try:
-        s = PaperlessClient(v).aufgabe_status(dokument.paperless_task_id)
-    except PaperlessFehler:
-        s = None
+    c = PaperlessClient(v)
+    s = None
+    if dokument.paperless_task_id:
+        try:
+            s = c.aufgabe_status(dokument.paperless_task_id)
+        except PaperlessFehler:
+            s = None
+    if not (s and s["status"] in ("SUCCESS", "FAILURE")) and dokument.paperless_pruefsumme:
+        # Zuverlaessiger Gegencheck unabhaengig von der Aufgaben-API: liegt die Datei (Pruefsumme) schon in Paperless?
+        try:
+            gefunden = c.dokument_finden(dokument.paperless_pruefsumme)
+        except PaperlessFehler:
+            gefunden = None
+        if gefunden:
+            s = {"status": "SUCCESS", "ergebnis": "", "dokument_id": gefunden}
     if s and s["status"] == "SUCCESS":
         dokument.paperless_status = "fertig"
         dokument.paperless_info = (f"In Paperless abgelegt (Dokument-ID {s['dokument_id']})."

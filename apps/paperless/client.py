@@ -89,8 +89,10 @@ class PaperlessClient:
         if r.status_code != 200:
             return None
         treffer = r.json() or []
+        if isinstance(treffer, dict):   # neuere Paperless-Versionen: paginierte Antwort
+            treffer = treffer.get("results") or []
         if not treffer:
             return None
         t = treffer[0]
-        return {"status": t.get("status"), "ergebnis": t.get("result") or "",
+        return {"status": str(t.get("status") or "").upper(), "ergebnis": t.get("result") or "",
                 "dokument_id": t.get("related_document")}

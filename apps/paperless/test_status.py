@@ -125,3 +125,90 @@ class LiveStatusTests(TestCase):
         # Fehler: wieder normal senden
         self._setze(paperless_status="fehler", paperless_fehler="x")
         self.assertEqual(self._knoepfe(), (True, False))
+
+    @patch("apps.paperless.client.requests.Session.request")
+    def test_bestaetigung_ueber_pruefsumme_wenn_aufgaben_api_nichts_liefert(self, req):
+        self._setze(paperless_status="uebergeben", paperless_task_id="t1", paperless_pruefsumme="abc123",
+                    paperless_gesendet_am=timezone.now())
+        req.side_effect = [_antwort(200, []),                          # Aufgabe unbekannt
+                           _antwort(200, {"results": [{"id": 77}]})]   # Datei per Pruefsumme gefunden
+        self.assertContains(self.client.get(self.url), "Dokument-ID 77")
+        self.dok.refresh_from_db()
+        self.assertEqual(self.dok.paperless_status, "fertig")
+
+    @patch("apps.paperless.client.requests.Session.request")
+    def test_aufgaben_api_mit_paginierter_antwort(self, req):
+        req.return_value = _antwort(200, {"results": [{"status": "success", "result": "", "related_document": 5}]})
+        self.assertEqual(PaperlessClient(self.verbindung).aufgabe_status("t")["status"], "SUCCESS")
+
+    @patch("apps.paperless.client.requests.Session.request")
+    def test_alte_uebergaben_ohne_status_werden_nachtraeglich_bestaetigt(self, req):
+        self._setze(paperless_status="", paperless_pruefsumme="abc", paperless_gesendet_am=timezone.now())
+        req.side_effect = [_antwort(200, {"results": [{"id": 9}]})]
+        r = self.client.get(reverse("ablagedokument_detail", args=[self.dok.pk]))
+        self.assertContains(r, self.url)   # Live-Status wird auch fuer Altbestand eingebunden
+        self.assertContains(self.client.get(self.url), "Dokument-ID 9")
+
+    def test_pruefsumme_ist_in_der_detailansicht_sichtbar(self):
+        self._setze(paperless_pruefsumme="deadbeef" * 4)
+        self.assertContains(self.client.get(reverse("ablagedokument_detail", args=[self.dok.pk])), "deadbeef")
+
+    def test_uebergebene_tags_werden_am_dokument_gemerkt_und_angezeigt(self):
+        self.verbindung.tags = "Ablage"
+        self.verbindung.save()
+        with patch.object(PaperlessClient, "dokument_finden", return_value=None), \
+             patch.object(PaperlessClient, "dokument_senden", return_value="t"):
+            service_dokument_senden(self.verbindung, self.dok)
+        self.dok.refresh_from_db()
+        self.assertEqual(self.dok.paperless_tags, "Ablage, " + self.dok.tags.replace(", ", ", "))
+        r = self.client.get(reverse("ablagedokument_detail", args=[self.dok.pk]))
+        self.assertContains(r, "Tags in Paperless")
+        self.assertContains(r, self.dok.paperless_tags)
+
+    def test_sammelversand_zeigt_tags_als_badges(self):
+        r = self.client.get(reverse("ablage_paperless_sammelversand"))
+        self.assertContains(r, "badge")
+
+
+class VorschauTests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.user = get_user_model().objects.create_user("schriftfuehrer", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(
+            verein=self.v, name="Schriftführer"))
+        self.client.force_login(self.user)
+
+    def _dok(self, name, inhalt=b"%PDF-1.4 x", verein=None):
+        return Ablagedokument.objects.create(verein=verein or self.v, titel=name,
+                                             datei=SimpleUploadedFile(name, inhalt))
+
+    def test_pdf_vorschau_inline_und_im_eigenen_frame_erlaubt(self):
+        d = self._dok("a.pdf")
+        r = self.client.get(reverse("ablagedokument_vorschau", args=[d.pk]))
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Content-Type"], "application/pdf")
+        self.assertTrue(r["Content-Disposition"].startswith("inline"))
+        self.assertEqual(r["X-Frame-Options"], "SAMEORIGIN")
+        self.assertEqual(r["X-Content-Type-Options"], "nosniff")
+
+    def test_bild_vorschau(self):
+        d = self._dok("b.PNG", b"\x89PNG")
+        self.assertEqual(self.client.get(reverse("ablagedokument_vorschau", args=[d.pk]))["Content-Type"], "image/png")
+
+    def test_keine_vorschau_fuer_aktive_oder_unbekannte_typen(self):
+        for name in ("x.svg", "x.html", "x.docx"):
+            d = self._dok(name, b"<script>alert(1)</script>")
+            self.assertEqual(self.client.get(reverse("ablagedokument_vorschau", args=[d.pk])).status_code, 404, name)
+
+    def test_fremder_verein_und_ohne_anmeldung(self):
+        anderer = Verein.objects.create(name="Anderer", kuerzel="anderer")
+        fremd = self._dok("f.pdf", verein=anderer)
+        self.assertEqual(self.client.get(reverse("ablagedokument_vorschau", args=[fremd.pk])).status_code, 404)
+        self.client.logout()
+        d = self._dok("g.pdf")
+        self.assertEqual(self.client.get(reverse("ablagedokument_vorschau", args=[d.pk])).status_code, 302)
+
+    def test_detailseite_zeigt_vorschau_nur_bei_passendem_typ(self):
+        pdf, docx = self._dok("a.pdf"), self._dok("a.docx")
+        self.assertContains(self.client.get(reverse("ablagedokument_detail", args=[pdf.pk])), "<iframe")
+        self.assertNotContains(self.client.get(reverse("ablagedokument_detail", args=[docx.pk])), "<iframe")

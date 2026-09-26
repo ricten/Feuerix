@@ -111,7 +111,8 @@ def dokument_status(request, pk):
         d.paperless_status = "fehler"
         d.paperless_fehler = "Zeitüberschreitung - der Hintergrunddienst (Worker) hat nicht geantwortet."
         d.save(update_fields=["paperless_status", "paperless_fehler", "geaendert"])
-    if d.paperless_status == "uebergeben":
+    if d.paperless_status == "uebergeben" or (
+            not d.paperless_status and d.paperless_gesendet_am and not d.paperless_fehler):
         from . import services
         v = PaperlessVerbindung.objects.filter(verein=request.verein, aktiv=True).first()
         if v:
