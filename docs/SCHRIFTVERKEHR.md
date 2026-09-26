@@ -6,7 +6,7 @@
 *Verwaltung › Verein / Einstellungen / Logo* → Feld **Vereinslogo** (PNG oder JPG). Das Logo steht danach oben rechts auf
 allen PDF-Dokumenten (Briefe, Serienbriefe, Rechnungen, Mahnungen, Leihscheine, Spendenquittungen) und im Word-Export und
 neben dem Vereinsnamen in der Kopfzeile. Wechsel: neue Datei hochladen. Entfernen: „Löschen“ ankreuzen.
-Pro Verein (Mandant) gibt es ein eigenes Logo. Die Zeilen **Unterschrift 1/2** füllen die Platzhalter `{unterschrift_1}` / `{unterschrift_2}`.
+Für den Verein gibt es ein eigenes Logo. Die Zeilen **Unterschrift 1/2** füllen die Platzhalter `{unterschrift_1}` / `{unterschrift_2}`.
 
 ## Vorlagen (frei bearbeitbar)
 *Schriftverkehr › Vorlagen*. Mitgeliefert sind u. a.: Einladung Mitgliederversammlung / Vorstandssitzung / Veranstaltung,

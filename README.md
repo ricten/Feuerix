@@ -3,7 +3,7 @@
 "Feuerix" ist die Softwaremarke (`PRODUCT_NAME` in `config/settings.py`) – getrennt vom Namen/Logo des einzelnen
 Vereins, das jede Feuerwehr selbst hochlädt und das auf der eigenen Instanz die Hauptmarke bleibt.
 
-Mandantenfähige Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, Rechnungen, Zahlungen, Bankumsätze,
+Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, Rechnungen, Zahlungen, Bankumsätze,
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
@@ -43,17 +43,10 @@ Danach: http://localhost:8000 – Anmeldung mit `ADMIN_USER` / `ADMIN_PASSWORD`.
 Verein aus `VEREIN_NAME` samt Standardrollen, Mitgliedsarten (Beispielbeträge!), Ehrungsarten und Jubiläumsregeln
 angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte anpassen.
 
-## Mehrere Vereine (Mandanten)
+## Benutzer und Rechte
 
-* Die Datentrennung ist mandantenfähig angelegt: Jede Datenzeile gehört zu genau einem Verein; alle Listen,
-  Detailseiten, Formularauswahlen, Datei-Downloads und Exporte sind auf den aktiven Verein beschränkt.
-* **Aktuell gesperrt:** Über `/admin/` lässt sich vorerst kein zweiter Verein anlegen, solange bereits einer
-  existiert (`VereinAdmin.has_add_permission`) – das Mehrmandanten-Setup ist für den produktiven Einsatz mit
-  mehreren Vereinen derzeit nicht freigegeben. Bereits bestehende Installationen mit mehreren Vereinen sind davon
-  nicht betroffen; die Sperre verhindert nur das Neuanlegen.
-* Vereins-Administratoren verwalten ihre Benutzer selbst (*Verwaltung › Benutzer*). Ein Benutzer kann Zugang zu
-  mehreren Vereinen haben (Umschalter in der Kopfzeile) und sieht nur diese.
-* Rechte: Rolle je Verein + individuelle Einzelrechte je Modul (Anzeigen/Erstellen/Bearbeiten/Löschen).
+* Vereins-Administratoren verwalten ihre Benutzer selbst (*Verwaltung › Benutzer*).
+* Rechte: Rolle + individuelle Einzelrechte je Modul (Anzeigen/Erstellen/Bearbeiten/Löschen).
 
 ## Design der Weboberfläche
 

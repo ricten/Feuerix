@@ -1,6 +1,6 @@
 # Projektkontext für Claude Code
 
-Mandantenfähige Vereinsverwaltung (Django, PostgreSQL, Redis/Celery, Docker Compose). Sprache der Oberfläche, Doku und
+Vereinsverwaltung (Django, PostgreSQL, Redis/Celery, Docker Compose). Sprache der Oberfläche, Doku und
 Commit-Nachrichten: **Deutsch**.
 
 ## Wichtiger Stand
@@ -10,7 +10,7 @@ Commit-Nachrichten: **Deutsch**.
 * FinTS (`fints_abruf`) ist experimentell und ungetestet.
 
 ## Aufbau
-* `apps/core`: Verein (Mandant), Rollen/Rechte, Audit-Log, generische CRUD-Views (`crud.py`), PDF (`pdf.py`), Navigation (`context.py`).
+* `apps/core`: Verein, Rollen/Rechte, Audit-Log, generische CRUD-Views (`crud.py`), PDF (`pdf.py`), Navigation (`context.py`).
 * Fachmodule: `members`, `honors`, `finance`, `accounting` (Kassenbuch/-bericht), `inventory`, `donations`, `allowances`,
   `events`, `documents` (Vorlagen, Serienbriefe, Ablage), `openslides`.
 * Jedes Modell erbt von `TenantModel` (Feld `verein`). **Jede Abfrage muss nach `verein` filtern** – nie Daten über Vereine hinweg zeigen.

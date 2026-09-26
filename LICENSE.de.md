@@ -556,7 +556,7 @@ der Benutzeroberfläche, der auf ein Archiv des Sourcecodes verweist.
 
 ### Anwendung auf Feuerix
 
-    Feuerix - Mandantenfähige Vereinsverwaltung für Feuerwehr-Fördervereine
+    Feuerix - Vereinsverwaltung für Feuerwehr-Fördervereine
     Copyright (C) 2026 Rico Tengler
 
     Dieses Programm ist freie Software. Sie können es unter den Bedingungen der GNU Affero General Public

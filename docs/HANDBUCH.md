@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.23.0)
+# Handbuch – Feuerix (Version 1.23.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -14,7 +14,7 @@ Support eine Fehlermeldung schildern.
 
 ## Inhalt
 
-1. [Anmeldung, Oberfläche, mehrere Vereine](#1-anmeldung-oberfläche-mehrere-vereine)
+1. [Anmeldung und Oberfläche](#1-anmeldung-und-oberfläche)
 2. [Rollen und Rechte](#2-rollen-und-rechte)
 3. [Mitgliederverwaltung](#3-mitgliederverwaltung)
 4. [Beiträge, Rechnungen und Zahlungen](#4-beiträge-rechnungen-und-zahlungen)
@@ -34,20 +34,12 @@ Support eine Fehlermeldung schildern.
 
 ---
 
-## 1. Anmeldung, Oberfläche, mehrere Vereine
+## 1. Anmeldung und Oberfläche
 
 Nach der Anmeldung landen Mitarbeiter:innen mit einem Verwaltungszugang auf dem **Dashboard** (Mitgliederzahlen,
 Beitragsstand des laufenden Jahres, anstehende Jubiläen/Ehrungen, überfällige Ausleihen, nächste Termine, offene
 Aufgaben und Aufwandsanträge). Mitglieder, die nur einen Selbstdatenpflege-Zugang haben (siehe Kapitel 3), landen
 stattdessen direkt auf „Mein Konto“.
-
-Hat ein Benutzer Zugang zu **mehreren Vereinen**, erscheint oben rechts eine Auswahlliste, mit der zwischen den
-Vereinen gewechselt wird. Jede Ansicht, jede Liste und jeder Export zeigt ausschließlich Daten des gerade
-ausgewählten Vereins – die Vereine sind vollständig getrennt (Mandantenfähigkeit).
-
-**Hinweis:** Das Anlegen eines *weiteren* Vereins über `/admin/` ist aktuell gesperrt, solange bereits einer
-existiert – das Mehrmandanten-Setup ist für den produktiven Einsatz derzeit nicht freigegeben. Bereits bestehende
-Installationen mit mehreren Vereinen sind davon nicht betroffen.
 
 Die Navigation oben ist nach Themen gruppiert (Mitglieder, Schriftverkehr, Finanzen, Kasse, Inventar,
 Veranstaltungen, Auswertung, Verwaltung) und zeigt nur die Punkte, für die die eigene Rolle mindestens Lesezugriff
@@ -330,7 +322,7 @@ lässt sich als PDF oder Word (.docx) ausgeben, per E-Mail versenden und automat
 oben links, Logo oben rechts (unter *Verwaltung › Verein/Einstellungen* hochladbar), eine Trennlinie in der
 **Akzentfarbe**, und eine Fußzeile mit Registereintrag/E-Mail, Vertretungsberechtigtem/Anschrift sowie
 Bankverbindung – getrennt durch eine zweite Trennlinie in der optionalen **zweiten Akzentfarbe** (fällt auf die
-erste zurück, wenn nicht gesetzt). Kein Vorlagen-Code nötig: jeder Verein bekommt automatisch sein eigenes Design
+erste zurück, wenn nicht gesetzt). Kein Vorlagen-Code nötig: das Design ergibt sich automatisch
 aus den Vereinseinstellungen. Dieselbe Akzentfarbe wird auch in der **Weboberfläche** verwendet (Navigationsleiste,
 Schaltflächen, Links, farbig unterlegter Hover-Effekt beim Überfahren der Menüpunkte) – Logo, Navigation und Icons
 (Bootstrap Icons) ergeben ein einheitliches Erscheinungsbild zwischen Anwendung, Briefen und PDFs. Nahezu jeder
@@ -420,8 +412,7 @@ Unterschriftszeilen für den Briefkopf (Kapitel 11).
 **Impressum**: Das Feld „Impressum“ enthält den vollständigen Text nach § 5 TMG/§ 18 MStV (verantwortliche
 Person, Anschrift, Kontakt, Vertretungsberechtigte, ggf. USt-IdNr.) und wird **ungeprüft** auf einer öffentlich
 erreichbaren Seite angezeigt, verlinkt in der Fußzeile jeder Seite (auch vor der Anmeldung). Bitte den Text vorab
-mit der Satzung/dem Vereinsregister abgleichen – die Software übernimmt keine rechtliche Prüfung. Läuft die
-Installation für mehrere Vereine (Kapitel 1), erscheint pro Verein ein eigener Impressum-Link.
+mit der Satzung/dem Vereinsregister abgleichen – die Software übernimmt keine rechtliche Prüfung.
 
 **Lizenzhinweis**: Ebenfalls in der Fußzeile jeder Seite steht ein Hinweis, dass Feuerix freie Software
 (AGPL-3.0) ist, mit einem Link zum Quellcode. Das erfüllt die AGPL-Pflicht, Nutzern einer über das Netzwerk
@@ -435,8 +426,6 @@ tatsächlich passende Quellcode-Ablage umstellen, siehe README.
 - Jede Änderung wird im Änderungsprotokoll nachvollziehbar erfasst (siehe Kapitel 14).
 - Mitgliederdaten lassen sich jederzeit als vollständige DSGVO-Auskunft exportieren oder anonymisieren
   (Kapitel 3).
-- Jeder Verein sieht ausschließlich seine eigenen Daten; es gibt keine Möglichkeit, versehentlich Daten eines
-  anderen Vereins einzusehen oder zu exportieren.
 - Rechteprüfung erfolgt konsequent serverseitig je Modul und Aktion (Anzeigen/Erstellen/Bearbeiten/Löschen) –
   nicht nur durch Ausblenden von Menüpunkten.
 - **Cookies:** Es werden ausschließlich technisch notwendige Cookies gesetzt (Anmeldung/Sitzung, CSRF-Schutz,
