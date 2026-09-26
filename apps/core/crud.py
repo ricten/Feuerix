@@ -125,6 +125,12 @@ def knopf(label, url, post=False, stil="outline-secondary", bestaetigung=None, f
             "felder": felder or {}, "icon": _icon_fuer(label)}
 
 
+def pdf_vorschau(url):
+    """Kontext-Eintrag "vorschau" fuer Detailseiten: PDF wird eingebettet angezeigt (Ansicht muss
+    @xframe_options_sameorigin tragen, da Feuerix sonst jedes Einbetten verbietet)."""
+    return {"url": url, "art": "pdf"}
+
+
 def abschnitt(request, titel, qs, spalten, add_name=None, add_params=None, max_zeilen=50):
     """Tabelle mit Unterobjekten fuer Detailseiten."""
     model = qs.model

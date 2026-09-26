@@ -8,9 +8,10 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
-from apps.core.crud import abschnitt, knopf, wert
+from apps.core.crud import pdf_vorschau, abschnitt, knopf, wert
 from apps.core.util import geld
 
 from . import erechnung, fints_service, kontoauszug, sepa, services
@@ -72,10 +73,12 @@ def rechnung_kontext(request, r):
         hinweise.append("Die Rechnung ist überfällig.")
     if r.rueckzahlung_noetig and r.rueckzahlung_offen > 0:
         hinweise.append(f"Rückzahlung an den Zahler noch offen: {geld(r.rueckzahlung_offen)}.")
-    return {"aktionen": aktionen, "abschnitte": abschnitte, "hinweise": hinweise}
+    return {"aktionen": aktionen, "abschnitte": abschnitte, "hinweise": hinweise,
+            "vorschau": pdf_vorschau(reverse("rechnung_pdf", args=[r.pk]))}
 
 
 @login_required
+@xframe_options_sameorigin
 def rechnung_pdf_view(request, pk):
     r = _rechnung(request, pk, "view")
     resp = HttpResponse(rechnung_pdf(r), content_type="application/pdf")
@@ -155,10 +158,12 @@ def rechnung_mahnung(request, pk):
 
 
 def mahnung_kontext(request, m):
-    return {"aktionen": [knopf("PDF", reverse("mahnung_pdf", args=[m.pk]), stil="primary")]}
+    return {"aktionen": [knopf("PDF", reverse("mahnung_pdf", args=[m.pk]), stil="primary")],
+            "vorschau": pdf_vorschau(reverse("mahnung_pdf", args=[m.pk]))}
 
 
 @login_required
+@xframe_options_sameorigin
 def mahnung_pdf_view(request, pk):
     _pruefen(request, "rechnungen", "view")
     m = get_object_or_404(Mahnung, pk=pk, verein=request.verein)

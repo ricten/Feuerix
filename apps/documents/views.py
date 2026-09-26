@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
-from apps.core.crud import abschnitt, knopf
+from apps.core.crud import abschnitt, knopf, pdf_vorschau
 from apps.events.models import Veranstaltung
 
 from . import services
@@ -82,10 +82,12 @@ def schriftstueck_kontext(request, s):
         hinweise.append("Nicht ersetzbare Platzhalter (fehlender Bezug): " + ", ".join("{" + f + "}" for f in fehlend))
     if s.ablage_id:
         hinweise.append(f"Zuletzt abgelegt als {s.ablage}.")
-    return {"aktionen": aktionen, "hinweise": hinweise}
+    return {"aktionen": aktionen, "hinweise": hinweise,
+            "vorschau": pdf_vorschau(reverse("schriftstueck_pdf", args=[s.pk]))}
 
 
 @login_required
+@xframe_options_sameorigin
 def schriftstueck_pdf_view(request, pk):
     _pruefen(request, "schriftverkehr", "view")
     s = get_object_or_404(Schriftstueck, pk=pk, verein=request.verein)
@@ -143,10 +145,12 @@ def serienbrief_kontext(request, sb):
     return {"aktionen": aktionen, "hinweise": hinweise,
             "abschnitte": [{"titel": f"Empfängerliste (erste 50 von {n})", "spalten": ["Mitglied", "E-Mail", "Ort"],
                             "zeilen": [{"url": None, "zellen": [m.name, m.email or "–", m.ort or "–"]} for m in empf[:50]],
-                            "add_url": None}]}
+                            "add_url": None}],
+            "vorschau": pdf_vorschau(reverse("serienbrief_pdf", args=[sb.pk]))}
 
 
 @login_required
+@xframe_options_sameorigin
 def serienbrief_pdf_view(request, pk):
     _pruefen(request, "schriftverkehr", "view")
     sb = get_object_or_404(Serienbrief, pk=pk, verein=request.verein)

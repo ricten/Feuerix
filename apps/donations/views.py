@@ -6,9 +6,10 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
-from apps.core.crud import abschnitt, knopf
+from apps.core.crud import pdf_vorschau, abschnitt, knopf
 from apps.core.util import geld
 
 from . import services
@@ -89,10 +90,12 @@ def bestaetigung_kontext(request, b):
             aktionen.append(knopf("Stornieren", reverse("zuwendungsbestaetigung_stornieren", args=[b.pk]), post=True,
                                   stil="outline-danger", bestaetigung="Bestätigung stornieren? Die Spenden werden wieder freigegeben."))
     return {"aktionen": aktionen, "hinweise": bescheid_warnungen(request.verein) if b.status == "entwurf" else [],
-            "abschnitte": [abschnitt(request, "Enthaltene Spenden", b.spenden.all(), ("datum", "art", "betrag"))]}
+            "abschnitte": [abschnitt(request, "Enthaltene Spenden", b.spenden.all(), ("datum", "art", "betrag"))],
+            "vorschau": pdf_vorschau(reverse("zuwendungsbestaetigung_pdf", args=[b.pk]))}
 
 
 @login_required
+@xframe_options_sameorigin
 def bestaetigung_pdf(request, pk):
     _pruefen(request, "view")
     b = get_object_or_404(Zuwendungsbestaetigung, pk=pk, verein=request.verein)

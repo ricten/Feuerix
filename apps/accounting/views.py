@@ -8,9 +8,10 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
-from apps.core.crud import knopf
+from apps.core.crud import pdf_vorschau, knopf
 from apps.core.util import geld
 from apps.documents.services import ablegen
 
@@ -180,7 +181,8 @@ def kassenbericht_kontext(request, b):
         {"titel": "Ergebnis nach Sphären", "spalten": ["Sphäre", "Einnahmen", "Ausgaben", "Ergebnis"], "add_url": None,
          "zeilen": [_zeile(l, geld(e), geld(a), geld(r)) for l, e, a, r in d["sphaeren"]]},
     ]
-    return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": abschnitte}
+    return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": abschnitte,
+            "vorschau": pdf_vorschau(reverse("kassenbericht_pdf", args=[b.pk]))}
 
 
 def _bericht(request, pk, aktion):
@@ -189,6 +191,7 @@ def _bericht(request, pk, aktion):
 
 
 @login_required
+@xframe_options_sameorigin
 def kassenbericht_pdf_view(request, pk):
     b = _bericht(request, pk, "view")
     r = HttpResponse(kassenbericht_pdf(b), content_type="application/pdf")
