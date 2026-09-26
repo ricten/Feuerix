@@ -12,7 +12,7 @@ from apps.documents.models import Ablagedokument
 from .client import PaperlessClient, PaperlessFehler
 from .models import PaperlessVerbindung
 from .services import dokument_senden as service_dokument_senden
-from .services import verbindung_testen
+from .services import tags_fuer, verbindung_testen
 
 
 def _antwort(status_code=200, json_data=None, text=""):
@@ -115,7 +115,8 @@ class ServiceTests(TestCase):
         self.assertEqual(self.verbindung.letzter_test, "Verbindung erfolgreich.")
 
     def test_dokument_senden_erfolgreich_vermerkt_task_id(self):
-        with patch.object(PaperlessClient, "dokument_senden", return_value="task-123") as m:
+        with patch.object(PaperlessClient, "dokument_finden", return_value=None), \
+             patch.object(PaperlessClient, "dokument_senden", return_value="task-123") as m:
             task_id = service_dokument_senden(self.verbindung, self.dok)
         self.assertEqual(task_id, "task-123")
         self.dok.refresh_from_db()
@@ -125,7 +126,8 @@ class ServiceTests(TestCase):
         self.assertEqual(m.call_args.kwargs["titel"], "Rechnung Strom")
 
     def test_dokument_senden_fehler_wird_am_dokument_vermerkt(self):
-        with patch.object(PaperlessClient, "dokument_senden", side_effect=PaperlessFehler("Server nicht erreichbar")):
+        with patch.object(PaperlessClient, "dokument_finden", return_value=None), \
+             patch.object(PaperlessClient, "dokument_senden", side_effect=PaperlessFehler("Server nicht erreichbar")):
             with self.assertRaises(PaperlessFehler):
                 service_dokument_senden(self.verbindung, self.dok)
         self.dok.refresh_from_db()
@@ -177,7 +179,7 @@ class ViewTests(TestCase):
         r = self.client.post(reverse("ablagedokument_paperless_senden", args=[self.dok.pk]), follow=True)
         self.assertContains(r, "gesendet")
         v = PaperlessVerbindung.objects.get(verein=self.v)
-        delay.assert_called_once_with(v.pk, self.dok.pk)
+        delay.assert_called_once_with(v.pk, self.dok.pk, False)
 
     def test_dokument_senden_ohne_recht_verboten(self):
         User = get_user_model()
@@ -216,3 +218,78 @@ class ViewTests(TestCase):
                                            api_token="geheim", aktiv=True)
         r = self.client.get(reverse("ablagedokument_detail", args=[self.dok.pk]))
         self.assertContains(r, "An Paperless senden")
+
+
+class DuplikatUndTagTests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.verbindung = PaperlessVerbindung.objects.create(
+            verein=self.v, url="https://paperless.example.org", api_token="geheim", aktiv=True, tags="Ablage")
+        self.dok = Ablagedokument.objects.create(
+            verein=self.v, titel="Protokoll JHV", kategorie="protokoll", datum=date(2026, 3, 1),
+            datei=SimpleUploadedFile("p.pdf", b"%PDF-1.4 Inhalt"))
+
+    def _senden(self, **kw):
+        with patch.object(PaperlessClient, "dokument_finden", return_value=kw.get("vorhanden")) as finden, \
+             patch.object(PaperlessClient, "dokument_senden", return_value="task-1") as senden:
+            ergebnis = service_dokument_senden(self.verbindung, self.dok, erneut=kw.get("erneut", False))
+        return ergebnis, finden, senden
+
+    def test_kategorie_wird_als_tag_gesetzt(self):
+        _, _, senden = self._senden()
+        self.assertEqual(senden.call_args.kwargs["tags"], ["Ablage", "Protokoll"])
+
+    def test_kategorie_tag_abschaltbar_und_ohne_doppelte(self):
+        self.verbindung.kategorie_tags = False
+        self.assertEqual(tags_fuer(self.verbindung, self.dok), ["Ablage"])
+        self.verbindung.kategorie_tags = True
+        self.verbindung.tags = "protokoll, Ablage"
+        self.assertEqual(tags_fuer(self.verbindung, self.dok), ["protokoll", "Ablage"])
+
+    def test_gleiche_version_wird_nicht_zweimal_uebergeben(self):
+        self.assertEqual(self._senden()[0], "task-1")
+        ergebnis, finden, senden = self._senden()
+        self.assertIsNone(ergebnis)
+        senden.assert_not_called()
+        finden.assert_not_called()   # lokale Pruefung reicht, kein unnoetiger API-Aufruf
+        self.dok.refresh_from_db()
+        self.assertIn("bereits an Paperless übergeben", self.dok.paperless_info)
+
+    def test_geaenderte_datei_wird_uebergeben(self):
+        self._senden()
+        self.dok.datei.save("p.pdf", SimpleUploadedFile("p.pdf", b"%PDF-1.4 ANDERER Inhalt"))
+        ergebnis, _, senden = self._senden()
+        self.assertEqual(ergebnis, "task-1")
+        senden.assert_called_once()
+
+    def test_in_paperless_vorhandene_datei_wird_uebernommen_nicht_gesendet(self):
+        ergebnis, _, senden = self._senden(vorhanden=42)
+        self.assertIsNone(ergebnis)
+        senden.assert_not_called()
+        self.dok.refresh_from_db()
+        self.assertIsNotNone(self.dok.paperless_gesendet_am)
+        self.assertIn("Dokument-ID 42", self.dok.paperless_info)
+
+    def test_erneut_ueberspringt_die_pruefung(self):
+        self._senden()
+        ergebnis, finden, senden = self._senden(erneut=True)
+        self.assertEqual(ergebnis, "task-1")
+        finden.assert_not_called()
+
+    def test_fehlgeschlagener_versand_wird_wiederholt(self):
+        with patch.object(PaperlessClient, "dokument_finden", return_value=None), \
+             patch.object(PaperlessClient, "dokument_senden", side_effect=PaperlessFehler("weg")):
+            with self.assertRaises(PaperlessFehler):
+                service_dokument_senden(self.verbindung, self.dok)
+        self.assertEqual(self._senden()[0], "task-1")
+
+    @patch("apps.paperless.client.requests.Session.request")
+    def test_client_dokument_finden(self, req):
+        req.return_value = _antwort(200, {"results": [{"id": 7}]})
+        self.assertEqual(PaperlessClient(self.verbindung).dokument_finden("abc"), 7)
+        self.assertEqual(req.call_args.kwargs["params"]["checksum__iexact"], "abc")
+        req.return_value = _antwort(200, {"results": []})
+        self.assertIsNone(PaperlessClient(self.verbindung).dokument_finden("abc"))
+        req.return_value = _antwort(500, text="x")
+        with self.assertRaises(PaperlessFehler):
+            PaperlessClient(self.verbindung).dokument_finden("abc")

@@ -51,6 +51,14 @@ class PaperlessClient:
                                   f"(HTTP {r.status_code}): {r.text[:200]}")
         return r.json()["id"]
 
+    def dokument_finden(self, md5):
+        """Sucht in Paperless ein Dokument mit dieser Datei-Prüfsumme (MD5 der Originaldatei) -> ID oder None."""
+        r = self._anfrage("get", "/api/documents/", params={"checksum__iexact": md5, "page_size": 1})
+        if r.status_code != 200:
+            raise PaperlessFehler(f"Duplikatprüfung fehlgeschlagen (HTTP {r.status_code}): {r.text[:200]}")
+        treffer = (r.json() or {}).get("results") or []
+        return treffer[0]["id"] if treffer else None
+
     def dokument_senden(self, dateiname, inhalt, *, titel=None, erstellt=None, korrespondent=None,
                         dokumenttyp=None, tags=None):
         """Lädt eine Datei hoch -> UUID der Verarbeitungsaufgabe (Consumption-Task)."""

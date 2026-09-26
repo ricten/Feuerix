@@ -63,6 +63,9 @@ class Ablagedokument(TenantModel):
     paperless_gesendet_am = models.DateTimeField("An Paperless gesendet am", null=True, blank=True, editable=False)
     paperless_task_id = models.CharField("Paperless-Task-ID", max_length=50, blank=True, editable=False)
     paperless_fehler = models.CharField("Letzter Paperless-Fehler", max_length=300, blank=True, editable=False)
+    paperless_pruefsumme = models.CharField("Prüfsumme der übergebenen Datei", max_length=64, blank=True,
+                                            editable=False)
+    paperless_info = models.CharField("Paperless-Hinweis", max_length=300, blank=True, editable=False)
 
     class Meta:
         verbose_name = "Ablage-Dokument"

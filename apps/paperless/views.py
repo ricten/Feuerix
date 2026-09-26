@@ -74,7 +74,7 @@ def dokument_senden(request, pk):
         messages.error(request, "Dieses Dokument hat keine Datei.")
         return redirect("ablagedokument_detail", pk=d.pk)
     from .tasks import senden_task
-    senden_task.delay(v.pk, d.pk)
+    senden_task.delay(v.pk, d.pk, request.POST.get("erneut") == "1")
     messages.success(request, "Wird an Paperless gesendet – Ergebnis erscheint in Kürze auf dieser Seite "
                               "(ggf. neu laden).")
     return redirect("ablagedokument_detail", pk=d.pk)
@@ -101,7 +101,7 @@ def sammelversand(request):
             messages.error(request, "Bitte mindestens ein Dokument auswählen.")
             return redirect("ablage_paperless_sammelversand")
         from .tasks import sammel_senden_task
-        sammel_senden_task.delay(v.pk, ids)
+        sammel_senden_task.delay(v.pk, ids, request.POST.get("erneut") == "1")
         messages.success(request, f"{len(ids)} Dokument(e) werden an Paperless gesendet – Ergebnis erscheint "
                                   "in Kürze in der Ablage (ggf. neu laden).")
         return redirect("ablage_paperless_sammelversand")

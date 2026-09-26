@@ -22,11 +22,16 @@
         <td>
           {% if d.paperless_fehler %}<span class="text-danger">{% trans "Fehler:" %} {{ d.paperless_fehler }}</span>
           {% elif d.paperless_gesendet_am %}<span class="text-success">{% trans "Gesendet" %} {{ d.paperless_gesendet_am|date:"d.m.Y H:i" }}</span>
+            {% if d.paperless_info %}<br><small class="text-muted">{{ d.paperless_info }}</small>{% endif %}
           {% else %}<span class="text-muted">{% trans "noch nicht gesendet" %}</span>{% endif %}
         </td>
       </tr>
     {% empty %}<tr><td colspan="7" class="text-muted">{% trans "Keine Dokumente mit Datei vorhanden." %}</td></tr>{% endfor %}
     </tbody></table></div>
+  </div>
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" name="erneut" value="1" id="erneut">
+    <label class="form-check-label" for="erneut">{% trans "Auch bereits übergebene Dateien erneut senden (sonst werden sie übersprungen)" %}</label>
   </div>
   <button class="btn btn-primary"><i class="bi bi-send"></i> {% trans "Ausgewählte an Paperless senden" %}</button>
 </form>

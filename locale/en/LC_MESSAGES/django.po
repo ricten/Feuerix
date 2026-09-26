@@ -1262,6 +1262,9 @@ msgid "Keine Dokumente mit Datei vorhanden."
 msgstr "No documents with a file available."
 
 #: .\templates\paperless\sammelversand.html:31
+msgid "Auch bereits übergebene Dateien erneut senden (sonst werden sie übersprungen)"
+msgstr "Also resend files that were already transferred (otherwise they are skipped)"
+
 msgid "Ausgewählte an Paperless senden"
 msgstr "Send selected to Paperless"
 

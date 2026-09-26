@@ -16,6 +16,10 @@ class PaperlessVerbindung(TenantModel):
     tags = models.CharField("Standard-Tags", max_length=300, blank=True,
                             help_text="Kommagetrennt, z. B. Vereinsverwaltung,Ablage. Werden in Paperless angelegt, "
                                       "falls noch nicht vorhanden.")
+    kategorie_tags = models.BooleanField(
+        "Kategorie als Tag setzen", default=True,
+        help_text="Jedes Dokument bekommt in Paperless automatisch die Ablage-Kategorie (z. B. Protokoll, Belege) "
+                  "als Tag - zusätzlich zu den Standard-Tags.")
     tls_pruefen = models.BooleanField("TLS-Zertifikat prüfen", default=True,
                                       help_text="Nur zum Testen mit selbstsigniertem Zertifikat abschalten")
     aktiv = models.BooleanField("Anbindung aktiv", default=False)

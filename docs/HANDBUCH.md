@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.21.2)
+# Handbuch – Feuerix (Version 1.22.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -379,6 +379,16 @@ erscheint bei jedem Dokument in der **Ablage** (Kapitel 11) der Knopf „An Pape
 steht zusätzlich „Sammelversand an Paperless“ für mehrere Dokumente gleichzeitig zur Verfügung. Ein fehlender
 Korrespondent/Dokumenttyp/Tag wird bei Paperless automatisch neu angelegt. Der Versand läuft im Hintergrund;
 Ergebnis bzw. Fehlermeldung erscheinen am jeweiligen Dokument (Seite ggf. neu laden).
+
+**Duplikatschutz:** Dieselbe Datei wird nicht zweimal übergeben. Vor dem Senden prüft die Vereinsverwaltung anhand
+der Datei-Prüfsumme, ob genau diese Version schon übergeben wurde oder in Paperless bereits vorhanden ist; dann
+wird nichts gesendet und am Dokument steht ein Hinweis. Eine geänderte Datei bzw. eine neue Version wird normal
+übergeben. Über „Erneut an Paperless senden“ (Dokument) bzw. das Häkchen im Sammelversand lässt sich der Schutz
+bewusst umgehen.
+
+**Automatische Tags:** Jedes Dokument erhält in Paperless zusätzlich zu den Standard-Tags die Ablage-Kategorie als
+Tag (z. B. „Protokoll“, „Belege“, „Kassenbericht“). In den Einstellungen unter „Kategorie als Tag setzen“
+abschaltbar.
 
 Diese Anbindung ist praktisch nur für den Superadministrator einrichtbar, da das Modul `paperless` standardmäßig
 außer beim Vorstand (nur lesend) keiner Rolle zugewiesen ist; den Versandknopf selbst können alle Rollen mit

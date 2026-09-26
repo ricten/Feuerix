@@ -18,6 +18,11 @@ def ablage_kontext(request, d):
     verbindung = PaperlessVerbindung.objects.filter(verein=request.verein, aktiv=True).first()
     if d.datei and verbindung and request.rechte.darf("ablage", "change"):
         a.append(knopf("An Paperless senden", reverse("ablagedokument_paperless_senden", args=[d.pk]), post=True))
+        if d.paperless_gesendet_am:
+            a.append(knopf("Erneut an Paperless senden", reverse("ablagedokument_paperless_senden", args=[d.pk]),
+                           post=True, felder={"erneut": "1"},
+                           bestaetigung="Diese Datei wurde bereits übergeben. Wirklich erneut senden? "
+                                        "Paperless kann Duplikate ablehnen."))
     frueher = Ablagedokument.objects.filter(verein=request.verein, ordner=d.ordner, titel=d.titel).exclude(pk=d.pk)
     return {"aktionen": a, "abschnitte": [abschnitt(request, "Weitere Versionen", frueher.order_by("-version"),
                                                     ("titel", "version", "datum"))] if frueher.exists() else []}
