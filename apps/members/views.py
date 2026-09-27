@@ -105,9 +105,11 @@ def mitglied_export(request, pk):
     from apps.finance.models import Rechnung, Zahlung
     from apps.honors.models import Ehrung
 
+    from apps.core.felder import feldstatus
     m = get_object_or_404(Mitglied, pk=pk, verein=request.verein)
+    versteckt, _ = feldstatus(request, Mitglied)
     daten = {
-        "mitglied": _dict(m),
+        "mitglied": _dict(m, ausschluss=("verein", "openslides_initialpasswort", *versteckt)),
         "abteilungen": [str(a) for a in m.abteilungen.all()],
         "funktionen": [_dict(x) for x in m.funktionen.all()],
         "ehrungen": [_dict(x) for x in Ehrung.objects.filter(mitglied=m)],
@@ -186,7 +188,9 @@ def mitglieder_import(request):
     from . import importer
     if request.verein is None or not request.rechte.darf("mitglieder", "add"):
         raise PermissionDenied
+    from apps.core.felder import feldstatus
     bericht = None
+    gesperrt = set().union(*feldstatus(request, Mitglied))
     if request.method == "POST":
         datei = request.FILES.get("datei")
         if not datei:
@@ -195,7 +199,8 @@ def mitglieder_import(request):
             try:
                 bericht = importer.importieren(
                     request.verein, datei.name, datei.read(), testlauf=bool(request.POST.get("testlauf")),
-                    aktualisieren=bool(request.POST.get("aktualisieren")), neu_anlegen=bool(request.POST.get("neu_anlegen")))
+                    aktualisieren=bool(request.POST.get("aktualisieren")), neu_anlegen=bool(request.POST.get("neu_anlegen")),
+                    gesperrte_felder=gesperrt)
                 if not bericht["testlauf"]:
                     _log(request, "importiert", f"Import {datei.name}: {bericht['neu']} neu, {bericht['aktualisiert']} aktualisiert, "
                                                 f"{len(bericht['fehler'])} Fehler")
@@ -252,9 +257,11 @@ def mitglieder_export(request):
     from .tabellen import SPALTEN_ANZEIGE
     if request.verein is None or not request.rechte.darf("mitglieder", "view"):
         raise PermissionDenied
-    mit_bank = bool(request.GET.get("bank")) and request.rechte.darf("beitraege", "view")
+    from apps.core.felder import feldstatus
+    versteckt, _ = feldstatus(request, Mitglied)
+    mit_bank = bool(request.GET.get("bank")) and request.rechte.darf("bankdaten", "view")
     bank_felder = {"zahlungsart", "kontoinhaber", "iban", "bic", "mandatsreferenz", "mandatsdatum", "individueller_beitrag"}
-    spalten = [(f, l) for f, l in SPALTEN_ANZEIGE if mit_bank or f not in bank_felder]
+    spalten = [(f, l) for f, l in SPALTEN_ANZEIGE if (mit_bank or f not in bank_felder) and f not in versteckt]
     qs = Mitglied.objects.filter(verein=request.verein).select_related("mitgliedsart", "familie").prefetch_related("abteilungen")
     if request.GET.get("status") in ("aktiv", "ruhend", "ausgetreten", "verstorben"):
         qs = qs.filter(status=request.GET["status"])

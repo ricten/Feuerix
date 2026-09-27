@@ -132,7 +132,7 @@ def serienbrief_kontext(request, sb):
         aktionen.append(knopf("Alle Briefe erzeugen & in Ablage speichern", reverse("serienbrief_ablegen", args=[sb.pk]),
                               post=True, stil="success",
                               bestaetigung=f"{n} Briefe als PDF erzeugen und in der Ablage speichern?"))
-    if rt.darf("schriftverkehr", "change") and mit_mail:
+    if rt.darf("rundschreiben", "change") and mit_mail:
         aktionen.append(knopf(f"Per E-Mail senden ({mit_mail})", reverse("serienbrief_mailen", args=[sb.pk]), post=True,
                               stil="outline-primary",
                               bestaetigung=f"E-Mail mit PDF-Anhang an {mit_mail} Mitglieder senden?"))
@@ -152,7 +152,7 @@ def serienbrief_kontext(request, sb):
 @login_required
 @xframe_options_sameorigin
 def serienbrief_pdf_view(request, pk):
-    _pruefen(request, "schriftverkehr", "view")
+    _pruefen(request, "rundschreiben", "view")
     sb = get_object_or_404(Serienbrief, pk=pk, verein=request.verein)
     empf = sb.empfaenger()
     pdf = serienbrief_pdf(sb, empf) if request.GET.get("alle") else serienbrief_pdf(sb, empf, limit=1)
@@ -162,6 +162,7 @@ def serienbrief_pdf_view(request, pk):
 @login_required
 @require_POST
 def serienbrief_ablegen(request, pk):
+    _pruefen(request, "rundschreiben", "view")
     _pruefen(request, "ablage", "add")
     sb = get_object_or_404(Serienbrief, pk=pk, verein=request.verein)
     empf = list(sb.empfaenger())
@@ -181,7 +182,7 @@ def serienbrief_ablegen(request, pk):
 @login_required
 @require_POST
 def serienbrief_mailen(request, pk):
-    _pruefen(request, "schriftverkehr", "change")
+    _pruefen(request, "rundschreiben", "change")
     from .tasks import serienbrief_mailen_task
     sb = get_object_or_404(Serienbrief, pk=pk, verein=request.verein)
     serienbrief_mailen_task.delay(sb.pk)

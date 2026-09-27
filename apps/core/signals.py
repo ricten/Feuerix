@@ -22,6 +22,8 @@ def verein_angelegt(sender, instance, created, raw=False, **kw):
     for name, cfg in STANDARDROLLEN.items():
         Rolle.objects.get_or_create(verein=instance, name=name, defaults={
             "ist_superadmin": cfg["ist_superadmin"], "rechte": cfg["rechte"]})
+    from .matrix import dso_anlegen
+    dso_anlegen(instance)
     Mitgliedsart = django_apps.get_model("members", "Mitgliedsart")
     Ehrungsart = django_apps.get_model("honors", "Ehrungsart")
     Regel = django_apps.get_model("honors", "Jubilaeumsregel")

@@ -64,10 +64,13 @@ def _wandeln(rohwerte, verein, neu_anlegen, warnungen, zeile):
     return d
 
 
-def importieren(verein, dateiname, inhalt, testlauf=True, aktualisieren=True, neu_anlegen=False):
+def importieren(verein, dateiname, inhalt, testlauf=True, aktualisieren=True, neu_anlegen=False,
+                gesperrte_felder=()):
     """-> Bericht-dict. Bei testlauf=True wird nichts gespeichert (alles wird zurückgerollt)."""
     kopf, zeilen = t.lesen(dateiname, inhalt)
     zuordnung, unbekannt = t.spaltenzuordnung(kopf)
+    gesperrt = sorted(f for f in zuordnung.values() if f in gesperrte_felder)
+    zuordnung = {i: f for i, f in zuordnung.items() if f not in gesperrte_felder}
     if "vorname" not in zuordnung.values() or "nachname" not in zuordnung.values():
         raise ValueError("Die Spalten „Vorname“ und „Nachname“ wurden nicht gefunden. Erkannte Spalten: "
                          + (", ".join(kopf) or "keine"))
@@ -75,6 +78,8 @@ def importieren(verein, dateiname, inhalt, testlauf=True, aktualisieren=True, ne
                "erkannte_spalten": [zuordnung[i] for i in sorted(zuordnung)], "testlauf": testlauf, "gesamt": len(zeilen)}
     if unbekannt:
         bericht["warnungen"].append("Nicht erkannte Spalten (werden ignoriert): " + ", ".join(unbekannt))
+    if gesperrt:
+        bericht["warnungen"].append("Spalten ohne Berechtigung (werden ignoriert): " + ", ".join(gesperrt))
     arten = {a.name.lower(): a for a in Mitgliedsart.objects.filter(verein=verein)}
     abt = {a.name.lower(): a for a in Abteilung.objects.filter(verein=verein)}
     fam = {f.name.lower(): f for f in Familie.objects.filter(verein=verein)}

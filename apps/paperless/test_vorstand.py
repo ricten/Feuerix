@@ -73,6 +73,7 @@ class MarkerUndFunktionTests(Basis):
 def _client_mock(**kw):
     c = Mock()
     c.gruppe_sicherstellen.return_value = 7
+    c.gruppe_finden.return_value = 7   # bekannte, aber nicht benoetigte Gruppen werden nur nachgeschlagen
     c.benutzer_suchen.return_value = kw.get("vorhanden")
     c.benutzer_anlegen.return_value = 101
     c.benutzer_lesen.return_value = {"groups": [7, 9]}
@@ -131,7 +132,7 @@ class AbgleichTests(Basis):
         info = self._lauf(c)
         self.assertEqual(c.benutzer_aendern.call_args.args, (101, {"groups": [9], "is_active": False}))
         self.assertFalse(PaperlessBenutzer.objects.exists())
-        self.assertIn("1 aus dem Vorstand entfernt", info)
+        self.assertIn("1 ohne Tag entfernt", info)
 
     def test_uebernommene_konten_werden_nie_deaktiviert(self):
         self._lauf(_client_mock(vorhanden={"id": 5, "groups": []}))

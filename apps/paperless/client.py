@@ -63,6 +63,10 @@ class PaperlessClient:
             return treffer[0]["id"]
         return self._schreiben("post", "/api/groups/", {"name": name, "permissions": list(rechte)})["id"]
 
+    def gruppe_finden(self, name):
+        treffer = self._liste("/api/groups/", {"name__iexact": name})
+        return treffer[0]["id"] if treffer else None
+
     def benutzer_suchen(self, benutzername):
         """-> dict des Benutzers oder None."""
         treffer = self._liste("/api/users/", {"username__iexact": benutzername})
@@ -74,10 +78,13 @@ class PaperlessClient:
     def benutzer_aendern(self, benutzer_id, daten):
         return self._schreiben("patch", f"/api/users/{int(benutzer_id)}/", daten)
 
-    def gruppen_ohne(self, gruppen_ids, gruppenname):
-        """Gruppenliste ohne die Gruppe `gruppenname` (falls vorhanden)."""
-        treffer = self._liste("/api/groups/", {"name__iexact": gruppenname})
-        entfernen = {g["id"] for g in treffer}
+    def gruppen_ohne(self, gruppen_ids, gruppennamen):
+        """Gruppenliste ohne die Gruppen mit den Namen `gruppennamen` (einzelner Name oder Menge)."""
+        if isinstance(gruppennamen, str):
+            gruppennamen = {gruppennamen}
+        entfernen = set()
+        for name in gruppennamen:
+            entfernen |= {g["id"] for g in self._liste("/api/groups/", {"name__iexact": name})}
         return [g for g in gruppen_ids if g not in entfernen]
 
     def benutzer_lesen(self, benutzer_id):

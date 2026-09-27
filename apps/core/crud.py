@@ -22,6 +22,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 
 from . import audit
 from .forms import TenantModelForm
+from .felder import feldstatus
 from .util import geld
 
 REGISTRY = {}  # Modell -> Rechte-Modul (fuer den geschuetzten Dateizugriff)
@@ -301,8 +302,10 @@ class DetailAnsicht(MandantMixin, DetailView):
         ctx = super().get_context_data(**kw)
         cfg, req, o = self.cfg, self.request, self.object
         felder = []
+        versteckt, _ = feldstatus(req, o.__class__)
         for f in list(o._meta.concrete_fields) + list(o._meta.many_to_many):
-            if f.name in ("id", "verein", "erstellt", "geaendert") or f.name in cfg.detail_ausblenden:
+            if (f.name in ("id", "verein", "erstellt", "geaendert") or f.name in cfg.detail_ausblenden
+                    or f.name in versteckt):
                 continue
             eintrag = {"label": str(f.verbose_name), "wert": wert(o, f.name), "url": None}
             if f.get_internal_type() in ("FileField", "ImageField") and getattr(o, f.name):
@@ -330,6 +333,16 @@ class FormularMixin(MandantMixin):
         kw = super().get_form_kwargs()
         kw["verein"] = self.request.verein
         return kw
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        versteckt, schreibgeschuetzt = feldstatus(self.request, form._meta.model)
+        for name in versteckt:
+            form.fields.pop(name, None)
+        for name in schreibgeschuetzt:
+            if name in form.fields:
+                form.fields[name].disabled = True
+        return form
 
     def _next(self):
         nxt = self.request.POST.get("next") or self.request.GET.get("next")

@@ -86,6 +86,7 @@ class Rolle(models.Model):
     name = models.CharField("Name", max_length=100)
     ist_superadmin = models.BooleanField("Superadministrator (alle Rechte)", default=False)
     rechte = models.JSONField("Rechte", default=list, blank=True)
+    matrix = models.JSONField("Berechtigungsmatrix (Stufen je Datenbereich)", default=dict, blank=True, editable=False)
 
     AUDIT = True
 

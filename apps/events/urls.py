@@ -22,7 +22,7 @@ urlpatterns += crud("schichten", Schicht, "veranstaltungen", list_display=("vera
                     kontext=views.schicht_kontext)
 urlpatterns += crud("schichteinsaetze", Schichteinsatz, "veranstaltungen", list_display=("schicht", "mitglied"),
                     select_related=("schicht", "mitglied", "schicht__veranstaltung"), filter=("schicht",))
-urlpatterns += crud("anmeldungen", Anmeldung, "veranstaltungen", list_display=("veranstaltung", ("wer", "Name"),
+urlpatterns += crud("anmeldungen", Anmeldung, "teilnehmer", list_display=("veranstaltung", ("wer", "Name"),
                     "personen", "status"), select_related=("veranstaltung", "mitglied"), filter=("veranstaltung",
                     "status"))
 urlpatterns += crud("kostenpositionen", Kostenposition, "veranstaltungen", list_display=("veranstaltung", "art",

@@ -3,7 +3,8 @@ from django.urls import path
 from apps.core.crud import crud, knopf
 
 from . import selbstdienst, verwaltungszugang, views
-from .models import Abteilung, Dokument, Familie, Funktion, Mitglied, MitgliedFunktion, Mitgliedsart
+from .models import (Abteilung, Dokument, Familie, Funktion, Mitglied, MitgliedFunktion, Mitgliedsart,
+                     MitgliedTag)
 
 urlpatterns = [
     path("mitglieder/import/", views.mitglieder_import, name="mitglieder_import"),
@@ -24,7 +25,7 @@ def mitglieder_listen_aktionen(request):
     Verwaltung (Navigationsleiste), nicht als Aktion auf dieser laufend genutzten Liste."""
     from django.urls import reverse
     a = [knopf("Vollexport (Excel)", reverse("mitglieder_export"))]
-    if request.rechte.darf("beitraege", "view"):
+    if request.rechte.darf("bankdaten", "view"):
         a.append(knopf("Vollexport mit Bankdaten", reverse("mitglieder_export") + "?bank=1"))
     return a
 
@@ -41,6 +42,9 @@ urlpatterns += crud("mitgliedsarten", Mitgliedsart, "beitraege", list_display=("
 urlpatterns += crud("familien", Familie, "mitglieder", list_display=("name",))
 urlpatterns += crud("abteilungen", Abteilung, "mitglieder", list_display=("name",))
 urlpatterns += crud("funktionen", Funktion, "mitglieder", list_display=("name",))
+urlpatterns += crud("tags", MitgliedTag, "mitglieder",
+                    list_display=("name", "rolle", "paperless_gruppe", "openslides_gruppe", "beschreibung"),
+                    select_related=("rolle",))
 urlpatterns += crud("mitglied-funktionen", MitgliedFunktion, "mitglieder",
                     list_display=("mitglied", "funktion", "von", "bis"), select_related=("mitglied", "funktion"))
 urlpatterns += crud("dokumente", Dokument, "dokumente", edit=False,

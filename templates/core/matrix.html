@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<h3 class="mb-2">{% trans "Berechtigungsmatrix" %}</h3>
+<p class="text-muted">{% blocktrans %}Zugriff auf personenbezogene Daten nach der Datenschutzordnung: je Datenbereich (Zeile) und Rolle (Spalte) wird eine Stufe gewählt.
+  <strong>V</strong> = Vollzugriff, <strong>B</strong> = Bearbeiten, <strong>L</strong> = Lesen, <strong>–</strong> = kein Zugriff.
+  Das Löschen personenbezogener Daten wird nur über die Zeile „Löschung personenbezogener Daten“ vergeben.{% endblocktrans %}</p>
+{% for h in hinweise %}<div class="alert alert-warning py-2">{{ h }}</div>{% endfor %}
+{% if dso_fehlt and kann %}
+<form method="post" action="{% url 'berechtigungsmatrix_dso' %}" class="mb-3">{% csrf_token %}
+  <button class="btn btn-outline-primary btn-sm"><i class="bi bi-shield-check"></i> {% trans "Rollen und Tags der Datenschutzordnung anlegen" %}</button>
+  <span class="text-muted small">{% trans "Fehlend:" %} {{ dso_fehlt|join:", " }}</span>
+</form>
+{% endif %}
+<form method="post">{% csrf_token %}
+<div class="card shadow-sm mb-3"><div class="table-responsive"><table class="table table-sm align-middle mb-0 matrix">
+  <thead class="table-light"><tr>
+    <th style="min-width:22rem">{% trans "Datenbereich" %}</th>
+    {% for r in rollen %}<th class="text-center" style="min-width:7rem">{{ r.name }}</th>{% endfor %}
+  </tr></thead>
+  <tbody>
+  {% for z in zeilen %}
+    {% if z.trenner %}
+    <tr class="table-secondary"><td colspan="{{ spalten }}"><em>{% trans "Weitere Bereiche (nicht Teil der Datenschutzordnung)" %}</em></td></tr>
+    {% else %}
+    <tr>
+      <td>{{ z.label }}</td>
+      {% for c in z.zellen %}
+      <td class="text-center">
+        <select name="{{ c.feld }}" class="form-select form-select-sm" {% if not kann %}disabled{% endif %}
+                data-wert="{{ c.wert }}" title="{% trans 'Stufe wählen' %}" style="min-width:4.2rem">
+          <option value="-" {% if c.wert == '-' %}selected{% endif %}>–</option>
+          <option value="L" {% if c.wert == 'L' %}selected{% endif %}>L</option>
+          <option value="B" {% if c.wert == 'B' %}selected{% endif %}>B</option>
+          <option value="V" {% if c.wert == 'V' %}selected{% endif %}>V</option>
+        </select>
+      </td>
+      {% endfor %}
+    </tr>
+    {% endif %}
+  {% endfor %}
+  </tbody></table></div></div>
+{% if kann %}<button class="btn btn-primary"><i class="bi bi-check2-square"></i> {% trans "Speichern" %}</button>{% endif %}
+</form>
+<style>
+  .matrix select[data-wert="V"] { background-color:#d1e7dd; }
+  .matrix select[data-wert="B"] { background-color:#e2f0d9; }
+  .matrix select[data-wert="L"] { background-color:#fff3cd; }
+  .matrix select[data-wert="-"] { background-color:#f8d7da; }
+</style>
+<script>
+  document.querySelectorAll('.matrix select').forEach(function (s) {
+    s.addEventListener('change', function () { s.dataset.wert = s.value; });
+  });
+</script>
+<p class="text-muted small mt-3">{% blocktrans %}Änderungen wirken sofort auf alle Benutzer mit der jeweiligen Rolle. Die Rechte werden im Änderungsprotokoll erfasst.
+  Ein Benutzer erhält die Rolle seiner Funktion automatisch über das Tag (Verwaltung › Tags); fällt das Tag weg, wird der Zugang deaktiviert.{% endblocktrans %}</p>
+{% endblock %}

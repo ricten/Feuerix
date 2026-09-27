@@ -60,7 +60,7 @@ urlpatterns += crud("schriftstuecke", Schriftstueck, "schriftverkehr", form=Schr
                     list_display=("datum", "titel", "art", "veranstaltung", "status"), select_related=("veranstaltung",),
                     suche=("titel", "betreff"), filter=("art", "status", "veranstaltung"), kontext=views.schriftstueck_kontext,
                     ordering=("-datum", "-id"), detail_ausblenden=())
-urlpatterns += crud("serienbriefe", Serienbrief, "schriftverkehr", form=SerienbriefForm,
+urlpatterns += crud("serienbriefe", Serienbrief, "rundschreiben", form=SerienbriefForm,
                     list_display=("datum", "titel", "status_filter", "veranstaltung", "versendet_am"),
                     select_related=("veranstaltung",), suche=("titel",), kontext=views.serienbrief_kontext,
                     ordering=("-datum", "-id"))

@@ -148,6 +148,8 @@ def status_aktualisieren(v, dokument):
 VORSTAND_RECHTE = [   # Leserechte plus Hochladen/Bearbeiten von Dokumenten; kein Löschen, keine Verwaltung
     "view_document", "add_document", "change_document", "view_tag", "add_tag", "view_correspondent",
     "add_correspondent", "view_documenttype", "add_documenttype", "view_storagepath"]
+VORSTAND_LESERECHTE = ["view_document", "view_tag", "view_correspondent", "view_documenttype",
+                       "view_storagepath"]
 _ALPHABET = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 
@@ -161,24 +163,49 @@ def _benutzername(m):
     return benutzername(m)
 
 
+def _gruppenbedarf(v):
+    """-> ({mitglied_pk: {gruppenname}}, {gruppenname: nur_lesen}, [Mitglieder]) aus den Tags (Paperless-Gruppe)."""
+    from apps.members.models import Mitglied, MitgliedTag
+    tags = list(MitgliedTag.objects.filter(verein=v.verein).exclude(paperless_gruppe=""))
+    gruppen = {}
+    for t in tags:   # eine Gruppe ist nur "nur lesen", wenn es alle Tags dazu sind
+        gruppen[t.paperless_gruppe] = gruppen.get(t.paperless_gruppe, True) and t.paperless_nur_lesen
+    mitglieder = list(Mitglied.objects.filter(verein=v.verein, status="aktiv", tags__in=tags).distinct())
+    zuordnung = {m.pk: {t.paperless_gruppe for t in m.tags.all() if t.paperless_gruppe} for m in mitglieder}
+    return zuordnung, gruppen, mitglieder
+
+
 def vorstand_abgleichen(v):
-    """Legt für aktive Vorstandsmitglieder Paperless-Benutzer an (Gruppe `vorstand_gruppe`), aktualisiert Namen/E-Mail
-    und entfernt ausgeschiedene Mitglieder aus der Gruppe (selbst angelegte Konten werden zusätzlich deaktiviert).
-    Es werden nie Konten gelöscht und nie Administrator-/Superuser-Rechte vergeben.
+    """Gleicht Paperless-Benutzer anhand der Tags der Mitglieder ab: Träger eines Tags mit Paperless-Gruppe erhalten
+    ein Konto (ohne Administrator-Rechte) in den Gruppen ihrer Tags; wer keine solchen Tags mehr hat, wird aus den
+    verwalteten Gruppen entfernt (selbst angelegte Konten zusätzlich deaktiviert). Gruppen, die nicht durch Tags
+    verwaltet werden, bleiben unberührt. Es werden nie Konten gelöscht.
     -> Ergebnistext (auch in der Anbindung gespeichert)."""
-    from apps.members.models import Mitglied
     from .models import PaperlessBenutzer
     c = PaperlessClient(v)
-    gruppe_id = c.gruppe_sicherstellen(v.vorstand_gruppe or "Vorstand", VORSTAND_RECHTE)
-    soll = list(Mitglied.objects.filter(verein=v.verein, status="aktiv", vorstandsmitglied=True))
+    zuordnung, gruppen, soll = _gruppenbedarf(v)
+    benoetigt = set().union(*zuordnung.values()) if zuordnung else set()
+    ids = {name: c.gruppe_sicherstellen(name, VORSTAND_LESERECHTE if lesen else VORSTAND_RECHTE)
+           for name, lesen in gruppen.items() if name in benoetigt}
+    verwaltet = set(ids.values())
+    for name in gruppen:   # nicht benoetigte Gruppen nur nachschlagen (nicht anlegen), um Mitglieder korrekt zu entfernen
+        if name not in ids:
+            gid = c.gruppe_finden(name)
+            if gid:
+                verwaltet.add(gid)
     soll_ids = {m.pk for m in soll}
     neu = akt = entfernt = 0
     fehler = []
+
+    def ziel_gruppen(aktuell, m):
+        return sorted((set(aktuell) - verwaltet) | {ids[n] for n in zuordnung[m.pk]})
+
     for m in soll:
         try:
             verkn = PaperlessBenutzer.objects.filter(mitglied=m).first()
             if verkn is not None:
-                daten = {"first_name": m.vorname, "last_name": m.nachname, "groups": [gruppe_id]}
+                aktuell = (c.benutzer_lesen(verkn.paperless_id) or {}).get("groups") or []
+                daten = {"first_name": m.vorname, "last_name": m.nachname, "groups": ziel_gruppen(aktuell, m)}
                 if verkn.angelegt:
                     daten["is_active"] = True
                 if m.email:
@@ -188,9 +215,8 @@ def vorstand_abgleichen(v):
                 continue
             name = _benutzername(m)
             vorhanden = c.benutzer_suchen(name)
-            if vorhanden:   # bestehendes Konto nur der Gruppe zuordnen, nie uebernehmen/veraendern/deaktivieren
-                gruppen = sorted(set(vorhanden.get("groups") or []) | {gruppe_id})
-                c.benutzer_aendern(vorhanden["id"], {"groups": gruppen})
+            if vorhanden:   # bestehendes Konto nur den Gruppen zuordnen, nie uebernehmen/veraendern/deaktivieren
+                c.benutzer_aendern(vorhanden["id"], {"groups": ziel_gruppen(vorhanden.get("groups") or [], m)})
                 PaperlessBenutzer.objects.create(verein=v.verein, mitglied=m, paperless_id=vorhanden["id"],
                                                  benutzername=name, angelegt=False)
                 akt += 1
@@ -198,7 +224,7 @@ def vorstand_abgleichen(v):
             pw = _startpasswort()
             daten = {"username": name, "password": pw, "first_name": m.vorname, "last_name": m.nachname,
                      "email": m.email or "", "is_active": True, "is_staff": False, "is_superuser": False,
-                     "groups": [gruppe_id]}
+                     "groups": ziel_gruppen([], m)}
             uid = c.benutzer_anlegen(daten)
             PaperlessBenutzer.objects.create(verein=v.verein, mitglied=m, paperless_id=uid, benutzername=name,
                                              angelegt=True, initialpasswort=pw)
@@ -207,9 +233,8 @@ def vorstand_abgleichen(v):
             fehler.append(f"{m.name}: {e}")
     for verkn in PaperlessBenutzer.objects.filter(verein=v.verein).exclude(mitglied_id__in=soll_ids):
         try:
-            aktuell = c.benutzer_lesen(verkn.paperless_id) or {}
-            gruppen = [g for g in (aktuell.get("groups") or []) if g != gruppe_id]
-            daten = {"groups": gruppen}
+            aktuell = (c.benutzer_lesen(verkn.paperless_id) or {}).get("groups") or []
+            daten = {"groups": sorted(set(aktuell) - verwaltet)}
             if verkn.angelegt:
                 daten["is_active"] = False
             c.benutzer_aendern(verkn.paperless_id, daten)
@@ -217,7 +242,7 @@ def vorstand_abgleichen(v):
             entfernt += 1
         except PaperlessFehler as e:
             fehler.append(f"{verkn.benutzername} (entfernen): {e}")
-    info = f"{neu} Benutzer angelegt, {akt} aktualisiert, {entfernt} aus dem Vorstand entfernt, {len(fehler)} Fehler."
+    info = f"{neu} Benutzer angelegt, {akt} aktualisiert, {entfernt} ohne Tag entfernt, {len(fehler)} Fehler."
     if fehler:
         info += "\n" + "\n".join(fehler[:20])
     v.letzter_abgleich_am, v.letzter_abgleich_info = timezone.now(), info
@@ -239,6 +264,12 @@ def mitglied_anonymisieren(v, mitglied):
             "is_active": False, "groups": []})
     else:
         aktuell = c.benutzer_lesen(verkn.paperless_id) or {}
-        gruppen = c.gruppen_ohne(aktuell.get("groups") or [], v.vorstand_gruppe or "Vorstand")
+        gruppen = c.gruppen_ohne(aktuell.get("groups") or [], _verwaltete_gruppennamen(v))
         c.benutzer_aendern(verkn.paperless_id, {"groups": gruppen})
     verkn.delete()
+
+
+def _verwaltete_gruppennamen(v):
+    from apps.members.models import MitgliedTag
+    return set(MitgliedTag.objects.filter(verein=v.verein).exclude(paperless_gruppe="").values_list(
+        "paperless_gruppe", flat=True))

@@ -73,12 +73,13 @@ def veranstaltung_kontext(request, v):
                     "aufgabe_add", {"veranstaltung": v.pk}),
           abschnitt(request, "Schichtplan", v.schichten.all(), ("bezeichnung", "beginn", "ende", ("besetzung", "Besetzung"),
                                                                ("helfer", "Helfer")), "schicht_add", {"veranstaltung": v.pk}),
-          abschnitt(request, "Anmeldungen", v.anmeldungen.all(), (("wer", "Name"), "personen", "status"),
-                    "anmeldung_add", {"veranstaltung": v.pk}),
           abschnitt(request, "Budget", v.kosten.all(), ("art", "bezeichnung", "plan_betrag", "ist_betrag"),
                     "kostenposition_add", {"veranstaltung": v.pk})]
     ab.insert(0, abschnitt(request, "Tagesordnung", v.tagesordnung.all(), ("position", "titel", "openslides_topic_id"),
                            "tagesordnungspunkt_add", {"veranstaltung": v.pk, "position": v.tagesordnung.count() + 1}))
+    if r.darf("teilnehmer", "view"):
+        ab.insert(2, abschnitt(request, "Anmeldungen", v.anmeldungen.all(), (("wer", "Name"), "personen", "status"),
+                               "anmeldung_add", {"veranstaltung": v.pk}))
     if v.wahlergebnisse.exists():
         ab.append(abschnitt(request, "Wahlergebnisse (aus OpenSlides)", v.wahlergebnisse.all(), ("amt", "wahlgang")))
     if r.darf("verleih", "view"):
@@ -86,6 +87,7 @@ def veranstaltung_kontext(request, v):
     if r.darf("schriftverkehr", "view"):
         ab.append(abschnitt(request, "Schriftstücke (Einladung, Protokoll …)", v.schriftstuecke.all(),
                             ("datum", "titel", "art", "status")))
+    if r.darf("rundschreiben", "view"):
         ab.append(abschnitt(request, "Serienbriefe", v.serienbriefe.all(), ("datum", "titel", "versendet_am")))
     if r.darf("ablage", "view"):
         ab.append(abschnitt(request, "Ablage zu dieser Veranstaltung", v.ablage.all(),

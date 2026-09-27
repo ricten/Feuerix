@@ -92,6 +92,14 @@ def passwoerter_loeschen(request):
     return redirect("openslides_einstellungen")
 
 
+def _rechte_zuweisen(v, ver):
+    """Rechte aus den Tags; ein Fehler dabei darf das Anlegen/Übertragen nicht scheitern lassen."""
+    try:
+        return services.versammlungsrechte_zuweisen(v, ver)
+    except OpenSlidesFehler as e:
+        return f"Rechte aus Tags konnten nicht vergeben werden: {e}."
+
+
 @login_required
 @require_POST
 def veranstaltung_meeting(request, pk):
@@ -101,11 +109,13 @@ def veranstaltung_meeting(request, pk):
         v = _verbindung(request)
         if ver.openslides_meeting_id:
             n = services.tagesordnung_uebertragen(v, ver)
-            messages.success(request, f"{n} neue Tagesordnungspunkte nach OpenSlides übertragen.")
+            rechte = _rechte_zuweisen(v, ver)
+            messages.success(request, f"{n} neue Tagesordnungspunkte nach OpenSlides übertragen. {rechte}")
         else:
             mid, n = services.meeting_anlegen(v, ver)
-            messages.success(request, f"Versammlung in OpenSlides angelegt (ID {mid}), {n} Tagesordnungspunkte übertragen. "
-                                      "Teilnehmer bitte in OpenSlides der Versammlung hinzufügen.")
+            rechte = _rechte_zuweisen(v, ver)
+            messages.success(request, f"Versammlung in OpenSlides angelegt (ID {mid}), {n} Tagesordnungspunkte "
+                                      f"übertragen. {rechte} Weitere Teilnehmer bitte in OpenSlides hinzufügen.")
     except OpenSlidesFehler as e:
         messages.error(request, f"OpenSlides: {e}")
     return redirect("veranstaltung_detail", pk=ver.pk)

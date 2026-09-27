@@ -21,6 +21,10 @@ MODULE = {
     "auswertungen": "Auswertungen",
     "audit": "Änderungsprotokoll",
     "verwaltung": "Verwaltung (Benutzer, Rollen, Verein)",
+    "geburtsdatum": "Mitgliederdaten: Geburtsdatum",
+    "bankdaten": "Mitgliederdaten: Bankverbindung und SEPA-Mandat",
+    "teilnehmer": "Teilnehmerlisten (Anmeldungen zu Veranstaltungen)",
+    "rundschreiben": "Rundschreiben / Verteiler (Serienbriefe)",
 }
 AKTIONEN = {"view": "Anzeigen", "add": "Erstellen", "change": "Bearbeiten", "delete": "Löschen"}
 
@@ -58,8 +62,27 @@ STANDARDROLLEN = {
         _r(["selbstdienst"], ALLES) + _r(["mitglieder"], LESEN))},
     "Lesebenutzer": {"ist_superadmin": False, "rechte": _r(
         [m for m in MODULE if m not in ("verwaltung", "audit", "bank", "aufwand", "spenden", "openslides", "paperless",
-                                        "kassenbuch", "selbstdienst")], LESEN)},
+                                        "kassenbuch", "selbstdienst", "bankdaten")], LESEN)},
 }
+
+
+def neue_module_ableiten(rechte):
+    """Rechte der Module, die aus bestehenden herausgelöst wurden (bisheriges Verhalten bleibt erhalten):
+    Geburtsdatum/Bankdaten folgen Mitglieder, Teilnehmer folgt Veranstaltungen, Rundschreiben folgt Schriftverkehr."""
+    r = set(rechte)
+    for alt, neu, aktionen in (("mitglieder", "geburtsdatum", ("view", "change")),
+                               ("mitglieder", "bankdaten", ("view", "change")),
+                               ("veranstaltungen", "teilnehmer", tuple(AKTIONEN)),
+                               ("schriftverkehr", "rundschreiben", tuple(AKTIONEN))):
+        r.update(f"{neu}.{a}" for a in aktionen if f"{alt}.{a}" in r)
+    return sorted(r)
+
+
+for _name, _cfg in STANDARDROLLEN.items():
+    if not _cfg["ist_superadmin"]:
+        _cfg["rechte"] = neue_module_ableiten(_cfg["rechte"])
+STANDARDROLLEN["Lesebenutzer"]["rechte"] = [x for x in STANDARDROLLEN["Lesebenutzer"]["rechte"]
+                                            if not x.startswith("bankdaten.")]
 
 
 class RechteKontext:

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.27.0)
+# Handbuch – Feuerix (Version 1.28.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -45,6 +45,24 @@ stattdessen direkt auf „Mein Konto“.
 Schriftstücken und Serienbriefen (dort der erste Brief) zeigen das erzeugte PDF direkt auf der Seite an; in der
 Ablage gilt das für PDF- und Bilddateien. Die Vorschau erscheint nur für angemeldete Benutzer mit
 Leserecht und ist ausschließlich innerhalb von Feuerix einbettbar.
+
+**Rechte nach der Datenschutzordnung (Berechtigungsmatrix):** Unter *Verwaltung › Berechtigungsmatrix* werden die
+Zugriffsrechte wie in der Berechtigungsmatrix der Datenschutzordnung angezeigt und sind **per Auswahl je Zelle
+änderbar**: Zeilen sind die Datenbereiche (Mitgliederstammdaten, Geburtsdatum, Beitragsdaten, Bankverbindungen und
+SEPA-Mandate, Zahlungsverkehr, Veranstaltungsdaten, Teilnehmerlisten, Vereinskommunikation, Rundschreiben/Verteiler,
+Vereinssoftware/Verwaltung, Datenschutzdokumentation, Datenschutzverletzungen, Löschung personenbezogener Daten),
+Spalten die Rollen; Stufen: **V** Vollzugriff, **B** Bearbeiten, **L** Lesen, **–** kein Zugriff. Das **Löschen**
+personenbezogener Daten wird ausschließlich über die Zeile „Löschung personenbezogener Daten“ vergeben (so darf z. B.
+der Kassenwart löschen, der Schriftführer nicht). Geburtsdatum und Bankverbindung/SEPA-Mandat sind eigene Rechte-Bereiche:
+Ohne Recht sind diese Felder in Akte, Formular, Export, Datenauskunft und Import unsichtbar bzw. schreibgeschützt.
+Für neue Vereine (und per Knopf „Rollen und Tags der Datenschutzordnung anlegen“ nachträglich) entstehen die sechs Rollen
+**1. Vorsitzender, 2. Vorsitzender, Kassenwart, Stellv. Kassenwart, Schriftführer, Stellv. Schriftführer** (Zusatz „(DSO)“)
+samt gleichnamigen Tags mit den Werten der Datenschutzordnung. Die Stellvertreter besitzen die Rechte ihrer Funktion.
+Vergabe und Entzug laufen über die Tags: Wer das Tag einer Funktion erhält und einen Benutzerzugang hat, bekommt
+automatisch die Rolle; entfällt das Tag oder tritt das Mitglied aus, wird der Zugang **deaktiviert** (§ 17: Rechte
+unverzüglich entziehen, nie löschen). Die Seite warnt bei mehr als sechs Personen mit Zugriff (§ 6), unbesetzten oder
+mehrfach besetzten Funktionen und Zugängen ohne Funktion. Rundschreiben (Serienbriefe) und Teilnehmerlisten
+(Anmeldungen) sind eigene Rechte-Bereiche; bestehende Rollen behalten ihr bisheriges Verhalten.
 
 Die Navigation oben ist nach Themen gruppiert (Mitglieder, Schriftverkehr, Finanzen, Kasse, Inventar,
 Veranstaltungen, Auswertung, Verwaltung) und zeigt nur die Punkte, für die die eigene Rolle mindestens Lesezugriff
@@ -418,17 +436,26 @@ weiterhin per Knopf übergeben. Die Übergabe blockiert nie das Fertigstellen �
 Neue Versionen eines Dokuments entstehen über „Neue Version hochladen“ bzw. erneutes Ablegen und werden ebenfalls
 übergeben.
 
-**Vorstand in Paperless:** Mitglieder mit dem Häkchen „Vorstandsmitglied“ (Mitgliederakte) können als
-Paperless-Benutzer abgeglichen werden – nur sie, keine anderen Mitglieder. Unter *Verwaltung › Paperless-Anbindung*
-löst „Vorstand abgleichen“ den Abgleich aus: Für aktive Vorstandsmitglieder wird ein Konto (ohne Administrator-Rechte)
-angelegt und der Gruppe „Vorstand“ zugeordnet (Name in den Einstellungen änderbar; die Gruppe wird bei Bedarf mit
-Rechten zum Ansehen, Hochladen und Bearbeiten von Dokumenten angelegt – Löschen und Verwalten sind nicht enthalten).
-Ausgeschiedene Vorstandsmitglieder werden aus der Gruppe entfernt und ihr Konto deaktiviert; es wird nie ein Konto
-gelöscht. Bereits vorhandene Paperless-Konten mit gleichem Benutzernamen werden nur der Gruppe zugeordnet, nie
-verändert oder deaktiviert. Die Startpasswörter neuer Konten stehen (verschlüsselt gespeichert) auf der Seite und
-lassen sich nach der Weitergabe löschen. Der Abgleich braucht den API-Token eines Paperless-Administrators. Bei einer
-DSGVO-Anonymisierung wird das Paperless-Konto mit angepasst. **Hinweis:** Ob Vorstandsmitglieder von anderen Benutzern
-hochgeladene Dokumente sehen, richtet sich nach den Dokumentberechtigungen in Paperless (nicht getestet).
+**Zugriff über Tags:** Statt Rollen einzeln zu verteilen, werden Mitgliedern **Tags** zugeordnet (*Verwaltung › Tags
+(Zugriffsrechte)*, in der Mitgliederakte unter „Tags“). Jedes Tag legt fest, welche **Rolle** in dieser Software, welche
+**Paperless-Gruppe** und welche **OpenSlides-Gruppe** (in Versammlungen) seine Träger erhalten. Das Häkchen
+„Vorstandsmitglied“ setzt automatisch das Tag „Vorstandsmitglied“ (Paperless-Gruppe „Vorstand“).
+
+Unter *Verwaltung › Paperless-Anbindung* gleicht „Vorstand abgleichen“ (bzw. Tag-Abgleich) die Paperless-Benutzer ab:
+Träger eines Tags mit Paperless-Gruppe erhalten ein Konto (ohne Administrator-Rechte) in den Gruppen ihrer Tags; eine
+fehlende Gruppe wird bei Bedarf angelegt (Ansehen, Hochladen, Bearbeiten – bzw. nur Ansehen, wenn am Tag „In Paperless
+nur lesen“ gesetzt ist; kein Löschen, keine Verwaltung). Wer kein Tag mehr hat, wird aus den durch Tags verwalteten
+Gruppen entfernt, selbst angelegte Konten werden deaktiviert; es wird nie ein Konto gelöscht. Vorhandene Konten mit
+gleichem Benutzernamen werden nur den Gruppen zugeordnet, nie verändert oder deaktiviert. Startpasswörter neuer Konten
+stehen (verschlüsselt gespeichert) auf der Seite und lassen sich nach der Weitergabe löschen. Benötigt den API-Token
+eines Paperless-Administrators; bei einer DSGVO-Anonymisierung wird das Konto mit angepasst. **Hinweis:** Ob
+Träger von anderen hochgeladene Dokumente sehen, richtet sich nach den Dokumentberechtigungen in Paperless (nicht
+getestet).
+
+**OpenSlides über Tags:** Beim Anlegen einer Versammlung aus einer Veranstaltung (und bei jeder weiteren Übertragung der
+Tagesordnung) erhalten Träger von Tags mit „OpenSlides-Gruppe“ (z. B. Admin, Delegates, Staff) automatisch diese Gruppe
+in der Versammlung. Voraussetzung ist ein OpenSlides-Konto („Mitglieder abgleichen“). Mitglieder mit einem solchen Tag
+werden beim Abgleich immer berücksichtigt.
 
 **Live-Status:** Nach „An Paperless senden“ (auch im Sammelversand) zeigt die Seite den Fortschritt ohne manuelles
 Neuladen an: Warteschlange → wird gesendet → von Paperless verarbeitet → abgelegt bzw. Fehlermeldung. Während der

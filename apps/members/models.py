@@ -50,6 +50,38 @@ class Abteilung(TenantModel):
         return self.name
 
 
+class MitgliedTag(TenantModel):
+    """Berechtigungs-Tag: statt Rollen einzeln zu verteilen, bekommen Mitglieder Tags. Ein Tag legt fest, in welcher
+    Paperless-Gruppe und in welcher OpenSlides-Versammlungsgruppe (Rolle) seine Träger geführt werden."""
+    name = models.CharField("Name", max_length=100, help_text="z. B. Vorstand, Kassenwart, Schriftführer")
+    beschreibung = models.CharField("Beschreibung", max_length=200, blank=True)
+    paperless_gruppe = models.CharField(
+        "Paperless-Gruppe", max_length=150, blank=True,
+        help_text="Leer = kein Paperless-Zugang über dieses Tag. Sonst wird für Träger des Tags ein Paperless-Konto "
+                  "angelegt und dieser Gruppe zugeordnet (Gruppe wird bei Bedarf angelegt).")
+    paperless_nur_lesen = models.BooleanField(
+        "In Paperless nur lesen", default=False,
+        help_text="Gilt für neu angelegte Gruppen: nur Dokumente ansehen statt ansehen, hochladen und bearbeiten.")
+    rolle = models.ForeignKey(
+        "core.Rolle", on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+        verbose_name="Rolle in dieser Software",
+        help_text="Träger des Tags erhalten (sofern sie einen Benutzerzugang haben) automatisch diese Rolle; "
+                  "fällt das Tag weg, wird der Zugang deaktiviert (Rechte entziehen nach Funktionsende).")
+    openslides_gruppe = models.CharField(
+        "OpenSlides-Gruppe in Versammlungen", max_length=100, blank=True,
+        help_text="Name der Gruppe in der OpenSlides-Versammlung (z. B. Admin, Staff, Delegates). Träger des Tags "
+                  "erhalten beim Anlegen bzw. Übertragen einer Veranstaltung diese Rechte. Leer = keine.")
+
+    class Meta:
+        verbose_name = "Tag (Zugriffsrechte)"
+        verbose_name_plural = "Tags (Zugriffsrechte)"
+        unique_together = [("verein", "name")]
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
 class Funktion(TenantModel):
     name = models.CharField("Name", max_length=100)
 
@@ -97,6 +129,9 @@ class Mitglied(TenantModel):
     mandatsreferenz = models.CharField("SEPA-Mandatsreferenz", max_length=35, blank=True)
     mandatsdatum = models.DateField("Datum des SEPA-Mandats", null=True, blank=True)
     abteilungen = models.ManyToManyField(Abteilung, blank=True, verbose_name="Abteilungen")
+    tags = models.ManyToManyField(
+        MitgliedTag, blank=True, related_name="mitglieder", verbose_name="Tags (Zugriffsrechte)",
+        help_text="Bestimmen die Zugriffsrechte in Paperless und OpenSlides (Verwaltung › Tags).")
     vorstandsmitglied = models.BooleanField(
         "Vorstandsmitglied", default=False,
         help_text="Setzt automatisch die Funktion „Vorstandsmitglied“. Nur Vorstandsmitglieder können mit Paperless "
@@ -138,6 +173,7 @@ class Mitglied(TenantModel):
             self.mitgliedsnummer = n
         super().save(*args, **kwargs)
         self._vorstandsfunktion_abgleichen()
+        rolle_aus_tags(self)
 
     VORSTAND_FUNKTION = "Vorstandsmitglied"
 
@@ -149,6 +185,14 @@ class Mitglied(TenantModel):
         from django.db.models import Q
         offen = MitgliedFunktion.objects.filter(mitglied=self, funktion__name=self.VORSTAND_FUNKTION).filter(
             Q(bis__isnull=True) | Q(bis__gte=_date.today()))
+        tag, _ = MitgliedTag.objects.get_or_create(
+            verein_id=self.verein_id, name=self.VORSTAND_FUNKTION,
+            defaults={"paperless_gruppe": "Vorstand", "openslides_gruppe": "Staff",
+                      "beschreibung": "Automatisch mit dem Häkchen „Vorstandsmitglied“ vergeben"})
+        if self.vorstandsmitglied:
+            self.tags.add(tag)
+        else:
+            self.tags.remove(tag)
         if self.vorstandsmitglied:
             # nur eine unbefristet laufende Funktion zaehlt - eine heute beendete wird neu angelegt
             if not offen.filter(bis__isnull=True).exists():
@@ -216,3 +260,42 @@ class Dokument(TenantModel):
                                         titel=self.titel).aggregate(m=Max("version"))["m"]
             self.version = (h or 0) + 1
         super().save(*args, **kwargs)
+
+
+def rolle_aus_tags(mitglied):
+    """Verteilt die Rolle in dieser Software anhand der Tags (Funktion) und entzieht sie bei Funktionsende:
+    * Mitglied mit Benutzerzugang und einem Tag mit Rolle -> Zugang bekommt diese Rolle (und wird aktiv).
+    * kein solches Tag mehr bzw. Mitglied nicht mehr aktiv -> ein Zugang, dessen Rolle über Tags verwaltet wird,
+      wird deaktiviert (nie gelöscht, Superadministratoren bleiben unberührt)."""
+    if not mitglied.benutzer_id:
+        return
+    from apps.core.models import Zugang
+    z = Zugang.objects.select_related("rolle").filter(verein_id=mitglied.verein_id, user_id=mitglied.benutzer_id).first()
+    if z is None or z.rolle.ist_superadmin:
+        return
+    verwaltete = set(MitgliedTag.objects.filter(verein_id=mitglied.verein_id, rolle__isnull=False)
+                     .values_list("rolle_id", flat=True))
+    tags = list(mitglied.tags.filter(rolle__isnull=False).order_by("id"))
+    if mitglied.status != "aktiv" or not tags:
+        if z.rolle_id in verwaltete and z.aktiv:
+            z.aktiv = False
+            z.save(update_fields=["aktiv"])
+        return
+    if z.rolle_id != tags[0].rolle_id or not z.aktiv:
+        z.rolle_id, z.aktiv = tags[0].rolle_id, True
+        z.save(update_fields=["rolle", "aktiv"])
+
+
+def _tags_geaendert(sender, instance, action, reverse, pk_set, **kw):
+    if action not in ("post_add", "post_remove", "post_clear"):
+        return
+    if reverse:   # von der Tag-Seite: alle betroffenen Mitglieder
+        for m in Mitglied.objects.filter(pk__in=pk_set or []):
+            rolle_aus_tags(m)
+    else:
+        rolle_aus_tags(instance)
+
+
+from django.db.models.signals import m2m_changed  # noqa: E402
+
+m2m_changed.connect(_tags_geaendert, sender=Mitglied.tags.through, dispatch_uid="mitglied_tags_rolle")

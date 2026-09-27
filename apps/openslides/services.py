@@ -66,8 +66,11 @@ def mitglied_anonymisieren(v, mitglied):
 def _im_umfang(v):
     qs = Mitglied.objects.filter(verein=v.verein, status="aktiv")
     if v.sync_funktion_id:
-        qs = qs.filter(Q(funktionen__funktion_id=v.sync_funktion_id),
-                       Q(funktionen__bis__isnull=True) | Q(funktionen__bis__gte=date.today())).distinct()
+        # Funktion ODER ein Tag mit OpenSlides-Gruppe genuegt (Tags verteilen die Rechte)
+        qs = qs.filter(
+            Q(Q(funktionen__funktion_id=v.sync_funktion_id),
+              Q(funktionen__bis__isnull=True) | Q(funktionen__bis__gte=date.today()))
+            | Q(tags__openslides_gruppe__gt="")).distinct()
     return qs
 
 
@@ -239,3 +242,54 @@ def wahlergebnisse_abrufen(v, veranstaltung):
                                         ergebnis="\n".join(zeilen))
             n += 1
     return n
+
+
+def _versammlungsgruppen(c, meeting_id):
+    """-> {gruppenname_klein: gruppen_id} der Versammlung (Autoupdate-Abfrage)."""
+    daten = c.abfragen([{"ids": [meeting_id], "collection": "meeting",
+                         "fields": {"group_ids": {"type": "relation-list", "collection": "group",
+                                                  "fields": {"name": None}}}}])
+    gruppen = {}
+    for schluessel, wert in (daten or {}).items():
+        teile = str(schluessel).split("/")
+        if len(teile) == 3 and teile[0] == "group" and teile[2] == "name" and wert:
+            gruppen[str(wert).strip().lower()] = int(teile[1])
+    return gruppen
+
+
+def versammlungsrechte_zuweisen(v, veranstaltung, client=None):
+    """Weist Mitgliedern anhand ihrer Tags (Feld „OpenSlides-Gruppe“) die Gruppe in der Versammlung der
+    Veranstaltung zu. Nur Mitglieder mit OpenSlides-Konto; Mitglieder ohne Konto werden gemeldet.
+    Vorhandene weitere Gruppen der Mitglieder in der Versammlung bleiben unberührt.
+    -> Ergebnistext."""
+    if not veranstaltung.openslides_meeting_id:
+        raise OpenSlidesFehler("Die Veranstaltung ist noch keiner OpenSlides-Versammlung zugeordnet.")
+    c = client or OSClient(v)
+    if client is None:
+        c.login()
+    mid = veranstaltung.openslides_meeting_id
+    gruppen = _versammlungsgruppen(c, mid)
+    eintraege, ohne_konto, unbekannt = [], [], set()
+    qs = Mitglied.objects.filter(verein=v.verein, status="aktiv", tags__openslides_gruppe__gt="").distinct()
+    for m in qs:
+        namen = {t.openslides_gruppe.strip() for t in m.tags.all() if t.openslides_gruppe}
+        ids = []
+        for n in sorted(namen):
+            if n.lower() in gruppen:
+                ids.append(gruppen[n.lower()])
+            else:
+                unbekannt.add(n)
+        if not ids:
+            continue
+        if m.openslides_user_id is None:
+            ohne_konto.append(m.name)
+            continue
+        eintraege.append({"id": m.openslides_user_id, "meeting_id": mid, "group_ids": sorted(set(ids))})
+    if eintraege:
+        c.action("user.update", eintraege)
+    text = f"{len(eintraege)} Mitglied(er) mit Rechten in der Versammlung."
+    if ohne_konto:
+        text += f" Ohne OpenSlides-Konto (bitte „Mitglieder abgleichen“): {', '.join(ohne_konto[:10])}."
+    if unbekannt:
+        text += f" Gruppe(n) in der Versammlung nicht gefunden: {', '.join(sorted(unbekannt))}."
+    return text
