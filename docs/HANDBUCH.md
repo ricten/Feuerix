@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.34.3)
+# Handbuch – Feuerix (Version 1.34.4)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -135,6 +135,11 @@ Unter *Mitglieder* werden Personendaten, Anschrift, Bankverbindung (SEPA), Mitgl
 Abteilungen (als Haken, Mehrfachauswahl) und ausgeübte Funktionen (z. B. „1. Vorsitzender“, mit Zeitraum) gepflegt.
 Die Mitgliedsnummer wird automatisch vergeben, kann aber auch manuell gesetzt werden.
 
+**Familien**: Unter *Mitglieder › Familien* lässt sich eine Familie anlegen (nur ein Name/eine Bezeichnung, z. B.
+„Familie Mustermann“). In der Mitgliederakte wird jedes Familienmitglied dieser Familie zugeordnet (Feld
+„Familie“); zusätzlich markiert das Häkchen „Zahlt den Familienbeitrag“ genau die Person, die für die ganze
+Familie bezahlt (siehe Familienstaffelung weiter unten bei den Beitragsregeln).
+
 **Import/Export**: Über *Verwaltung › Mitglieder-Import* (nicht auf der Mitgliederliste selbst, da meist nur einmalig
 beim Einrichten des Vereins benötigt) lässt sich eine Tabelle einlesen – mit **Testlauf** (nichts wird gespeichert,
 nur geprüft), Abgleich bestehender Mitglieder über Mitgliedsnummer bzw. Vorname+Nachname+Geburtsdatum, und der
@@ -170,6 +175,12 @@ Familienstaffelungen) > Standardbeitrag der Mitgliedsart. Mitglieder ohne Beitra
 übersprungen gemeldet. Der Beitragslauf lässt sich gefahrlos mehrfach anstoßen – wer schon eine Rechnung für das
 Jahr hat, wird nicht doppelt berechnet. **Hinweis:** Es wird immer der volle Jahresbeitrag berechnet, keine
 anteilige Berechnung bei unterjährigem Eintritt.
+
+**Familienstaffelung**: Eine Beitragsregel mit „Nur Familienmitgliedschaften“ gilt nur für Mitglieder mit
+zugeordneter Familie (siehe Kapitel 3). Beim Beitragslauf wird der volle Regelbetrag dabei ausschließlich der
+Person berechnet, die in ihrer Mitgliederakte als „Zahlt den Familienbeitrag“ markiert ist; alle übrigen
+Mitglieder derselben Familie bekommen 0 € mit dem Hinweis „im Familienbeitrag enthalten“ auf der Rechnung. Ohne
+Familienzahler-Häkchen in der Familie wird niemand berechnet – das sollte vor dem Beitragslauf geprüft werden.
 
 **Rechnungen** (auch einzeln/individuell oder als Sammelrechnung anlegbar) durchlaufen die Stationen *Entwurf* →
 *Ausstellen* (vergibt die endgültige Nummer `RE-JJJJ-000001`, danach unveränderbar) → *Offen* → *Teilbezahlt/
