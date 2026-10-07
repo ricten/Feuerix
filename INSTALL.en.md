@@ -28,7 +28,7 @@ Internet ──► Caddy (ports 80/443, automatic HTTPS)
 
 | What | Recommendation |
 |---|---|
-| Server | Linux (Ubuntu 24.04 LTS or Debian 12), **at least 1 CPU / 2 GB RAM** for Feuerix alone, 20 GB of space |
+| Server | Linux (Ubuntu 24.04 LTS or Debian 12), **at least 1 CPU / 2 GB RAM** for Feuerix alone (a tight floor: 4 containers – Postgres, Redis, 3 Gunicorn workers, 1 Celery worker – already use roughly 700–900 MB at idle; for comfortable operation with headroom, e.g. during a larger fee run or mail-merge send, **4 GB is recommended**), 20 GB of space |
 | Domain | a name pointing at the server's IP (DNS A record): e.g. `verein.example.org` – **required** |
 | Additional domains | one more name each, only if needed: `versammlung.example.org` for OpenSlides (section 5), `paperless.example.org` for Paperless-ngx (section 9) |
 | Additional RAM | +2 GB if OpenSlides is also run (many containers); +1 GB if Paperless-ngx is run via section 9 (route A) (its own Postgres instance, OCR processing) |

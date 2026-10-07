@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.36.2
+- INSTALL.md/INSTALL.en.md: Hardware-Mindestanforderung praezisiert (2 GB RAM ist eine knappe Untergrenze,
+  4 GB fuer komfortablen Betrieb empfohlen) statt eines reinen Minimalwerts ohne Einordnung.
+
 ## 1.36.1
 - README.md, INSTALL.md und docs/GITHUB.md jetzt auch auf Englisch (README.en.md, INSTALL.en.md,
   docs/GITHUB.en.md), gegenseitig verlinkt. Vorher auf Aktualität geprüft: veraltete Testanzahl, Hinweise
