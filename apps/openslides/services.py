@@ -1,11 +1,10 @@
-import re
 import secrets
-import unicodedata
 from datetime import date
 
 from django.db.models import Q
 from django.utils import timezone
 
+from apps.core.util import ascii_kennung
 from apps.events.models import Wahlergebnis
 from apps.members.models import Mitglied
 
@@ -17,14 +16,8 @@ POLL_ABGESCHLOSSEN = ("finished", "published")
 ALPHABET = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 
-def _ascii(s):
-    s = s.lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
-    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode()
-    return re.sub(r"[^a-z0-9._-]", "", s.replace(" ", "-"))
-
-
 def benutzername(m):
-    n = f"{_ascii(m.vorname)}.{_ascii(m.nachname)}".strip(".")
+    n = f"{ascii_kennung(m.vorname)}.{ascii_kennung(m.nachname)}".strip(".")
     return n if len(n) > 2 else f"mitglied{m.mitgliedsnummer}"
 
 
@@ -63,15 +56,90 @@ def mitglied_anonymisieren(v, mitglied):
     }])
 
 
+def _superadmin_user_ids(verein):
+    from apps.core.models import Zugang
+    return set(Zugang.objects.filter(verein=verein, aktiv=True, rolle__ist_superadmin=True)
+              .values_list("user_id", flat=True))
+
+
+def _superadmin_zugaenge_ohne_mitglied(verein):
+    """Aktive Superadmin-Benutzerzugänge OHNE eigene Mitgliedsakte - mit Mitgliedsakte bekommen sie ihr Konto
+    ohnehin wie jedes andere Mitglied über mitglieder_abgleichen/_im_umfang."""
+    from apps.core.models import Zugang
+    user_ids = _superadmin_user_ids(verein)
+    if not user_ids:
+        return []
+    mit_mitglied = set(Mitglied.objects.filter(verein=verein, benutzer_id__in=user_ids)
+                       .values_list("benutzer_id", flat=True))
+    uebrig = user_ids - mit_mitglied
+    if not uebrig:
+        return []
+    return list(Zugang.objects.filter(verein=verein, user_id__in=uebrig).select_related("user"))
+
+
 def _im_umfang(v):
     qs = Mitglied.objects.filter(verein=v.verein, status="aktiv")
     if v.sync_funktion_id:
-        # Funktion ODER ein Tag mit OpenSlides-Gruppe genuegt (Tags verteilen die Rechte)
+        # Funktion ODER ein Tag mit OpenSlides-Gruppe genuegt (Tags verteilen die Rechte); Superadmins (volle
+        # Rechte in der Software, siehe apps.core.rechte) bekommen immer ein Konto, unabhaengig vom Sync-Umfang
         qs = qs.filter(
             Q(Q(funktionen__funktion_id=v.sync_funktion_id),
               Q(funktionen__bis__isnull=True) | Q(funktionen__bis__gte=date.today()))
-            | Q(tags__openslides_gruppe__gt="")).distinct()
+            | Q(tags__openslides_gruppe__gt="")
+            | Q(benutzer_id__in=_superadmin_user_ids(v.verein))).distinct()
     return qs
+
+
+def superadmin_konten_abgleichen(v, client=None):
+    """Legt für Superadmin-Benutzerzugänge OHNE eigene Mitgliedsakte ein OpenSlides-Konto an bzw. aktualisiert es
+    (mit Mitgliedsakte läuft das über mitglieder_abgleichen, wie bei jedem anderen Mitglied). Wird von
+    mitglieder_abgleichen mit aufgerufen. -> (neu, aktualisiert, deaktiviert, [Fehler])."""
+    from .models import SuperadminKonto
+    c = client or OSClient(v)
+    if client is None:
+        c.login()
+    zugaenge = _superadmin_zugaenge_ohne_mitglied(v.verein)
+    ids_umfang = {z.pk for z in zugaenge}
+    neu = akt = deaktiviert = 0
+    fehler = []
+    for z in zugaenge:
+        vorname, nachname = z.user.first_name or z.user.get_username(), z.user.last_name or "(Superadmin)"
+        try:
+            konto = SuperadminKonto.objects.filter(zugang=z).first()
+            if konto is None:
+                daten = {"first_name": vorname, "last_name": nachname, "is_active": True}
+                if z.user.email:
+                    daten["email"] = z.user.email
+                pw = _passwort()
+                daten["default_password"] = pw
+                name = f"{ascii_kennung(vorname)}.{ascii_kennung(nachname)}".strip(".") or f"zugang{z.pk}"
+                try:
+                    uid = c.erstelle("user.create", {**daten, "username": name})
+                except OpenSlidesFehler as e:
+                    if "username" not in str(e).lower():
+                        raise
+                    name = f"{name}.{z.pk}"
+                    uid = c.erstelle("user.create", {**daten, "username": name})
+                SuperadminKonto.objects.create(verein=v.verein, zugang=z, openslides_user_id=uid,
+                                               openslides_username=name, openslides_initialpasswort=pw)
+                neu += 1
+            else:
+                daten = {"id": konto.openslides_user_id, "first_name": vorname, "last_name": nachname,
+                         "is_active": True}
+                if z.user.email:
+                    daten["email"] = z.user.email
+                c.action("user.update", [daten])
+                akt += 1
+        except OpenSlidesFehler as e:
+            fehler.append(f"{z.user}: {e}")
+    for konto in SuperadminKonto.objects.filter(verein=v.verein).exclude(zugang_id__in=ids_umfang):
+        try:
+            c.action("user.update", [{"id": konto.openslides_user_id, "is_active": False}])
+            konto.delete()
+            deaktiviert += 1
+        except OpenSlidesFehler as e:
+            fehler.append(f"{konto.openslides_username} (deaktivieren): {e}")
+    return neu, akt, deaktiviert, fehler
 
 
 def mitglieder_abgleichen(v):
@@ -116,6 +184,9 @@ def mitglieder_abgleichen(v):
             deaktiviert += 1
         except OpenSlidesFehler as e:
             fehler.append(f"{m.name} (deaktivieren): {e}")
+    s_neu, s_akt, s_deaktiviert, s_fehler = superadmin_konten_abgleichen(v, client=c)
+    neu, akt, deaktiviert = neu + s_neu, akt + s_akt, deaktiviert + s_deaktiviert
+    fehler += s_fehler
     info = f"{neu} Konten angelegt, {akt} aktualisiert, {deaktiviert} deaktiviert, {len(fehler)} Fehler."
     if fehler:
         info += "\n" + "\n".join(fehler[:20])
@@ -257,11 +328,16 @@ def _versammlungsgruppen(c, meeting_id):
     return gruppen
 
 
+SUPERADMIN_GRUPPE = "Admin"
+
+
 def versammlungsrechte_zuweisen(v, veranstaltung, client=None):
     """Weist Mitgliedern anhand ihrer Tags (Feld „OpenSlides-Gruppe“) die Gruppe in der Versammlung der
-    Veranstaltung zu. Nur Mitglieder mit OpenSlides-Konto; Mitglieder ohne Konto werden gemeldet.
-    Vorhandene weitere Gruppen der Mitglieder in der Versammlung bleiben unberührt.
+    Veranstaltung zu. Superadministratoren (mit oder ohne eigene Mitgliedsakte) bekommen dort zusätzlich
+    automatisch die Gruppe "Admin", unabhängig von Tags. Nur Mitglieder/Zugänge mit OpenSlides-Konto; ohne Konto
+    werden sie gemeldet. Vorhandene weitere Gruppen in der Versammlung bleiben unberührt.
     -> Ergebnistext."""
+    from .models import SuperadminKonto
     if not veranstaltung.openslides_meeting_id:
         raise OpenSlidesFehler("Die Veranstaltung ist noch keiner OpenSlides-Versammlung zugeordnet.")
     c = client or OSClient(v)
@@ -270,9 +346,14 @@ def versammlungsrechte_zuweisen(v, veranstaltung, client=None):
     mid = veranstaltung.openslides_meeting_id
     gruppen = _versammlungsgruppen(c, mid)
     eintraege, ohne_konto, unbekannt = [], [], set()
-    qs = Mitglied.objects.filter(verein=v.verein, status="aktiv", tags__openslides_gruppe__gt="").distinct()
+    superadmin_user_ids = _superadmin_user_ids(v.verein)
+    qs = Mitglied.objects.filter(
+        Q(verein=v.verein, status="aktiv")
+        & (Q(tags__openslides_gruppe__gt="") | Q(benutzer_id__in=superadmin_user_ids))).distinct()
     for m in qs:
         namen = {t.openslides_gruppe.strip() for t in m.tags.all() if t.openslides_gruppe}
+        if m.benutzer_id in superadmin_user_ids:
+            namen.add(SUPERADMIN_GRUPPE)
         ids = []
         for n in sorted(namen):
             if n.lower() in gruppen:
@@ -285,6 +366,16 @@ def versammlungsrechte_zuweisen(v, veranstaltung, client=None):
             ohne_konto.append(m.name)
             continue
         eintraege.append({"id": m.openslides_user_id, "meeting_id": mid, "group_ids": sorted(set(ids))})
+    for z in _superadmin_zugaenge_ohne_mitglied(v.verein):
+        if SUPERADMIN_GRUPPE.lower() not in gruppen:
+            unbekannt.add(SUPERADMIN_GRUPPE)
+            continue
+        konto = SuperadminKonto.objects.filter(zugang=z).first()
+        if konto is None:
+            ohne_konto.append(str(z.user))
+            continue
+        eintraege.append({"id": konto.openslides_user_id, "meeting_id": mid,
+                          "group_ids": [gruppen[SUPERADMIN_GRUPPE.lower()]]})
     if eintraege:
         c.action("user.update", eintraege)
     text = f"{len(eintraege)} Mitglied(er) mit Rechten in der Versammlung."

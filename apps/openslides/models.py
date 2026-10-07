@@ -39,3 +39,23 @@ class OpenSlidesVerbindung(TenantModel):
     @property
     def admin_ids(self):
         return [int(x) for x in self.meeting_admin_ids.replace(" ", "").split(",") if x.isdigit()]
+
+
+class SuperadminKonto(TenantModel):
+    """Verknüpfung Benutzerzugang <-> OpenSlides-Konto für Superadministratoren OHNE eigene Mitgliedsakte (vom
+    Abgleich mitverwaltet). Superadmins MIT Mitgliedsakte bekommen ihr Konto stattdessen über die entsprechenden
+    Felder am Mitglied (siehe apps.members.models.Mitglied), wie jedes andere Mitglied auch."""
+    zugang = models.OneToOneField("core.Zugang", on_delete=models.CASCADE, related_name="openslides_konto",
+                                  verbose_name="Benutzerzugang")
+    openslides_user_id = models.PositiveIntegerField("OpenSlides-Konto-ID")
+    openslides_username = models.CharField("OpenSlides-Benutzername", max_length=150)
+    openslides_initialpasswort = VerschluesseltesTextField("OpenSlides-Startpasswort", blank=True, editable=False)
+
+    AUDIT_MASK = ("openslides_initialpasswort",)
+
+    class Meta:
+        verbose_name = "OpenSlides-Konto (Superadmin ohne Mitgliedsakte)"
+        verbose_name_plural = "OpenSlides-Konten (Superadmins ohne Mitgliedsakte)"
+
+    def __str__(self):
+        return f"{self.openslides_username} ({self.zugang})"

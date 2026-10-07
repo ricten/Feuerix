@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
-from apps.core.models import Verein
+from apps.core.models import Rolle, Verein, Zugang
 from apps.members.models import Funktion, Mitglied, MitgliedFunktion, MitgliedTag
 
 from .client import PaperlessClient, PaperlessFehler
@@ -173,6 +173,48 @@ class AbgleichTests(Basis):
         daten = c.benutzer_aendern.call_args.args[1]
         self.assertEqual((daten["first_name"], daten["email"], daten["is_active"]), ("Anonymisiert", "", False))
         self.assertFalse(PaperlessBenutzer.objects.exists())
+
+
+class SuperadminAbgleichTests(Basis):
+    def _superadmin_user(self, username="technik"):
+        u = get_user_model().objects.create_user(username, password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=u, rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        return u
+
+    def _lauf(self, c):
+        with patch("apps.paperless.services.PaperlessClient", return_value=c):
+            return vorstand_abgleichen(self.verbindung)
+
+    def test_superadmin_mit_mitgliedsakte_bekommt_administrator_gruppe(self):
+        u = self._superadmin_user()
+        self.m.benutzer = u
+        self.m.save(update_fields=["benutzer"])
+        c = _client_mock()
+        self._lauf(c)
+        daten = c.benutzer_anlegen.call_args.args[0]
+        self.assertEqual(daten["groups"], [7])   # Beisitzer (Vorstand) + Administrator -> dieselbe gemockte ID
+        self.assertTrue(PaperlessBenutzer.objects.filter(mitglied=self.m).exists())
+        namen = {call.args[0] for call in c.gruppe_sicherstellen.call_args_list}
+        self.assertIn("Administrator", namen)
+
+    def test_superadmin_ohne_mitgliedsakte_bekommt_eigenes_konto(self):
+        u = self._superadmin_user("technik")
+        u.first_name, u.last_name, u.email = "Tina", "Technik", "tina@example.org"
+        u.save()
+        c = _client_mock()
+        info = self._lauf(c)
+        konto = PaperlessBenutzer.objects.get(zugang__user=u)
+        self.assertEqual(konto.benutzername, "tina.technik")
+        self.assertIn("2 Benutzer angelegt", info)   # Erika (Beisitzer) + Tina (Superadmin)
+
+    def test_superadmin_rolle_entzogen_entfernt_konto_ohne_mitgliedsakte(self):
+        u = self._superadmin_user()
+        self._lauf(_client_mock())
+        Zugang.objects.filter(user=u).update(aktiv=False)
+        c = _client_mock()
+        info = self._lauf(c)
+        self.assertFalse(PaperlessBenutzer.objects.filter(zugang__user=u).exists())
+        self.assertIn("1 ohne Tag entfernt", info)
 
 
 class ClientTests(Basis):

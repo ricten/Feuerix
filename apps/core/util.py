@@ -1,6 +1,16 @@
 import os
+import re
+import unicodedata
 import uuid
 from decimal import Decimal
+
+
+def ascii_kennung(s):
+    """Normalisiert einen Namen zu einer ASCII-tauglichen Kennung (z. B. für Benutzernamen in Paperless/OpenSlides):
+    Umlaute/ß ausgeschrieben, alles andere auf a-z0-9._- reduziert."""
+    s = (s or "").lower().replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
+    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9._-]", "", s.replace(" ", "-"))
 
 
 def geld(wert):

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 
 from apps.core.fields import VerschluesseltesTextField
 from apps.core.models import TenantModel
@@ -53,9 +54,13 @@ class PaperlessVerbindung(TenantModel):
 
 
 class PaperlessBenutzer(TenantModel):
-    """Verknüpfung Vorstandsmitglied <-> Paperless-Benutzerkonto (vom Abgleich verwaltet)."""
+    """Verknüpfung Vorstandsmitglied bzw. Superadministrator-Benutzerzugang <-> Paperless-Benutzerkonto (vom
+    Abgleich verwaltet). Genau eines von mitglied/zugang ist gesetzt - zugang nur für Superadmins ohne eigene
+    Mitgliedsakte (z. B. ein rein technischer Betreuer-Zugang), die sonst keinen Konto-Abgleich hätten."""
     mitglied = models.OneToOneField("members.Mitglied", on_delete=models.CASCADE, related_name="paperless_benutzer",
-                                    verbose_name="Mitglied")
+                                    verbose_name="Mitglied", null=True, blank=True)
+    zugang = models.OneToOneField("core.Zugang", on_delete=models.CASCADE, related_name="paperless_benutzer",
+                                  verbose_name="Benutzerzugang (Superadmin ohne Mitgliedsakte)", null=True, blank=True)
     paperless_id = models.PositiveIntegerField("Paperless-Benutzer-ID")
     benutzername = models.CharField("Paperless-Benutzername", max_length=150)
     angelegt = models.BooleanField(
@@ -69,6 +74,12 @@ class PaperlessBenutzer(TenantModel):
     class Meta:
         verbose_name = "Paperless-Benutzer"
         verbose_name_plural = "Paperless-Benutzer"
+        constraints = [
+            models.CheckConstraint(condition=Q(mitglied__isnull=False) | Q(zugang__isnull=False),
+                                   name="paperless_benutzer_mitglied_oder_zugang"),
+            models.CheckConstraint(condition=Q(mitglied__isnull=True) | Q(zugang__isnull=True),
+                                   name="paperless_benutzer_nicht_beides"),
+        ]
 
     def __str__(self):
-        return f"{self.benutzername} ({self.mitglied})"
+        return f"{self.benutzername} ({self.mitglied or self.zugang})"

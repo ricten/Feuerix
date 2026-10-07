@@ -163,8 +163,24 @@ def _benutzername(m):
     return benutzername(m)
 
 
+def _benutzername_zugang(z):
+    from apps.core.util import ascii_kennung
+    n = f"{ascii_kennung(z.user.first_name)}.{ascii_kennung(z.user.last_name)}".strip(".")
+    return n if len(n) > 2 else (ascii_kennung(z.user.get_username()) or f"zugang{z.pk}")
+
+
+def _superadmin_zugaenge(verein):
+    """Aktive Benutzerzugänge mit Rolle "Superadministrator" (Rechte-Bypass, siehe rechte.py) - unabhängig von
+    Tags sollen sie automatisch auch Paperless-Zugriff bekommen (Administrator-Gruppe)."""
+    from apps.core.models import Zugang
+    return list(Zugang.objects.filter(verein=verein, aktiv=True, rolle__ist_superadmin=True).select_related("user"))
+
+
 def _gruppenbedarf(v):
-    """-> ({mitglied_pk: {gruppenname}}, {gruppenname: nur_lesen}, [Mitglieder]) aus den Tags (Paperless-Gruppe)."""
+    """-> ({mitglied_pk: {gruppenname}}, {gruppenname: nur_lesen}, [Mitglieder], [Superadmin-Zugänge ohne
+    Mitgliedsakte]) aus den Tags (Paperless-Gruppe) sowie den Superadmin-Benutzerzugängen (bekommen automatisch
+    volle Rechte in der Administrator-Gruppe, auch ohne eigenes Tag)."""
+    from apps.core.matrix import ADMINISTRATOR
     from apps.members.models import Mitglied, MitgliedTag
     tags = list(MitgliedTag.objects.filter(verein=v.verein).exclude(paperless_gruppe=""))
     gruppen = {}
@@ -172,19 +188,42 @@ def _gruppenbedarf(v):
         gruppen[t.paperless_gruppe] = gruppen.get(t.paperless_gruppe, True) and t.paperless_nur_lesen
     mitglieder = list(Mitglied.objects.filter(verein=v.verein, status="aktiv", tags__in=tags).distinct())
     zuordnung = {m.pk: {t.paperless_gruppe for t in m.tags.all() if t.paperless_gruppe} for m in mitglieder}
-    return zuordnung, gruppen, mitglieder
+
+    superadmins = _superadmin_zugaenge(v.verein)
+    zugang_ohne_mitglied = []
+    if superadmins:
+        gruppen[ADMINISTRATOR] = False   # volle Rechte, keine Nur-Lesen-Gruppe
+        user_ids = {z.user_id for z in superadmins}
+        mitglied_je_user = {m.benutzer_id: m for m in
+                            Mitglied.objects.filter(verein=v.verein, status="aktiv", benutzer_id__in=user_ids)}
+        for z in superadmins:
+            m = mitglied_je_user.get(z.user_id)
+            if m is not None:
+                if m.pk not in zuordnung:
+                    zuordnung[m.pk] = set()
+                    mitglieder.append(m)
+                zuordnung[m.pk].add(ADMINISTRATOR)
+            else:
+                zugang_ohne_mitglied.append(z)
+    return zuordnung, gruppen, mitglieder, zugang_ohne_mitglied
 
 
 def vorstand_abgleichen(v):
     """Gleicht Paperless-Benutzer anhand der Tags der Mitglieder ab: Träger eines Tags mit Paperless-Gruppe erhalten
     ein Konto (ohne Administrator-Rechte) in den Gruppen ihrer Tags; wer keine solchen Tags mehr hat, wird aus den
     verwalteten Gruppen entfernt (selbst angelegte Konten zusätzlich deaktiviert). Gruppen, die nicht durch Tags
-    verwaltet werden, bleiben unberührt. Es werden nie Konten gelöscht.
+    verwaltet werden, bleiben unberührt. Zusätzlich bekommen alle Superadministratoren automatisch ein Konto in
+    der Administrator-Gruppe (mit oder ohne eigene Mitgliedsakte) - unabhängig von Tags. Es werden nie Konten
+    gelöscht.
     -> Ergebnistext (auch in der Anbindung gespeichert)."""
+    from apps.core.matrix import ADMINISTRATOR
+
     from .models import PaperlessBenutzer
     c = PaperlessClient(v)
-    zuordnung, gruppen, soll = _gruppenbedarf(v)
+    zuordnung, gruppen, soll, superadmin_zugaenge = _gruppenbedarf(v)
     benoetigt = set().union(*zuordnung.values()) if zuordnung else set()
+    if superadmin_zugaenge:
+        benoetigt.add(ADMINISTRATOR)
     ids = {name: c.gruppe_sicherstellen(name, VORSTAND_LESERECHTE if lesen else VORSTAND_RECHTE)
            for name, lesen in gruppen.items() if name in benoetigt}
     verwaltet = set(ids.values())
@@ -231,7 +270,8 @@ def vorstand_abgleichen(v):
             neu += 1
         except PaperlessFehler as e:
             fehler.append(f"{m.name}: {e}")
-    for verkn in PaperlessBenutzer.objects.filter(verein=v.verein).exclude(mitglied_id__in=soll_ids):
+    for verkn in PaperlessBenutzer.objects.filter(verein=v.verein, mitglied_id__isnull=False).exclude(
+            mitglied_id__in=soll_ids):
         try:
             aktuell = (c.benutzer_lesen(verkn.paperless_id) or {}).get("groups") or []
             daten = {"groups": sorted(set(aktuell) - verwaltet)}
@@ -242,6 +282,57 @@ def vorstand_abgleichen(v):
             entfernt += 1
         except PaperlessFehler as e:
             fehler.append(f"{verkn.benutzername} (entfernen): {e}")
+
+    # Superadmin-Zugänge ohne eigene Mitgliedsakte: gleiche Logik, Name/E-Mail vom Benutzerkonto statt vom Mitglied
+    admin_gruppen_ids = sorted({ids[ADMINISTRATOR]}) if ADMINISTRATOR in ids else []
+    superadmin_ids = {z.pk for z in superadmin_zugaenge}
+    for z in superadmin_zugaenge:
+        vorname, nachname, email = z.user.first_name or z.user.get_username(), z.user.last_name or "(Superadmin)", z.user.email
+        try:
+            verkn = PaperlessBenutzer.objects.filter(zugang=z).first()
+            if verkn is not None:
+                aktuell = (c.benutzer_lesen(verkn.paperless_id) or {}).get("groups") or []
+                daten = {"first_name": vorname, "last_name": nachname,
+                         "groups": sorted((set(aktuell) - verwaltet) | set(admin_gruppen_ids))}
+                if verkn.angelegt:
+                    daten["is_active"] = True
+                if email:
+                    daten["email"] = email
+                c.benutzer_aendern(verkn.paperless_id, daten)
+                akt += 1
+                continue
+            name = _benutzername_zugang(z)
+            vorhanden = c.benutzer_suchen(name)
+            if vorhanden:
+                c.benutzer_aendern(vorhanden["id"], {
+                    "groups": sorted((set(vorhanden.get("groups") or []) - verwaltet) | set(admin_gruppen_ids))})
+                PaperlessBenutzer.objects.create(verein=v.verein, zugang=z, paperless_id=vorhanden["id"],
+                                                 benutzername=name, angelegt=False)
+                akt += 1
+                continue
+            pw = _startpasswort()
+            daten = {"username": name, "password": pw, "first_name": vorname, "last_name": nachname,
+                     "email": email or "", "is_active": True, "is_staff": False, "is_superuser": False,
+                     "groups": admin_gruppen_ids}
+            uid = c.benutzer_anlegen(daten)
+            PaperlessBenutzer.objects.create(verein=v.verein, zugang=z, paperless_id=uid, benutzername=name,
+                                             angelegt=True, initialpasswort=pw)
+            neu += 1
+        except PaperlessFehler as e:
+            fehler.append(f"{z.user}: {e}")
+    for verkn in PaperlessBenutzer.objects.filter(verein=v.verein, zugang_id__isnull=False).exclude(
+            zugang_id__in=superadmin_ids):
+        try:
+            aktuell = (c.benutzer_lesen(verkn.paperless_id) or {}).get("groups") or []
+            daten = {"groups": sorted(set(aktuell) - verwaltet)}
+            if verkn.angelegt:
+                daten["is_active"] = False
+            c.benutzer_aendern(verkn.paperless_id, daten)
+            verkn.delete()
+            entfernt += 1
+        except PaperlessFehler as e:
+            fehler.append(f"{verkn.benutzername} (entfernen): {e}")
+
     info = f"{neu} Benutzer angelegt, {akt} aktualisiert, {entfernt} ohne Tag entfernt, {len(fehler)} Fehler."
     if fehler:
         info += "\n" + "\n".join(fehler[:20])

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.33.2)
+# Handbuch – Feuerix (Version 1.34.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -504,6 +504,13 @@ getestet).
 Tagesordnung) erhalten Träger von Tags mit „OpenSlides-Gruppe“ (z. B. Admin, Delegates, Staff) automatisch diese Gruppe
 in der Versammlung. Voraussetzung ist ein OpenSlides-Konto („Mitglieder abgleichen“). Mitglieder mit einem solchen Tag
 werden beim Abgleich immer berücksichtigt.
+
+**Superadministratoren:** Jeder aktive Benutzerzugang mit der Rolle „Superadministrator“ bekommt bei „Vorstand
+abgleichen“ automatisch ein Paperless-Konto in der Administrator-Gruppe und bei „Mitglieder abgleichen“ automatisch
+ein OpenSlides-Konto mit der Gruppe „Admin“ in jeder Versammlung – unabhängig von eigenen Tags. Das gilt auch für
+Superadministratoren **ohne** eigene Mitgliedsakte (z. B. ein rein technischer Betreuer-Zugang): Name und E-Mail
+kommen dann vom Benutzerzugang selbst statt von einer Mitgliedsakte. Wird die Superadministrator-Rolle entzogen oder
+der Zugang deaktiviert, verschwinden diese automatisch vergebenen Rechte beim nächsten Abgleich wieder.
 
 **Live-Status:** Nach „An Paperless senden“ (auch im Sammelversand) zeigt die Seite den Fortschritt ohne manuelles
 Neuladen an: Warteschlange → wird gesendet → von Paperless verarbeitet → abgelegt bzw. Fehlermeldung. Während der
