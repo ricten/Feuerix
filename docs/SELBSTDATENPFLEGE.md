@@ -20,10 +20,12 @@ E-Mail nicht ankam oder das Mitglied sein Passwort vergessen hat).
 
 ## Was Mitglieder selbst ändern können
 
-Straße/PLZ/Ort, Telefon, Mobil, E-Mail, Kontoinhaber, IBAN, BIC. Alle anderen Felder (Status, Mitgliedsart,
-individueller Beitrag, Mitgliedsnummer, Ein-/Austrittsdatum, Funktionen, Dokumente …) bleiben ausschließlich
-für Mitarbeiter mit passendem Recht änderbar. Jede Änderung wird wie gewohnt automatisch im
-Änderungsprotokoll erfasst.
+Straße/PLZ/Ort, Telefon, Mobil, E-Mail, Zahlungsart, Kontoinhaber, IBAN, BIC. Alle anderen Felder (Status,
+Mitgliedsart, individueller Beitrag, Mitgliedsnummer, Ein-/Austrittsdatum, Funktionen, Dokumente …) bleiben
+ausschließlich für Mitarbeiter mit passendem Recht änderbar. Jede Änderung wird wie gewohnt automatisch im
+Änderungsprotokoll erfasst. **Hinweis zur Zahlungsart:** Eine Umstellung auf „SEPA-Lastschrift“ allein reicht
+nicht aus – dafür wird zusätzlich ein gültiges SEPA-Mandat (Referenz und Datum) benötigt, das weiterhin nur der
+Vorstand/Kassenwart hinterlegen kann.
 
 ## Zugang sperren / Startpasswort löschen
 

@@ -107,10 +107,12 @@ class SelbstdienstTests(TestCase):
         self.assertRedirects(self.client.get(reverse("nach_login")), reverse("mein_konto"))
         r = self.client.post(reverse("mein_konto"), {"strasse": "Neue Str. 1", "plz": "35683", "ort": "Dillenburg",
                                                       "email": "erika@example.org", "telefon": "", "mobil": "",
-                                                      "kontoinhaber": "", "iban": "", "bic": ""})
+                                                      "zahlungsart": "lastschrift", "kontoinhaber": "", "iban": "",
+                                                      "bic": ""})
         self.assertRedirects(r, reverse("mein_konto"))
         self.m.refresh_from_db()
         self.assertEqual(self.m.strasse, "Neue Str. 1")
+        self.assertEqual(self.m.zahlungsart, "lastschrift")
 
     def test_gesperrter_zugang_kann_sich_nicht_mehr_anmelden(self):
         self.client.login(username="vorstand", password="pw-Test-12345")

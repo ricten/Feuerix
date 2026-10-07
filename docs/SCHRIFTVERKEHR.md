@@ -38,7 +38,10 @@ Jubiläum, Zugangsdaten OpenSlides, Brief allgemein. Jede Vorlage kann geändert
 *Schriftverkehr › Ablage* und *Ablage-Ordner*. Ordner-Struktur wird beim Anlegen des Vereins erzeugt
 (Protokolle, Einladungen, Serienbriefe, Satzung & Verträge, Belege, Sonstiges) und automatisch nach **Jahr** unterteilt.
 * Aus dem System erzeugte PDFs landen automatisch im passenden Ordner (Kategorie/Jahr).
-* Eigene Dateien (Satzung, unterschriebene Protokolle, Scans): *Ablage › Neu*, Kategorie und Ordner wählen, optional der Veranstaltung zuordnen.
+* **Externe Dokumente hochladen:** Die Ablage ist nicht auf in dieser Software erzeugte Dokumente beschränkt –
+  über *Schriftverkehr › Ablage › „Neu“* lässt sich eine beliebige, extern erstellte Datei hochladen (PDF, Word,
+  eingescannte Satzung/Protokolle, Fotos …) und mit Titel, Kategorie, Ordner, Datum, Beschreibung und Tags
+  versehen; optional der Veranstaltung zuordnen.
 * **Versionierung:** gleicher Titel im gleichen Ordner → neue Version; frühere Versionen bleiben erhalten und sichtbar.
 * Der Zugriff auf Dateien läuft nur über die Anwendung (Anmeldung + Vereinszugehörigkeit + Recht „Ablage“).
 * Rechte: Modul „Ablage“ und „Schriftverkehr“ in den Rollen (Vorstand und Schriftführer haben Bearbeitungsrechte).

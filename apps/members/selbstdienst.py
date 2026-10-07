@@ -15,7 +15,8 @@ from django.views.decorators.http import require_POST
 
 from .models import Mitglied
 
-SELBSTDIENST_FELDER = ("strasse", "plz", "ort", "email", "telefon", "mobil", "kontoinhaber", "iban", "bic")
+SELBSTDIENST_FELDER = ("strasse", "plz", "ort", "email", "telefon", "mobil", "zahlungsart", "kontoinhaber", "iban",
+                       "bic")
 ALPHABET = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 
@@ -28,6 +29,9 @@ class SelbstdienstForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for f in self.fields.values():
             f.widget.attrs["class"] = "form-control"
+        self.fields["zahlungsart"].help_text = (
+            "Für „SEPA-Lastschrift“ wird zusätzlich ein gültiges SEPA-Mandat (Referenz und Datum) benötigt - "
+            "bitte dafür den Vorstand/Kassenwart kontaktieren, eine Umstellung hier allein reicht nicht aus.")
 
 
 def _passwort():
