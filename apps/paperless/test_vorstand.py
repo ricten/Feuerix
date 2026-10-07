@@ -25,7 +25,7 @@ class Basis(TestCase):
 
 class MarkerUndFunktionTests(Basis):
     def test_haken_setzt_und_beendet_die_funktion(self):
-        f = MitgliedFunktion.objects.get(mitglied=self.m, funktion__name="Vorstandsmitglied")
+        f = MitgliedFunktion.objects.get(mitglied=self.m, funktion__name="Beisitzer")
         self.assertIsNone(f.bis)
         self.assertEqual(f.von, date.today())
         self.assertTrue(self.m.vorstandsmitglied)
@@ -61,7 +61,7 @@ class MarkerUndFunktionTests(Basis):
         tag = MitgliedTag.objects.get(verein=anderer, name="Beisitzer")
         m = Mitglied.objects.create(verein=anderer, vorname="X", nachname="Y")
         m.tags.add(tag)
-        self.assertEqual(Funktion.objects.filter(name="Vorstandsmitglied").count(), 2)
+        self.assertEqual(Funktion.objects.filter(name="Beisitzer").count(), 2)
 
     def test_import_ignoriert_die_abgeleitete_spalte_vorstandsmitglied(self):
         from apps.members import importer

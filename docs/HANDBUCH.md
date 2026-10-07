@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.32.1)
+# Handbuch – Feuerix (Version 1.32.2)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -119,8 +119,10 @@ Ehrenabteilung** und **Aktives Mitglied der Einsatzabteilung**. Alle drei ersche
 dort filterbar und werden beim Import/Export (Spalten „Vorstandsmitglied“, „Alters- und Ehrenabteilung“, „Aktives
 Mitglied der Einsatzabteilung“; „ja“ oder „x“) berücksichtigt. **Vorstandsmitglied** ist dabei keine manuelle
 Auswahl, sondern wird automatisch aus den Tags abgeleitet (siehe unten „Zugriff über Tags“): wer eine der sechs
-DSO-Funktionen oder das Tag **Beisitzer** trägt, gilt als Vorstandsmitglied; das Häkchen folgt automatisch, inkl.
-der historisierten Funktion „Vorstandsmitglied“ (Von/Bis) und der Berechtigung für den Paperless-Abgleich. Beim
+DSO-Funktionen oder das Tag **Beisitzer** trägt, gilt als Vorstandsmitglied; das Häkchen folgt automatisch. Für
+jedes dieser Tags wird eine eigene historisierte Funktion (Von/Bis) geführt – mit dem Namen des jeweiligen Tags
+(z. B. „Kassenwart“ oder „Beisitzer“), nicht mit einem gemeinsamen Platzhalter, damit zwei unterschiedliche Ämter
+in der Mitgliederakte unterscheidbar bleiben. Außerdem gilt die Berechtigung für den Paperless-Abgleich. Beim
 Import wird die Spalte „Vorstandsmitglied“ deshalb ignoriert (Hinweis im Importbericht).
 
 Unter *Mitglieder* werden Personendaten, Anschrift, Bankverbindung (SEPA), Mitgliedsart, Familienzugehörigkeit,

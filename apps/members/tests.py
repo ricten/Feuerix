@@ -310,8 +310,8 @@ class TagsUndFunktionenTests(TestCase):
         r = self.client.get(reverse("mitglied_detail", args=[self.m.pk]))
         from datetime import date
         heute = f"{date.today():%d.%m.%Y}"
-        self.assertContains(r, f"Vorstandsmitglied ({heute} – {heute})")
-        self.assertContains(r, f"Vorstandsmitglied ({heute} – heute)")
+        self.assertContains(r, f"Kassenwart ({heute} – {heute})")
+        self.assertContains(r, f"Kassenwart ({heute} – heute)")
 
     def test_abteilungen_als_haken_statt_auswahlliste(self):
         from apps.members.models import Abteilung
@@ -411,3 +411,59 @@ class TagNeuAnlegenTests(TestCase):
         self.assertEqual(tag.rolle_id, rolle_pk)   # dieselbe Rolle wird aktualisiert, keine neue angelegt
         self.assertEqual(sorted(tag.rolle.rechte),
                          ["schriftverkehr.add", "schriftverkehr.change", "schriftverkehr.view"])
+
+
+class FunktionProTagTests(TestCase):
+    """Jedes Vorstands-Tag bekommt eine eigene historisierte Funktion mit seinem eigenen Namen - nicht einen
+    gemeinsamen Platzhalter "Vorstandsmitglied", der zwei verschiedene Ämter nicht unterscheiden ließe."""
+
+    def setUp(self):
+        from apps.members.models import MitgliedFunktion, MitgliedTag
+        self.MitgliedFunktion = MitgliedFunktion
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.kw_tag = MitgliedTag.objects.get(verein=self.v, name="Kassenwart")
+        self.beisitzer_tag = MitgliedTag.objects.get(verein=self.v, name="Beisitzer")
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Muster")
+
+    def _namen(self):
+        return set(self.MitgliedFunktion.objects.filter(mitglied=self.m, bis__isnull=True).values_list(
+            "funktion__name", flat=True))
+
+    def test_tagname_statt_platzhalter(self):
+        self.m.tags.add(self.kw_tag)
+        self.assertEqual(self._namen(), {"Kassenwart"})
+
+    def test_mehrere_tags_ergeben_mehrere_funktionen(self):
+        self.m.tags.add(self.kw_tag, self.beisitzer_tag)
+        self.assertEqual(self._namen(), {"Kassenwart", "Beisitzer"})
+
+    def test_nur_das_entfernte_tag_wird_beendet(self):
+        self.m.tags.add(self.kw_tag, self.beisitzer_tag)
+        self.m.tags.remove(self.kw_tag)
+        self.assertEqual(self._namen(), {"Beisitzer"})
+        kw = self.MitgliedFunktion.objects.get(mitglied=self.m, funktion__name="Kassenwart")
+        self.assertIsNotNone(kw.bis)
+
+
+class MigrationFunktionProTagTests(TestCase):
+    def test_offene_vorstandsmitglied_funktion_wird_durch_tagnamen_ersetzt(self):
+        import importlib
+
+        from django.apps import apps as django_apps
+
+        from apps.members.models import Funktion, MitgliedFunktion, MitgliedTag
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        kw_tag = MitgliedTag.objects.get(verein=v, name="Kassenwart")
+        m = Mitglied.objects.create(verein=v, vorname="Erika", nachname="Muster")
+        m.tags.add(kw_tag)
+        # historischen (bereits korrekten) Zustand zuruecksetzen, um den ALTEN Platzhalter-Zustand zu simulieren
+        MitgliedFunktion.objects.filter(mitglied=m).delete()
+        alte_funktion, _ = Funktion.objects.get_or_create(verein=v, name="Vorstandsmitglied")
+        MitgliedFunktion.objects.create(verein=v, mitglied=m, funktion=alte_funktion, von=m.eintrittsdatum)
+
+        modul = importlib.import_module("apps.members.migrations.0007_vorstand_funktion_pro_tag")
+        modul.vorwaerts(django_apps, None)
+
+        self.assertIsNotNone(MitgliedFunktion.objects.get(mitglied=m, funktion=alte_funktion).bis)
+        self.assertTrue(MitgliedFunktion.objects.filter(mitglied=m, funktion__name="Kassenwart",
+                                                        bis__isnull=True).exists())

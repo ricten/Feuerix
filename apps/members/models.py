@@ -171,32 +171,33 @@ class Mitglied(TenantModel):
         self._vorstandsmitglied_abgleichen()
         rolle_aus_tags(self)
 
-    VORSTAND_FUNKTION = "Vorstandsmitglied"
-
     def _vorstandsmitglied_abgleichen(self):
         """Vorstandsmitglied wird aus den Tags abgeleitet (eine der sechs DSO-Funktionen oder Beisitzer) - keine
-        manuelle Auswahl mehr, siehe Verwaltung › Funktionen: Tags. Die historisierte Funktion „Vorstandsmitglied“
-        (Von/Bis) folgt dem abgeleiteten Wert: gesetzt -> offene Funktion anlegen, entfernt -> laufende Funktion
-        beenden (der Verlauf bleibt erhalten)."""
+        manuelle Auswahl mehr, siehe Verwaltung › Funktionen: Tags. Für jedes dieser Tags wird eine eigene
+        historisierte Funktion (Von/Bis) mit dem Namen DES JEWEILIGEN TAGS geführt (z. B. „Kassenwart“ oder
+        „Beisitzer“, nicht ein allgemeiner Platzhalter „Vorstandsmitglied“) - Tag gesetzt -> offene Funktion
+        anlegen, Tag entfernt -> laufende Funktion beenden (der Verlauf bleibt erhalten)."""
         from datetime import date as _date
 
         from django.db.models import Q
 
         from apps.core.matrix import VORSTAND_TAGNAMEN
-        neu = self.tags.filter(name__in=VORSTAND_TAGNAMEN).exists()
+        gehalten = set(self.tags.filter(name__in=VORSTAND_TAGNAMEN).values_list("name", flat=True))
+        neu = bool(gehalten)
         if neu != self.vorstandsmitglied:
             Mitglied.objects.filter(pk=self.pk).update(vorstandsmitglied=neu)
             self.vorstandsmitglied = neu
-        offen = MitgliedFunktion.objects.filter(mitglied=self, funktion__name=self.VORSTAND_FUNKTION).filter(
-            Q(bis__isnull=True) | Q(bis__gte=_date.today()))
-        if neu:
-            # nur eine unbefristet laufende Funktion zaehlt - eine heute beendete wird neu angelegt
-            if not offen.filter(bis__isnull=True).exists():
-                f, _ = Funktion.objects.get_or_create(verein_id=self.verein_id, name=self.VORSTAND_FUNKTION)
-                MitgliedFunktion.objects.create(verein_id=self.verein_id, mitglied=self, funktion=f,
-                                                von=_date.today())
-        else:
-            offen.update(bis=_date.today())
+        for name in VORSTAND_TAGNAMEN:
+            offen = MitgliedFunktion.objects.filter(mitglied=self, funktion__name=name).filter(
+                Q(bis__isnull=True) | Q(bis__gte=_date.today()))
+            if name in gehalten:
+                # nur eine unbefristet laufende Funktion zaehlt - eine heute beendete wird neu angelegt
+                if not offen.filter(bis__isnull=True).exists():
+                    f, _ = Funktion.objects.get_or_create(verein_id=self.verein_id, name=name)
+                    MitgliedFunktion.objects.create(verein_id=self.verein_id, mitglied=self, funktion=f,
+                                                    von=_date.today())
+            else:
+                offen.update(bis=_date.today())
 
     @property
     def name(self):
