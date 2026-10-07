@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.34.2)
+# Handbuch – Feuerix (Version 1.34.3)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -375,6 +375,12 @@ eigene Anpassungen zu überschreiben. Aus einer Vorlage entsteht ein einzelnes *
 **Serienbrief** an eine gefilterte Empfängerliste (Status/Mitgliedsart/Abteilung/Funktion/nur mit E-Mail); beides
 lässt sich als PDF oder Word (.docx) ausgeben, per E-Mail versenden und automatisch in der **Ablage** archivieren
 (mit Versionierung: gleicher Titel im selben Ordner legt eine neue Version an, alte bleiben einsehbar).
+
+**Externe Dokumente hochladen**: Die Ablage ist nicht auf in dieser Software erzeugte Dokumente beschränkt – über
+*Schriftverkehr › Ablage › „Neu“* lässt sich eine beliebige, extern erstellte Datei (PDF, Word, eingescanntes
+Dokument, Foto …) hochladen und mit Titel, Kategorie, Ordner, Datum, Beschreibung und Tags versehen. Die gleiche
+Versionierung wie bei automatisch archivierten Dokumenten gilt auch hier (gleicher Titel im selben Ordner = neue
+Version, alte Versionen bleiben einsehbar).
 
 **Corporate Design**: PDF- und Word-Ausgabe verwenden pro Verein automatisch dasselbe Layout – Vereinsname groß
 oben links, Logo oben rechts (unter *Verwaltung › Verein/Einstellungen* hochladbar), eine Trennlinie in der
