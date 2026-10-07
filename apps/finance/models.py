@@ -331,14 +331,15 @@ class SepaEinzugPosition(TenantModel):
 
 
 class FinTSZugang(TenantModel):
-    """Verbindungsdaten fuer den FinTS-Abruf (experimentell) - die Bank-PIN wird bewusst NICHT gespeichert,
-    sondern bei jedem Abruf erneut eingegeben. Ein Verein kann mehrere Zugaenge anlegen (z. B. je Bank); jedes
+    """Verbindungsdaten fuer den FinTS-Abruf - die Bank-PIN wird bewusst NICHT gespeichert, sondern bei jedem
+    Abruf erneut eingegeben; die Online-Banking-Kennung (Login-Name, keine PIN) liegt verschluesselt in der
+    Datenbank (siehe VerschluesseltesTextField). Ein Verein kann mehrere Zugaenge anlegen (z. B. je Bank); jedes
     Kassenbuch-Konto kann optional einem davon zugeordnet werden (accounting.Konto.fints_zugang)."""
     bezeichnung = models.CharField("Bezeichnung", max_length=100, default="",
                                    help_text="Zur Unterscheidung, wenn mehrere Zugänge angelegt sind, z. B. Name der Bank")
     blz = models.CharField("Bankleitzahl", max_length=8)
-    kennung = models.CharField("Online-Banking-Kennung", max_length=100,
-                               help_text="Die Kennung fürs Online-Banking, nicht die PIN")
+    kennung = VerschluesseltesTextField("Online-Banking-Kennung",
+                                        help_text="Die Kennung fürs Online-Banking, nicht die PIN")
     bank_url = models.URLField("FinTS-Adresse der Bank",
                                help_text="Von der Bank vorgegebene FinTS-Serveradresse, z. B. https://banking.beispielbank.de/fints30")
     tage = models.PositiveIntegerField("Tage rückwirkend abrufen", default=60)
@@ -349,6 +350,8 @@ class FinTSZugang(TenantModel):
                   "davon beschränken. Über „Kontodaten abrufen“ bequem per Haken auswählbar.")
     letzter_abruf = models.DateTimeField("Letzter erfolgreicher Abruf", null=True, blank=True, editable=False)
     letzte_meldung = models.CharField("Letzte Meldung", max_length=300, blank=True, editable=False)
+
+    AUDIT_MASK = ("kennung",)
 
     class Meta:
         verbose_name = "FinTS-Zugang"

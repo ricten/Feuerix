@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.34.4)
+# Handbuch – Feuerix (Version 1.34.5)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -118,13 +118,38 @@ einem kleinen, ehrenamtlich geführten Verein sind die gewählten Funktionsträg
 Software. Wer das einschränken möchte, passt die betroffene Rolle in der Berechtigungsmatrix an (Zeile
 „Vereinssoftware / Verwaltung“ auf „Lesen“ oder „–“ setzen).
 
+**Zugriff über Tags:** Statt Rollen einzeln zu verteilen, werden Mitgliedern **Tags** zugeordnet (*Verwaltung ›
+Funktionen: Tags (Zugriffsrechte)*, gleich neben *Funktionen* in der Navigation). Jedes Tag legt fest, welche
+**Rolle** in dieser Software, welche **Paperless-Gruppe** und welche **OpenSlides-Gruppe** (in Versammlungen) seine
+Träger erhalten. Neben den sechs DSO-Funktionen, Administrator und den Zusatzrollen gibt es das Tag **Beisitzer**:
+Vorstandsmitglied ohne weitere Rechte in dieser Software (Paperless-Gruppe „Vorstand“, OpenSlides-Gruppe „Staff“,
+aber keine Rolle – zählt deshalb auch nicht zu den sechs Personen mit Software-Zugriff nach § 6). In der
+Mitgliederakte stehen Tags im Bearbeitungsformular als **Haken-Liste** (Mehrfachauswahl, kein Auswahlfeld) und
+werden auf der Detailseite im Abschnitt „Funktionen (Tags/Zugriffsrechte)“ – direkt neben den historisierten
+Funktionen mit Von/Bis-Datum – angezeigt.
+
+**Neue Tags anlegen:** Über *Verwaltung › Funktionen: Tags › Hinzufügen* lässt sich ein neues Tag anlegen – wahlweise
+**mit eigenen Rechten** (Haken „Hat eigene Rechte in dieser Software“, darunter je Modul dieselben Rechte-Haken wie
+bei einer Rolle; im Hintergrund wird dafür automatisch eine gleichnamige Rolle angelegt bzw. bei einer Änderung
+aktualisiert) oder **ohne Rechte** (reine organisatorische Kennzeichnung wie Beisitzer). Ein Namenskonflikt mit
+einer bereits bestehenden Rolle wird beim Speichern verständlich gemeldet.
+
+Trägt ein Mitglied ein Tag mit Rolle, aber hat noch
+keinen Verwaltungszugang, weist die Akte darauf hin, dass einer eingerichtet werden muss (ebenso die
+Berechtigungsmatrix, vereinsweit). Bei den sechs DSO-Funktionen (die laut Datenschutzordnung je nur eine Person
+haben sollen) steht direkt am Haken im Bearbeitungsformular „(bereits vergeben an: …)“, falls ein anderes
+aktives Mitglied das Tag schon trägt – bei Administrator und den Zusatzrollen nicht, da diese nicht auf eine
+Person begrenzt sind. Das ist ein Hinweis, keine Sperre: eine Doppelbesetzung (z. B. während einer Übergabe)
+lässt sich trotzdem speichern. Wie die Tags Paperless- bzw. OpenSlides-Konten synchronisieren, steht in Kapitel 12
+(OpenSlides-Anbindung) bzw. Kapitel 13 (Paperless-ngx-Anbindung).
+
 ## 3. Mitgliederverwaltung
 
 **Marker in der Mitgliederakte:** Drei Häkchen kennzeichnen Mitglieder: **Vorstandsmitglied**, **Alters- und
 Ehrenabteilung** und **Aktives Mitglied der Einsatzabteilung**. Alle drei erscheinen in der Mitgliederliste, sind
 dort filterbar und werden beim Import/Export (Spalten „Vorstandsmitglied“, „Alters- und Ehrenabteilung“, „Aktives
 Mitglied der Einsatzabteilung“; „ja“ oder „x“) berücksichtigt. **Vorstandsmitglied** ist dabei keine manuelle
-Auswahl, sondern wird automatisch aus den Tags abgeleitet (siehe unten „Zugriff über Tags“): wer eine der sechs
+Auswahl, sondern wird automatisch aus den Tags abgeleitet (siehe Kapitel 2 „Zugriff über Tags“): wer eine der sechs
 DSO-Funktionen oder das Tag **Beisitzer** trägt, gilt als Vorstandsmitglied; das Häkchen folgt automatisch. Für
 jedes dieser Tags wird eine eigene historisierte Funktion (Von/Bis) geführt – mit dem Namen des jeweiligen Tags
 (z. B. „Kassenwart“ oder „Beisitzer“), nicht mit einem gemeinsamen Platzhalter, damit zwei unterschiedliche Ämter
@@ -250,6 +275,14 @@ verlangt die Bank eine TAN (üblich), erscheint im nächsten Schritt die Bank-Au
 eine zu scannende Grafik) mitsamt Eingabefeld. Nach Bestätigung werden bei „Jetzt abrufen“ neue Kontobewegungen
 genauso wie beim Datei-Import als Bankumsätze angelegt (Duplikate werden übersprungen) und können anschließend wie
 gewohnt zugeordnet werden. Die Bank-PIN wird **nie gespeichert**.
+
+**Speicherung:** Von den FinTS-Zugangsdaten landet nur die **Online-Banking-Kennung** (der Login-Name, nicht die
+PIN) in der Datenbank – wie IBAN und API-Token verschlüsselt (`VerschluesseltesTextField`, Fernet-Verschlüsselung
+mit dem serverseitigen `FIELD_ENCRYPTION_KEY`). Bezeichnung, Bankleitzahl und FinTS-Adresse sind unkritische,
+öffentlich bekannte Bankdaten und bleiben unverschlüsselt. Die **FinTS-Produkt-ID** ist ebenfalls verschlüsselt,
+sofern sie unter `/admin/` › Systemeinstellungen hinterlegt wurde (Alternative: unverschlüsselt als
+Umgebungsvariable `FINTS_PRODUCT_ID`, dann liegt sie außerhalb der Datenbank in der Server-Konfiguration). Die
+Bank-PIN selbst wird – wie oben beschrieben – grundsätzlich nie gespeichert, auch nicht verschlüsselt.
 
 Ein Online-Banking-Zugang deckt oft mehrere Konten ab (z. B. das Vereinskonto zusammen mit privaten Konten
 derselben Kennung) – „Jetzt abrufen“ würde sonst **alle** davon abrufen. Auf der Seite „Kontodaten abrufen“ lässt
@@ -482,31 +515,8 @@ weiterhin per Knopf übergeben. Die Übergabe blockiert nie das Fertigstellen �
 Neue Versionen eines Dokuments entstehen über „Neue Version hochladen“ bzw. erneutes Ablegen und werden ebenfalls
 übergeben.
 
-**Zugriff über Tags:** Statt Rollen einzeln zu verteilen, werden Mitgliedern **Tags** zugeordnet (*Verwaltung ›
-Funktionen: Tags (Zugriffsrechte)*, gleich neben *Funktionen* in der Navigation). Jedes Tag legt fest, welche
-**Rolle** in dieser Software, welche **Paperless-Gruppe** und welche **OpenSlides-Gruppe** (in Versammlungen) seine
-Träger erhalten. Neben den sechs DSO-Funktionen, Administrator und den Zusatzrollen gibt es das Tag **Beisitzer**:
-Vorstandsmitglied ohne weitere Rechte in dieser Software (Paperless-Gruppe „Vorstand“, OpenSlides-Gruppe „Staff“,
-aber keine Rolle – zählt deshalb auch nicht zu den sechs Personen mit Software-Zugriff nach § 6). In der
-Mitgliederakte stehen Tags im Bearbeitungsformular als **Haken-Liste** (Mehrfachauswahl, kein Auswahlfeld) und
-werden auf der Detailseite im Abschnitt „Funktionen (Tags/Zugriffsrechte)“ – direkt neben den historisierten
-Funktionen mit Von/Bis-Datum – angezeigt.
-
-**Neue Tags anlegen:** Über *Verwaltung › Funktionen: Tags › Hinzufügen* lässt sich ein neues Tag anlegen – wahlweise
-**mit eigenen Rechten** (Haken „Hat eigene Rechte in dieser Software“, darunter je Modul dieselben Rechte-Haken wie
-bei einer Rolle; im Hintergrund wird dafür automatisch eine gleichnamige Rolle angelegt bzw. bei einer Änderung
-aktualisiert) oder **ohne Rechte** (reine organisatorische Kennzeichnung wie Beisitzer). Ein Namenskonflikt mit
-einer bereits bestehenden Rolle wird beim Speichern verständlich gemeldet.
-
-Trägt ein Mitglied ein Tag mit Rolle, aber hat noch
-keinen Verwaltungszugang, weist die Akte darauf hin, dass einer eingerichtet werden muss (ebenso die
-Berechtigungsmatrix, vereinsweit). Bei den sechs DSO-Funktionen (die laut Datenschutzordnung je nur eine Person
-haben sollen) steht direkt am Haken im Bearbeitungsformular „(bereits vergeben an: …)“, falls ein anderes
-aktives Mitglied das Tag schon trägt – bei Administrator und den Zusatzrollen nicht, da diese nicht auf eine
-Person begrenzt sind. Das ist ein Hinweis, keine Sperre: eine Doppelbesetzung (z. B. während einer Übergabe)
-lässt sich trotzdem speichern.
-
-Unter *Verwaltung › Paperless-Anbindung* gleicht „Vorstand abgleichen“ (bzw. Tag-Abgleich) die Paperless-Benutzer ab:
+Unter *Verwaltung › Paperless-Anbindung* gleicht „Vorstand abgleichen“ (bzw. Tag-Abgleich, siehe Kapitel 2
+„Zugriff über Tags“) die Paperless-Benutzer ab:
 Träger eines Tags mit Paperless-Gruppe erhalten ein Konto (ohne Administrator-Rechte) in den Gruppen ihrer Tags; eine
 fehlende Gruppe wird bei Bedarf angelegt (Ansehen, Hochladen, Bearbeiten – bzw. nur Ansehen, wenn am Tag „In Paperless
 nur lesen“ gesetzt ist; kein Löschen, keine Verwaltung). Wer kein Tag mehr hat, wird aus den durch Tags verwalteten
