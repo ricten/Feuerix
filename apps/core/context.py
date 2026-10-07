@@ -156,6 +156,10 @@ def mandant(request):
                     pass
         if punkte:
             navigation.append((gruppe, icon, punkte))
+    try:   # fuer alle angemeldeten Benutzer sichtbar - unabhaengig von Modulrechten (reine Lesehilfe)
+        navigation.append((_("Hilfe"), "bi-question-circle", [(_("Handbuch & Anleitungen"), reverse("hilfe"))]))
+    except NoReverseMatch:
+        pass
     verein = request.verein
     if verein is None:
         m = getattr(request.user, "mitglied_zugang", None)

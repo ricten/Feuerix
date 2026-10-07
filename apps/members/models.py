@@ -133,15 +133,11 @@ class Mitglied(TenantModel):
         MitgliedTag, blank=True, related_name="mitglieder", verbose_name="Tags (Zugriffsrechte)",
         help_text="Bestimmen die Zugriffsrechte in Paperless und OpenSlides (Verwaltung › Tags).")
     vorstandsmitglied = models.BooleanField(
-        "Vorstandsmitglied", default=False,
-        help_text="Setzt automatisch die Funktion „Vorstandsmitglied“. Nur Vorstandsmitglieder können mit Paperless "
-                  "abgeglichen werden (Verwaltung › Paperless-Anbindung).")
-    alters_ehrenabteilung = models.BooleanField("Alters- und Ehrenabteilung", default=False)
-    einsatzabteilung_aktiv = models.BooleanField("Aktives Mitglied der Einsatzabteilung", default=False)
-    vorstandsmitglied = models.BooleanField(
-        "Vorstandsmitglied", default=False,
-        help_text="Setzt automatisch die Funktion „Vorstandsmitglied“. Nur Vorstandsmitglieder können mit Paperless "
-                  "abgeglichen werden (Verwaltung › Paperless-Anbindung).")
+        "Vorstandsmitglied", default=False, editable=False,
+        help_text="Wird automatisch anhand der Tags geführt (DSO-Funktionen bzw. Beisitzer) - keine manuelle "
+                  "Auswahl mehr, sondern über Verwaltung › Funktionen: Tags vergeben. Setzt automatisch die "
+                  "Funktion „Vorstandsmitglied“. Nur Vorstandsmitglieder können mit Paperless abgeglichen werden "
+                  "(Verwaltung › Paperless-Anbindung).")
     alters_ehrenabteilung = models.BooleanField("Alters- und Ehrenabteilung", default=False)
     einsatzabteilung_aktiv = models.BooleanField("Aktives Mitglied der Einsatzabteilung", default=False)
     foto = models.ImageField("Foto", upload_to=upload_pfad, blank=True)
@@ -172,28 +168,28 @@ class Mitglied(TenantModel):
                 n = naechste_nummer(self.verein_id, "MITGLIED")
             self.mitgliedsnummer = n
         super().save(*args, **kwargs)
-        self._vorstandsfunktion_abgleichen()
+        self._vorstandsmitglied_abgleichen()
         rolle_aus_tags(self)
 
     VORSTAND_FUNKTION = "Vorstandsmitglied"
 
-    def _vorstandsfunktion_abgleichen(self):
-        """Die Funktion „Vorstandsmitglied“ folgt dem Häkchen: gesetzt -> offene Funktion anlegen,
-        entfernt -> laufende Funktion beenden (der Verlauf bleibt erhalten)."""
+    def _vorstandsmitglied_abgleichen(self):
+        """Vorstandsmitglied wird aus den Tags abgeleitet (eine der sechs DSO-Funktionen oder Beisitzer) - keine
+        manuelle Auswahl mehr, siehe Verwaltung › Funktionen: Tags. Die historisierte Funktion „Vorstandsmitglied“
+        (Von/Bis) folgt dem abgeleiteten Wert: gesetzt -> offene Funktion anlegen, entfernt -> laufende Funktion
+        beenden (der Verlauf bleibt erhalten)."""
         from datetime import date as _date
 
         from django.db.models import Q
+
+        from apps.core.matrix import VORSTAND_TAGNAMEN
+        neu = self.tags.filter(name__in=VORSTAND_TAGNAMEN).exists()
+        if neu != self.vorstandsmitglied:
+            Mitglied.objects.filter(pk=self.pk).update(vorstandsmitglied=neu)
+            self.vorstandsmitglied = neu
         offen = MitgliedFunktion.objects.filter(mitglied=self, funktion__name=self.VORSTAND_FUNKTION).filter(
             Q(bis__isnull=True) | Q(bis__gte=_date.today()))
-        tag, _ = MitgliedTag.objects.get_or_create(
-            verein_id=self.verein_id, name=self.VORSTAND_FUNKTION,
-            defaults={"paperless_gruppe": "Vorstand", "openslides_gruppe": "Staff",
-                      "beschreibung": "Automatisch mit dem Häkchen „Vorstandsmitglied“ vergeben"})
-        if self.vorstandsmitglied:
-            self.tags.add(tag)
-        else:
-            self.tags.remove(tag)
-        if self.vorstandsmitglied:
+        if neu:
             # nur eine unbefristet laufende Funktion zaehlt - eine heute beendete wird neu angelegt
             if not offen.filter(bis__isnull=True).exists():
                 f, _ = Funktion.objects.get_or_create(verein_id=self.verein_id, name=self.VORSTAND_FUNKTION)
@@ -291,8 +287,10 @@ def _tags_geaendert(sender, instance, action, reverse, pk_set, **kw):
         return
     if reverse:   # von der Tag-Seite: alle betroffenen Mitglieder
         for m in Mitglied.objects.filter(pk__in=pk_set or []):
+            m._vorstandsmitglied_abgleichen()
             rolle_aus_tags(m)
     else:
+        instance._vorstandsmitglied_abgleichen()
         rolle_aus_tags(instance)
 
 

@@ -166,7 +166,7 @@ def mitglied_anonymisieren(request, pk):
             messages.warning(request, f"Paperless-Konto konnte nicht angepasst werden ({e}) - bitte dort "
                                       "Name/E-Mail manuell prüfen und das Konto deaktivieren.")
             m.paperless_benutzer.delete()
-    m.vorstandsmitglied = False
+    m.tags.clear()   # Vorstandsmitglied wird daraus abgeleitet; entzieht nebenbei auch evtl. zugewiesene Rollen
     m.vorname, m.nachname = "Anonymisiert", f"#{m.mitgliedsnummer}"
     for f in ("anrede", "strasse", "plz", "ort", "email", "telefon", "mobil", "kontoinhaber", "iban", "bic",
               "mandatsreferenz", "notizen"):

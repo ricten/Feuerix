@@ -301,3 +301,102 @@ class TagsUndFunktionenTests(TestCase):
         zweiter = Mitglied.objects.create(verein=self.v, vorname="Zweiter", nachname="Person")
         r = self.client.get(reverse("mitglied_edit", args=[zweiter.pk]))
         self.assertNotContains(r, "bereits vergeben")
+
+    def test_abteilungen_als_haken_statt_auswahlliste(self):
+        from apps.members.models import Abteilung
+        a = Abteilung.objects.create(verein=self.v, name="Löschzug 1")
+        r = self.client.get(reverse("mitglied_edit", args=[self.m.pk]))
+        self.assertContains(r, f'<input type="checkbox" name="abteilungen" value="{a.pk}"')
+        self.assertNotContains(r, '<select name="abteilungen"')
+
+
+class BeisitzerTests(TestCase):
+    """Beisitzer: Vorstandsmitglied ohne weitere Rechte in dieser Software (eigenes Tag, keine Rolle)."""
+
+    def setUp(self):
+        from apps.members.models import MitgliedTag
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.tag = MitgliedTag.objects.get(verein=self.v, name="Beisitzer")
+
+    def test_beisitzer_tag_hat_keine_rolle_aber_vorstands_gruppen(self):
+        self.assertIsNone(self.tag.rolle_id)
+        self.assertEqual(self.tag.paperless_gruppe, "Vorstand")
+        self.assertEqual(self.tag.openslides_gruppe, "Staff")
+
+    def test_beisitzer_zaehlt_als_vorstandsmitglied_aber_braucht_keinen_zugang(self):
+        from apps.core import matrix as mx
+        m = Mitglied.objects.create(verein=self.v, vorname="Bea", nachname="Sitzer")
+        m.tags.add(self.tag)
+        self.assertTrue(m.vorstandsmitglied)
+        # kein Hinweis auf fehlenden Verwaltungszugang, da Beisitzer keine Rolle (und damit keinen Zugang) braucht
+        self.assertNotIn("Bea Sitzer", " ".join(mx.dso_pruefung(self.v)))
+
+    def test_beisitzer_zaehlt_nicht_zu_den_sechs_personen_mit_zugriff(self):
+        from apps.core import matrix as mx
+        for i, name in enumerate(["1. Vorsitzender", "2. Vorsitzender", "Kassenwart", "Stellv. Kassenwart",
+                                  "Schriftführer", "Stellv. Schriftführer"]):
+            from apps.members.models import MitgliedTag
+            Mitglied.objects.create(verein=self.v, vorname=f"F{i}", nachname="Amt").tags.add(
+                MitgliedTag.objects.get(verein=self.v, name=name))
+        # sechs DSO-Funktionen sind komplett besetzt - zusaetzliche Beisitzer duerfen trotzdem keine Warnung ausloesen
+        for i in range(3):
+            Mitglied.objects.create(verein=self.v, vorname=f"B{i}", nachname="Sitzer").tags.add(self.tag)
+        self.assertNotIn("§ 6", " ".join(mx.dso_pruefung(self.v)))
+
+
+class TagNeuAnlegenTests(TestCase):
+    """Tags lassen sich neu anlegen - wahlweise mit eigenen Software-Rechten (legt im Hintergrund eine Rolle mit
+    gleichem Namen an) oder rein organisatorisch ohne Rechte."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.admin = get_user_model().objects.create_superuser("admin", password="pw-Test-12345")
+        self.client.login(username="admin", password="pw-Test-12345")
+
+    def _post(self, **extra):
+        daten = {"name": "Pressewart", "beschreibung": "", "paperless_gruppe": "", "openslides_gruppe": ""}
+        daten.update(extra)
+        return self.client.post(reverse("mitgliedtag_add"), daten, follow=True)
+
+    def test_tag_ohne_rechte(self):
+        from apps.members.models import MitgliedTag
+        self._post()
+        tag = MitgliedTag.objects.get(verein=self.v, name="Pressewart")
+        self.assertIsNone(tag.rolle_id)
+
+    def test_tag_mit_rechten_legt_rolle_an(self):
+        from apps.members.models import MitgliedTag
+        self._post(rechte_vorhanden="on", **{"r_schriftverkehr": ["view", "add", "change"]})
+        tag = MitgliedTag.objects.get(verein=self.v, name="Pressewart")
+        self.assertIsNotNone(tag.rolle_id)
+        self.assertEqual(tag.rolle.name, "Pressewart")
+        self.assertEqual(sorted(tag.rolle.rechte),
+                         ["schriftverkehr.add", "schriftverkehr.change", "schriftverkehr.view"])
+
+    def test_name_kollidiert_mit_bestehender_rolle(self):
+        from apps.core.models import Rolle
+        Rolle.objects.create(verein=self.v, name="Pressewart", rechte=[])
+        r = self._post(rechte_vorhanden="on")
+        self.assertContains(r, "Es gibt bereits eine Rolle")
+
+    def test_rechte_nachtraeglich_entfernen_loest_rolle(self):
+        from apps.members.models import MitgliedTag
+        self._post(rechte_vorhanden="on", **{"r_schriftverkehr": ["view"]})
+        tag = MitgliedTag.objects.get(verein=self.v, name="Pressewart")
+        self.client.post(reverse("mitgliedtag_edit", args=[tag.pk]), {
+            "name": "Pressewart", "beschreibung": "", "paperless_gruppe": "", "openslides_gruppe": ""})
+        tag.refresh_from_db()
+        self.assertIsNone(tag.rolle_id)
+
+    def test_rechte_nachtraeglich_aendern(self):
+        from apps.members.models import MitgliedTag
+        self._post(rechte_vorhanden="on", **{"r_schriftverkehr": ["view"]})
+        tag = MitgliedTag.objects.get(verein=self.v, name="Pressewart")
+        rolle_pk = tag.rolle_id
+        self.client.post(reverse("mitgliedtag_edit", args=[tag.pk]), {
+            "name": "Pressewart", "beschreibung": "", "paperless_gruppe": "", "openslides_gruppe": "",
+            "rechte_vorhanden": "on", "r_schriftverkehr": ["view", "add", "change"]})
+        tag.refresh_from_db()
+        self.assertEqual(tag.rolle_id, rolle_pk)   # dieselbe Rolle wird aktualisiert, keine neue angelegt
+        self.assertEqual(sorted(tag.rolle.rechte),
+                         ["schriftverkehr.add", "schriftverkehr.change", "schriftverkehr.view"])

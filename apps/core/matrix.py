@@ -161,13 +161,24 @@ OHNE_BESETZUNGSPFLICHT = {ADMINISTRATOR} | ZUSATZROLLEN
 _ALLE_ROLLEN = {**DSO_ROLLEN, ADMINISTRATOR: _ADMIN_MATRIX}
 _ALLE_TAGS = {**DSO_TAGS, ADMINISTRATOR: (False, "Admin")}
 
+# Reine Mitgliedschafts-Tags ohne Rolle (keine Software-Rechte) - z. B. ein Beisitzer: Mitglied des Vorstands,
+# aber ohne weitere Rechte in dieser Software. Zaehlen deshalb auch nicht zu den Personen mit Zugriff (§ 6).
+BEISITZER = "Beisitzer"
+REINE_MITGLIEDSCHAFTSTAGS = {
+    BEISITZER: {"paperless_gruppe": "Vorstand", "openslides_gruppe": "Staff",
+               "beschreibung": "Vorstandsmitglied ohne weitere Rechte in dieser Software"},
+}
+# Tags, die ein Mitglied als "im Vorstand" kennzeichnen (Grundlage für das Feld Mitglied.vorstandsmitglied):
+# die sechs DSO-Funktionen sowie Beisitzer - bewusst OHNE Administrator (kein Vorstandsamt, siehe oben).
+VORSTAND_TAGNAMEN = set(DSO_TAGS) | {BEISITZER}
+
 
 def dso_anlegen(verein):
-    """Legt die sechs Rollen der Datenschutzordnung, die Rolle/das Tag "Administrator" (volle Rechte) sowie
-    optionale Zusatzrollen (Kassenprüfer, Inventarverwalter, Veranstaltungsplaner, Mitgliederverwaltung,
-    Lesebenutzer) samt zugehörigen Tags (Rolle + Paperless-Gruppe + OpenSlides-Gruppe) an. Bereits vorhandene
-    Rollen/Tags (auch mit abweichenden, selbst angepassten Rechten) bleiben unverändert (idempotent).
-    -> (neue_rollen, neue_tags)"""
+    """Legt die sechs Rollen der Datenschutzordnung, die Rolle/das Tag "Administrator" (volle Rechte), optionale
+    Zusatzrollen (Kassenprüfer, Inventarverwalter, Veranstaltungsplaner, Mitgliederverwaltung, Lesebenutzer) samt
+    zugehörigen Tags (Rolle + Paperless-Gruppe + OpenSlides-Gruppe) sowie reine Mitgliedschafts-Tags ohne Rolle
+    (Beisitzer) an. Bereits vorhandene Rollen/Tags (auch mit abweichenden, selbst angepassten Rechten) bleiben
+    unverändert (idempotent). -> (neue_rollen, neue_tags)"""
     from apps.members.models import MitgliedTag
 
     from .models import Rolle
@@ -190,6 +201,9 @@ def dso_anlegen(verein):
         neue_rollen += int(neu)
         tag, neu_tag = MitgliedTag.objects.get_or_create(verein=verein, name=name, defaults={
             "rolle": rolle, "beschreibung": "Zusatzrolle (kein Teil der Datenschutzordnung)"})
+        neue_tags += int(neu_tag)
+    for name, werte in REINE_MITGLIEDSCHAFTSTAGS.items():
+        _, neu_tag = MitgliedTag.objects.get_or_create(verein=verein, name=name, defaults=werte)
         neue_tags += int(neu_tag)
     return neue_rollen, neue_tags
 

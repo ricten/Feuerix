@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.31.1)
+# Handbuch – Feuerix (Version 1.32.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -11,6 +11,9 @@ Für einzelne Themen gibt es vertiefende Dokumente, auf die im jeweiligen Kapite
 
 Die aktuell laufende Version steht im Footer jeder Seite (z. B. „Version 1.0.0“) – praktisch, wenn Sie beim
 Support eine Fehlermeldung schildern.
+
+Dieses Handbuch und die vertiefenden Dokumente sind auch direkt in der Weboberfläche unter **Hilfe** (oben in der
+Navigation, für alle angemeldeten Benutzer sichtbar) abrufbar – keine separate Datei nötig.
 
 ## Inhalt
 
@@ -111,15 +114,18 @@ Software. Wer das einschränken möchte, passt die betroffene Rolle in der Berec
 
 ## 3. Mitgliederverwaltung
 
-**Marker in der Mitgliederakte:** Drei Häkchen kennzeichnen Mitglieder: **Vorstandsmitglied** (setzt automatisch die
-Funktion „Vorstandsmitglied“ bzw. beendet sie beim Entfernen des Häkchens; Grundlage für den Paperless-Abgleich),
-**Alters- und Ehrenabteilung** und **Aktives Mitglied der Einsatzabteilung**. Alle drei erscheinen in der
-Mitgliederliste, sind dort filterbar und werden beim Import/Export (Spalten „Vorstandsmitglied“, „Alters- und
-Ehrenabteilung“, „Aktives Mitglied der Einsatzabteilung“; „ja“ oder „x“) berücksichtigt.
+**Marker in der Mitgliederakte:** Drei Häkchen kennzeichnen Mitglieder: **Vorstandsmitglied**, **Alters- und
+Ehrenabteilung** und **Aktives Mitglied der Einsatzabteilung**. Alle drei erscheinen in der Mitgliederliste, sind
+dort filterbar und werden beim Import/Export (Spalten „Vorstandsmitglied“, „Alters- und Ehrenabteilung“, „Aktives
+Mitglied der Einsatzabteilung“; „ja“ oder „x“) berücksichtigt. **Vorstandsmitglied** ist dabei keine manuelle
+Auswahl, sondern wird automatisch aus den Tags abgeleitet (siehe unten „Zugriff über Tags“): wer eine der sechs
+DSO-Funktionen oder das Tag **Beisitzer** trägt, gilt als Vorstandsmitglied; das Häkchen folgt automatisch, inkl.
+der historisierten Funktion „Vorstandsmitglied“ (Von/Bis) und der Berechtigung für den Paperless-Abgleich. Beim
+Import wird die Spalte „Vorstandsmitglied“ deshalb ignoriert (Hinweis im Importbericht).
 
 Unter *Mitglieder* werden Personendaten, Anschrift, Bankverbindung (SEPA), Mitgliedsart, Familienzugehörigkeit,
-Abteilungen und ausgeübte Funktionen (z. B. „1. Vorsitzender“, mit Zeitraum) gepflegt. Die Mitgliedsnummer wird
-automatisch vergeben, kann aber auch manuell gesetzt werden.
+Abteilungen (als Haken, Mehrfachauswahl) und ausgeübte Funktionen (z. B. „1. Vorsitzender“, mit Zeitraum) gepflegt.
+Die Mitgliedsnummer wird automatisch vergeben, kann aber auch manuell gesetzt werden.
 
 **Import/Export**: Über *Verwaltung › Mitglieder-Import* (nicht auf der Mitgliederliste selbst, da meist nur einmalig
 beim Einrichten des Vereins benötigt) lässt sich eine Tabelle einlesen – mit **Testlauf** (nichts wird gespeichert,
@@ -451,10 +457,20 @@ Neue Versionen eines Dokuments entstehen über „Neue Version hochladen“ bzw.
 **Zugriff über Tags:** Statt Rollen einzeln zu verteilen, werden Mitgliedern **Tags** zugeordnet (*Verwaltung ›
 Funktionen: Tags (Zugriffsrechte)*, gleich neben *Funktionen* in der Navigation). Jedes Tag legt fest, welche
 **Rolle** in dieser Software, welche **Paperless-Gruppe** und welche **OpenSlides-Gruppe** (in Versammlungen) seine
-Träger erhalten. Das Häkchen „Vorstandsmitglied“ setzt automatisch das Tag „Vorstandsmitglied“ (Paperless-Gruppe
-„Vorstand“). In der Mitgliederakte stehen Tags im Bearbeitungsformular als **Haken-Liste** (Mehrfachauswahl, kein
-Auswahlfeld) und werden auf der Detailseite im Abschnitt „Funktionen (Tags/Zugriffsrechte)“ – direkt neben den
-historisierten Funktionen mit Von/Bis-Datum – angezeigt. Trägt ein Mitglied ein Tag mit Rolle, aber hat noch
+Träger erhalten. Neben den sechs DSO-Funktionen, Administrator und den Zusatzrollen gibt es das Tag **Beisitzer**:
+Vorstandsmitglied ohne weitere Rechte in dieser Software (Paperless-Gruppe „Vorstand“, OpenSlides-Gruppe „Staff“,
+aber keine Rolle – zählt deshalb auch nicht zu den sechs Personen mit Software-Zugriff nach § 6). In der
+Mitgliederakte stehen Tags im Bearbeitungsformular als **Haken-Liste** (Mehrfachauswahl, kein Auswahlfeld) und
+werden auf der Detailseite im Abschnitt „Funktionen (Tags/Zugriffsrechte)“ – direkt neben den historisierten
+Funktionen mit Von/Bis-Datum – angezeigt.
+
+**Neue Tags anlegen:** Über *Verwaltung › Funktionen: Tags › Hinzufügen* lässt sich ein neues Tag anlegen – wahlweise
+**mit eigenen Rechten** (Haken „Hat eigene Rechte in dieser Software“, darunter je Modul dieselben Rechte-Haken wie
+bei einer Rolle; im Hintergrund wird dafür automatisch eine gleichnamige Rolle angelegt bzw. bei einer Änderung
+aktualisiert) oder **ohne Rechte** (reine organisatorische Kennzeichnung wie Beisitzer). Ein Namenskonflikt mit
+einer bereits bestehenden Rolle wird beim Speichern verständlich gemeldet.
+
+Trägt ein Mitglied ein Tag mit Rolle, aber hat noch
 keinen Verwaltungszugang, weist die Akte darauf hin, dass einer eingerichtet werden muss (ebenso die
 Berechtigungsmatrix, vereinsweit). Bei den sechs DSO-Funktionen (die laut Datenschutzordnung je nur eine Person
 haben sollen) steht direkt am Haken im Bearbeitungsformular „(bereits vergeben an: …)“, falls ein anderes

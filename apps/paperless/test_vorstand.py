@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from apps.core.models import Verein
-from apps.members.models import Funktion, Mitglied, MitgliedFunktion
+from apps.members.models import Funktion, Mitglied, MitgliedFunktion, MitgliedTag
 
 from .client import PaperlessClient, PaperlessFehler
 from .models import PaperlessBenutzer, PaperlessVerbindung
@@ -18,8 +18,9 @@ class Basis(TestCase):
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         self.verbindung = PaperlessVerbindung.objects.create(
             verein=self.v, url="https://paperless.example.org", api_token="geheim", aktiv=True)
-        self.m = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Müller", email="e@example.org",
-                                         vorstandsmitglied=True)
+        self.beisitzer_tag = MitgliedTag.objects.get(verein=self.v, name="Beisitzer")
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Müller", email="e@example.org")
+        self.m.tags.add(self.beisitzer_tag)
 
 
 class MarkerUndFunktionTests(Basis):
@@ -27,19 +28,21 @@ class MarkerUndFunktionTests(Basis):
         f = MitgliedFunktion.objects.get(mitglied=self.m, funktion__name="Vorstandsmitglied")
         self.assertIsNone(f.bis)
         self.assertEqual(f.von, date.today())
+        self.assertTrue(self.m.vorstandsmitglied)
         self.m.save()   # kein Duplikat
         self.assertEqual(MitgliedFunktion.objects.filter(mitglied=self.m).count(), 1)
-        self.m.vorstandsmitglied = False
-        self.m.save()
+        self.m.tags.remove(self.beisitzer_tag)
+        self.m.refresh_from_db()
+        self.assertFalse(self.m.vorstandsmitglied)
         f.refresh_from_db()
         self.assertEqual(f.bis, date.today())   # beendet, Verlauf bleibt
-        self.m.vorstandsmitglied = True
-        self.m.save()
+        self.m.tags.add(self.beisitzer_tag)
         self.assertEqual(MitgliedFunktion.objects.filter(mitglied=self.m).count(), 2)
 
-    def test_ohne_haken_keine_funktion(self):
+    def test_ohne_tag_keine_funktion(self):
         m = Mitglied.objects.create(verein=self.v, vorname="A", nachname="B")
         self.assertFalse(MitgliedFunktion.objects.filter(mitglied=m).exists())
+        self.assertFalse(m.vorstandsmitglied)
 
     def test_marker_felder_standardmaessig_aus_und_unabhaengig(self):
         m = Mitglied.objects.create(verein=self.v, vorname="A", nachname="B", einsatzabteilung_aktiv=True)
@@ -47,20 +50,30 @@ class MarkerUndFunktionTests(Basis):
         self.assertFalse(m.alters_ehrenabteilung)
         self.assertFalse(m.vorstandsmitglied)
 
+    def test_dso_tag_zaehlt_ebenfalls_als_vorstandsmitglied(self):
+        kw_tag = MitgliedTag.objects.get(verein=self.v, name="Kassenwart")
+        m = Mitglied.objects.create(verein=self.v, vorname="Kai", nachname="Kasse")
+        m.tags.add(kw_tag)
+        self.assertTrue(m.vorstandsmitglied)
+
     def test_funktion_wird_je_verein_angelegt(self):
         anderer = Verein.objects.create(name="Anderer", kuerzel="anderer")
-        Mitglied.objects.create(verein=anderer, vorname="X", nachname="Y", vorstandsmitglied=True)
+        tag = MitgliedTag.objects.get(verein=anderer, name="Beisitzer")
+        m = Mitglied.objects.create(verein=anderer, vorname="X", nachname="Y")
+        m.tags.add(tag)
         self.assertEqual(Funktion.objects.filter(name="Vorstandsmitglied").count(), 2)
 
-    def test_import_export_kennen_die_marker(self):
+    def test_import_ignoriert_die_abgeleitete_spalte_vorstandsmitglied(self):
         from apps.members import importer
         csv_inhalt = ("Vorname;Nachname;Vorstandsmitglied;Alters- und Ehrenabteilung;"
                       "Aktives Mitglied der Einsatzabteilung\nAnna;Alt;ja;ja;\nBen;Aktiv;;;x\n").encode("utf-8")
-        importer.importieren(self.v, "m.csv", csv_inhalt, testlauf=False, neu_anlegen=True)
+        bericht = importer.importieren(self.v, "m.csv", csv_inhalt, testlauf=False, neu_anlegen=True)
         a = Mitglied.objects.get(vorname="Anna")
         b = Mitglied.objects.get(vorname="Ben")
-        self.assertEqual((a.vorstandsmitglied, a.alters_ehrenabteilung, a.einsatzabteilung_aktiv), (True, True, False))
+        # vorstandsmitglied wird aus Tags abgeleitet - die CSV-Spalte wird ignoriert (nie manuell gesetzt)
+        self.assertEqual((a.vorstandsmitglied, a.alters_ehrenabteilung, a.einsatzabteilung_aktiv), (False, True, False))
         self.assertEqual((b.vorstandsmitglied, b.alters_ehrenabteilung, b.einsatzabteilung_aktiv), (False, False, True))
+        self.assertTrue(any("automatisch aus Tags abgeleitet" in w for w in bericht["warnungen"]))
 
     def test_liste_zeigt_marker_und_filter(self):
         self.client.force_login(get_user_model().objects.create_superuser("admin", password="pw-Test-12345"))
@@ -109,8 +122,9 @@ class AbgleichTests(Basis):
 
     def test_nur_aktive_vorstandsmitglieder(self):
         Mitglied.objects.create(verein=self.v, vorname="Nur", nachname="Mitglied")
-        Mitglied.objects.create(verein=self.v, vorname="Aus", nachname="Getreten", vorstandsmitglied=True,
-                                status="ausgetreten")
+        ausgetreten = Mitglied.objects.create(verein=self.v, vorname="Aus", nachname="Getreten",
+                                              status="ausgetreten")
+        ausgetreten.tags.add(self.beisitzer_tag)
         c = _client_mock()
         self._lauf(c)
         self.assertEqual(c.benutzer_anlegen.call_count, 1)
@@ -126,8 +140,7 @@ class AbgleichTests(Basis):
 
     def test_ausgeschiedene_werden_entfernt_angelegte_deaktiviert(self):
         self._lauf(_client_mock())
-        self.m.vorstandsmitglied = False
-        self.m.save()
+        self.m.tags.remove(self.beisitzer_tag)
         c = _client_mock()
         info = self._lauf(c)
         self.assertEqual(c.benutzer_aendern.call_args.args, (101, {"groups": [9], "is_active": False}))
@@ -136,14 +149,14 @@ class AbgleichTests(Basis):
 
     def test_uebernommene_konten_werden_nie_deaktiviert(self):
         self._lauf(_client_mock(vorhanden={"id": 5, "groups": []}))
-        self.m.vorstandsmitglied = False
-        self.m.save()
+        self.m.tags.remove(self.beisitzer_tag)
         c = _client_mock()
         self._lauf(c)
         self.assertEqual(c.benutzer_aendern.call_args.args[1], {"groups": [9]})   # kein is_active
 
     def test_fehler_bei_einem_mitglied_stoppt_nicht_alle(self):
-        Mitglied.objects.create(verein=self.v, vorname="Zweite", nachname="Person", vorstandsmitglied=True)
+        zweite = Mitglied.objects.create(verein=self.v, vorname="Zweite", nachname="Person")
+        zweite.tags.add(self.beisitzer_tag)
         c = _client_mock()
         c.benutzer_anlegen.side_effect = [PaperlessFehler("kaputt"), 102]
         info = self._lauf(c)

@@ -3,7 +3,7 @@ from django.urls import path
 from apps.core.crud import crud, knopf
 
 from . import selbstdienst, verwaltungszugang, views
-from .forms import MitgliedForm
+from .forms import MitgliedForm, MitgliedTagForm
 from .models import (Abteilung, Dokument, Familie, Funktion, Mitglied, MitgliedFunktion, Mitgliedsart,
                      MitgliedTag)
 
@@ -43,7 +43,7 @@ urlpatterns += crud("mitgliedsarten", Mitgliedsart, "beitraege", list_display=("
 urlpatterns += crud("familien", Familie, "mitglieder", list_display=("name",))
 urlpatterns += crud("abteilungen", Abteilung, "mitglieder", list_display=("name",))
 urlpatterns += crud("funktionen", Funktion, "mitglieder", list_display=("name",))
-urlpatterns += crud("tags", MitgliedTag, "mitglieder",
+urlpatterns += crud("tags", MitgliedTag, "mitglieder", form=MitgliedTagForm,
                     list_display=("name", "rolle", "paperless_gruppe", "openslides_gruppe", "beschreibung"),
                     select_related=("rolle",))
 urlpatterns += crud("mitglied-funktionen", MitgliedFunktion, "mitglieder",

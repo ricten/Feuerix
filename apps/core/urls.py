@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import matrix_views, views
+from . import hilfe, matrix_views, views
 from .crud import abschnitt, crud
 from .forms import RolleForm, ZugangForm
 from .models import AuditLog, Rolle, Zugang
@@ -28,6 +28,8 @@ urlpatterns = [
     path("downloads/<slug:kuerzel>/", views.oeffentliche_dokumente, name="oeffentliche_dokumente"),
     path("downloads/<slug:kuerzel>/<int:pk>/", views.oeffentliches_dokument_download,
         name="oeffentliches_dokument_download"),
+    path("hilfe/", hilfe.hilfe, name="hilfe"),
+    path("hilfe/<slug:slug>/", hilfe.hilfe_dokument, name="hilfe_dokument"),
 ]
 urlpatterns += crud("protokoll", AuditLog, "audit", add=False, edit=False, delete=False,
                     list_display=("zeit", "user_name", "aktion", "modell", "objekt_repr", "grund"),

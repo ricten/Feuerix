@@ -9,6 +9,11 @@ class ZeilenFehler(Exception):
     pass
 
 
+# Wird automatisch aus den Tags abgeleitet (DSO-Funktionen/Beisitzer, siehe Verwaltung › Funktionen: Tags) -
+# ein importierter Wert würde beim Speichern sofort wieder überschrieben, deshalb wird die Spalte ignoriert.
+ABGELEITETE_FELDER = {"vorstandsmitglied"}
+
+
 def _suche_bestehend(verein, d):
     nr = d.get("mitgliedsnummer")
     if nr:
@@ -32,7 +37,7 @@ def _wandeln(rohwerte, verein, neu_anlegen, warnungen, zeile):
             elif feld == "mitgliedsnummer":
                 s = t.text(wert)
                 d[feld] = int(float(s)) if s else None
-            elif feld in ("ist_familienzahler", "vorstandsmitglied", "alters_ehrenabteilung", "einsatzabteilung_aktiv"):
+            elif feld in ("ist_familienzahler", "alters_ehrenabteilung", "einsatzabteilung_aktiv"):
                 d[feld] = t.ja(wert)
             elif feld == "anrede":
                 d[feld] = t.anrede(wert)
@@ -70,7 +75,8 @@ def importieren(verein, dateiname, inhalt, testlauf=True, aktualisieren=True, ne
     kopf, zeilen = t.lesen(dateiname, inhalt)
     zuordnung, unbekannt = t.spaltenzuordnung(kopf)
     gesperrt = sorted(f for f in zuordnung.values() if f in gesperrte_felder)
-    zuordnung = {i: f for i, f in zuordnung.items() if f not in gesperrte_felder}
+    abgeleitet = sorted(f for f in zuordnung.values() if f in ABGELEITETE_FELDER)
+    zuordnung = {i: f for i, f in zuordnung.items() if f not in gesperrte_felder and f not in ABGELEITETE_FELDER}
     if "vorname" not in zuordnung.values() or "nachname" not in zuordnung.values():
         raise ValueError("Die Spalten „Vorname“ und „Nachname“ wurden nicht gefunden. Erkannte Spalten: "
                          + (", ".join(kopf) or "keine"))
@@ -80,6 +86,9 @@ def importieren(verein, dateiname, inhalt, testlauf=True, aktualisieren=True, ne
         bericht["warnungen"].append("Nicht erkannte Spalten (werden ignoriert): " + ", ".join(unbekannt))
     if gesperrt:
         bericht["warnungen"].append("Spalten ohne Berechtigung (werden ignoriert): " + ", ".join(gesperrt))
+    if abgeleitet:
+        bericht["warnungen"].append("Wird automatisch aus Tags abgeleitet (Spalte wird ignoriert): "
+                                    + ", ".join(abgeleitet))
     arten = {a.name.lower(): a for a in Mitgliedsart.objects.filter(verein=verein)}
     abt = {a.name.lower(): a for a in Abteilung.objects.filter(verein=verein)}
     fam = {f.name.lower(): f for f in Familie.objects.filter(verein=verein)}
