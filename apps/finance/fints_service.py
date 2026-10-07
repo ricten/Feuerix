@@ -84,6 +84,9 @@ def naechster_schritt(client, verein, von, bis, konten_rest, zugang):
         if client.init_tan_response:
             return "tan", client.init_tan_response, None
         konten_rest = client.get_sepa_accounts()
+        ibans = zugang.iban_liste
+        if ibans:
+            konten_rest = [k for k in konten_rest if (k.iban or "").replace(" ", "").upper() in ibans]
     neu = 0
     while konten_rest:
         konto = konten_rest[0]

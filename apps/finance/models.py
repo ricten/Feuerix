@@ -342,6 +342,11 @@ class FinTSZugang(TenantModel):
     bank_url = models.URLField("FinTS-Adresse der Bank",
                                help_text="Von der Bank vorgegebene FinTS-Serveradresse, z. B. https://banking.beispielbank.de/fints30")
     tage = models.PositiveIntegerField("Tage rückwirkend abrufen", default=60)
+    abzurufende_ibans = models.TextField(
+        "Abzurufende Konten (IBAN)", blank=True,
+        help_text="Kommagetrennt. Leer = alle Konten dieses Zugangs werden abgerufen (Standard). Ein "
+                  "Online-Banking-Zugang deckt oft mehrere Konten ab - hier lässt sich der Abruf auf einzelne "
+                  "davon beschränken. Über „Kontodaten abrufen“ bequem per Haken auswählbar.")
     letzter_abruf = models.DateTimeField("Letzter erfolgreicher Abruf", null=True, blank=True, editable=False)
     letzte_meldung = models.CharField("Letzte Meldung", max_length=300, blank=True, editable=False)
 
@@ -352,6 +357,10 @@ class FinTSZugang(TenantModel):
 
     def __str__(self):
         return self.bezeichnung
+
+    @property
+    def iban_liste(self):
+        return [i.strip().replace(" ", "").upper() for i in self.abzurufende_ibans.split(",") if i.strip()]
 
 
 class Mahnung(TenantModel):

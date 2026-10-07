@@ -19,11 +19,13 @@ class Command(BaseCommand):
         # Nach Updates: fehlende Standardrollen und (nur bei leerem Bestand) Konten/Kategorien ergänzen
         from apps.accounting.models import Buchungskategorie, Konto
         from apps.accounting.services import standardkategorien_anlegen, standardkonten_anlegen
+        from apps.core.matrix import dso_anlegen
         from apps.core.rechte import STANDARDROLLEN
         for v in Verein.objects.all():
             for rname, cfg in STANDARDROLLEN.items():
                 Rolle.objects.get_or_create(verein=v, name=rname, defaults={
                     "ist_superadmin": cfg["ist_superadmin"], "rechte": cfg["rechte"]})
+            dso_anlegen(v)
             if not Konto.objects.filter(verein=v).exists():
                 standardkonten_anlegen(v)
             if not Buchungskategorie.objects.filter(verein=v).exists():

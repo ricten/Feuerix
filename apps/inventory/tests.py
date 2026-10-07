@@ -8,6 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from apps.core.models import Rolle, Verein, Zugang
+from apps.core.rechte import BEARBEITEN, LESEN, _r
 from apps.finance.models import Rechnung
 from apps.inventory import importer
 from apps.inventory.models import Gegenstand, Verleih
@@ -84,7 +85,9 @@ class ScanTests(TestCase):
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         self.verwalter = User.objects.create_user("verwalter", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=self.verwalter,
-                              rolle=Rolle.objects.get(verein=self.v, name="Inventarverwalter"))
+                              rolle=Rolle.objects.create(verein=self.v, name="Inventarverwalter",
+                                                 rechte=_r(["inventar", "verleih", "inventur"], BEARBEITEN)
+                                                 + _r(["mitglieder", "veranstaltungen"], LESEN)))
         self.client.login(username="verwalter", password="pw-Test-12345")
 
     def test_scan_legt_gegenstand_in_den_warenkorb(self):
@@ -119,7 +122,9 @@ class WarenkorbTests(TestCase):
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         self.verwalter = User.objects.create_user("verwalter", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=self.verwalter,
-                              rolle=Rolle.objects.get(verein=self.v, name="Inventarverwalter"))
+                              rolle=Rolle.objects.create(verein=self.v, name="Inventarverwalter",
+                                                 rechte=_r(["inventar", "verleih", "inventur"], BEARBEITEN)
+                                                 + _r(["mitglieder", "veranstaltungen"], LESEN)))
         self.client.login(username="verwalter", password="pw-Test-12345")
         self.m = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster")
         self.g1 = Gegenstand.objects.create(verein=self.v, bezeichnung="Faltpavillon", verleihbar=True)
@@ -163,7 +168,9 @@ class SammelverleihTests(TestCase):
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         self.verwalter = User.objects.create_user("verwalter", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=self.verwalter,
-                              rolle=Rolle.objects.get(verein=self.v, name="Inventarverwalter"))
+                              rolle=Rolle.objects.create(verein=self.v, name="Inventarverwalter",
+                                                 rechte=_r(["inventar", "verleih", "inventur"], BEARBEITEN)
+                                                 + _r(["mitglieder", "veranstaltungen"], LESEN)))
         self.client.login(username="verwalter", password="pw-Test-12345")
         self.m = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster")
         self.g1 = Gegenstand.objects.create(verein=self.v, bezeichnung="Faltpavillon", verleihbar=True, kaution=30)
@@ -227,7 +234,9 @@ class RueckgabeTests(TestCase):
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         self.verwalter = User.objects.create_user("verwalter", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=self.verwalter,
-                              rolle=Rolle.objects.get(verein=self.v, name="Inventarverwalter"))
+                              rolle=Rolle.objects.create(verein=self.v, name="Inventarverwalter",
+                                                 rechte=_r(["inventar", "verleih", "inventur"], BEARBEITEN)
+                                                 + _r(["mitglieder", "veranstaltungen"], LESEN)))
         self.client.login(username="verwalter", password="pw-Test-12345")
         self.m = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster")
         self.g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", verleihbar=True,

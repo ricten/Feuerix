@@ -18,8 +18,9 @@ class MandantenTests(TestCase):
         self.v2 = Verein.objects.create(name="Verein B", kuerzel="b")
         self.anna = User.objects.create_user("anna", password="pw-Test-12345")
         self.leser = User.objects.create_user("leser", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v1, user=self.anna, rolle=Rolle.objects.get(verein=self.v1, name="Vorstand"))
-        Zugang.objects.create(verein=self.v1, user=self.leser, rolle=Rolle.objects.get(verein=self.v1, name="Lesebenutzer"))
+        Zugang.objects.create(verein=self.v1, user=self.anna, rolle=Rolle.objects.get(verein=self.v1, name="Administrator"))
+        Zugang.objects.create(verein=self.v1, user=self.leser,
+                              rolle=Rolle.objects.create(verein=self.v1, name="Leser", rechte=["mitglieder.view"]))
         self.m1 = Mitglied.objects.create(verein=self.v1, vorname="Anton", nachname="Eins")
         self.m2 = Mitglied.objects.create(verein=self.v2, vorname="Berta", nachname="Zwei")
 
@@ -27,7 +28,7 @@ class MandantenTests(TestCase):
         from apps.accounting.models import Buchungskategorie, Konto
         from apps.documents.models import Ordner, Vorlage
         from apps.members.models import Mitgliedsart
-        self.assertTrue(Rolle.objects.filter(verein=self.v2, name="Kassenwart").exists())
+        self.assertTrue(Rolle.objects.filter(verein=self.v2, name="Kassenwart (DSO)").exists())
         self.assertTrue(Mitgliedsart.objects.filter(verein=self.v2, name="Aktiv").exists())
         self.assertTrue(Vorlage.objects.filter(verein=self.v2, name="Einladung Mitgliederversammlung").exists())
         self.assertTrue(Ordner.objects.filter(verein=self.v2, name="Protokolle").exists())
@@ -536,7 +537,7 @@ class UpdateBenachrichtigungAnzeigeTests(TestCase):
         Zugang.objects.create(verein=self.v, user=self.admin,
                               rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
         self.user = User.objects.create_user("vorstand", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Vorstand"))
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Administrator"))
 
     def test_banner_nur_fuer_superadmin_bei_neuerer_version(self):
         Systemeinstellung.objects.create(update_verfuegbare_version="99.0.0",

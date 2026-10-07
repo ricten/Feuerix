@@ -142,7 +142,7 @@ class ERechnungImportTests(TestCase):
         User = get_user_model()
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         self.user = User.objects.create_user("kasse", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart (DSO)"))
         self.client.login(username="kasse", password="pw-Test-12345")
 
     def test_import_xml_erstellt_ausgefuellte_buchung(self):
@@ -182,7 +182,7 @@ class BelegAblageTests(TestCase):
         User = get_user_model()
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         self.user = User.objects.create_user("kasse", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart (DSO)"))
         self.client.login(username="kasse", password="pw-Test-12345")
         konto = Konto.objects.filter(verein=self.v, aktiv=True).first()
         kategorie = Buchungskategorie.objects.filter(verein=self.v, typ="ausgabe").first()
@@ -227,7 +227,7 @@ class BelegAblageTests(TestCase):
         User = get_user_model()
         User.objects.create_user("leser", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=User.objects.get(username="leser"),
-                              rolle=Rolle.objects.get(verein=self.v, name="Lesebenutzer"))
+                              rolle=Rolle.objects.create(verein=self.v, name="Leser", rechte=[]))
         self.client.login(username="leser", password="pw-Test-12345")
         r = self.client.post(reverse("buchung_beleg_ablegen", args=[self.b.pk]))
         self.assertEqual(r.status_code, 403)

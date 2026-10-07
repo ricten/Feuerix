@@ -44,8 +44,13 @@ class DsoTabelleTests(Basis):
     def test_neuer_verein_bekommt_sechs_rollen_und_tags(self):
         self.assertEqual(Rolle.objects.filter(verein=self.v, name__endswith=mx.DSO_SUFFIX).count(), 6)
         tags = MitgliedTag.objects.filter(verein=self.v, rolle__isnull=False)
-        self.assertEqual(sorted(tags.values_list("name", flat=True)), sorted(FUNKTIONEN))
+        self.assertEqual(sorted(tags.values_list("name", flat=True)), sorted(FUNKTIONEN + [mx.ADMINISTRATOR]))
         self.assertEqual(mx.dso_anlegen(self.v), (0, 0))   # idempotent
+
+    def test_administrator_hat_volle_rechte_und_zaehlt_nicht_als_pflichtfunktion(self):
+        rolle = Rolle.objects.get(verein=self.v, name=mx.ADMINISTRATOR, ist_superadmin=False)
+        self.assertTrue(all(v == "V" for v in rolle.matrix.values()))
+        self.assertNotIn("Administrator ist nicht besetzt", " ".join(mx.dso_pruefung(self.v)))
 
     def test_stellvertreter_koennen_die_erstbesetzung_vertreten(self):
         # § 7: stv. Kassenwart = Kassenwart in allen Kassen-Bereichen; stv. Schriftführer bearbeitet die Schriftführung
@@ -270,7 +275,7 @@ class TagRolleTests(Basis):
         super().setUp()
         self.u = get_user_model().objects.create_user("erika", password="pw-Test-12345")
         self.m = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Muster", benutzer=self.u)
-        self.lese = Rolle.objects.get(verein=self.v, name="Lesebenutzer")
+        self.lese = Rolle.objects.create(verein=self.v, name="Ausgangsrolle", rechte=[])
         self.z = Zugang.objects.create(verein=self.v, user=self.u, rolle=self.lese)
         self.kw_tag = MitgliedTag.objects.get(verein=self.v, name="Kassenwart")
         self.sf_tag = MitgliedTag.objects.get(verein=self.v, name="Schriftführer")

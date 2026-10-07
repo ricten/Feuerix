@@ -120,7 +120,7 @@ class RueckzahlungTests(TestCase):
                                          eintrittsdatum=date(2015, 1, 1))
         User = get_user_model()
         self.user = User.objects.create_user("kasse", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart (DSO)"))
         self.client.login(username="kasse", password="pw-Test-12345")
         bj = Beitragsjahr.objects.create(verein=self.v, jahr=date.today().year,
                                          faelligkeit=date(date.today().year, 12, 31),
@@ -265,7 +265,7 @@ class SepaViewTests(TestCase):
         self.r1 = Rechnung.objects.get(verein=self.v, mitglied=self.m1)
         User = get_user_model()
         self.user = User.objects.create_user("kasse", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart (DSO)"))
 
     def test_neu_seite_zeigt_eligible_rechnung(self):
         self.client.login(username="kasse", password="pw-Test-12345")
@@ -283,7 +283,7 @@ class SepaViewTests(TestCase):
         User = get_user_model()
         User.objects.create_user("leser", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=User.objects.get(username="leser"),
-                              rolle=Rolle.objects.get(verein=self.v, name="Lesebenutzer"))
+                              rolle=Rolle.objects.create(verein=self.v, name="Leser", rechte=[]))
         self.client.login(username="leser", password="pw-Test-12345")
         r = self.client.post(reverse("sepa_einzug_neu"),
                              {"faelligkeitsdatum": "2026-04-01", "rechnungen": [self.r1.pk]})
@@ -378,7 +378,7 @@ class BankImportViewTests(TestCase):
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         User = get_user_model()
         self.user = User.objects.create_user("kasse", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart (DSO)"))
         self.client.login(username="kasse", password="pw-Test-12345")
 
     def test_mt940_datei_hochladen(self):
@@ -596,7 +596,7 @@ class ErechnungViewTests(TestCase):
         self.r.refresh_from_db()
         User = get_user_model()
         self.user = User.objects.create_user("kasse", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart (DSO)"))
         self.client.login(username="kasse", password="pw-Test-12345")
 
     def test_download_liefert_zugferd_pdf(self):
@@ -711,7 +711,7 @@ class FinTSAbrufTests(TestCase):
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         User = get_user_model()
         self.user = User.objects.create_user("kasse", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart"))
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart (DSO)"))
         self.client.login(username="kasse", password="pw-Test-12345")
         self.zugang = FinTSZugang.objects.create(verein=self.v, bezeichnung="Testbank", blz="12030000",
                                                  kennung="test-kennung", bank_url="https://fints.beispielbank.de",
@@ -813,7 +813,7 @@ class FinTSAbrufTests(TestCase):
     def test_ohne_add_recht_kein_abruf_aber_liste_lesbar(self):
         User = get_user_model()
         leser = User.objects.create_user("leser", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=leser, rolle=Rolle.objects.get(verein=self.v, name="Kassenprüfer"))
+        Zugang.objects.create(verein=self.v, user=leser, rolle=Rolle.objects.create(verein=self.v, name="Kassenpruefer-Test", rechte=["bank.view"]))
         self.client.logout()
         self.client.login(username="leser", password="pw-Test-12345")
         self.assertEqual(self.client.get(reverse("fints_abrufen", args=[self.zugang.pk])).status_code, 403)
@@ -848,7 +848,7 @@ class FinTSAbrufTests(TestCase):
     def test_kontodaten_ohne_add_recht_verboten(self):
         User = get_user_model()
         leser = User.objects.create_user("leser2", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=leser, rolle=Rolle.objects.get(verein=self.v, name="Kassenprüfer"))
+        Zugang.objects.create(verein=self.v, user=leser, rolle=Rolle.objects.create(verein=self.v, name="Kassenpruefer-Test", rechte=["bank.view"]))
         self.client.logout()
         self.client.login(username="leser2", password="pw-Test-12345")
         self.assertEqual(self.client.get(reverse("fints_kontodaten", args=[self.zugang.pk])).status_code, 403)
@@ -866,3 +866,93 @@ class FinTSAbrufTests(TestCase):
         with self.settings(FINTS_PRODUCT_ID=""):
             r = self.client.get(reverse("bankumsatz_list"))
         self.assertNotContains(r, "Umsätze abrufen:")
+
+    def test_ohne_einschraenkung_werden_alle_konten_abgerufen(self):
+        from fints.models import SEPAAccount
+        zweites = SEPAAccount(iban="DE11111111111111111111", bic="BYLADEM1001", accountnumber="999",
+                              subaccount="", blz="12030000")
+        fake = _FakeFinTSClient(konten=[self.konto, zweites], kontenabruf_ergebnis=[])
+        with patch("fints.client.FinTS3PinTanClient", return_value=fake):
+            self.client.post(reverse("fints_abrufen", args=[self.zugang.pk]), {"pin": "1234"})
+        self.zugang.refresh_from_db()
+        self.assertEqual(self.zugang.letzte_meldung, "0 neue Umsätze importiert.")   # kein Fehler = beide verarbeitet
+
+    def test_einschraenkung_auf_eine_iban_filtert_die_abzurufenden_konten(self):
+        from fints.models import SEPAAccount
+        zweites = SEPAAccount(iban="DE11111111111111111111", bic="BYLADEM1001", accountnumber="999",
+                              subaccount="", blz="12030000")
+        self.zugang.abzurufende_ibans = "de02 1203 0000 0000 2020 51"   # Leerzeichen/Kleinschreibung egal
+        self.zugang.save()
+        aufgerufene_konten = []
+
+        class Tracker(_FakeFinTSClient):
+            def get_transactions(self, konto, von, bis):
+                aufgerufene_konten.append(konto.iban)
+                return []
+        fake = Tracker(konten=[self.konto, zweites])
+        with patch("fints.client.FinTS3PinTanClient", return_value=fake):
+            self.client.post(reverse("fints_abrufen", args=[self.zugang.pk]), {"pin": "1234"})
+        self.assertEqual(aufgerufene_konten, ["DE02120300000000202051"])
+
+    def test_iban_liste_normalisiert_leerzeichen_und_schreibweise(self):
+        self.zugang.abzurufende_ibans = "de02 1203 0000 0000 2020 51, DE99"
+        self.assertEqual(self.zugang.iban_liste, ["DE02120300000000202051", "DE99"])
+
+    def test_hinweis_auf_beschraenkung_in_der_detailansicht(self):
+        self.zugang.abzurufende_ibans = self.konto.iban
+        self.zugang.save()
+        r = self.client.get(reverse("fintszugang_detail", args=[self.zugang.pk]))
+        self.assertContains(r, "auf 1 Konto(en) beschränkt")
+
+
+@override_settings(FINTS_PRODUCT_ID="TEST123456")
+class FinTSKontenAuswahlTests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.user = User.objects.create_user("kasse", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.user,
+                              rolle=Rolle.objects.get(verein=self.v, name="Kassenwart (DSO)"))
+        self.client.login(username="kasse", password="pw-Test-12345")
+        self.zugang = FinTSZugang.objects.create(verein=self.v, bezeichnung="Testbank", blz="12030000",
+                                                 kennung="test-kennung", bank_url="https://fints.beispielbank.de")
+
+    def test_auswahl_speichern_beschraenkt_den_abruf(self):
+        r = self.client.post(reverse("fints_konten_auswahl", args=[self.zugang.pk]),
+                             {"ibans": ["DE02120300000000202051", "DE11111111111111111111"]}, follow=True)
+        self.zugang.refresh_from_db()
+        self.assertEqual(self.zugang.iban_liste, ["DE02120300000000202051", "DE11111111111111111111"])
+        self.assertContains(r, "auf 2 Konto")
+
+    def test_alle_abrufen_setzt_einschraenkung_zurueck(self):
+        self.zugang.abzurufende_ibans = "DE02120300000000202051"
+        self.zugang.save()
+        self.client.post(reverse("fints_konten_auswahl", args=[self.zugang.pk]), {"alle": "1"})
+        self.zugang.refresh_from_db()
+        self.assertEqual(self.zugang.abzurufende_ibans, "")
+
+    def test_ohne_auswahl_und_ohne_alle_fehlermeldung(self):
+        r = self.client.post(reverse("fints_konten_auswahl", args=[self.zugang.pk]), {}, follow=True)
+        self.assertContains(r, "mindestens ein Konto")
+        self.zugang.refresh_from_db()
+        self.assertEqual(self.zugang.abzurufende_ibans, "")
+
+    def test_ohne_recht_verboten(self):
+        User = get_user_model()
+        User.objects.create_user("leser", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=User.objects.get(username="leser"),
+                              rolle=Rolle.objects.create(verein=self.v, name="Leser", rechte=[]))
+        self.client.login(username="leser", password="pw-Test-12345")
+        r = self.client.post(reverse("fints_konten_auswahl", args=[self.zugang.pk]), {"alle": "1"})
+        self.assertEqual(r.status_code, 403)
+
+    def test_kontodaten_vorschau_zeigt_haken_fuer_auswahl(self):
+        from fints.models import SEPAAccount
+        self.zugang.abzurufende_ibans = "DE02120300000000202051"
+        self.zugang.save()
+        fake = _FakeFinTSClient(konten=[SEPAAccount(iban="DE02120300000000202051", bic="X", accountnumber="1",
+                                                    subaccount="", blz="12030000")])
+        with patch("fints.client.FinTS3PinTanClient", return_value=fake):
+            r = self.client.post(reverse("fints_kontodaten", args=[self.zugang.pk]), {"pin": "1234"})
+        self.assertContains(r, reverse("fints_konten_auswahl", args=[self.zugang.pk]))
+        self.assertContains(r, "Alle Konten abrufen")

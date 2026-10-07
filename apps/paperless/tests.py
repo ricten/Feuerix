@@ -142,7 +142,7 @@ class ViewTests(TestCase):
         self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
         self.schreiber = User.objects.create_user("schriftfuehrer", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=self.schreiber, rolle=Rolle.objects.get(
-            verein=self.v, name="Schriftführer"))
+            verein=self.v, name="Schriftführer (DSO)"))
         self.dok = Ablagedokument.objects.create(
             verein=self.v, titel="Protokoll", datum=date(2026, 3, 1),
             datei=SimpleUploadedFile("prot.pdf", b"%PDF-1.4 Inhalt"))
@@ -185,7 +185,7 @@ class ViewTests(TestCase):
         User = get_user_model()
         User.objects.create_user("leser", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=User.objects.get(username="leser"),
-                              rolle=Rolle.objects.get(verein=self.v, name="Lesebenutzer"))
+                              rolle=Rolle.objects.create(verein=self.v, name="Leser", rechte=[]))
         self.client.login(username="leser", password="pw-Test-12345")
         r = self.client.post(reverse("ablagedokument_paperless_senden", args=[self.dok.pk]))
         self.assertEqual(r.status_code, 403)

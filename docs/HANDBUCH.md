@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.28.0)
+# Handbuch – Feuerix (Version 1.30.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -85,24 +85,24 @@ Jeder Benutzerzugang (*Verwaltung › Benutzer*) bekommt pro Verein eine **Rolle
 Eine Rolle legt fest, welche Module ein Zugang **anzeigen**, **erstellen**, **bearbeiten** oder **löschen** darf.
 Bei Bedarf können einem einzelnen Zugang zusätzlich individuelle Extra-Rechte gegeben werden.
 
-Mitgelieferte Standardrollen:
+Es gibt kein festes Standardrollen-Set mehr; Rechte werden über die **Berechtigungsmatrix nach der
+Datenschutzordnung** vergeben (Kapitel 1, Abschnitt „Rechte nach der Datenschutzordnung“) und dort je Rolle und
+Datenbereich **direkt in der Weboberfläche eingestellt**. Für jeden Verein werden automatisch folgende Rollen
+angelegt (Rechte siehe Berechtigungsmatrix, dort auch änderbar):
 
-| Rolle | Typischer Einsatz | Volle Rechte (inkl. Anlegen/Bearbeiten) | Nur Lesen |
-|---|---|---|---|
-| **Superadministrator** | Technische Betreuung | Alles, inkl. Benutzer/Rollen/Vereinseinstellungen | – |
-| **Vorstand** | Vorsitz | Mitglieder, Ehrungen, Dokumente, Beiträge, Rechnungen, Veranstaltungen, Schriftverkehr, Ablage, Selbstdatenpflege-Verwaltung; darf zusätzlich Aufwandsanträge genehmigen | Zahlungen, Spenden, Aufwand, Inventar, Verleih, Inventuren, Auswertungen, OpenSlides, Kassenbuch |
-| **Kassenwart** | Kassenführung | Beiträge, Rechnungen, Zahlungen, Bankumsätze, Spenden, Aufwand, Kassenbuch (inkl. Löschen/Wiedereröffnen) | Mitglieder, Auswertungen, Ablage |
-| **Kassenprüfer** | Jährliche Prüfung | – | Kassenbuch, Rechnungen, Zahlungen, Bankumsätze, Spenden, Aufwand, Beiträge, Ablage, Auswertungen |
-| **Schriftführer** | Protokolle/Schriftverkehr | Mitglieder, Ehrungen, Dokumente, Veranstaltungen, Schriftverkehr, Ablage | – |
-| **Inventarverwalter** | Gerätewart | Inventar, Verleih, Inventuren | Mitglieder, Veranstaltungen |
-| **Veranstaltungsplaner** | Eventorganisation | Veranstaltungen, Verleih | Mitglieder, Inventar |
-| **Mitgliederverwaltung** | Selbstdatenpflege-Betreuung | Selbstdatenpflege-Zugänge (inkl. Löschen) | Mitglieder |
-| **Lesebenutzer** | z. B. Beisitzer:in | – | breiter Lesezugriff, aber **ohne** Verwaltung, Änderungsprotokoll, Bankumsätze, Aufwand, Spenden, OpenSlides, Kassenbuch, Selbstdatenpflege |
+| Rolle | Typischer Einsatz |
+|---|---|
+| **Superadministrator** | Technische Betreuung; Rechte-Bypass, erscheint nicht in der Berechtigungsmatrix |
+| **1. Vorsitzender (DSO) / 2. Vorsitzender (DSO)** | Vorsitz |
+| **Kassenwart (DSO) / Stellv. Kassenwart (DSO)** | Kassenführung |
+| **Schriftführer (DSO) / Stellv. Schriftführer (DSO)** | Protokolle/Schriftverkehr |
+| **Administrator** | Volle Rechte auf alle Datenbereiche (z. B. für die technische Betreuung der Software); kein Teil der Datenschutzordnung selbst, zählt aber zu deren Personenkreis mit Zugriff (§ 6) |
 
-Wichtig: **Nur der Superadministrator** hat standardmäßig Rechte auf das Modul „Verwaltung“ (Benutzer, Rollen,
-Vereinseinstellungen, „Verwaltungszugang einrichten“ bei einem Mitglied). Wer weiteren Personen diese Aufgabe
-übertragen möchte, muss ihnen eine eigene Rolle mit dem Recht `verwaltung` geben oder sie zum Superadministrator
-machen.
+Die sechs DSO-Rollen bekommen laut Datenschutzordnung alle **volle Rechte auf „Vereinssoftware / Verwaltung“**
+(Benutzer, Rollen, Vereinseinstellungen, OpenSlides-/Paperless-Anbindung, „Verwaltungszugang einrichten“) – in
+einem kleinen, ehrenamtlich geführten Verein sind die gewählten Funktionsträger zugleich die Betreuer der
+Software. Wer das einschränken möchte, passt die betroffene Rolle in der Berechtigungsmatrix an (Zeile
+„Vereinssoftware / Verwaltung“ auf „Lesen“ oder „–“ setzen).
 
 ## 3. Mitgliederverwaltung
 
@@ -210,13 +210,19 @@ Umgebungsvariable oder – verschlüsselt und ohne Serverzugriff änderbar – u
 hinterlegt (nur für technische Administratoren, nicht Teil der normalen Vereinsverwaltung). Jedes Kassenbuch-Konto
 (*Kasse › Konten*) kann optional einem dieser Zugänge zugeordnet werden – Konten ohne Zuordnung laufen
 unverändert über den manuellen Kontoauszug-Import weiter.
-Auf der Detailseite eines Zugangs steht „Kontodaten abrufen“ (zeigt nur IBAN/BIC der beim Kreditinstitut
-hinterlegten Konten – nützlich, um die Verbindung zu prüfen und die richtige Zuordnung zum Kassenbuch-Konto zu
-finden, ohne gleich Umsätze zu importieren) sowie „Jetzt abrufen“ für den eigentlichen Umsatz-Abruf. Beides fragt
-die PIN ab – verlangt die Bank eine TAN (üblich), erscheint im nächsten Schritt die Bank-Aufforderung (Text, oder
-bei chipTAN eine zu scannende Grafik) mitsamt Eingabefeld. Nach Bestätigung werden bei „Jetzt abrufen“ neue
-Kontobewegungen genauso wie beim Datei-Import als Bankumsätze angelegt (Duplikate werden übersprungen) und können
-anschließend wie gewohnt zugeordnet werden. Die Bank-PIN wird **nie gespeichert**.
+Auf der Detailseite eines Zugangs steht „Kontodaten abrufen“ (zeigt IBAN/BIC der beim Kreditinstitut hinterlegten
+Konten – nützlich, um die Verbindung zu prüfen und die richtige Zuordnung zum Kassenbuch-Konto zu finden, ohne
+gleich Umsätze zu importieren) sowie „Jetzt abrufen“ für den eigentlichen Umsatz-Abruf. Beides fragt die PIN ab –
+verlangt die Bank eine TAN (üblich), erscheint im nächsten Schritt die Bank-Aufforderung (Text, oder bei chipTAN
+eine zu scannende Grafik) mitsamt Eingabefeld. Nach Bestätigung werden bei „Jetzt abrufen“ neue Kontobewegungen
+genauso wie beim Datei-Import als Bankumsätze angelegt (Duplikate werden übersprungen) und können anschließend wie
+gewohnt zugeordnet werden. Die Bank-PIN wird **nie gespeichert**.
+
+Ein Online-Banking-Zugang deckt oft mehrere Konten ab (z. B. das Vereinskonto zusammen mit privaten Konten
+derselben Kennung) – „Jetzt abrufen“ würde sonst **alle** davon abrufen. Auf der Seite „Kontodaten abrufen“ lässt
+sich deshalb per Haken auswählen, welche IBAN(s) künftig berücksichtigt werden („Auswahl speichern“); „Alle Konten
+abrufen (keine Einschränkung)“ setzt das wieder auf den Standard zurück (alle Konten des Zugangs). Eine aktive
+Einschränkung wird auf der Detailseite des Zugangs als Hinweis angezeigt.
 
 **SEPA-Einzüge**: Unter *Finanzen › SEPA-Einzüge* → „Neuen Einzug erstellen“ werden alle offenen/teilbezahlten
 Rechnungen von Mitgliedern mit Zahlungsart „SEPA-Lastschrift“ und vollständigem Mandat (IBAN, Mandatsreferenz,
@@ -313,8 +319,9 @@ Bescheiddatum am Verein fehlen oder der Bescheid älter als drei Jahre ist.
 ## 8. Aufwandsentschädigungen
 
 Anträge (Ehrenamtspauschale, Übungsleiterpauschale, Aufwandsersatz gegen Beleg, sonstige Vergütung) durchlaufen
-*Beantragt* → *Genehmigt* → *Ausgezahlt* (oder *Abgelehnt*). Vorstand und Kassenwart können genehmigen/ablehnen/als
-ausgezahlt markieren. „Jahresübersicht Freibeträge“ zeigt je Empfänger und Jahr die Summen gegen die im Verein
+*Beantragt* → *Genehmigt* → *Ausgezahlt* (oder *Abgelehnt*). Kassenwart und Administrator können
+genehmigen/ablehnen/als ausgezahlt markieren; nach der Datenschutzordnung haben die Vorsitzenden auf den
+Zahlungsverkehr nur Leserecht (in der Berechtigungsmatrix änderbar). „Jahresübersicht Freibeträge“ zeigt je Empfänger und Jahr die Summen gegen die im Verein
 hinterlegten Freibeträge (Ehrenamts-/Übungsleiterpauschale) und warnt, wenn ein Freibetrag überschritten wird oder
 noch keine Erklärung vorliegt, dass die Pauschale nicht anderweitig ausgeschöpft ist. Ein genehmigter
 Aufwandsersatz kann per „Verzicht → Aufwandsspende“ in eine Spende umgewandelt werden.
@@ -376,8 +383,8 @@ sind. Bei einer verknüpften Veranstaltung überträgt „In OpenSlides anlegen�
 „Tagesordnung übertragen“ danach nur noch neu hinzugekommene Punkte. „Startpasswörter löschen“ entfernt alle
 gespeicherten OpenSlides-Anfangspasswörter (z. B. nachdem alle Zugangsdaten verteilt wurden).
 
-Diese Anbindung ist praktisch nur für den Superadministrator nutzbar, da das Modul `openslides` standardmäßig
-außer beim Vorstand (nur lesend) keiner Rolle zugewiesen ist.
+Die OpenSlides-Anbindung einrichten können laut Datenschutzordnung alle sechs DSO-Rollen (Zeile „Vereinssoftware /
+Verwaltung“ der Berechtigungsmatrix) sowie der Superadministrator und Administrator.
 
 **Wahlergebnisse zurückholen**: Ist eine Veranstaltung mit einer OpenSlides-Versammlung verknüpft, erscheint auf
 ihrer Seite zusätzlich „Wahlergebnisse aus OpenSlides übernehmen“. Das holt die Stimmenverteilung aller in
@@ -462,9 +469,9 @@ Neuladen an: Warteschlange → wird gesendet → von Paperless verarbeitet → a
 Übergabe sind die Sende-Knöpfe ausgeblendet. Nach erfolgreicher Übergabe verschwindet „An Paperless senden“; nur
 dann erscheint „Erneut an Paperless senden“.
 
-Diese Anbindung ist praktisch nur für den Superadministrator einrichtbar, da das Modul `paperless` standardmäßig
-außer beim Vorstand (nur lesend) keiner Rolle zugewiesen ist; den Versandknopf selbst können alle Rollen mit
-Ablage-Bearbeitungsrecht nutzen (z. B. Schriftführer).
+Die Paperless-Anbindung einrichten können laut Datenschutzordnung alle sechs DSO-Rollen (Zeile „Vereinssoftware /
+Verwaltung“ der Berechtigungsmatrix) sowie der Superadministrator und Administrator; den Versandknopf selbst
+können alle Rollen mit Ablage-Bearbeitungsrecht nutzen (z. B. Schriftführer).
 
 ## 14. Auswertungen und Änderungsprotokoll
 

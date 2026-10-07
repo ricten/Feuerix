@@ -30,7 +30,7 @@ class LiveStatusTests(TestCase):
             verein=self.v, url="https://paperless.example.org", api_token="geheim", aktiv=True)
         self.user = get_user_model().objects.create_user("schriftfuehrer", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(
-            verein=self.v, name="Schriftführer"))
+            verein=self.v, name="Schriftführer (DSO)"))
         self.client.force_login(self.user)
         self.dok = Ablagedokument.objects.create(verein=self.v, titel="A", datei=SimpleUploadedFile("a.pdf", b"x"))
         self.url = reverse("ablagedokument_paperless_status", args=[self.dok.pk])
@@ -175,7 +175,7 @@ class VorschauTests(TestCase):
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         self.user = get_user_model().objects.create_user("schriftfuehrer", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(
-            verein=self.v, name="Schriftführer"))
+            verein=self.v, name="Schriftführer (DSO)"))
         self.client.force_login(self.user)
 
     def _dok(self, name, inhalt=b"%PDF-1.4 x", verein=None):

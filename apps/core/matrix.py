@@ -128,24 +128,34 @@ DSO_TAGS = {
     "Stellv. Schriftführer": (False, "Staff"),
 }
 
+# Zusätzlich zu den sechs Funktionen der Datenschutzordnung: "Administrator" mit vollen Rechten (z. B. für die
+# technische Betreuung der Software). Kein Teil der Datenschutzordnung selbst, deshalb ohne "(DSO)"-Zusatz -
+# zählt aber zu den Personen mit Zugriff (§ 6) und wird deshalb bei der Besetzungsprüfung mitgezählt.
+ADMINISTRATOR = "Administrator"
+_ADMIN_MATRIX = {**{b.key: "V" for b in BEREICHE}, LOESCHUNG: "V"}
+_ALLE_ROLLEN = {**DSO_ROLLEN, ADMINISTRATOR: _ADMIN_MATRIX}
+_ALLE_TAGS = {**DSO_TAGS, ADMINISTRATOR: (False, "Admin")}
+
 
 def dso_anlegen(verein):
-    """Legt die sechs Rollen der Datenschutzordnung samt zugehörigen Tags (Rolle + Paperless-Gruppe +
-    OpenSlides-Gruppe) an. Bereits vorhandene Rollen/Tags bleiben unverändert (idempotent).
-    -> (neue_rollen, neue_tags)"""
+    """Legt die sechs Rollen der Datenschutzordnung sowie die Rolle/das Tag "Administrator" (volle Rechte) samt
+    zugehörigen Tags (Rolle + Paperless-Gruppe + OpenSlides-Gruppe) an. Bereits vorhandene Rollen/Tags bleiben
+    unverändert (idempotent). -> (neue_rollen, neue_tags)"""
     from apps.members.models import MitgliedTag
 
     from .models import Rolle
     neue_rollen = neue_tags = 0
-    for name, matrix in DSO_ROLLEN.items():
+    for name, matrix in _ALLE_ROLLEN.items():
         rolle, neu = Rolle.objects.get_or_create(verein=verein, name=name, defaults={
             "ist_superadmin": False, "rechte": rechte_aus_matrix(matrix), "matrix": matrix})
         neue_rollen += int(neu)
-        funktion = name[:-len(DSO_SUFFIX)]
-        lesen, os_gruppe = DSO_TAGS[funktion]
+        funktion = name[:-len(DSO_SUFFIX)] if name.endswith(DSO_SUFFIX) else name
+        lesen, os_gruppe = _ALLE_TAGS[funktion]
+        beschreibung = ("Volle Rechte (z. B. technische Betreuung der Software)" if funktion == ADMINISTRATOR
+                       else "Funktionsträger nach Datenschutzordnung")
         tag, neu_tag = MitgliedTag.objects.get_or_create(verein=verein, name=funktion, defaults={
             "rolle": rolle, "paperless_gruppe": funktion, "paperless_nur_lesen": lesen, "openslides_gruppe": os_gruppe,
-            "beschreibung": "Funktionsträger nach Datenschutzordnung"})
+            "beschreibung": beschreibung})
         neue_tags += int(neu_tag)
     return neue_rollen, neue_tags
 
@@ -162,7 +172,9 @@ def dso_pruefung(verein):
     if traeger.count() > 6:
         hinweise.append(f"§ 6 der Datenschutzordnung: regelmäßigen Zugriff sollen ausschließlich sechs Personen "
                         f"haben - aktuell tragen {traeger.count()} Mitglieder ein Funktions-Tag mit Rolle.")
-    for t in dso_tags:
+    # Besetzung je Funktion wird nur fuer die sechs DSO-Funktionen geprueft - "Administrator" muss nicht
+    # zwingend vergeben sein.
+    for t in dso_tags.exclude(name=ADMINISTRATOR):
         n = Mitglied.objects.filter(verein=verein, status="aktiv", tags=t).count()
         if n == 0:
             hinweise.append(f"Funktion „{t.name}“ ist nicht besetzt (Tag keinem aktiven Mitglied zugeordnet).")

@@ -38,12 +38,30 @@
 {% else %}
 <a href="{% url 'fintszugang_detail' zugang.pk %}" class="text-decoration-none small d-block mb-1"><i class="bi bi-arrow-left"></i> {{ zugang.bezeichnung }}</a>
 <h3 class="mb-3">{% trans "Kontodaten" %}</h3>
+{% if konten %}
+<p class="text-muted">{% blocktrans %}Dieser Online-Banking-Zugang deckt möglicherweise mehrere Konten ab. Hier lässt sich festlegen,
+  welche davon künftig beim „FinTS-Abruf“ (Umsätze) berücksichtigt werden.{% endblocktrans %}</p>
+<form method="post" action="{% url 'fints_konten_auswahl' zugang.pk %}">{% csrf_token %}
 <div class="card shadow-sm"><div class="table-responsive"><table class="table table-sm mb-0 tabelle">
-  <thead class="table-light"><tr><th>{% trans "IBAN" %}</th><th>BIC</th><th>{% trans "Kontonummer" %}</th><th>{% trans "Unterkonto" %}</th></tr></thead>
+  <thead class="table-light"><tr><th></th><th>{% trans "IBAN" %}</th><th>BIC</th><th>{% trans "Kontonummer" %}</th><th>{% trans "Unterkonto" %}</th></tr></thead>
   <tbody>
-  {% for k in konten %}<tr><td>{{ k.iban }}</td><td>{{ k.bic }}</td><td>{{ k.accountnumber }}</td><td>{{ k.subaccount|default:"–" }}</td></tr>
-  {% empty %}<tr><td colspan="4" class="text-muted">{% trans "Keine Konten gefunden." %}</td></tr>{% endfor %}
+  <tr class="table-light"><td><input class="form-check-input" type="checkbox" name="alle" value="1" id="alle"
+      {% if not zugang.abzurufende_ibans %}checked{% endif %}
+      onchange="document.querySelectorAll('.konto-cb').forEach(c => c.disabled = this.checked)"></td>
+    <td colspan="4"><label class="form-check-label" for="alle"><strong>{% trans "Alle Konten abrufen (keine Einschränkung)" %}</strong></label></td></tr>
+  {% for k in konten %}<tr>
+    <td><input class="form-check-input konto-cb" type="checkbox" name="ibans" value="{{ k.iban }}"
+        {% if k.iban in zugang.iban_liste %}checked{% endif %}
+        {% if not zugang.abzurufende_ibans %}disabled{% endif %}></td>
+    <td>{{ k.iban }}</td><td>{{ k.bic }}</td><td>{{ k.accountnumber }}</td><td>{{ k.subaccount|default:"–" }}</td></tr>
+  {% endfor %}
   </tbody>
-</table></div></div>
+</table></div>
+<div class="card-body"><button class="btn btn-primary btn-sm">{% trans "Auswahl speichern" %}</button></div>
+</div>
+</form>
+{% else %}
+<div class="card shadow-sm"><div class="card-body text-muted">{% trans "Keine Konten gefunden." %}</div></div>
+{% endif %}
 {% endif %}
 {% endblock %}

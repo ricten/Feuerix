@@ -310,6 +310,8 @@ def fints_zugang_kontext(request, z):
         aktionen.append(knopf("Kontodaten abrufen", reverse("fints_kontodaten", args=[z.pk])))
         aktionen.append(knopf("Jetzt abrufen", reverse("fints_abrufen", args=[z.pk]), stil="success"))
     hinweise = []
+    if z.abzurufende_ibans:
+        hinweise.append(f"Abruf ist auf {len(z.iban_liste)} Konto(en) beschränkt: {', '.join(z.iban_liste)}.")
     if not fints_service.produkt_id_vorhanden():
         hinweise.append("Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss zuerst eine "
                         "kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft registrieren und entweder "
@@ -458,6 +460,28 @@ def fints_kontodaten(request, pk):
             return redirect("fintszugang_detail", pk=zugang.pk)
     return render(request, "finance/fints_kontodaten.html", {
         "titel": "Kontodaten abrufen", "pin_form": pin_form, "zugang": zugang, "schritt": "pin"})
+
+
+@login_required
+@require_POST
+def fints_konten_auswahl(request, pk):
+    """Speichert, welche der zuvor über „Kontodaten abrufen“ angezeigten Konten (IBAN) künftig per FinTS
+    abgerufen werden - oder setzt auf „alle Konten“ zurück."""
+    _pruefen(request, "bank", "add")
+    zugang = get_object_or_404(FinTSZugang, pk=pk, verein=request.verein)
+    if request.POST.get("alle"):
+        zugang.abzurufende_ibans = ""
+        zugang.save(update_fields=["abzurufende_ibans", "geaendert"])
+        messages.success(request, "Es werden wieder alle Konten dieses Zugangs abgerufen.")
+    else:
+        ibans = [i for i in request.POST.getlist("ibans") if i]
+        if not ibans:
+            messages.error(request, "Bitte mindestens ein Konto auswählen oder „Alle Konten abrufen“ wählen.")
+        else:
+            zugang.abzurufende_ibans = ", ".join(ibans)
+            zugang.save(update_fields=["abzurufende_ibans", "geaendert"])
+            messages.success(request, f"Abruf auf {len(ibans)} Konto(en) beschränkt.")
+    return redirect("fintszugang_detail", pk=zugang.pk)
 
 
 # ---------------------------------------------------------------- SEPA-Einzug

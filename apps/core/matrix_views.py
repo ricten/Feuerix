@@ -15,8 +15,8 @@ def _pruefen(request, aktion):
 
 def _rollen(verein):
     rollen = list(Rolle.objects.filter(verein=verein, ist_superadmin=False))
-    dso = list(mx.DSO_ROLLEN)
-    rollen.sort(key=lambda r: (dso.index(r.name) if r.name in dso else len(dso), r.name))
+    reihenfolge = list(mx.DSO_ROLLEN) + [mx.ADMINISTRATOR]
+    rollen.sort(key=lambda r: (reihenfolge.index(r.name) if r.name in reihenfolge else len(reihenfolge), r.name))
     return rollen
 
 
@@ -56,7 +56,7 @@ def berechtigungsmatrix(request):
     weitere = [zeile(b.key, b.label) for b in mx.BEREICHE if not b.dso]
     if weitere:
         zeilen += [{"trenner": True}] + weitere
-    dso_fehlt = [n for n in mx.DSO_ROLLEN if not any(r.name == n for r in rollen)]
+    dso_fehlt = [n for n in list(mx.DSO_ROLLEN) + [mx.ADMINISTRATOR] if not any(r.name == n for r in rollen)]
     return render(request, "core/matrix.html", {
         "titel": "Berechtigungsmatrix", "rollen": rollen, "zeilen": zeilen, "kann": kann,
         "spalten": len(rollen) + 1, "hinweise": mx.dso_pruefung(request.verein),

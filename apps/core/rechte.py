@@ -37,32 +37,13 @@ def _r(module, aktionen):
     return [f"{m}.{a}" for m in module for a in aktionen]
 
 
+# Das frei konfigurierbare Standardrollen-Set (Vorstand/Kassenwart/Kassenprüfer/Schriftführer/...) wurde abgelöst:
+# Rechte werden jetzt über die Berechtigungsmatrix nach der Datenschutzordnung vergeben (siehe matrix.py), die für
+# jeden Verein automatisch die passenden Rollen (u. a. "Kassenwart (DSO)", "Schriftführer (DSO)") sowie die Rolle
+# "Administrator" (volle Rechte) samt zugehörigen Tags anlegt. Nur "Superadministrator" (Rechte-Bypass, siehe
+# RechteKontext) bleibt als technischer Sonderfall hier bestehen.
 STANDARDROLLEN = {
     "Superadministrator": {"ist_superadmin": True, "rechte": []},
-    "Vorstand": {"ist_superadmin": False, "rechte": (
-        _r(["mitglieder", "ehrungen", "dokumente", "beitraege", "rechnungen", "veranstaltungen", "schriftverkehr", "ablage"],
-            BEARBEITEN)
-        + _r(["zahlungen", "spenden", "aufwand", "inventar", "verleih", "inventur", "auswertungen", "openslides",
-                "paperless", "kassenbuch"], LESEN)
-        + _r(["selbstdienst"], ALLES)
-        + ["aufwand.change"])},
-    "Kassenwart": {"ist_superadmin": False, "rechte": (
-        _r(["beitraege", "rechnungen", "zahlungen", "bank", "spenden", "aufwand", "kassenbuch"], BEARBEITEN)
-        + ["kassenbuch.delete"] + _r(["mitglieder", "auswertungen", "ablage"], LESEN))},
-    "Kassenprüfer": {"ist_superadmin": False, "rechte": (
-        _r(["kassenbuch", "rechnungen", "zahlungen", "bank", "spenden", "aufwand", "beitraege", "ablage",
-            "auswertungen"], LESEN))},
-    "Schriftführer": {"ist_superadmin": False, "rechte": (
-        _r(["mitglieder", "ehrungen", "dokumente", "veranstaltungen", "schriftverkehr", "ablage"], BEARBEITEN))},
-    "Inventarverwalter": {"ist_superadmin": False, "rechte": (
-        _r(["inventar", "verleih", "inventur"], BEARBEITEN) + _r(["mitglieder", "veranstaltungen"], LESEN))},
-    "Veranstaltungsplaner": {"ist_superadmin": False, "rechte": (
-        _r(["veranstaltungen", "verleih"], BEARBEITEN) + _r(["mitglieder", "inventar"], LESEN))},
-    "Mitgliederverwaltung": {"ist_superadmin": False, "rechte": (
-        _r(["selbstdienst"], ALLES) + _r(["mitglieder"], LESEN))},
-    "Lesebenutzer": {"ist_superadmin": False, "rechte": _r(
-        [m for m in MODULE if m not in ("verwaltung", "audit", "bank", "aufwand", "spenden", "openslides", "paperless",
-                                        "kassenbuch", "selbstdienst", "bankdaten")], LESEN)},
 }
 
 
@@ -76,13 +57,6 @@ def neue_module_ableiten(rechte):
                                ("schriftverkehr", "rundschreiben", tuple(AKTIONEN))):
         r.update(f"{neu}.{a}" for a in aktionen if f"{alt}.{a}" in r)
     return sorted(r)
-
-
-for _name, _cfg in STANDARDROLLEN.items():
-    if not _cfg["ist_superadmin"]:
-        _cfg["rechte"] = neue_module_ableiten(_cfg["rechte"])
-STANDARDROLLEN["Lesebenutzer"]["rechte"] = [x for x in STANDARDROLLEN["Lesebenutzer"]["rechte"]
-                                            if not x.startswith("bankdaten.")]
 
 
 class RechteKontext:

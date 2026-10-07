@@ -70,7 +70,7 @@ class SelbstdienstTests(TestCase):
         User = get_user_model()
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         self.vorstand = User.objects.create_user("vorstand", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=self.vorstand, rolle=Rolle.objects.get(verein=self.v, name="Vorstand"))
+        Zugang.objects.create(verein=self.v, user=self.vorstand, rolle=Rolle.objects.get(verein=self.v, name="Administrator"))
         self.m = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Muster", email="erika@example.org")
 
     def test_zugang_einrichten_sendet_mail_und_verknuepft_benutzer(self):
@@ -92,7 +92,7 @@ class SelbstdienstTests(TestCase):
     def test_lesebenutzer_darf_keinen_zugang_einrichten(self):
         User = get_user_model()
         leser = User.objects.create_user("leser", password="pw-Test-12345")
-        Zugang.objects.create(verein=self.v, user=leser, rolle=Rolle.objects.get(verein=self.v, name="Lesebenutzer"))
+        Zugang.objects.create(verein=self.v, user=leser, rolle=Rolle.objects.create(verein=self.v, name="Leser", rechte=[]))
         self.client.login(username="leser", password="pw-Test-12345")
         r = self.client.post(reverse("mitglied_zugang_einrichten", args=[self.m.pk]))
         self.assertEqual(r.status_code, 403)
@@ -132,7 +132,7 @@ class VerwaltungszugangTests(TestCase):
 
     def test_verwaltungszugang_einrichten(self):
         self.client.login(username="admin", password="pw-Test-12345")
-        kassenwart = Rolle.objects.get(verein=self.v, name="Kassenwart")
+        kassenwart = Rolle.objects.get(verein=self.v, name="Kassenwart (DSO)")
         r = self.client.post(reverse("mitglied_verwaltungszugang_einrichten", args=[self.m.pk]), {"rolle": kassenwart.pk})
         self.assertRedirects(r, reverse("mitglied_detail", args=[self.m.pk]))
         self.m.refresh_from_db()
@@ -146,7 +146,7 @@ class VerwaltungszugangTests(TestCase):
         self.client.post(reverse("mitglied_zugang_einrichten", args=[self.m.pk]))
         self.m.refresh_from_db()
         vorhandener_benutzer_id = self.m.benutzer_id
-        kassenwart = Rolle.objects.get(verein=self.v, name="Kassenwart")
+        kassenwart = Rolle.objects.get(verein=self.v, name="Kassenwart (DSO)")
         self.client.post(reverse("mitglied_verwaltungszugang_einrichten", args=[self.m.pk]), {"rolle": kassenwart.pk})
         self.m.refresh_from_db()
         self.assertEqual(self.m.benutzer_id, vorhandener_benutzer_id)
