@@ -72,6 +72,9 @@ urlpatterns += crud("ablage", Ablagedokument, "ablage", form=AblageForm,
                                  ("paperless_uebergeben", "Paperless")),
                     select_related=("ordner",), suche=("titel", "beschreibung"), filter=("kategorie", "ordner", "veranstaltung"),
                     kontext=ablage_kontext, listen_aktionen=ablage_listen_aktionen, ordering=("-datum", "-id"),
-                    detail_ausblenden=("paperless_task_id", "paperless_status"))
+                    detail_ausblenden=("paperless_task_id", "paperless_status"),
+                    hinweis="Über „Neu“ lässt sich eine beliebige, extern erstellte Datei (PDF, Word, Bild, …) "
+                           "hochladen und der Ablage zuordnen - z. B. ein eingescanntes Dokument oder eine "
+                           "Vorstandssitzung-Unterlage, die nicht in dieser Software erstellt wurde.")
 urlpatterns += crud("ablage-ordner", Ordner, "ablage", list_display=(("pfad", "Ordner"),), select_related=("uebergeordnet",),
                     ordering=("name",))
