@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 NAV = [
     (_("Mitglieder"), "bi-people", [
         (_("Mitglieder"), "mitglied_list", "mitglieder"),
+        (_("Familien"), "familie_list", "mitglieder"),
         (_("Jubiläen"), "jubilaeen", "ehrungen"),
         (_("Ehrungen"), "ehrung_list", "ehrungen"),
         (_("Dokumente"), "dokument_list", "dokumente"),
@@ -61,7 +62,6 @@ NAV = [
         (_("Abteilungen"), "abteilung_list", "mitglieder"),
         (_("Funktionen"), "funktion_list", "mitglieder"),
         (_("Funktionen: Tags (Zugriffsrechte)"), "mitgliedtag_list", "mitglieder"),
-        (_("Familien"), "familie_list", "mitglieder"),
         (_("Ehrungsarten"), "ehrungsart_list", "ehrungen"),
         (_("Jubiläumsregeln"), "jubilaeumsregel_list", "ehrungen"),
         (_("Inventar-Kategorien"), "kategorie_list", "inventar"),
