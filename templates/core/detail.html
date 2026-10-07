@@ -31,6 +31,22 @@
   </form>
 </div></div>
 {% endif %}
+{% if mitglieder_hinzufuegen %}
+<div class="card mb-3"><div class="card-body">
+  <h6>{% trans "Bestehende Mitglieder hinzufügen" %}</h6>
+  <form method="post" action="{{ mitglieder_hinzufuegen.url }}" class="row g-2">{% csrf_token %}
+    <div class="col-md-8">
+      <select name="mitglieder" class="form-select form-select-sm" multiple size="6" required>
+        {% for m in mitglieder_hinzufuegen.mitglieder %}
+        <option value="{{ m.pk }}">{{ m.name }}{% if m.familie %} ({% trans "bereits in" %}: {{ m.familie }}){% endif %}</option>
+        {% endfor %}
+      </select>
+      <div class="form-text">{% trans "Mehrfachauswahl möglich (Strg/Cmd gedrückt halten)." %}</div>
+    </div>
+    <div class="col-auto"><button class="btn btn-sm btn-success">{% trans "Hinzufügen" %}</button></div>
+  </form>
+</div></div>
+{% endif %}
 <div class="row g-3">
   <div class="col-xl-4">
     <div class="card mb-4 mb-xl-0"><div class="card-body">

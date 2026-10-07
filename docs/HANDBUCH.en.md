@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.36.3)
+# Handbook – Feuerix (Version 1.37.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -160,7 +160,11 @@ departments (as checkboxes, multiple selection) and roles held (e.g. "1st Chair"
 maintained. The member number is assigned automatically, but can also be set manually.
 
 **Families**: under *Members › Families* you can create a family (just a name/label, e.g. "The Smith
-Family"). In a member's record, each family member is assigned to that family (the "Family" field);
+Family"). A family's detail page shows its current members directly and offers two ways to add more:
+"Add" in the "Members of this family" section opens the normal member-creation form with the family already
+pre-filled (for brand-new members); the "Add existing members" picker below it lets you assign several
+existing active members to this family at once via a multi-select (showing "already in: …" as a hint for
+someone already assigned elsewhere). Either way, each family member's own record carries the "Family" field;
 additionally, the "Pays the family fee" checkbox marks exactly the one person who pays for the whole family
 (see the family fee tier further below, under fee rules).
 

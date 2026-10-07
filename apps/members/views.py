@@ -12,7 +12,7 @@ from django.views.decorators.http import require_POST
 from apps.core.crud import abschnitt, knopf, wert
 from apps.core.models import AuditLog, Zugang
 
-from .models import Mitglied
+from .models import Familie, Mitglied
 
 
 def mitglied_kontext(request, m):
@@ -92,6 +92,43 @@ def mitglied_kontext(request, m):
             verein=request.verein, modell="Mitglied", objekt_id=str(m.pk))[:20],
             ("zeit", "user_name", "aktion")))
     return {"aktionen": aktionen, "abschnitte": abschnitte, "hinweise": hinweise}
+
+
+def familie_kontext(request, f):
+    """Mitgliederliste der Familie direkt auf der Detailseite, dazu ein Auswahlfenster, um bestehende Mitglieder
+    (per Mehrfachauswahl) dieser Familie zuzuordnen - das "Hinzufügen" im Abschnitt selbst fuehrt dagegen zum
+    normalen Mitglied-Anlegeformular mit vorbelegter Familie (fuer ganz neue Mitglieder)."""
+    r = request.rechte
+    abschnitte = [abschnitt(
+        request, "Mitglieder dieser Familie",
+        Mitglied.objects.filter(verein=request.verein, familie=f).order_by("nachname", "vorname"),
+        ("name", "mitgliedsart", "ist_familienzahler"), "mitglied_add", {"familie": f.pk})]
+    ctx = {"abschnitte": abschnitte}
+    if r.darf("mitglieder", "change"):
+        kandidaten = (Mitglied.objects.filter(verein=request.verein, status="aktiv").exclude(familie=f)
+                     .select_related("familie").order_by("nachname", "vorname"))
+        ctx["mitglieder_hinzufuegen"] = {
+            "url": reverse("familie_mitglieder_hinzufuegen", args=[f.pk]), "mitglieder": kandidaten}
+    return ctx
+
+
+@login_required
+@require_POST
+def familie_mitglieder_hinzufuegen(request, pk):
+    if request.verein is None or not request.rechte.darf("mitglieder", "change"):
+        raise PermissionDenied
+    f = get_object_or_404(Familie, pk=pk, verein=request.verein)
+    mitglieder = Mitglied.objects.filter(verein=request.verein, pk__in=request.POST.getlist("mitglieder"))
+    n = 0
+    for m in mitglieder:
+        m.familie = f
+        m.save(update_fields=["familie", "geaendert"])
+        n += 1
+    if n:
+        messages.success(request, f"{n} Mitglied(er) zur Familie „{f}“ hinzugefügt.")
+    else:
+        messages.error(request, "Bitte mindestens ein Mitglied auswählen.")
+    return redirect("familie_detail", pk=f.pk)
 
 
 def _dict(o, ausschluss=("verein", "openslides_initialpasswort")):

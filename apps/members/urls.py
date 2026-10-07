@@ -20,6 +20,8 @@ urlpatterns = [
         name="mitglied_startpasswort_loeschen"),
     path("mitglieder/<int:pk>/verwaltungszugang/einrichten/", verwaltungszugang.verwaltungszugang_einrichten,
         name="mitglied_verwaltungszugang_einrichten"),
+    path("familien/<int:pk>/mitglieder-hinzufuegen/", views.familie_mitglieder_hinzufuegen,
+        name="familie_mitglieder_hinzufuegen"),
 ]
 def mitglieder_listen_aktionen(request):
     """Der Mitglieder-Import läuft in der Regel nur einmalig beim Einrichten des Vereins und liegt deshalb unter
@@ -40,7 +42,7 @@ urlpatterns += crud(
     select_related=("mitgliedsart",), ordering=("nachname", "vorname"), kontext=views.mitglied_kontext,
     detail_ausblenden=("openslides_initialpasswort", "selbstdienst_initialpasswort"))
 urlpatterns += crud("mitgliedsarten", Mitgliedsart, "beitraege", list_display=("name", "jahresbeitrag", "beschreibung"))
-urlpatterns += crud("familien", Familie, "mitglieder", list_display=("name",))
+urlpatterns += crud("familien", Familie, "mitglieder", list_display=("name",), kontext=views.familie_kontext)
 urlpatterns += crud("abteilungen", Abteilung, "mitglieder", list_display=("name",))
 urlpatterns += crud("funktionen", Funktion, "mitglieder", list_display=("name",))
 urlpatterns += crud("tags", MitgliedTag, "mitglieder", form=MitgliedTagForm,

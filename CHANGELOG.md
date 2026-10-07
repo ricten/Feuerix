@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.37.0
+- Familien-Detailseite zeigt jetzt direkt die Mitglieder der Familie und bietet ein Auswahlfenster, um
+  bestehende aktive Mitglieder per Mehrfachauswahl zuzuordnen (zusaetzlich zum bisherigen Weg ueber die
+  einzelne Mitgliederakte bzw. das Anlegeformular mit vorbelegter Familie).
+
 ## 1.36.3
 - Testsuite deutlich beschleunigt: `manage.py test` nutzt jetzt automatisch einen schnellen Passwort-Hasher
   (nur im Testlauf, nie produktiv) und CI/Doku empfehlen `--parallel`. Zusammen 442 Tests von ca. 350 s auf

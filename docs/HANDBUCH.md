@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.36.3)
+# Handbuch – Feuerix (Version 1.37.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -161,9 +161,14 @@ Abteilungen (als Haken, Mehrfachauswahl) und ausgeübte Funktionen (z. B. „1. 
 Die Mitgliedsnummer wird automatisch vergeben, kann aber auch manuell gesetzt werden.
 
 **Familien**: Unter *Mitglieder › Familien* lässt sich eine Familie anlegen (nur ein Name/eine Bezeichnung, z. B.
-„Familie Mustermann“). In der Mitgliederakte wird jedes Familienmitglied dieser Familie zugeordnet (Feld
-„Familie“); zusätzlich markiert das Häkchen „Zahlt den Familienbeitrag“ genau die Person, die für die ganze
-Familie bezahlt (siehe Familienstaffelung weiter unten bei den Beitragsregeln).
+„Familie Mustermann“). Die Detailseite einer Familie zeigt direkt ihre aktuellen Mitglieder und bietet zwei
+Wege, weitere hinzuzufügen: „Hinzufügen“ im Abschnitt „Mitglieder dieser Familie“ öffnet das normale
+Mitglied-Anlegeformular mit bereits vorbelegter Familie (für ganz neue Mitglieder); das Auswahlfenster
+„Bestehende Mitglieder hinzufügen“ darunter ordnet per Mehrfachauswahl vorhandene aktive Mitglieder dieser
+Familie zu (zeigt bei einer bereits anderweitig zugeordneten Person „bereits in: …“ als Hinweis). Unabhängig
+vom gewählten Weg: Jedes Familienmitglied trägt in seiner eigenen Akte das Feld „Familie“; zusätzlich markiert
+das Häkchen „Zahlt den Familienbeitrag“ genau die Person, die für die ganze Familie bezahlt (siehe
+Familienstaffelung weiter unten bei den Beitragsregeln).
 
 **Import/Export**: Über *Verwaltung › Mitglieder-Import* (nicht auf der Mitgliederliste selbst, da meist nur einmalig
 beim Einrichten des Vereins benötigt) lässt sich eine Tabelle einlesen – mit **Testlauf** (nichts wird gespeichert,

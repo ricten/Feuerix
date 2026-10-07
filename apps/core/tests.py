@@ -425,9 +425,9 @@ class DetailSeitenLayoutTests(TestCase):
         self.assertNotContains(r, "Keine weiteren Angaben.")
 
     def test_seite_ohne_abschnitte_zeigt_platzhalter(self):
-        from apps.members.models import Familie
-        fam = Familie.objects.create(verein=self.v, name="Testfamilie")
-        r = self.client.get(reverse("familie_detail", args=[fam.pk]))
+        from apps.members.models import Abteilung
+        abt = Abteilung.objects.create(verein=self.v, name="Testabteilung")
+        r = self.client.get(reverse("abteilung_detail", args=[abt.pk]))
         self.assertContains(r, "Keine weiteren Angaben.")
 
 

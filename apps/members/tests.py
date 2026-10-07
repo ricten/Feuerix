@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from apps.core.models import Rolle, Verein, Zugang
 from apps.members import importer
-from apps.members.models import Mitglied
+from apps.members.models import Familie, Mitglied
 
 CSV = ("Vorname;Nachname;Geburtstag;E-Mail;Mitgliedsart;PLZ\n"
        "Max;Muster;01.02.1980;m@example.org;Aktiv;35683\n").encode("utf-8")
@@ -469,3 +469,82 @@ class MigrationFunktionProTagTests(TestCase):
         self.assertIsNotNone(MitgliedFunktion.objects.get(mitglied=m, funktion=alte_funktion).bis)
         self.assertTrue(MitgliedFunktion.objects.filter(mitglied=m, funktion__name="Kassenwart",
                                                         bis__isnull=True).exists())
+
+
+class FamilieTests(TestCase):
+    """Die Familien-Detailseite zeigt die Mitglieder der Familie direkt an und bietet ein Auswahlfenster, um
+    bestehende (aktive) Mitglieder per Mehrfachauswahl dieser Familie zuzuordnen - getrennt vom "Hinzufügen"-Link
+    im Abschnitt selbst, der zum normalen Mitglied-Anlegeformular (mit vorbelegter Familie) fuehrt."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.admin = get_user_model().objects.create_superuser("admin", password="pw-Test-12345")
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.familie = Familie.objects.create(verein=self.v, name="Familie Muster")
+        self.mitglied_in_familie = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Muster",
+                                                            familie=self.familie)
+        self.kandidat = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster", status="aktiv")
+
+    def test_detailseite_zeigt_mitglieder_der_familie(self):
+        r = self.client.get(reverse("familie_detail", args=[self.familie.pk]))
+        self.assertContains(r, "Mitglieder dieser Familie")
+        self.assertContains(r, "Erika Muster")
+
+    def test_auswahlfenster_zeigt_kandidaten_nicht_bereits_zugeordnete(self):
+        r = self.client.get(reverse("familie_detail", args=[self.familie.pk]))
+        self.assertContains(r, f'<option value="{self.kandidat.pk}"')
+        self.assertNotContains(r, f'<option value="{self.mitglied_in_familie.pk}"')
+
+    def test_inaktive_mitglieder_nicht_im_auswahlfenster(self):
+        inaktiv = Mitglied.objects.create(verein=self.v, vorname="Alt", nachname="Ausgetreten", status="ausgetreten")
+        r = self.client.get(reverse("familie_detail", args=[self.familie.pk]))
+        self.assertNotContains(r, f'<option value="{inaktiv.pk}"')
+
+    def test_kandidat_aus_anderer_familie_zeigt_hinweis(self):
+        andere = Familie.objects.create(verein=self.v, name="Familie Andersen")
+        self.kandidat.familie = andere
+        self.kandidat.save(update_fields=["familie"])
+        r = self.client.get(reverse("familie_detail", args=[self.familie.pk]))
+        self.assertContains(r, "bereits in")
+        self.assertContains(r, "Familie Andersen")
+
+    def test_hinzufuegen_ordnet_ausgewaehlte_mitglieder_zu(self):
+        zweiter = Mitglied.objects.create(verein=self.v, vorname="Peter", nachname="Muster", status="aktiv")
+        r = self.client.post(reverse("familie_mitglieder_hinzufuegen", args=[self.familie.pk]),
+                             {"mitglieder": [self.kandidat.pk, zweiter.pk]})
+        self.assertRedirects(r, reverse("familie_detail", args=[self.familie.pk]))
+        self.kandidat.refresh_from_db()
+        zweiter.refresh_from_db()
+        self.assertEqual(self.kandidat.familie, self.familie)
+        self.assertEqual(zweiter.familie, self.familie)
+
+    def test_hinzufuegen_wird_protokolliert(self):
+        from apps.core.models import AuditLog
+        self.client.post(reverse("familie_mitglieder_hinzufuegen", args=[self.familie.pk]),
+                         {"mitglieder": [self.kandidat.pk]})
+        self.assertTrue(AuditLog.objects.filter(verein=self.v, modell="Mitglied", objekt_id=str(self.kandidat.pk),
+                                                aktion="geaendert").exists())
+
+    def test_hinzufuegen_ohne_auswahl_zeigt_fehler(self):
+        r = self.client.post(reverse("familie_mitglieder_hinzufuegen", args=[self.familie.pk]), {}, follow=True)
+        self.assertContains(r, "mindestens ein Mitglied")
+        self.kandidat.refresh_from_db()
+        self.assertIsNone(self.kandidat.familie)
+
+    def test_ohne_recht_verboten(self):
+        leser = get_user_model().objects.create_user("leser", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=leser, rolle=Rolle.objects.create(verein=self.v, name="Leser", rechte=[]))
+        self.client.logout()
+        self.client.login(username="leser", password="pw-Test-12345")
+        r = self.client.post(reverse("familie_mitglieder_hinzufuegen", args=[self.familie.pk]),
+                             {"mitglieder": [self.kandidat.pk]})
+        self.assertEqual(r.status_code, 403)
+
+    def test_auswahlfenster_nicht_sichtbar_ohne_aenderungsrecht(self):
+        leser = get_user_model().objects.create_user("leser", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=leser,
+                              rolle=Rolle.objects.create(verein=self.v, name="Leser", rechte=["mitglieder.view"]))
+        self.client.logout()
+        self.client.login(username="leser", password="pw-Test-12345")
+        r = self.client.get(reverse("familie_detail", args=[self.familie.pk]))
+        self.assertNotContains(r, "Bestehende Mitglieder hinzufügen")
