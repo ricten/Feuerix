@@ -418,8 +418,11 @@ class LoeschenView(MandantMixin, DeleteView):
 
 def crud(prefix, model, modul, *, form=None, list_display=None, suche=(), filter=(), ordering=None,
          select_related=(), add=True, edit=True, delete=True, detail=True, kontext=None, nach_speichern=None,
-         bearbeitbar=None, loeschbar=None, label=None, detail_ausblenden=(), paginate=50, listen_aktionen=None):
-    """Erzeugt die URL-Patterns fuer ein Modell. URL-Namen: <modell>_list/_add/_detail/_edit/_delete."""
+         bearbeitbar=None, loeschbar=None, label=None, detail_ausblenden=(), paginate=50, listen_aktionen=None,
+         hinweis=None):
+    """Erzeugt die URL-Patterns fuer ein Modell. URL-Namen: <modell>_list/_add/_detail/_edit/_delete.
+    `hinweis`: optionaler kurzer Infotext, der oben auf der Listenseite angezeigt wird (z. B. um auf eine
+    einfachere Alternative fuer Fortgeschrittenen-Funktionen hinzuweisen)."""
     name = model._meta.model_name
     REGISTRY[model] = modul
     if form is None and (add or edit):
@@ -429,7 +432,7 @@ def crud(prefix, model, modul, *, form=None, list_display=None, suche=(), filter
               delete=delete, detail=detail, kontext=kontext, nach_speichern=nach_speichern, bearbeitbar=bearbeitbar,
               loeschbar=loeschbar, label=label or str(model._meta.verbose_name),
               label_plural=str(model._meta.verbose_name_plural), detail_ausblenden=detail_ausblenden,
-              paginate=paginate, listen_aktionen=listen_aktionen)
+              paginate=paginate, listen_aktionen=listen_aktionen, hinweis=hinweis)
     if cfg.list_display == ("__str__",):
         cfg.list_display = (("__str__", cfg.label),)
     urls = [path(f"{prefix}/", ListeView.as_view(cfg=cfg), name=f"{name}_list")]

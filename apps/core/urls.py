@@ -36,7 +36,10 @@ urlpatterns += crud("protokoll", AuditLog, "audit", add=False, edit=False, delet
                     suche=("objekt_repr", "user_name", "modell"), filter=("modell", "objekt_id", "aktion"),
                     ordering=("-zeit",), kontext=audit_kontext, detail_ausblenden=("aenderungen",))
 urlpatterns += crud("rollen", Rolle, "verwaltung", form=RolleForm, list_display=("name", "ist_superadmin",
-                    ("anzahl_rechte", "Anzahl Rechte")), ordering=("name",))
+                    ("anzahl_rechte", "Anzahl Rechte")), ordering=("name",),
+                    hinweis="Für Fortgeschrittene / technische Betreuung: Rechte lassen sich für die meisten "
+                            "Fälle einfacher über Tags vergeben (Verwaltung › Funktionen: Tags – dort auch mit "
+                            "oder ohne eigene Rechte neu anlegbar) oder in der Berechtigungsmatrix anpassen.")
 urlpatterns += crud("benutzer", Zugang, "verwaltung", form=ZugangForm,
                     list_display=(("user", "Benutzer"), "rolle", "aktiv"), select_related=("user", "rolle"),
                     detail_ausblenden=("extra_rechte",))

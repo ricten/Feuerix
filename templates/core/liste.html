@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
+{% if cfg.hinweis %}<div class="alert alert-secondary py-2 small"><i class="bi bi-info-circle"></i> {{ cfg.hinweis }}</div>{% endif %}
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
   <h3 class="mb-0">{{ cfg.label_plural }}</h3>
   <div class="d-flex gap-2 flex-wrap align-items-center">

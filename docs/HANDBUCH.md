@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.32.2)
+# Handbuch – Feuerix (Version 1.32.3)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -84,9 +84,15 @@ echtes Datenfeld abbilden (nicht für rein berechnete Spalten wie z. B. „Entle
 
 ## 2. Rollen und Rechte
 
-Jeder Benutzerzugang (*Verwaltung › Benutzer*) bekommt pro Verein eine **Rolle** zugewiesen (*Verwaltung › Rollen*).
-Eine Rolle legt fest, welche Module ein Zugang **anzeigen**, **erstellen**, **bearbeiten** oder **löschen** darf.
-Bei Bedarf können einem einzelnen Zugang zusätzlich individuelle Extra-Rechte gegeben werden.
+Jeder Benutzerzugang (*Verwaltung › Benutzer*) bekommt pro Verein eine **Rolle** zugewiesen. Eine Rolle legt fest,
+welche Module ein Zugang **anzeigen**, **erstellen**, **bearbeiten** oder **löschen** darf. Bei Bedarf können
+einem einzelnen Zugang zusätzlich individuelle Extra-Rechte gegeben werden.
+
+*Verwaltung › Rollen (fortgeschritten)* zeigt diese Rollen technisch im Detail – in der Navigation entsprechend
+gekennzeichnet, da für den Alltag die **Tags** (siehe unten „Zugriff über Tags“) und die Berechtigungsmatrix
+einfacher sind. Die Rollenliste bleibt für zwei Fälle wichtig: einen Benutzerzugang ohne zugehöriges Mitglied
+(z. B. ein rein technischer Account – Tags lassen sich nur Mitgliedern zuordnen) sowie den Superadministrator
+selbst, der bewusst weder in der Berechtigungsmatrix noch als Tag auftaucht.
 
 Es gibt kein festes Standardrollen-Set mehr; Rechte werden über die **Berechtigungsmatrix nach der
 Datenschutzordnung** vergeben (Kapitel 1, Abschnitt „Rechte nach der Datenschutzordnung“) und dort je Rolle und

@@ -54,7 +54,7 @@ NAV = [
         (_("Paperless-Anbindung"), "paperless_einstellungen", "paperless"),
         (_("FinTS-Zugänge"), "fintszugang_list", "bank"),
         (_("Benutzer"), "zugang_list", "verwaltung"),
-        (_("Rollen"), "rolle_list", "verwaltung"),
+        (_("Rollen (fortgeschritten)"), "rolle_list", "verwaltung"),
         (_("Berechtigungsmatrix"), "berechtigungsmatrix", "verwaltung"),
         (_("Beitragsregeln"), "beitragsregel_list", "beitraege"),
         (_("Mitgliedsarten / Beiträge"), "mitgliedsart_list", "beitraege"),
