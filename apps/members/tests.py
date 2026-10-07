@@ -282,3 +282,22 @@ class TagsUndFunktionenTests(TestCase):
     def test_kein_hinweis_ohne_tag_mit_rolle(self):
         r = self.client.get(reverse("mitglied_detail", args=[self.m.pk]))
         self.assertNotContains(r, "trägt eine Funktion mit Rolle")
+
+    def test_formular_zeigt_bereits_vergeben_bei_dso_tag(self):
+        self.m.tags.add(self.tag)
+        zweiter = Mitglied.objects.create(verein=self.v, vorname="Zweiter", nachname="Person")
+        r = self.client.get(reverse("mitglied_edit", args=[zweiter.pk]))
+        self.assertContains(r, "bereits vergeben an: Erika Muster")
+
+    def test_formular_zeigt_keinen_hinweis_fuer_das_eigene_mitglied(self):
+        self.m.tags.add(self.tag)
+        r = self.client.get(reverse("mitglied_edit", args=[self.m.pk]))
+        self.assertNotContains(r, "bereits vergeben an")
+
+    def test_kein_hinweis_bei_administrator_oder_zusatzrolle(self):
+        from apps.members.models import MitgliedTag
+        admin_tag = MitgliedTag.objects.get(verein=self.v, name="Administrator")
+        self.m.tags.add(admin_tag)
+        zweiter = Mitglied.objects.create(verein=self.v, vorname="Zweiter", nachname="Person")
+        r = self.client.get(reverse("mitglied_edit", args=[zweiter.pk]))
+        self.assertNotContains(r, "bereits vergeben")

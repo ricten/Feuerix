@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.31.0)
+# Handbuch – Feuerix (Version 1.31.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -456,7 +456,11 @@ Träger erhalten. Das Häkchen „Vorstandsmitglied“ setzt automatisch das Tag
 Auswahlfeld) und werden auf der Detailseite im Abschnitt „Funktionen (Tags/Zugriffsrechte)“ – direkt neben den
 historisierten Funktionen mit Von/Bis-Datum – angezeigt. Trägt ein Mitglied ein Tag mit Rolle, aber hat noch
 keinen Verwaltungszugang, weist die Akte darauf hin, dass einer eingerichtet werden muss (ebenso die
-Berechtigungsmatrix, vereinsweit).
+Berechtigungsmatrix, vereinsweit). Bei den sechs DSO-Funktionen (die laut Datenschutzordnung je nur eine Person
+haben sollen) steht direkt am Haken im Bearbeitungsformular „(bereits vergeben an: …)“, falls ein anderes
+aktives Mitglied das Tag schon trägt – bei Administrator und den Zusatzrollen nicht, da diese nicht auf eine
+Person begrenzt sind. Das ist ein Hinweis, keine Sperre: eine Doppelbesetzung (z. B. während einer Übergabe)
+lässt sich trotzdem speichern.
 
 Unter *Verwaltung › Paperless-Anbindung* gleicht „Vorstand abgleichen“ (bzw. Tag-Abgleich) die Paperless-Benutzer ab:
 Träger eines Tags mit Paperless-Gruppe erhalten ein Konto (ohne Administrator-Rechte) in den Gruppen ihrer Tags; eine
