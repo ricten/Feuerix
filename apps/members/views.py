@@ -66,7 +66,7 @@ def mitglied_kontext(request, m):
                 re_.get_status_display()]})
         abschnitte.append({"titel": "Beiträge & Zahlungen", "spalten": ["Jahr", "Beitrag", "Rechnung", "Bezahlt",
                                                                        "Status"], "zeilen": zeilen, "add_url": None})
-    abschnitte.append(abschnitt(request, "Funktionen", m.funktionen.all(), ("funktion", "von", "bis"),
+    abschnitte.append(abschnitt(request, "Funktionen", m.funktionen.all(), (("anzeige", "Funktion"),),
                                 "mitgliedfunktion_add", {"mitglied": m.pk}))
     if r.darf("mitglieder", "view"):
         abschnitte.append(abschnitt(request, "Funktionen (Tags/Zugriffsrechte)", m.tags.all(),

@@ -302,6 +302,17 @@ class TagsUndFunktionenTests(TestCase):
         r = self.client.get(reverse("mitglied_edit", args=[zweiter.pk]))
         self.assertNotContains(r, "bereits vergeben")
 
+    def test_funktionsabschnitt_zeigt_zeitraum_je_amtszeit(self):
+        """Zwei Amtszeiten derselben Funktion muessen unterscheidbar sein (nicht zweimal nur "Vorstandsmitglied")."""
+        self.m.tags.add(self.tag)
+        self.m.tags.remove(self.tag)
+        self.m.tags.add(self.tag)
+        r = self.client.get(reverse("mitglied_detail", args=[self.m.pk]))
+        from datetime import date
+        heute = f"{date.today():%d.%m.%Y}"
+        self.assertContains(r, f"Vorstandsmitglied ({heute} – {heute})")
+        self.assertContains(r, f"Vorstandsmitglied ({heute} – heute)")
+
     def test_abteilungen_als_haken_statt_auswahlliste(self):
         from apps.members.models import Abteilung
         a = Abteilung.objects.create(verein=self.v, name="Löschzug 1")

@@ -231,6 +231,14 @@ class MitgliedFunktion(TenantModel):
     def __str__(self):
         return f"{self.mitglied.name}: {self.funktion}"
 
+    @property
+    def anzeige(self):
+        """Funktion samt Zeitraum - zwei Amtszeiten derselben Funktion sind sonst in einer Liste nicht
+        auseinanderzuhalten (z. B. zwei Mal "Vorstandsmitglied" ohne erkennbaren Unterschied)."""
+        von = f"{self.von:%d.%m.%Y}" if self.von else "?"
+        bis = f"{self.bis:%d.%m.%Y}" if self.bis else "heute"
+        return f"{self.funktion} ({von} – {bis})"
+
 
 class Dokument(TenantModel):
     KATEGORIE = [("beitritt", "Beitrittserklärung"), ("sepa", "SEPA-Mandat"), ("ehrung", "Ehrung"),
