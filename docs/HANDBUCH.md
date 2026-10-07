@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.33.0)
+# Handbuch – Feuerix (Version 1.33.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -222,7 +222,7 @@ sich auch wieder **löschen** (z. B. ein versehentlicher Mehrfach-Import) – ei
 bleibt dabei erhalten, verliert nur den Verweis auf diesen Umsatz. Ein erneuter Abruf desselben Zeitraums legt den
 gelöschten Umsatz wieder an, da die Duplikaterkennung nur in der Datenbank vorhandene Umsätze kennt.
 
-**FinTS-Abruf** (experimentell, siehe Kapitel 17): Alternative zum manuellen Kontoauszug-Import – unter
+**FinTS-Abruf** (gegen eine echte Bank getestet, siehe Kapitel 17): Alternative zum manuellen Kontoauszug-Import – unter
 *Verwaltung › FinTS-Zugänge* einen oder mehrere Zugänge anlegen (Bezeichnung, Bankleitzahl, Online-Banking-Kennung
 und FinTS-Adresse der Bank; diese Angaben stehen in den Unterlagen zum Online-Banking bzw. lassen sich beim
 Kreditinstitut erfragen) – ein Verein kann **mehrere Zugänge** führen, z. B. wenn Konten bei verschiedenen Banken
@@ -570,11 +570,15 @@ Datenbank-Wiederherstellung (Restore geschieht über die Kommandozeile, siehe IN
 Lastschrift automatisch erkennt, existiert nicht – das läuft weiterhin über den normalen Kontoauszug-Import. Die
 OpenSlides-Anbindung folgt der offiziellen Dokumentation, wurde aber nicht gegen eine produktive Instanz
 verifiziert – bitte im Testbetrieb prüfen, bevor Sie sich darauf verlassen. Die Paperless-ngx-Anbindung wurde nach
-der offiziellen REST-API-Dokumentation umgesetzt, aber ebenfalls nicht gegen eine laufende Instanz getestet – vor
-dem produktiven Einsatz mit „Verbindung testen“ und einem echten Testdokument prüfen. Der **FinTS-Abruf**
+der offiziellen REST-API-Dokumentation umgesetzt und erfolgreich gegen eine laufende Instanz getestet
+(Dokumentenübergabe) – bei einer neuen Instanz empfiehlt sich trotzdem ein kurzer Test mit „Verbindung testen“ und
+einem Testdokument. Der **FinTS-Abruf**
 (*Verwaltung › FinTS-Zugänge*, siehe Kapitel 4) wurde nach der Dokumentation der Bibliothek `python-fints`
-umgesetzt und deckt auch die TAN-Abfrage (App-/SMS-/chipTAN) ab, wurde aber noch gegen keine echte Bank
-getestet – vor dem produktiven Einsatz mit der eigenen Bank ausprobieren. Die Bank-PIN wird dabei nie
-gespeichert, sondern bei jedem Abruf neu abgefragt. Zusätzlich ist eine vom Betreiber selbst zu registrierende,
-kostenlose FinTS-Produkt-ID erforderlich (`FINTS_PRODUCT_ID` bzw. verschlüsselt unter `/admin/` ›
-Systemeinstellungen) – sie liegt nicht automatisch vor.
+umgesetzt, deckt auch die TAN-Abfrage (App-/SMS-/chipTAN) ab und wurde erfolgreich gegen eine echte Bank
+getestet (reiner Kontoumsätze-Abruf – dafür verlangen viele Banken ohnehin keine TAN, da nur
+zahlungsauslösende Vorgänge wie Überweisungen eine starke Kundenauthentifizierung erfordern). Da sich
+FinTS-Implementierungen zwischen Banken unterscheiden können, empfiehlt sich trotzdem ein erster Testabruf mit
+der eigenen Bank vor dem produktiven Einsatz. Die Bank-PIN wird dabei nie gespeichert, sondern bei jedem Abruf
+neu abgefragt. Zusätzlich ist eine vom Betreiber selbst zu registrierende, kostenlose FinTS-Produkt-ID
+erforderlich (`FINTS_PRODUCT_ID` bzw. verschlüsselt unter `/admin/` › Systemeinstellungen) – sie liegt nicht
+automatisch vor.

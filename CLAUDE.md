@@ -7,7 +7,7 @@ Commit-Nachrichten: **Deutsch**.
 * Der Code wurde **noch nie ausgeführt** (ohne Django/Postgres geschrieben). Zuerst starten, Tests laufen lassen, Fehler beheben.
 * Migrationen sind noch **nicht** im Repository: `python manage.py makemigrations`, dann prüfen und einchecken.
 * OpenSlides-Anbindung (`apps/openslides`) folgt der Dokumentation von OpenSlides 4, ist nicht gegen eine Instanz getestet.
-* FinTS (`fints_abruf`) ist experimentell und ungetestet.
+* FinTS (`fints_abruf`) ist gegen eine echte Bank getestet (reiner Kontoumsätze-Abruf, kein TAN-Erfordernis dort gewesen) – Implementierungen unterscheiden sich je Bank, bei einer neuen Bank vorab kurz prüfen.
 
 ## Aufbau
 * `apps/core`: Verein, Rollen/Rechte, Audit-Log, generische CRUD-Views (`crud.py`), PDF (`pdf.py`), Navigation (`context.py`).
