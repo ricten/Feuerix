@@ -44,7 +44,8 @@ Jubiläum, Zugangsdaten OpenSlides, Brief allgemein. Jede Vorlage kann geändert
   versehen; optional der Veranstaltung zuordnen.
 * **Versionierung:** gleicher Titel im gleichen Ordner → neue Version; frühere Versionen bleiben erhalten und sichtbar.
 * Der Zugriff auf Dateien läuft nur über die Anwendung (Anmeldung + Vereinszugehörigkeit + Recht „Ablage“).
-* Rechte: Modul „Ablage“ und „Schriftverkehr“ in den Rollen (Vorstand und Schriftführer haben Bearbeitungsrechte).
+* Rechte: Module „Ablage“ und „Schriftverkehr“ – über die Berechtigungsmatrix bzw. Tags vergeben (Schriftführer
+  hat laut Datenschutzordnung Bearbeitungsrechte, siehe Handbuch Kapitel 2).
 
 ## Empfohlener Ablauf einer Mitgliederversammlung
 1. Veranstaltung anlegen (Art „Versammlung“), Tagesordnung erfassen (oder „Standard-Tagesordnung“).

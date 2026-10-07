@@ -36,15 +36,11 @@ Vorstand/Kassenwart hinterlegen kann.
 
 ## Rechte
 
-Eigenes Modul **„Selbstdatenpflege (Zugänge der Mitglieder verwalten)“** unter *Verwaltung › Rollen*. Die
-Rolle **Vorstand** hat es standardmäßig vollständig; zusätzlich gibt es die schlanke Standardrolle
-**„Mitgliederverwaltung“** (nur dieses Modul + Lesezugriff auf Mitglieder) für Personen, die ausschließlich
-Zugänge verwalten sollen, ohne sonstige Vorstandsrechte.
-
-**Hinweis für bestehende Installationen:** Neue Standardrollen werden automatisch angelegt (Verein-Signal /
-`ersteinrichtung`-Kommando), bereits vorhandene Rollen wie „Vorstand“ werden aber **nicht** rückwirkend
-aktualisiert. Bitte bei Bedarf unter *Verwaltung › Rollen* händisch das Häkchen bei „Selbstdatenpflege“
-für die gewünschte(n) Rolle(n) setzen.
+Eigenes Modul **„Selbstdatenpflege (Zugänge der Mitglieder verwalten)“**, über die Berechtigungsmatrix bzw. Tags
+vergeben (siehe Handbuch Kapitel 2 „Zugriff über Tags“). Die sechs DSO-Rollen sowie Administrator haben es
+standardmäßig vollständig (Zeile „Vereinssoftware / Verwaltung“ der Berechtigungsmatrix); zusätzlich gibt es das
+schlanke Tag **„Mitgliederverwaltung“** (nur dieses Modul + Lesezugriff auf Mitglieder) für Personen, die
+ausschließlich Zugänge verwalten sollen, ohne sonstige Vorstandsrechte.
 
 ## Verwaltungszugang direkt aus dem Mitglied heraus einrichten
 
@@ -54,7 +50,7 @@ Mitglied erfasst ist:
 
 1. Auf der Mitglieder-Detailseite (Voraussetzung: E-Mail-Adresse hinterlegt) **„Verwaltungszugang
    einrichten“** klicken.
-2. Rolle auswählen (z. B. Vorstand, Kassenwart, Schriftführer …) und speichern.
+2. Rolle auswählen (z. B. 1. Vorsitzender, Kassenwart, Schriftführer …) und speichern.
 3. Zugangsdaten (Benutzername = E-Mail-Adresse, zufälliges Startpasswort) werden automatisch per E-Mail
    verschickt.
 
@@ -62,5 +58,5 @@ Besteht für das Mitglied bereits ein Selbstdienst-Konto (siehe oben), wird **da
 weiterverwendet – die Person hat dann mit einem Login sowohl Verwaltungszugriff als auch Zugriff auf „Meine
 Daten“. Existiert bereits ein Verwaltungszugang, erscheint stattdessen ein Link zum Bearbeiten der Rolle
 (führt auf die normale Seite unter *Verwaltung › Benutzer*). Rechte: benötigt das Modul **„Verwaltung“**
-(wie das Anlegen unter *Verwaltung › Benutzer* auch) – in den mitgelieferten Standardrollen hat das nur
-„Superadministrator“.
+(wie das Anlegen unter *Verwaltung › Benutzer* auch) – das haben die sechs DSO-Rollen und Administrator
+standardmäßig vollständig, außerdem (als Rechte-Bypass) der Superadministrator.

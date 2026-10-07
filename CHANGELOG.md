@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.36.0
+- Alle vier Hilfe-Dokumente (Handbuch, Kasse & Mitglieder-Import, Schriftverkehr & Vorlagen,
+  Selbstdatenpflege) liegen jetzt auch auf Englisch vor (`*.en.md`); die Hilfe-Seite in der Anwendung zeigt
+  automatisch die zur gewählten Oberflächensprache passende Fassung.
+- Dabei zwei weitere Altlasten der alten Standardrollen in SELBSTDATENPFLEGE.md/SCHRIFTVERKEHR.md korrigiert.
+
 ## 1.35.2
 - Diese Datei (CHANGELOG.md) eingeführt, rückwirkend bis zur ersten Version befüllt.
 
