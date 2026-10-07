@@ -18,6 +18,11 @@
   nur einmal gebucht, mehrfaches Ausführen ist unbedenklich.
 * Nicht automatisch: Bankgebühren, Zinsen, Einkäufe, sonstige Kontobewegungen → manuell buchen (Kontoauszug abarbeiten).
 * Automatisch übernommene Buchungen sind in Betrag/Datum/Art gesperrt; Korrektur über eine Gegenbuchung.
+* **„E-Rechnung importieren“** (*Kasse › Kassenbuch*): eine eingehende XRechnung (reines XML) oder ZUGFeRD/Faktur-X-PDF
+  einlesen – Betrag, Datum, Rechnungssteller werden ausgelesen und als vorausgefüllte Ausgabe-Buchung mit der Datei
+  als Beleg angelegt (Kategorie/Konto danach noch zuordnen).
+* **„Beleg in Ablage übernehmen“** (an einer Buchung mit hochgeladenem Beleg): legt den Beleg zusätzlich im
+  allgemeinen Dokumentenarchiv (*Schriftverkehr › Ablage*) ab – ohne diesen Schritt liegt er nur an der Buchung selbst.
 
 ## Kassenbericht
 1. **Kasse › Kassenberichte › Neu:** Titel (z. B. „Kassenbericht 2026“), Zeitraum, Kassenwart, Kassenprüfer, optional
@@ -28,7 +33,9 @@
 4. Prüfungsbemerkung der Kassenprüfer eintragen, PDF ausdrucken und unterschreiben lassen.
 5. **Abschließen:** sperrt den Zeitraum für Buchungen und legt das PDF in der **Ablage** (Kassenberichte/Jahr) ab.
    „Wieder öffnen“ ist nur mit Löschrecht im Modul Kassenbuch möglich (wird protokolliert).
-* Rolle **Kassenprüfer** (nur Lesen auf Kasse, Rechnungen, Zahlungen, Bank, Spenden …) ist als Standardrolle vorhanden.
+* Für die Kassenprüfung gibt es kein festes Rollen-Set mehr: Das Tag **Kassenprüfer** (*Verwaltung › Funktionen:
+  Tags*, nur Lesen auf Kasse, Rechnungen, Zahlungen, Bank, Spenden …) lässt sich einem Mitglied zuweisen und
+  vergibt dabei automatisch die passende Rolle – siehe Kapitel 2 des Handbuchs („Zugriff über Tags“).
 
 ## Mitglieder-Import
 *Mitglieder › Mitglieder-Import* (oder Button in der Mitgliederliste).
@@ -39,6 +46,11 @@
 * Abgleich bestehender Mitglieder über die Mitgliedsnummer, sonst über Vorname + Nachname + Geburtsdatum. Leere Zellen
   überschreiben nichts. Fehlerhafte Zeilen werden übersprungen, alle anderen übernommen.
 * Mitgliedsart und Abteilungen müssen vorhanden sein – oder Option „unbekannte anlegen“ nutzen.
+* **Familie:** Eine Spalte „Familie“ ordnet das Mitglied einer Familie zu (siehe Handbuch Kapitel 3) – anders als bei
+  Mitgliedsart/Abteilungen wird eine noch unbekannte Familie dabei **immer** automatisch angelegt, unabhängig von
+  der Option „unbekannte anlegen“. Eine Spalte „Zahlt den Familienbeitrag“ setzt das Familienzahler-Häkchen.
+* Die Spalte „Vorstandsmitglied“ wird beim Import ignoriert (Hinweis im Bericht) – das Häkchen wird automatisch aus
+  den Tags abgeleitet, siehe Handbuch Kapitel 2/3.
 * IBANs werden auf Prüfsumme kontrolliert (Warnung) und verschlüsselt gespeichert. Der Import wird im Änderungsprotokoll vermerkt.
 
 ## Mitglieder-Export
