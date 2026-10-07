@@ -19,7 +19,10 @@ Commit-Nachrichten: **Deutsch**.
 
 ## Befehle
 * Start: `cp .env.example .env` (Schlüssel setzen), `docker compose build && docker compose up -d`
-* Tests: `python manage.py test` (PostgreSQL nötig, `FIELD_ENCRYPTION_KEY` gesetzt)
+* Tests: `python manage.py test --parallel` (PostgreSQL nötig, `FIELD_ENCRYPTION_KEY` gesetzt) – `--parallel`
+  verteilt auf alle CPU-Kerne (442 Tests: ca. 350 s → ca. 20 s); bei `manage.py test` ist automatisch ein
+  schneller, unsicherer Passwort-Hasher aktiv (`config/settings.py`, nur bei `"test" in sys.argv`, nie
+  produktiv) - beides zusammen bringt den Großteil des Geschwindigkeitsgewinns.
 * Migrationen: `python manage.py makemigrations`
 
 ## Regeln

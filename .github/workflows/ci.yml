@@ -39,4 +39,4 @@ jobs:
       # unverändertem Modell nicht mehr ins Gewicht.
       - run: python manage.py makemigrations --noinput
       - run: python manage.py migrate --noinput
-      - run: python manage.py test --verbosity 2
+      - run: python manage.py test --verbosity 2 --parallel

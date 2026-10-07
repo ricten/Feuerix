@@ -170,7 +170,8 @@ login, CSRF protection, language – no tracking cookies).
 
 ## Development
 
-Tests: `python manage.py test` (needs PostgreSQL access as in `.env`). GitHub setup and CI:
+Tests: `python manage.py test --parallel` (needs PostgreSQL access as in `.env`; `--parallel` spreads the
+tests across all CPU cores and speeds things up considerably). GitHub setup and CI:
 [docs/GITHUB.en.md](docs/GITHUB.en.md).
 
 **Test data:** `python manage.py beispieldaten --verein <code> [--anzahl 40] [--ohne-inventar]` creates

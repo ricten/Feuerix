@@ -164,7 +164,8 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 
 ## Entwicklung
 
-Tests: `python manage.py test` (benötigt PostgreSQL-Zugang wie in `.env`). GitHub-Ablage und CI: [docs/GITHUB.md](docs/GITHUB.md).
+Tests: `python manage.py test --parallel` (benötigt PostgreSQL-Zugang wie in `.env`; `--parallel` verteilt auf
+alle CPU-Kerne und beschleunigt deutlich). GitHub-Ablage und CI: [docs/GITHUB.md](docs/GITHUB.md).
 
 **Testdaten:** `python manage.py beispieldaten --verein <kuerzel> [--anzahl 40] [--ohne-inventar]` legt für einen
 bestehenden Verein fiktive Mitglieder sowie einen Beitragsjahr-Rechnungslauf mit realistischer Zahlungsverteilung an

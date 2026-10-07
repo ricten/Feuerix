@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -153,3 +154,9 @@ PRODUCT_SOURCE_URL = os.environ.get("PRODUCT_SOURCE_URL", "https://github.com/ri
 # Version - leer lassen, um die Prüfung ganz abzuschalten (z. B. in Intranet-Installationen ohne Internetzugang).
 UPDATE_CHECK_URL = os.environ.get("UPDATE_CHECK_URL", "https://raw.githubusercontent.com/ricten/Feuerix/main/VERSION")
 UPDATE_CHECK_INTERVALL_STUNDEN = int(os.environ.get("UPDATE_CHECK_INTERVALL_STUNDEN", "24"))
+
+# Tests legen sehr viele Benutzer an (meist in setUp(), also pro Testmethode neu) - der produktive, bewusst
+# langsame PBKDF2-Hasher macht dabei einen spuerbaren Teil der Laufzeit aus, ohne in Tests einen Sicherheitsgewinn
+# zu bringen. Nur aktiv bei "manage.py test" (nie in Produktion, da dort kein "test" in sys.argv steht).
+if "test" in sys.argv:
+    PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
