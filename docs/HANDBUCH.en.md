@@ -1,9 +1,9 @@
-# Handbook – Feuerix (Version 1.36.0)
+# Handbook – Feuerix (Version 1.36.1)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
-complements the technical documents [README.md](../README.md) (overview, installation) and
-[INSTALL.md](../INSTALL.md) (step-by-step setup on the server) with the day-to-day use of the software.
+complements the technical documents [README.en.md](../README.en.md) (overview, installation) and
+[INSTALL.en.md](../INSTALL.en.md) (step-by-step setup on the server) with the day-to-day use of the software.
 
 For individual topics there are more detailed documents, referenced from the relevant chapter:
 [Self-service data](SELBSTDATENPFLEGE.en.md), [Cash book & member import](KASSE_UND_IMPORT.en.md),
@@ -598,7 +598,7 @@ code location; see the README.
 Currently **not** included: an automatic feed of voting results on motions from OpenSlides back into the
 minutes (results of personnel elections already do flow back, see chapter 12), a REST API, pro-rata fee
 calculation for joining/leaving mid-year, and a user interface for database restores (restoring happens via
-the command line, see INSTALL.md). The SEPA direct debit feature (chapter 4) only generates the collection
+the command line, see INSTALL.en.md). The SEPA direct debit feature (chapter 4) only generates the collection
 file; there is no return channel that automatically detects whether a direct debit actually arrived or was
 reversed – that still runs via the normal bank-statement import. The OpenSlides integration follows the
 official documentation but has not been verified against a production instance – please check it in a test

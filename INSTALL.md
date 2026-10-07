@@ -1,5 +1,7 @@
 # Installationsanleitung – Feuerix (+ optional OpenSlides, + optional Paperless-ngx)
 
+*English version: [INSTALL.en.md](INSTALL.en.md).*
+
 Diese Anleitung richtet auf **einem Server** Feuerix ein und stellt es per HTTPS bereit. OpenSlides
 (Mitgliederversammlung online) und Paperless-ngx (Dokumentenarchiv) sind zwei unabhängig voneinander komplett
 optionale Bausteine – nichts davon ist Voraussetzung für den Betrieb von Feuerix:
@@ -12,11 +14,12 @@ Internet ──► Caddy (Ports 80/443, automatisches HTTPS)
 ```
 
 > **Hinweis zum Stand:** Eine automatisierte Testsuite und GitHub-Actions-CI prüfen Feuerix bei jeder
-> Änderung gegen eine echte PostgreSQL-Datenbank. Nicht gegen eine laufende Instanz geprüft sind die OpenSlides- und
-> die Paperless-ngx-Anbindung (beide nach offizieller Dokumentation umgesetzt) – planen Sie dafür eine Testphase ein
-> (Abschnitt 11), falls Sie eines der beiden nutzen. Die OpenSlides-Installationsschritte entsprechen der offiziellen
-> `INSTALL.md` (OpenSlides 4.x, Werkzeug `osmanage`); die Paperless-Installationsschritte der offiziellen
-> Docker-Compose-Installation.
+> Änderung gegen eine echte PostgreSQL-Datenbank. Die Paperless-ngx-Anbindung wurde erfolgreich gegen eine laufende
+> Instanz getestet (Dokumentenübergabe); bei einer neuen Instanz empfiehlt sich trotzdem ein kurzer Test (Abschnitt
+> 11). Nicht gegen eine produktive Instanz verifiziert ist weiterhin die OpenSlides-Anbindung (nach offizieller
+> Dokumentation umgesetzt) – planen Sie dafür unbedingt eine Testphase ein (Abschnitt 11), falls Sie sie nutzen. Die
+> OpenSlides-Installationsschritte entsprechen der offiziellen `INSTALL.md` (OpenSlides 4.x, Werkzeug `osmanage`);
+> die Paperless-Installationsschritte der offiziellen Docker-Compose-Installation.
 
 ---
 
@@ -91,8 +94,8 @@ docker compose logs -f web         # warten bis "Listening at: http://0.0.0.0:80
 ```
 
 Test: `curl -I http://127.0.0.1:8000/login/` → HTTP 200. Anmeldung mit `ADMIN_USER`/`ADMIN_PASSWORD`.
-Beim ersten Start wird der Verein aus `VEREIN_NAME` mit Standardrollen, Beispiel-Stammdaten, **Ablage-Ordnern und
-Standardvorlagen** (Einladungen, Protokolle, Serienbriefe) angelegt.
+Beim ersten Start wird der Verein aus `VEREIN_NAME` mit den Rollen/Tags der Datenschutzordnung, Beispiel-Stammdaten,
+**Ablage-Ordnern und Standardvorlagen** (Einladungen, Protokolle, Serienbriefe) angelegt.
 
 ## 5. OpenSlides installieren (optional)
 

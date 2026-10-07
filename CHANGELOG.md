@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.36.1
+- README.md, INSTALL.md und docs/GITHUB.md jetzt auch auf Englisch (README.en.md, INSTALL.en.md,
+  docs/GITHUB.en.md), gegenseitig verlinkt. Vorher auf Aktualität geprüft: veraltete Testanzahl, Hinweise
+  zum alten Standardrollen-System und ein inzwischen überholter "Paperless-ngx ungetestet"-Absatz korrigiert.
+
 ## 1.36.0
 - Alle vier Hilfe-Dokumente (Handbuch, Kasse & Mitglieder-Import, Schriftverkehr & Vorlagen,
   Selbstdatenpflege) liegen jetzt auch auf Englisch vor (`*.en.md`); die Hilfe-Seite in der Anwendung zeigt

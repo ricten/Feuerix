@@ -1,5 +1,7 @@
 # Feuerix – Vereinsverwaltung für Feuerwehr-Fördervereine (Django · PostgreSQL · Docker)
 
+*English version: [README.en.md](README.en.md).*
+
 "Feuerix" ist die Softwaremarke (`PRODUCT_NAME` in `config/settings.py`) – getrennt vom Namen/Logo des einzelnen
 Vereins, das jede Feuerwehr selbst hochlädt und das auf der eigenen Instanz die Hauptmarke bleibt.
 
@@ -7,7 +9,7 @@ Vereinsverwaltung: Mitglieder, Ehrungen/Jubiläen, Beiträge, Rechnungen, Zahlun
 Inventar mit Verleih und Inventur, Spendenquittungen, Aufwandsentschädigungen, Veranstaltungsplanung,
 Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Export.
 
-> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~244 Tests) und eine GitHub-Actions-CI prüfen
+> **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~440 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Der FinTS-Abruf (reiner Kontoumsätze-Abruf) und die
 > Paperless-ngx-Anbindung (Dokumentenübergabe) wurden erfolgreich gegen eine echte Bank bzw. eine laufende
 > Paperless-Instanz getestet. Nicht gegen eine produktive Instanz verifiziert ist weiterhin die OpenSlides-Anbindung
@@ -40,8 +42,9 @@ docker compose up -d
 ```
 
 Danach: http://localhost:8000 – Anmeldung mit `ADMIN_USER` / `ADMIN_PASSWORD`. Beim allerersten Start wird der
-Verein aus `VEREIN_NAME` samt Standardrollen, Mitgliedsarten (Beispielbeträge!), Ehrungsarten und Jubiläumsregeln
-angelegt. Die Beträge unter *Verwaltung › Mitgliedsarten / Beiträge* bitte anpassen.
+Verein aus `VEREIN_NAME` samt den Rollen/Tags der Datenschutzordnung (siehe docs/HANDBUCH.md Kapitel 2),
+Mitgliedsarten (Beispielbeträge!), Ehrungsarten und Jubiläumsregeln angelegt. Die Beträge unter
+*Verwaltung › Mitgliedsarten / Beiträge* bitte anpassen.
 
 ## Benutzer und Rechte
 
