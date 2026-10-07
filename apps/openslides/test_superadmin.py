@@ -76,6 +76,33 @@ class KontoAbgleichTests(Basis):
         c2.action.assert_any_call("user.update", [{"id": 999, "is_active": False}])
 
 
+class KontoAufraeumenSignalTests(Basis):
+    """Das OpenSlides-Konto eines Superadmin-Zugangs ohne Mitgliedsakte muss auch dann deaktiviert werden, wenn die
+    Verknuepfung per Kaskade verschwindet (Benutzerzugang bzw. der zugrunde liegende Django-User geloescht wird),
+    nicht nur beim regulaeren Abgleich."""
+
+    @patch("apps.openslides.client.OSClient")
+    def test_zugang_bzw_user_geloescht_deaktiviert_konto(self, OSClientMock):
+        c = Mock()
+        OSClientMock.return_value = c
+        u = self.superadmin_user()
+        SuperadminKonto.objects.create(verein=self.v, zugang=Zugang.objects.get(user=u), openslides_user_id=777,
+                                       openslides_username="tina.technik")
+        u.delete()
+        c.action.assert_called_once_with("user.update", [{"id": 777, "is_active": False}])
+        self.assertFalse(SuperadminKonto.objects.exists())
+
+    @patch("apps.openslides.client.OSClient")
+    def test_ohne_verbindung_bricht_das_loeschen_nicht_ab(self, OSClientMock):
+        self.verbindung.delete()
+        u = self.superadmin_user()
+        z = Zugang.objects.get(user=u)
+        SuperadminKonto.objects.create(verein=self.v, zugang=z, openslides_user_id=777, openslides_username="t")
+        z.delete()   # darf keine Exception werfen
+        OSClientMock.assert_not_called()
+        self.assertFalse(SuperadminKonto.objects.exists())
+
+
 class RechteZuweisenTests(Basis):
     def test_superadmin_mit_mitgliedsakte_bekommt_admin_gruppe(self):
         u = self.superadmin_user()

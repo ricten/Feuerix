@@ -58,4 +58,7 @@ class SuperadminKonto(TenantModel):
         verbose_name_plural = "OpenSlides-Konten (Superadmins ohne Mitgliedsakte)"
 
     def __str__(self):
-        return f"{self.openslides_username} ({self.zugang})"
+        # self.zugang_id statt self.zugang: beim Loeschen per Kaskade (Benutzerzugang geloescht) kann das
+        # verknuepfte Objekt bei der Audit-Protokollierung (post_delete) schon weg sein - ein Dereferenzieren
+        # wuerde dann mit DoesNotExist abbrechen.
+        return f"{self.openslides_username} (Zugang #{self.zugang_id})"

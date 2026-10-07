@@ -217,6 +217,50 @@ class SuperadminAbgleichTests(Basis):
         self.assertIn("1 ohne Tag entfernt", info)
 
 
+class KontoAufraeumenSignalTests(Basis):
+    """Das verknuepfte Paperless-Konto muss auch dann aufgeraeumt werden, wenn die Verknuepfung nicht ueber den
+    regulaeren Abgleich, sondern per Kaskade verschwindet (Mitglied oder - haeufigster Fall - ein kompletter
+    Benutzerzugang samt Django-User geloescht wird, z. B. ein Superadmin-Zugang)."""
+
+    def test_mitglied_geloescht_deaktiviert_angelegtes_konto(self):
+        PaperlessBenutzer.objects.create(verein=self.v, mitglied=self.m, paperless_id=55, benutzername="erika.mueller",
+                                         angelegt=True, initialpasswort="geheim")
+        c = Mock()
+        with patch("apps.paperless.client.PaperlessClient", return_value=c):
+            self.m.delete()
+        c.benutzer_aendern.assert_called_once_with(55, {"is_active": False})
+        self.assertFalse(PaperlessBenutzer.objects.exists())
+
+    def test_uebernommenes_konto_wird_nur_aus_gruppen_entfernt_nicht_deaktiviert(self):
+        PaperlessBenutzer.objects.create(verein=self.v, mitglied=self.m, paperless_id=56, benutzername="erika.mueller",
+                                         angelegt=False)
+        c = Mock()
+        c.benutzer_lesen.return_value = {"groups": [1, 2]}
+        c.gruppen_ohne.return_value = [1]
+        with patch("apps.paperless.client.PaperlessClient", return_value=c):
+            self.m.delete()
+        c.benutzer_aendern.assert_called_once_with(56, {"groups": [1]})
+
+    def test_zugang_bzw_user_geloescht_deaktiviert_superadmin_konto(self):
+        u = get_user_model().objects.create_user("technik", password="pw-Test-12345")
+        z = Zugang.objects.create(verein=self.v, user=u,
+                                  rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        PaperlessBenutzer.objects.create(verein=self.v, zugang=z, paperless_id=77, benutzername="technik",
+                                         angelegt=True, initialpasswort="geheim")
+        c = Mock()
+        with patch("apps.paperless.client.PaperlessClient", return_value=c):
+            u.delete()   # Zugang kaskadiert mit, PaperlessBenutzer ebenso - das Signal muss trotzdem feuern
+        c.benutzer_aendern.assert_called_once_with(77, {"is_active": False})
+        self.assertFalse(PaperlessBenutzer.objects.exists())
+
+    def test_ohne_verbindung_bricht_das_loeschen_nicht_ab(self):
+        self.verbindung.delete()
+        PaperlessBenutzer.objects.create(verein=self.v, mitglied=self.m, paperless_id=55, benutzername="erika.mueller",
+                                         angelegt=True)
+        self.m.delete()   # darf keine Exception werfen
+        self.assertFalse(PaperlessBenutzer.objects.exists())
+
+
 class ClientTests(Basis):
     @patch("apps.paperless.client.requests.Session.request")
     def test_gruppe_wird_angelegt_wenn_sie_fehlt(self, req):

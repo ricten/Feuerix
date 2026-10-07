@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.34.0)
+# Handbuch – Feuerix (Version 1.34.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -510,7 +510,9 @@ abgleichen“ automatisch ein Paperless-Konto in der Administrator-Gruppe und be
 ein OpenSlides-Konto mit der Gruppe „Admin“ in jeder Versammlung – unabhängig von eigenen Tags. Das gilt auch für
 Superadministratoren **ohne** eigene Mitgliedsakte (z. B. ein rein technischer Betreuer-Zugang): Name und E-Mail
 kommen dann vom Benutzerzugang selbst statt von einer Mitgliedsakte. Wird die Superadministrator-Rolle entzogen oder
-der Zugang deaktiviert, verschwinden diese automatisch vergebenen Rechte beim nächsten Abgleich wieder.
+der Zugang deaktiviert, verschwinden diese automatisch vergebenen Rechte beim nächsten Abgleich wieder. Wird der
+Benutzerzugang bzw. das zugehörige Benutzerkonto direkt gelöscht (statt nur deaktiviert), wird das verknüpfte
+Paperless-/OpenSlides-Konto sofort deaktiviert, nicht erst beim nächsten Abgleich.
 
 **Live-Status:** Nach „An Paperless senden“ (auch im Sammelversand) zeigt die Seite den Fortschritt ohne manuelles
 Neuladen an: Warteschlange → wird gesendet → von Paperless verarbeitet → abgelegt bzw. Fehlermeldung. Während der

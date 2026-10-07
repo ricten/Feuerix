@@ -82,4 +82,8 @@ class PaperlessBenutzer(TenantModel):
         ]
 
     def __str__(self):
-        return f"{self.benutzername} ({self.mitglied or self.zugang})"
+        # bewusst ueber die rohen FK-IDs (attname) statt ueber self.mitglied/self.zugang: beim Loeschen per
+        # Kaskade (z. B. Benutzerzugang geloescht) kann das verknuepfte Objekt zum Zeitpunkt der Audit-Protokollierung
+        # (post_delete) schon weg sein - ein Dereferenzieren wuerde dann mit DoesNotExist abbrechen.
+        ziel = f"Mitglied #{self.mitglied_id}" if self.mitglied_id else f"Zugang #{self.zugang_id}"
+        return f"{self.benutzername} ({ziel})"
