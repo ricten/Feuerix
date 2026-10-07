@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.32.3)
+# Handbuch – Feuerix (Version 1.33.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -217,7 +217,10 @@ erkennbar danach klingt; sonst „manuell“ zur Nachbearbeitung markiert. **Hin
 Verwendungszweck (Feld `:86:`) nach den seit der SEPA-Umstellung üblichen deutschen Feldkennungen durchsucht
 (`SVWZ+`, `ABWA+`/`ABWE+`, `IBAN+`); weicht eine Bank davon ab, landet der komplette Text unverändert im
 Verwendungszweck statt in Einzelfeldern. Ist mindestens ein FinTS-Zugang eingerichtet, erscheint auf dieser Seite
-zusätzlich je Zugang ein „Umsätze abrufen“-Knopf als Abkürzung zum FinTS-Abruf (siehe unten).
+zusätzlich je Zugang ein „Umsätze abrufen“-Knopf als Abkürzung zum FinTS-Abruf (siehe unten). Ein Bankumsatz lässt
+sich auch wieder **löschen** (z. B. ein versehentlicher Mehrfach-Import) – eine eventuell zugeordnete Zahlung
+bleibt dabei erhalten, verliert nur den Verweis auf diesen Umsatz. Ein erneuter Abruf desselben Zeitraums legt den
+gelöschten Umsatz wieder an, da die Duplikaterkennung nur in der Datenbank vorhandene Umsätze kennt.
 
 **FinTS-Abruf** (experimentell, siehe Kapitel 17): Alternative zum manuellen Kontoauszug-Import – unter
 *Verwaltung › FinTS-Zugänge* einen oder mehrere Zugänge anlegen (Bezeichnung, Bankleitzahl, Online-Banking-Kennung

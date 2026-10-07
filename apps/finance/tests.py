@@ -396,6 +396,57 @@ class BankImportViewTests(TestCase):
         self.assertEqual(Bankumsatz.objects.filter(verein=self.v).count(), 2)
 
 
+class BankumsatzLoeschenTests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.user = User.objects.create_user("kasse", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.user, rolle=Rolle.objects.get(verein=self.v, name="Kassenwart (DSO)"))
+        self.client.login(username="kasse", password="pw-Test-12345")
+        self.u = Bankumsatz.objects.create(verein=self.v, buchungsdatum=date(2026, 3, 1), betrag=Decimal("42.00"),
+                                           gegenkonto_name="Max Muster", status="neu")
+
+    def test_loeschen_knopf_erscheint_in_der_detailansicht(self):
+        r = self.client.get(reverse("bankumsatz_detail", args=[self.u.pk]))
+        self.assertContains(r, reverse("bankumsatz_delete", args=[self.u.pk]))
+
+    def test_loeschen(self):
+        r = self.client.post(reverse("bankumsatz_delete", args=[self.u.pk]), follow=True)
+        self.assertContains(r, "gelöscht")
+        self.assertFalse(Bankumsatz.objects.filter(pk=self.u.pk).exists())
+
+    def test_zugeordneter_umsatz_loeschbar_zahlung_verliert_nur_den_verweis(self):
+        rechnung = Rechnung.objects.create(verein=self.v, typ="individuell", status="offen",
+                                           empfaenger_name="Max Muster", datum=date(2026, 3, 1))
+        Rechnungsposition.objects.create(verein=self.v, rechnung=rechnung, text="Posten", menge=1,
+                                         einzelpreis=Decimal("42.00"))
+        z = Zahlung.objects.create(verein=self.v, rechnung=rechnung, betrag=Decimal("42.00"), datum=date(2026, 3, 1),
+                                   bankumsatz=self.u)
+        self.u.status = "zugeordnet"
+        self.u.save()
+        self.client.post(reverse("bankumsatz_delete", args=[self.u.pk]))
+        self.assertFalse(Bankumsatz.objects.filter(pk=self.u.pk).exists())
+        z.refresh_from_db()
+        self.assertIsNone(z.bankumsatz_id)
+        self.assertEqual(z.betrag, Decimal("42.00"))   # die Zahlung selbst bleibt erhalten
+
+    def test_ohne_recht_verboten(self):
+        User = get_user_model()
+        User.objects.create_user("leser", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=User.objects.get(username="leser"),
+                              rolle=Rolle.objects.create(verein=self.v, name="Leser", rechte=["bank.view"]))
+        self.client.logout()
+        self.client.login(username="leser", password="pw-Test-12345")
+        r = self.client.post(reverse("bankumsatz_delete", args=[self.u.pk]))
+        self.assertEqual(r.status_code, 403)
+        self.assertTrue(Bankumsatz.objects.filter(pk=self.u.pk).exists())
+
+    def test_loeschung_steht_im_aenderungsprotokoll(self):
+        from apps.core.models import AuditLog
+        self.client.post(reverse("bankumsatz_delete", args=[self.u.pk]))
+        self.assertTrue(AuditLog.objects.filter(verein=self.v, modell="Bankumsatz", aktion="geloescht").exists())
+
+
 class ErechnungExportTests(TestCase):
     def setUp(self):
         self.v = Verein.objects.create(name="Freiwillige Feuerwehr Test e.V.", kuerzel="test",

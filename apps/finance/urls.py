@@ -61,7 +61,7 @@ urlpatterns += crud("mahnungen", Mahnung, "rechnungen", list_display=("rechnung"
                     select_related=("rechnung",), kontext=views.mahnung_kontext, add=False)
 urlpatterns += crud("bankumsaetze", Bankumsatz, "bank", list_display=("buchungsdatum", "betrag", "gegenkonto_name",
                     "verwendungszweck", "status"), suche=("gegenkonto_name", "verwendungszweck"), filter=("status",),
-                    kontext=views.bankumsatz_kontext, listen_aktionen=views.bank_listen_aktionen, delete=False,
+                    kontext=views.bankumsatz_kontext, listen_aktionen=views.bank_listen_aktionen,
                     ordering=("-buchungsdatum", "-id"))
 urlpatterns += crud("fints-zugaenge", FinTSZugang, "bank", list_display=("bezeichnung", "blz", "letzter_abruf"),
                     kontext=views.fints_zugang_kontext, ordering=("bezeichnung",))
