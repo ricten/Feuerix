@@ -44,8 +44,23 @@ class DsoTabelleTests(Basis):
     def test_neuer_verein_bekommt_sechs_rollen_und_tags(self):
         self.assertEqual(Rolle.objects.filter(verein=self.v, name__endswith=mx.DSO_SUFFIX).count(), 6)
         tags = MitgliedTag.objects.filter(verein=self.v, rolle__isnull=False)
-        self.assertEqual(sorted(tags.values_list("name", flat=True)), sorted(FUNKTIONEN + [mx.ADMINISTRATOR]))
+        erwartet = FUNKTIONEN + [mx.ADMINISTRATOR] + list(mx.ZUSATZROLLEN)
+        self.assertEqual(sorted(tags.values_list("name", flat=True)), sorted(erwartet))
         self.assertEqual(mx.dso_anlegen(self.v), (0, 0))   # idempotent
+
+    def test_zusatzrollen_werden_ebenfalls_als_tag_angelegt(self):
+        for name in mx.ZUSATZROLLEN:
+            rolle = Rolle.objects.get(verein=self.v, name=name, ist_superadmin=False)
+            self.assertTrue(MitgliedTag.objects.filter(verein=self.v, name=name, rolle=rolle).exists())
+        # Lesebenutzer darf laut alter Definition keine Bankdaten sehen
+        self.assertNotIn("bankdaten.view", Rolle.objects.get(verein=self.v, name="Lesebenutzer").rechte)
+        self.assertIn("kassenbuch.view", Rolle.objects.get(verein=self.v, name="Kassenprüfer").rechte)
+        self.assertNotIn("kassenbuch.change", Rolle.objects.get(verein=self.v, name="Kassenprüfer").rechte)
+
+    def test_zusatzrollen_zaehlen_nicht_als_pflichtfunktion(self):
+        hinweise = " ".join(mx.dso_pruefung(self.v))
+        for name in mx.ZUSATZROLLEN:
+            self.assertNotIn(f"Funktion „{name}“ ist nicht besetzt", hinweise)
 
     def test_administrator_hat_volle_rechte_und_zaehlt_nicht_als_pflichtfunktion(self):
         rolle = Rolle.objects.get(verein=self.v, name=mx.ADMINISTRATOR, ist_superadmin=False)
@@ -344,3 +359,18 @@ class PruefungTests(Basis):
         u = get_user_model().objects.create_user("ohne", password="pw-Test-12345")
         Zugang.objects.create(verein=self.v, user=u, rolle=rolle_von(self.v, "Kassenwart"))
         self.assertIn("§ 17", " ".join(mx.dso_pruefung(self.v)))
+
+    def test_funktion_ohne_zugang_wird_gemeldet(self):
+        t = MitgliedTag.objects.get(verein=self.v, name="Kassenwart")
+        m = Mitglied.objects.create(verein=self.v, vorname="Kai", nachname="Ohne")
+        m.tags.add(t)
+        hinweise = " ".join(mx.dso_pruefung(self.v))
+        self.assertIn("Kai Ohne", hinweise)
+        self.assertIn("Verwaltungszugang", hinweise)
+        # Benutzerkonto vorhanden, aber (noch) kein Zugang zu diesem Verein -> immer noch gemeldet
+        m.benutzer = get_user_model().objects.create_user("kai", password="pw-Test-12345")
+        m.save()
+        self.assertIn("Verwaltungszugang", " ".join(mx.dso_pruefung(self.v)))
+        # jetzt richtig eingerichtet -> kein Hinweis mehr
+        Zugang.objects.create(verein=self.v, user=m.benutzer, rolle=t.rolle)
+        self.assertNotIn("Kai Ohne", " ".join(mx.dso_pruefung(self.v)))

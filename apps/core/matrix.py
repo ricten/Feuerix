@@ -11,6 +11,11 @@ Aus der Matrix werden die technischen Modulrechte (`modul.aktion`, siehe rechte.
 """
 from collections import namedtuple
 
+from .rechte import ALLES as _ALLES
+from .rechte import BEARBEITEN as _BEARBEITEN
+from .rechte import LESEN as _LESEN
+from .rechte import _r
+
 Bereich = namedtuple("Bereich", "key label module personenbezogen art dso")
 # art: "normal" | "feld" (nur Anzeigen/Bearbeiten) | "lesen" (nur Anzeigen)
 
@@ -133,14 +138,36 @@ DSO_TAGS = {
 # zählt aber zu den Personen mit Zugriff (§ 6) und wird deshalb bei der Besetzungsprüfung mitgezählt.
 ADMINISTRATOR = "Administrator"
 _ADMIN_MATRIX = {**{b.key: "V" for b in BEREICHE}, LOESCHUNG: "V"}
+
+# Zusatzrollen (kein Teil der Datenschutzordnung, deshalb als fertige Rechte-Liste statt als Matrix-Zeile - sie
+# bilden keinen der dort definierten Datenbereiche 1:1 ab): frei nutzbare Vorlagen fuer Vereine, die feinere
+# Abstufungen als die sechs DSO-Funktionen brauchen. Rechte entsprechen den bisherigen, fest einprogrammierten
+# Standardrollen (vor der Ablösung durch die Berechtigungsmatrix) - hier nur als Tag vergeben statt direkt an
+# Benutzerzugänge.
+ZUSATZROLLEN_RECHTE = {
+    "Kassenprüfer": _r(["kassenbuch", "rechnungen", "zahlungen", "bank", "spenden", "aufwand", "beitraege",
+                        "ablage", "auswertungen"], _LESEN),
+    "Inventarverwalter": _r(["inventar", "verleih", "inventur"], _BEARBEITEN) + _r(["mitglieder", "veranstaltungen"], _LESEN),
+    "Veranstaltungsplaner": _r(["veranstaltungen", "verleih"], _BEARBEITEN) + _r(["mitglieder", "inventar"], _LESEN),
+    "Mitgliederverwaltung": _r(["selbstdienst"], _ALLES) + _r(["mitglieder"], _LESEN),
+    "Lesebenutzer": _r(["mitglieder", "dokumente", "ehrungen", "beitraege", "rechnungen", "inventar", "verleih",
+                        "inventur", "veranstaltungen", "schriftverkehr", "rundschreiben", "ablage", "geburtsdatum",
+                        "teilnehmer", "auswertungen"], _LESEN),
+}
+ZUSATZROLLEN = set(ZUSATZROLLEN_RECHTE)
+# Rollen/Tags, die nicht zwingend besetzt sein muessen (zaehlen aber zu den Personen mit Zugriff, § 6).
+OHNE_BESETZUNGSPFLICHT = {ADMINISTRATOR} | ZUSATZROLLEN
+
 _ALLE_ROLLEN = {**DSO_ROLLEN, ADMINISTRATOR: _ADMIN_MATRIX}
 _ALLE_TAGS = {**DSO_TAGS, ADMINISTRATOR: (False, "Admin")}
 
 
 def dso_anlegen(verein):
-    """Legt die sechs Rollen der Datenschutzordnung sowie die Rolle/das Tag "Administrator" (volle Rechte) samt
-    zugehörigen Tags (Rolle + Paperless-Gruppe + OpenSlides-Gruppe) an. Bereits vorhandene Rollen/Tags bleiben
-    unverändert (idempotent). -> (neue_rollen, neue_tags)"""
+    """Legt die sechs Rollen der Datenschutzordnung, die Rolle/das Tag "Administrator" (volle Rechte) sowie
+    optionale Zusatzrollen (Kassenprüfer, Inventarverwalter, Veranstaltungsplaner, Mitgliederverwaltung,
+    Lesebenutzer) samt zugehörigen Tags (Rolle + Paperless-Gruppe + OpenSlides-Gruppe) an. Bereits vorhandene
+    Rollen/Tags (auch mit abweichenden, selbst angepassten Rechten) bleiben unverändert (idempotent).
+    -> (neue_rollen, neue_tags)"""
     from apps.members.models import MitgliedTag
 
     from .models import Rolle
@@ -157,6 +184,13 @@ def dso_anlegen(verein):
             "rolle": rolle, "paperless_gruppe": funktion, "paperless_nur_lesen": lesen, "openslides_gruppe": os_gruppe,
             "beschreibung": beschreibung})
         neue_tags += int(neu_tag)
+    for name, rechte in ZUSATZROLLEN_RECHTE.items():
+        rolle, neu = Rolle.objects.get_or_create(verein=verein, name=name, defaults={
+            "ist_superadmin": False, "rechte": rechte, "matrix": {}})
+        neue_rollen += int(neu)
+        tag, neu_tag = MitgliedTag.objects.get_or_create(verein=verein, name=name, defaults={
+            "rolle": rolle, "beschreibung": "Zusatzrolle (kein Teil der Datenschutzordnung)"})
+        neue_tags += int(neu_tag)
     return neue_rollen, neue_tags
 
 
@@ -172,9 +206,9 @@ def dso_pruefung(verein):
     if traeger.count() > 6:
         hinweise.append(f"§ 6 der Datenschutzordnung: regelmäßigen Zugriff sollen ausschließlich sechs Personen "
                         f"haben - aktuell tragen {traeger.count()} Mitglieder ein Funktions-Tag mit Rolle.")
-    # Besetzung je Funktion wird nur fuer die sechs DSO-Funktionen geprueft - "Administrator" muss nicht
-    # zwingend vergeben sein.
-    for t in dso_tags.exclude(name=ADMINISTRATOR):
+    # Besetzung je Funktion wird nur fuer die sechs DSO-Funktionen geprueft - "Administrator" und die
+    # Zusatzrollen muessen nicht zwingend vergeben sein.
+    for t in dso_tags.exclude(name__in=OHNE_BESETZUNGSPFLICHT):
         n = Mitglied.objects.filter(verein=verein, status="aktiv", tags=t).count()
         if n == 0:
             hinweise.append(f"Funktion „{t.name}“ ist nicht besetzt (Tag keinem aktiven Mitglied zugeordnet).")
@@ -186,6 +220,12 @@ def dso_pruefung(verein):
         if m is None or m.status != "aktiv" or not m.tags.filter(rolle_id=z.rolle_id).exists():
             hinweise.append(f"§ 17: Benutzer „{z.user}“ hat die Rolle „{z.rolle}“, ohne die Funktion (Tag) zu "
                             "besitzen - Rechte entziehen.")
+    # Umgekehrter Fall: Mitglied traegt ein Tag mit Rolle, hat aber (noch) keinen Benutzerzugang dazu.
+    for m in traeger:
+        if not (m.benutzer_id and Zugang.objects.filter(verein=verein, user_id=m.benutzer_id).exists()):
+            namen = ", ".join(m.tags.filter(verein=verein, rolle__isnull=False).values_list("name", flat=True))
+            hinweise.append(f"{m.name} trägt eine Funktion mit Rolle ({namen}), hat aber noch keinen "
+                            "Verwaltungszugang - bitte einrichten.")
     personen = Zugang.objects.filter(verein=verein, aktiv=True, rolle__ist_superadmin=False).exclude(
         rolle__rechte=[]).count()
     if personen > 6:

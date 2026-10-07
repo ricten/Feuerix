@@ -46,6 +46,12 @@ def mitglied_kontext(request, m):
     elif not verwaltungszugang and r.darf("verwaltung", "add"):
         aktionen.append(knopf("Verwaltungszugang einrichten", reverse("mitglied_verwaltungszugang_einrichten", args=[m.pk]),
                               stil="outline-primary"))
+    hinweise = []
+    if not verwaltungszugang:
+        namen = list(m.tags.filter(verein=request.verein, rolle__isnull=False).values_list("name", flat=True))
+        if namen:
+            hinweise.append(f"Dieses Mitglied trägt eine Funktion mit Rolle ({', '.join(namen)}), hat aber noch "
+                            "keinen Verwaltungszugang - bitte einrichten.")
     if r.darf("mitglieder", "delete") and m.status != "verstorben" and m.vorname != "Anonymisiert":
         aktionen.append(knopf("Anonymisieren (DSGVO)", reverse("mitglied_anonymisieren", args=[m.pk]), post=True,
                               stil="outline-danger",
@@ -62,6 +68,9 @@ def mitglied_kontext(request, m):
                                                                        "Status"], "zeilen": zeilen, "add_url": None})
     abschnitte.append(abschnitt(request, "Funktionen", m.funktionen.all(), ("funktion", "von", "bis"),
                                 "mitgliedfunktion_add", {"mitglied": m.pk}))
+    if r.darf("mitglieder", "view"):
+        abschnitte.append(abschnitt(request, "Funktionen (Tags/Zugriffsrechte)", m.tags.all(),
+                                    ("name", "rolle", "paperless_gruppe", "openslides_gruppe")))
     if r.darf("ehrungen", "view"):
         abschnitte.append(abschnitt(request, "Ehrungen", Ehrung.objects.filter(mitglied=m),
                                     ("art", "datum", "anlass"), "ehrung_add", {"mitglied": m.pk}))
@@ -82,7 +91,7 @@ def mitglied_kontext(request, m):
         abschnitte.append(abschnitt(request, "Änderungshistorie", AuditLog.objects.filter(
             verein=request.verein, modell="Mitglied", objekt_id=str(m.pk))[:20],
             ("zeit", "user_name", "aktion")))
-    return {"aktionen": aktionen, "abschnitte": abschnitte}
+    return {"aktionen": aktionen, "abschnitte": abschnitte, "hinweise": hinweise}
 
 
 def _dict(o, ausschluss=("verein", "openslides_initialpasswort")):

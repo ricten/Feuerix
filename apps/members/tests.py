@@ -228,3 +228,57 @@ class AnonymisierungTests(TestCase):
         self.m.refresh_from_db()
         self.assertEqual(self.m.vorname, "Anonymisiert")
         self.assertEqual(self.m.openslides_username, "")
+
+
+class TagsUndFunktionenTests(TestCase):
+    """Tags (Zugriffsrechte) werden auf der Mitgliederakte unter "Funktionen" mitgeführt (eigener Abschnitt direkt
+    neben den historisierten Funktionen) und lassen sich im Formular per Haken (nicht als Mehrfach-Auswahlliste)
+    mehreren Mitgliedern gleichzeitig zuordnen; außerdem warnt die Akte, wenn ein Mitglied eine Funktion mit Rolle
+    trägt, aber noch keinen Verwaltungszugang hat."""
+
+    def setUp(self):
+        from apps.members.models import MitgliedTag
+        User = get_user_model()
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.tag = MitgliedTag.objects.get(verein=self.v, name="Kassenwart")
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Muster")
+
+    def test_detailseite_zeigt_tags_im_funktionen_abschnitt(self):
+        self.m.tags.add(self.tag)
+        r = self.client.get(reverse("mitglied_detail", args=[self.m.pk]))
+        self.assertContains(r, "Funktionen (Tags/Zugriffsrechte)")
+        self.assertContains(r, "Kassenwart")
+
+    def test_formular_zeigt_tags_als_haken_nicht_als_auswahlliste(self):
+        r = self.client.get(reverse("mitglied_edit", args=[self.m.pk]))
+        self.assertContains(r, f'value="{self.tag.pk}"')
+        self.assertContains(r, f'<input type="checkbox" name="tags" value="{self.tag.pk}"')
+        self.assertNotContains(r, '<select name="tags"')
+        # funktional: mehrere Tags lassen sich in einem Schritt setzen
+        from apps.members.models import MitgliedTag
+        zweites = MitgliedTag.objects.get(verein=self.v, name="Schriftführer")
+        r = self.client.post(reverse("mitglied_edit", args=[self.m.pk]), {
+            "vorname": "Erika", "nachname": "Muster", "status": "aktiv", "zahlungsart": "ueberweisung",
+            "tags": [self.tag.pk, zweites.pk]})
+        self.m.refresh_from_db()
+        self.assertEqual(set(self.m.tags.values_list("pk", flat=True)), {self.tag.pk, zweites.pk})
+
+    def test_hinweis_wenn_rolle_aber_kein_zugang(self):
+        self.m.tags.add(self.tag)
+        r = self.client.get(reverse("mitglied_detail", args=[self.m.pk]))
+        self.assertContains(r, "trägt eine Funktion mit Rolle")
+        self.assertContains(r, "Kassenwart")
+
+    def test_kein_hinweis_sobald_zugang_eingerichtet(self):
+        self.m.tags.add(self.tag)
+        self.m.benutzer = get_user_model().objects.create_user("erika", password="pw-Test-12345")
+        self.m.save()
+        Zugang.objects.create(verein=self.v, user=self.m.benutzer, rolle=self.tag.rolle)
+        r = self.client.get(reverse("mitglied_detail", args=[self.m.pk]))
+        self.assertNotContains(r, "trägt eine Funktion mit Rolle")
+
+    def test_kein_hinweis_ohne_tag_mit_rolle(self):
+        r = self.client.get(reverse("mitglied_detail", args=[self.m.pk]))
+        self.assertNotContains(r, "trägt eine Funktion mit Rolle")

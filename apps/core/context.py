@@ -60,7 +60,7 @@ NAV = [
         (_("Mitgliedsarten / Beiträge"), "mitgliedsart_list", "beitraege"),
         (_("Abteilungen"), "abteilung_list", "mitglieder"),
         (_("Funktionen"), "funktion_list", "mitglieder"),
-        (_("Tags (Zugriffsrechte)"), "mitgliedtag_list", "mitglieder"),
+        (_("Funktionen: Tags (Zugriffsrechte)"), "mitgliedtag_list", "mitglieder"),
         (_("Familien"), "familie_list", "mitglieder"),
         (_("Ehrungsarten"), "ehrungsart_list", "ehrungen"),
         (_("Jubiläumsregeln"), "jubilaeumsregel_list", "ehrungen"),

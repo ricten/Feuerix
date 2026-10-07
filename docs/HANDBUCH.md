@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.30.0)
+# Handbuch – Feuerix (Version 1.31.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -97,6 +97,11 @@ angelegt (Rechte siehe Berechtigungsmatrix, dort auch änderbar):
 | **Kassenwart (DSO) / Stellv. Kassenwart (DSO)** | Kassenführung |
 | **Schriftführer (DSO) / Stellv. Schriftführer (DSO)** | Protokolle/Schriftverkehr |
 | **Administrator** | Volle Rechte auf alle Datenbereiche (z. B. für die technische Betreuung der Software); kein Teil der Datenschutzordnung selbst, zählt aber zu deren Personenkreis mit Zugriff (§ 6) |
+| **Kassenprüfer, Inventarverwalter, Veranstaltungsplaner, Mitgliederverwaltung, Lesebenutzer** | Zusatzrollen für feinere Abstufungen (z. B. nur lesender Kassenprüfer); ebenfalls kein Teil der Datenschutzordnung, müssen anders als die sechs DSO-Rollen nicht zwingend besetzt sein |
+
+Alle Rollen werden außerdem automatisch als gleichnamiges **Tag** angelegt (siehe unten „Zugriff über Tags“) – auch
+die Zusatzrollen; wer ein Tag mit Rolle trägt, erhält beim Einrichten eines Verwaltungszugangs automatisch diese
+Rolle. Nachträglich fehlende Rollen/Tags lassen sich über *Verwaltung › Berechtigungsmatrix* per Knopf ergänzen.
 
 Die sechs DSO-Rollen bekommen laut Datenschutzordnung alle **volle Rechte auf „Vereinssoftware / Verwaltung“**
 (Benutzer, Rollen, Vereinseinstellungen, OpenSlides-/Paperless-Anbindung, „Verwaltungszugang einrichten“) – in
@@ -443,10 +448,15 @@ weiterhin per Knopf übergeben. Die Übergabe blockiert nie das Fertigstellen �
 Neue Versionen eines Dokuments entstehen über „Neue Version hochladen“ bzw. erneutes Ablegen und werden ebenfalls
 übergeben.
 
-**Zugriff über Tags:** Statt Rollen einzeln zu verteilen, werden Mitgliedern **Tags** zugeordnet (*Verwaltung › Tags
-(Zugriffsrechte)*, in der Mitgliederakte unter „Tags“). Jedes Tag legt fest, welche **Rolle** in dieser Software, welche
-**Paperless-Gruppe** und welche **OpenSlides-Gruppe** (in Versammlungen) seine Träger erhalten. Das Häkchen
-„Vorstandsmitglied“ setzt automatisch das Tag „Vorstandsmitglied“ (Paperless-Gruppe „Vorstand“).
+**Zugriff über Tags:** Statt Rollen einzeln zu verteilen, werden Mitgliedern **Tags** zugeordnet (*Verwaltung ›
+Funktionen: Tags (Zugriffsrechte)*, gleich neben *Funktionen* in der Navigation). Jedes Tag legt fest, welche
+**Rolle** in dieser Software, welche **Paperless-Gruppe** und welche **OpenSlides-Gruppe** (in Versammlungen) seine
+Träger erhalten. Das Häkchen „Vorstandsmitglied“ setzt automatisch das Tag „Vorstandsmitglied“ (Paperless-Gruppe
+„Vorstand“). In der Mitgliederakte stehen Tags im Bearbeitungsformular als **Haken-Liste** (Mehrfachauswahl, kein
+Auswahlfeld) und werden auf der Detailseite im Abschnitt „Funktionen (Tags/Zugriffsrechte)“ – direkt neben den
+historisierten Funktionen mit Von/Bis-Datum – angezeigt. Trägt ein Mitglied ein Tag mit Rolle, aber hat noch
+keinen Verwaltungszugang, weist die Akte darauf hin, dass einer eingerichtet werden muss (ebenso die
+Berechtigungsmatrix, vereinsweit).
 
 Unter *Verwaltung › Paperless-Anbindung* gleicht „Vorstand abgleichen“ (bzw. Tag-Abgleich) die Paperless-Benutzer ab:
 Träger eines Tags mit Paperless-Gruppe erhalten ein Konto (ohne Administrator-Rechte) in den Gruppen ihrer Tags; eine

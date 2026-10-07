@@ -3,6 +3,7 @@ from django.urls import path
 from apps.core.crud import crud, knopf
 
 from . import selbstdienst, verwaltungszugang, views
+from .forms import MitgliedForm
 from .models import (Abteilung, Dokument, Familie, Funktion, Mitglied, MitgliedFunktion, Mitgliedsart,
                      MitgliedTag)
 
@@ -31,7 +32,7 @@ def mitglieder_listen_aktionen(request):
 
 
 urlpatterns += crud(
-    "mitglieder", Mitglied, "mitglieder", listen_aktionen=mitglieder_listen_aktionen,
+    "mitglieder", Mitglied, "mitglieder", form=MitgliedForm, listen_aktionen=mitglieder_listen_aktionen,
     list_display=("mitgliedsnummer", "nachname", "vorname", "mitgliedsart", "status", "vorstandsmitglied",
                   "einsatzabteilung_aktiv", "alters_ehrenabteilung", "eintrittsdatum", "ort"),
     suche=("nachname", "vorname", "email", "ort", "mitgliedsnummer"), filter=("status", "mitgliedsart", "familie", "vorstandsmitglied", "einsatzabteilung_aktiv",

@@ -21,12 +21,15 @@ class MigrationAbloesungTests(TestCase):
         self.vorstand = Rolle.objects.create(verein=self.v, name="Vorstand", rechte=["mitglieder.view"])
         self.kassenwart_alt = Rolle.objects.create(verein=self.v, name="Kassenwart", rechte=["beitraege.view"])
         self.schriftfuehrer_alt = Rolle.objects.create(verein=self.v, name="Schriftführer", rechte=["ablage.view"])
-        self.kassenpruefer_alt = Rolle.objects.create(verein=self.v, name="Kassenprüfer", rechte=["bank.view"])
+        # frei erfundene Rolle ohne jedes Gegenstück im neuen System (Kassenprüfer & Co. werden inzwischen selbst
+        # automatisch als Zusatzrolle/Tag angelegt, siehe matrix.ZUSATZROLLEN_RECHTE - fuer "kein Nachfolger" muss
+        # hier also ein wirklich unbekannter Name her).
+        self.sonderrolle = Rolle.objects.create(verein=self.v, name="Hausmeister", rechte=["bank.view"])
         u = get_user_model().objects.create_user
         self.z_vorstand = Zugang.objects.create(verein=self.v, user=u("a"), rolle=self.vorstand)
         self.z_kassenwart = Zugang.objects.create(verein=self.v, user=u("b"), rolle=self.kassenwart_alt)
         self.z_schriftfuehrer = Zugang.objects.create(verein=self.v, user=u("c"), rolle=self.schriftfuehrer_alt)
-        self.z_kassenpruefer = Zugang.objects.create(verein=self.v, user=u("d"), rolle=self.kassenpruefer_alt)
+        self.z_sonderrolle = Zugang.objects.create(verein=self.v, user=u("d"), rolle=self.sonderrolle)
 
     def _migrieren(self):
         migrationsmodul.vorwaerts(django_apps, None)
@@ -47,9 +50,9 @@ class MigrationAbloesungTests(TestCase):
 
     def test_rolle_ohne_eindeutigen_nachfolger_bleibt_unangetastet(self):
         self._migrieren()
-        self.z_kassenpruefer.refresh_from_db()
-        self.assertEqual(self.z_kassenpruefer.rolle_id, self.kassenpruefer_alt.pk)
-        self.assertTrue(Rolle.objects.filter(pk=self.kassenpruefer_alt.pk).exists())
+        self.z_sonderrolle.refresh_from_db()
+        self.assertEqual(self.z_sonderrolle.rolle_id, self.sonderrolle.pk)
+        self.assertTrue(Rolle.objects.filter(pk=self.sonderrolle.pk).exists())
 
     def test_dso_rollen_und_administrator_werden_sichergestellt(self):
         Rolle.objects.filter(verein=self.v, name__in=["Administrator", "Kassenwart (DSO)"]).delete()
