@@ -34,3 +34,5 @@ Die Datei `VERSION` folgt Semantic Versioning (`MAJOR.MINOR.PATCH`), bei jeder n
 * **MINOR** (`1.0.0` → `1.1.0`): Neue Funktionen/Module, abwärtskompatible Erweiterungen.
 * **MAJOR** (`1.0.0` → `2.0.0`): Große strukturelle Änderungen (z. B. Datenmodell-Umbau, Architekturwechsel).
 Bei jeder Version zusätzlich die Versionsnummer im Titel von `docs/HANDBUCH.md` (Zeile 1) synchron halten.
+Außerdem bei jeder Versionserhöhung einen kurzen Stichpunkt ganz oben in `CHANGELOG.md` ergänzen (ein bis zwei
+Zeilen, kein Roman) - dafür sind keine Testläufe nötig.
