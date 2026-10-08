@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.37.0)
+# Handbuch – Feuerix (Version 1.38.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -342,8 +342,13 @@ Gegenbuchung) und legt das PDF automatisch in der Ablage ab.
 optional automatisch anlegen.
 
 **Etiketten mit QR-Code**: „Etikett drucken“ (einzeln) oder „Etiketten drucken (alle)“ auf der Liste erzeugt ein
-PDF mit Aufklebern (Inventarnummer + QR-Code je Gegenstand, mehrere pro A4-Seite). Der QR-Code verweist auf eine
-Scan-Adresse im System.
+PDF mit Aufklebern (Inventarnummer + QR-Code je Gegenstand). Der QR-Code verweist auf eine Scan-Adresse im
+System. Größe und Anordnung der Etiketten lassen sich unter *Verwaltung › Verein/Einstellungen* anpassen
+(„Etikettenbreite/-höhe“, „Etiketten je Zeile“/„Etikettenzeilen je Seite“) – standardmäßig ein mehrspaltiger
+A4-Bogen (3 × 6, 58 × 40 mm). Werden „Etiketten je Zeile“ **und** „Etikettenzeilen je Seite“ beide auf 1
+gesetzt, wird die PDF-Seite stattdessen exakt auf die eingestellte Etikettengröße zugeschnitten (ein Etikett
+= eine Seite) – damit lässt sich z. B. ein Etikettendrucker mit Endlosrolle wie ein Dymo LabelWriter 450
+direkt bedrucken (Standardadresse 89 × 28 mm).
 
 **Verleih starten**:
 - *Manuell* über „Verleih / Reservierung anlegen“ auf dem Gegenstand (voller Formular-Umfang, inkl. Kaution/

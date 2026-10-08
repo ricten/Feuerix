@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.db import models, transaction
 
 from .fields import VerschluesseltesTextField
@@ -64,6 +65,18 @@ class Verein(models.Model):
         help_text="Vollständiger Text nach § 5 TMG / § 18 MStV (verantwortliche Person, Anschrift, Kontakt, "
                   "Vertretungsberechtigte, ggf. USt-IdNr.). Wird ungeprüft auf der öffentlich erreichbaren "
                   "Impressum-Seite angezeigt – bitte gegen die eigene Satzung/das Vereinsregister prüfen.")
+    etikett_breite_mm = models.PositiveIntegerField(
+        "Etikettenbreite (mm)", default=58, validators=[MinValueValidator(10)],
+        help_text="Für Inventar-Etiketten (QR-Code). Standard passt auf gängige A4-Etikettenbögen. Für einen "
+                  "Etikettendrucker mit Endlosrolle (z. B. Dymo LabelWriter 450, Standardadresse 89 × 28 mm) "
+                  "hier die Rollenbreite eintragen und „Etiketten je Zeile“/„Etikettenzeilen je Seite“ unten "
+                  "jeweils auf 1 setzen – die PDF-Seite wird dann exakt auf diese Größe zugeschnitten statt auf A4.")
+    etikett_hoehe_mm = models.PositiveIntegerField("Etikettenhöhe (mm)", default=40,
+                                                   validators=[MinValueValidator(10)])
+    etikett_spalten = models.PositiveIntegerField("Etiketten je Zeile (Spalten)", default=3,
+                                                  validators=[MinValueValidator(1)])
+    etikett_zeilen = models.PositiveIntegerField("Etikettenzeilen je Seite", default=6,
+                                                 validators=[MinValueValidator(1)])
     aktiv = models.BooleanField("Aktiv", default=True)
 
     AUDIT = True

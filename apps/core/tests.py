@@ -114,7 +114,8 @@ class MandantenTests(TestCase):
         self.v1.save()
         self.assertTrue(self.v1.logo)
         daten = {"name": self.v1.name, "zahlungsziel_tage": 14, "uebungsleiter_freibetrag": "3300",
-                "ehrenamts_freibetrag": "960", "akzentfarbe": "#1F4E79", "bescheid_art": "freistellung"}
+                "ehrenamts_freibetrag": "960", "akzentfarbe": "#1F4E79", "bescheid_art": "freistellung",
+                "etikett_breite_mm": 58, "etikett_hoehe_mm": 40, "etikett_spalten": 3, "etikett_zeilen": 6}
         r = self.client.post(reverse("verein_einstellungen"), daten)
         self.assertEqual(r.status_code, 302)
         self.v1.refresh_from_db()
@@ -217,7 +218,8 @@ class OeffentlicheSeitenTests(TestCase):
         r = self.client.post(reverse("verein_einstellungen"), {
             "name": self.v.name, "impressum_text": "Neuer Impressumstext", "zahlungsziel_tage": 14,
             "uebungsleiter_freibetrag": "3300", "ehrenamts_freibetrag": "960", "akzentfarbe": "#1F4E79",
-            "bescheid_art": "freistellung"})
+            "bescheid_art": "freistellung", "etikett_breite_mm": 58, "etikett_hoehe_mm": 40,
+            "etikett_spalten": 3, "etikett_zeilen": 6})
         self.assertEqual(r.status_code, 302)
         self.v.refresh_from_db()
         self.assertEqual(self.v.impressum_text, "Neuer Impressumstext")

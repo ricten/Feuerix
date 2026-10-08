@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.38.0
+- Etikettengröße und -raster für den Inventar-Etikettendruck sind jetzt unter Vereinseinstellungen frei
+  konfigurierbar (Breite/Höhe, Spalten/Zeilen). Bei 1 Spalte × 1 Zeile wird die PDF-Seite exakt auf die
+  Etikettengröße zugeschnitten statt auf A4 - damit lässt sich z. B. ein Dymo LabelWriter 450 mit
+  Endlosrolle direkt bedrucken.
+
 ## 1.37.0
 - Familien-Detailseite zeigt jetzt direkt die Mitglieder der Familie und bietet ein Auswahlfenster, um
   bestehende aktive Mitglieder per Mehrfachauswahl zuzuordnen (zusaetzlich zum bisherigen Weg ueber die

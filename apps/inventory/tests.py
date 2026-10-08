@@ -77,6 +77,55 @@ class EtikettenTests(TestCase):
         pdf = etiketten_pdf([g1, g2], lambda nr: f"https://example.org/inventar/scan/{nr}/")
         self.assertTrue(pdf.startswith(b"%PDF"))
 
+    def test_ohne_eigene_einstellungen_bleibt_es_bei_a4(self):
+        from io import BytesIO
+
+        from pypdf import PdfReader
+        from reportlab.lib.pagesizes import A4
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        g = Gegenstand.objects.create(verein=v, bezeichnung="Beamer")
+        pdf = etiketten_pdf([g], lambda nr: f"https://example.org/scan/{nr}/", v)
+        box = PdfReader(BytesIO(pdf)).pages[0].mediabox
+        self.assertAlmostEqual(float(box.width), A4[0], delta=1)
+        self.assertAlmostEqual(float(box.height), A4[1], delta=1)
+
+    def test_1x1_schneidet_die_seite_exakt_auf_die_etikettengroesse_zu(self):
+        """Fuer Etikettendrucker mit Endlosrolle (z. B. Dymo LabelWriter 450): bei 1 Spalte x 1 Zeile entspricht
+        die PDF-Seite selbst der eingestellten Etikettengroesse statt eines A4-Bogens."""
+        from io import BytesIO
+
+        from pypdf import PdfReader
+        from reportlab.lib.units import mm
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test", etikett_breite_mm=89, etikett_hoehe_mm=28,
+                                  etikett_spalten=1, etikett_zeilen=1)
+        g = Gegenstand.objects.create(verein=v, bezeichnung="Feuerwehrschlauch")
+        pdf = etiketten_pdf([g], lambda nr: f"https://example.org/scan/{nr}/", v)
+        box = PdfReader(BytesIO(pdf)).pages[0].mediabox
+        self.assertAlmostEqual(float(box.width), 89 * mm, delta=1)
+        self.assertAlmostEqual(float(box.height), 28 * mm, delta=1)
+
+    def test_1x1_mit_mehreren_etiketten_erzeugt_eine_seite_je_etikett(self):
+        from io import BytesIO
+
+        from pypdf import PdfReader
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test", etikett_spalten=1, etikett_zeilen=1)
+        g1 = Gegenstand.objects.create(verein=v, bezeichnung="A")
+        g2 = Gegenstand.objects.create(verein=v, bezeichnung="B")
+        g3 = Gegenstand.objects.create(verein=v, bezeichnung="C")
+        pdf = etiketten_pdf([g1, g2, g3], lambda nr: f"https://example.org/scan/{nr}/", v)
+        self.assertEqual(len(PdfReader(BytesIO(pdf)).pages), 3)
+
+    def test_eigene_groesse_und_raster_fuer_a4_bogen(self):
+        from io import BytesIO
+
+        from pypdf import PdfReader
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test", etikett_breite_mm=70, etikett_hoehe_mm=36,
+                                  etikett_spalten=2, etikett_zeilen=4)
+        gegenstaende = [Gegenstand.objects.create(verein=v, bezeichnung=f"G{i}") for i in range(8)]
+        pdf = etiketten_pdf(gegenstaende, lambda nr: f"https://example.org/scan/{nr}/", v)
+        # 2 x 4 = 8 Etiketten passen auf eine A4-Seite
+        self.assertEqual(len(PdfReader(BytesIO(pdf)).pages), 1)
+
 
 class ScanTests(TestCase):
     def setUp(self):

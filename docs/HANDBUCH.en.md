@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.37.0)
+# Handbook – Feuerix (Version 1.38.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -338,8 +338,12 @@ signs of wear/defective/retired), a category and location, optionally a deposit/
 unknown categories/locations.
 
 **Labels with QR code:** "Print label" (single) or "Print labels (all)" on the list generates a PDF with
-stickers (inventory number + QR code per item, several per A4 page). The QR code points to a scanning address
-in the system.
+stickers (inventory number + QR code per item). The QR code points to a scanning address in the system. Label
+size and layout can be adjusted under *Administration › Club/Settings* ("label width/height", "labels per
+row"/"label rows per page") – by default a multi-column A4 sheet (3 × 6, 58 × 40 mm). If both "labels per
+row" and "label rows per page" are set to 1, the PDF page is instead cropped exactly to the configured label
+size (one label = one page) – which lets you print directly on a continuous-roll label printer such as a
+Dymo LabelWriter 450 (standard address label, 89 × 28 mm).
 
 **Starting a loan:**
 - *Manually* via "Create loan/reservation" on an item (the full form, including adjusting the deposit/

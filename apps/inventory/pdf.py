@@ -12,11 +12,12 @@ from reportlab.pdfgen import canvas
 from apps.core.pdf import brief_pdf
 from apps.core.util import geld
 
+# Vorgaben, falls kein Verein (bzw. keine eigenen Einstellungen) übergeben wird - entsprechen den bisherigen
+# fest einprogrammierten Werten (A4-Etikettenbogen, 3 Spalten x 6 Zeilen, 58 x 40 mm).
 ETIKETT_SPALTEN = 3
 ETIKETT_ZEILEN = 6
-ETIKETT_BREITE = 58 * mm
-ETIKETT_HOEHE = 40 * mm
-ETIKETT_QR_GROESSE = 24 * mm
+ETIKETT_BREITE_MM = 58
+ETIKETT_HOEHE_MM = 40
 
 
 def _qr_zeichnen(c, url, x, y, groesse):
@@ -29,33 +30,51 @@ def _qr_zeichnen(c, url, x, y, groesse):
     renderPDF.draw(d, c, x, y)
 
 
-def etiketten_pdf(gegenstaende, scan_url):
-    """Etikettenbogen (A4, mehrspaltig) mit QR-Code je Gegenstand - der QR-Code verweist auf `scan_url(inventarnummer)`,
-    darüber im System zum Scannen per Handy z. B. beim Verleih-Start. `gegenstaende` darf auch Duplikate enthalten
-    (mehrere Etiketten desselben Gegenstands)."""
+def etiketten_pdf(gegenstaende, scan_url, verein=None):
+    """Etiketten mit QR-Code je Gegenstand - der QR-Code verweist auf `scan_url(inventarnummer)`, darüber im
+    System zum Scannen per Handy z. B. beim Verleih-Start. `gegenstaende` darf auch Duplikate enthalten (mehrere
+    Etiketten desselben Gegenstands).
+
+    Größe und Anordnung kommen aus den Vereinseinstellungen (Verwaltung › Verein/Einstellungen): Standardmäßig
+    ein mehrspaltiger A4-Etikettenbogen (3 x 6, 58 x 40 mm). Bei „Etiketten je Zeile“ UND „Etikettenzeilen je
+    Seite“ jeweils 1 wird stattdessen die PDF-Seite selbst exakt auf die eingestellte Etikettengröße
+    zugeschnitten (ein Etikett = eine Seite) - so lässt sich z. B. ein Dymo LabelWriter 450 mit einer
+    Endlos-Etikettenrolle direkt bedrucken, ohne A4-Papierformat."""
+    spalten = getattr(verein, "etikett_spalten", ETIKETT_SPALTEN) or ETIKETT_SPALTEN
+    zeilen = getattr(verein, "etikett_zeilen", ETIKETT_ZEILEN) or ETIKETT_ZEILEN
+    breite = (getattr(verein, "etikett_breite_mm", ETIKETT_BREITE_MM) or ETIKETT_BREITE_MM) * mm
+    hoehe = (getattr(verein, "etikett_hoehe_mm", ETIKETT_HOEHE_MM) or ETIKETT_HOEHE_MM) * mm
+    einzelblatt = spalten == 1 and zeilen == 1
+    pagesize = (breite, hoehe) if einzelblatt else A4
+    # QR-Code und Textzeilen proportional zur eingestellten Etikettengröße statt fester 58x40mm-Annahme.
+    rand = min(breite, hoehe) * 0.06
+    text_hoehe = hoehe * 0.24
+    qr_groesse = max(5 * mm, min(breite - 2 * rand, hoehe - text_hoehe - rand))
+
     buf = BytesIO()
-    c = canvas.Canvas(buf, pagesize=A4)
-    rand_x = (A4[0] - ETIKETT_SPALTEN * ETIKETT_BREITE) / 2
-    rand_y = (A4[1] - ETIKETT_ZEILEN * ETIKETT_HOEHE) / 2
-    pro_seite = ETIKETT_SPALTEN * ETIKETT_ZEILEN
+    c = canvas.Canvas(buf, pagesize=pagesize)
+    rand_x = 0 if einzelblatt else (pagesize[0] - spalten * breite) / 2
+    rand_y = 0 if einzelblatt else (pagesize[1] - zeilen * hoehe) / 2
+    pro_seite = spalten * zeilen
     for i, g in enumerate(gegenstaende):
         pos = i % pro_seite
         if i and pos == 0:
             c.showPage()
-        spalte, zeile = pos % ETIKETT_SPALTEN, pos // ETIKETT_SPALTEN
-        x = rand_x + spalte * ETIKETT_BREITE
-        y = A4[1] - rand_y - (zeile + 1) * ETIKETT_HOEHE
-        c.saveState()
-        c.setDash(2, 2)
-        c.setStrokeColor(colors.lightgrey)
-        c.rect(x, y, ETIKETT_BREITE, ETIKETT_HOEHE)
-        c.restoreState()
-        _qr_zeichnen(c, scan_url(g.inventarnummer), x + (ETIKETT_BREITE - ETIKETT_QR_GROESSE) / 2,
-                    y + ETIKETT_HOEHE - ETIKETT_QR_GROESSE - 3 * mm, ETIKETT_QR_GROESSE)
+        spalte, zeile = pos % spalten, pos // spalten
+        x = rand_x + spalte * breite
+        y = pagesize[1] - rand_y - (zeile + 1) * hoehe
+        if not einzelblatt:
+            c.saveState()
+            c.setDash(2, 2)
+            c.setStrokeColor(colors.lightgrey)
+            c.rect(x, y, breite, hoehe)
+            c.restoreState()
+        _qr_zeichnen(c, scan_url(g.inventarnummer), x + (breite - qr_groesse) / 2,
+                    y + hoehe - qr_groesse - rand, qr_groesse)
         c.setFont("Helvetica-Bold", 11)
-        c.drawCentredString(x + ETIKETT_BREITE / 2, y + 6.5 * mm, g.inventarnummer)
+        c.drawCentredString(x + breite / 2, y + text_hoehe * 0.55, g.inventarnummer)
         c.setFont("Helvetica", 7)
-        c.drawCentredString(x + ETIKETT_BREITE / 2, y + 2 * mm, g.bezeichnung[:30])
+        c.drawCentredString(x + breite / 2, y + text_hoehe * 0.15, g.bezeichnung[:30])
     c.save()
     return buf.getvalue()
 

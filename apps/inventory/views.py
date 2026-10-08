@@ -469,7 +469,7 @@ def gegenstand_etikett(request, pk):
         anzahl = max(1, min(24, int(request.GET.get("anzahl", 1))))
     except ValueError:
         anzahl = 1
-    pdf = etiketten_pdf([g] * anzahl, _scan_url(request))
+    pdf = etiketten_pdf([g] * anzahl, _scan_url(request), request.verein)
     r = HttpResponse(pdf, content_type="application/pdf")
     r["Content-Disposition"] = f'inline; filename="etikett-{g.inventarnummer}.pdf"'
     return r
@@ -482,7 +482,7 @@ def gegenstand_etiketten(request):
     if not qs.exists():
         messages.info(request, "Kein Inventar vorhanden.")
         return redirect("gegenstand_list")
-    pdf = etiketten_pdf(qs, _scan_url(request))
+    pdf = etiketten_pdf(qs, _scan_url(request), request.verein)
     r = HttpResponse(pdf, content_type="application/pdf")
     r["Content-Disposition"] = 'inline; filename="inventar-etiketten.pdf"'
     return r
