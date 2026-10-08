@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.48.1
+- Reserviert der Verein selbst Inventar für eine Veranstaltung (kein Entleiher), werden Leihgebühr und Kaution
+  jetzt automatisch auf 0 gesetzt statt die am Gegenstand hinterlegten Werte zu übernehmen - der Verein muss
+  sich selbst keine Gebühr/Kaution berechnen.
+
 ## 1.48.0
 - Englische Übersetzung auf alle Modellfelder und Auswahllisten (Status, Kategorien, Zahlarten usw.) in
   sämtlichen 12 Modulen ausgeweitet - bisher blieben Spaltenüberschriften, Formularfeld-Bezeichnungen und

@@ -368,6 +368,28 @@ class SammelverleihTests(TestCase):
         self.assertEqual(len(positionen), 2)
         self.assertIn("Verein selbst", positionen[0].wer)
 
+    def test_vereinsreservierung_fuer_veranstaltung_setzt_leihgebuehr_und_kaution_auf_null(self):
+        """Reserviert der Verein Inventar für eine eigene Veranstaltung (kein Entleiher), ergibt eine
+        Leihgebühr/Kaution an sich selbst keinen Sinn - unabhängig davon, was am Gegenstand hinterlegt ist."""
+        self.g1.leihgebuehr = 15
+        self.g1.save(update_fields=["leihgebuehr"])
+        ver = Veranstaltung.objects.create(verein=self.v, titel="Sommerfest", beginn=timezone.now())
+        self.client.post(reverse("verleih_sammel_add"), self._formular(entleiher="", veranstaltung=ver.pk))
+        positionen = Verleih.objects.filter(verein=self.v, veranstaltung=ver)
+        self.assertEqual(positionen.count(), 2)
+        for p in positionen:
+            self.assertIsNone(p.kaution)
+            self.assertIsNone(p.leihgebuehr)
+
+    def test_normaler_verleih_bekommt_weiterhin_kaution_und_leihgebuehr_vom_gegenstand(self):
+        """Gibt es einen Entleiher (Mitglied/extern), gilt weiterhin der bisherige Automatismus."""
+        self.g1.leihgebuehr = 15
+        self.g1.save(update_fields=["leihgebuehr"])
+        self.client.post(reverse("verleih_sammel_add"), self._formular())
+        p = Verleih.objects.get(verein=self.v, gegenstand=self.g1)
+        self.assertEqual(p.kaution, 30)
+        self.assertEqual(p.leihgebuehr, 15)
+
     def test_sammelformular_wird_durch_veranstaltung_von_bis_aus_querystring_vorbelegt(self):
         ver = Veranstaltung.objects.create(verein=self.v, titel="Sommerfest", beginn=timezone.now())
         r = self.client.get(reverse("verleih_sammel_add") + f"?veranstaltung={ver.pk}&von=2026-07-01&bis=2026-07-03")

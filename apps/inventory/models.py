@@ -172,10 +172,14 @@ class Verleih(TenantModel):
 
     def save(self, *args, **kwargs):
         if self._state.adding and self.gegenstand_id:
-            if self.kaution is None:
-                self.kaution = self.gegenstand.kaution
-            if self.leihgebuehr is None:
-                self.leihgebuehr = self.gegenstand.leihgebuehr
+            # Reserviert der Verein selbst fuer eine Veranstaltung (kein Entleiher angegeben), ergibt eine
+            # Leihgebuehr/Kaution an sich selbst keinen Sinn - unabhaengig davon, was am Gegenstand hinterlegt ist.
+            ist_vereinsreservierung = self.veranstaltung_id and not self.entleiher_id and not self.entleiher_name
+            if not ist_vereinsreservierung:
+                if self.kaution is None:
+                    self.kaution = self.gegenstand.kaution
+                if self.leihgebuehr is None:
+                    self.leihgebuehr = self.gegenstand.leihgebuehr
         super().save(*args, **kwargs)
 
 

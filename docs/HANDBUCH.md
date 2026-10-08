@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.48.0)
+# Handbuch – Feuerix (Version 1.48.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -419,7 +419,9 @@ Mitgliederversammlungen mit zehn üblichen Punkten), Aufgaben, Schichtplan mit B
 (Mitglieder oder Gäste, mit Personenzahl), Budget (Plan/Ist je Position), reserviertes Inventar sowie erzeugte
 Schriftstücke/Serienbriefe und Ablage-Dokumente zur Veranstaltung. Direkt von hier aus: „Inventar reservieren“
 öffnet die Mehrfachauswahl (mehrere Gegenstände gleichzeitig ankreuzen, mit den Terminen der Veranstaltung
-vorausgefüllt) - ein Entleiher ist dabei nicht nötig, da hier der Verein selbst reserviert. „Einladung erstellen“/„Einladung an Mitglieder
+vorausgefüllt) - ein Entleiher ist dabei nicht nötig, da hier der Verein selbst reserviert; Leihgebühr und
+Kaution werden in diesem Fall automatisch auf 0 gesetzt, unabhängig davon, was am Gegenstand hinterlegt ist.
+„Einladung erstellen“/„Einladung an Mitglieder
 (Serienbrief)“/„Protokoll erstellen“ (aus der jeweiligen Standard-Vorlage), sowie bei bestehender
 OpenSlides-Anbindung „In OpenSlides anlegen“/„Tagesordnung übertragen“. Alle Termine lassen sich als Kalenderdatei
 (.ics) exportieren.
