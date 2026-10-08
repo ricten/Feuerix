@@ -195,6 +195,31 @@ class ZahlungSperreTests(TestCase):
         self.assertEqual(self.z.betrag, Decimal("60"))
 
 
+class RechnungNeuBerechnenAuditTests(TestCase):
+    """neu_berechnen() (ausgeloest bei jedem Anlegen/Aendern/Loeschen einer Rechnungsposition) muss im
+    Aenderungsprotokoll erscheinen - ein reines .update() wuerde an den Audit-Signalen vorbeigehen."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.r = Rechnung.objects.create(verein=self.v, typ="individuell", status="entwurf",
+                                         empfaenger_name="Max Muster", datum=date(2026, 3, 1))
+
+    def test_betragsaenderung_durch_position_erscheint_im_protokoll(self):
+        from apps.core.models import AuditLog
+        Rechnungsposition.objects.create(verein=self.v, rechnung=self.r, text="Ware", menge=1,
+                                         einzelpreis=Decimal("50.00"))
+        self.r.refresh_from_db()
+        self.assertEqual(self.r.betrag, Decimal("50.00"))
+        eintraege = AuditLog.objects.filter(verein=self.v, modell="Rechnung", objekt_id=str(self.r.pk),
+                                            aktion="geaendert")
+        self.assertTrue(any("Betrag brutto (€)" in e.aenderungen for e in eintraege))
+
+
 class NegativeWerteValidierungTests(TestCase):
     """Server-seitige Untergrenzen gegen manipulierte Formular-POSTs (z. B. per curl) - negative Beträge/
     Mengen dürfen über das normale Formular nicht eingetragen werden können."""

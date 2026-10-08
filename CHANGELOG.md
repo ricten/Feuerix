@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.50.4
+- Fix: Betragsänderungen einer Rechnung durch Hinzufügen/Ändern/Löschen einer Position erschienen nicht im
+  Änderungsprotokoll (reines SQL-UPDATE statt .save(), damit ohne Audit-Signale). Jetzt protokolliert.
+- Fix: Datei-Uploads (Mitglieder-/Bankimport, Fotos, Belege, ...) waren serverseitig nicht in der Größe
+  begrenzt - Caddy begrenzt Anfragen jetzt auf 50 MB (siehe deploy/Caddyfile, beim nächsten Deploy aktiv).
+
 ## 1.50.3
 - Fix: Kassenbericht-Excel-Export (Kassenbuch-Blatt) hatte - anders als der generische CSV/Excel-Export an
   anderer Stelle im Projekt - keinen Schutz gegen Formel-Injection in Buchungstext/Belegnummer. Ergänzt.

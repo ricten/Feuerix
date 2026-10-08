@@ -12,6 +12,12 @@
 {$VEREIN_DOMAIN} {
 	encode gzip
 	@@VEREIN_TLS@@
+	# Begrenzt die Größe von Datei-Uploads (Mitglieder-/Bankimport, Fotos, Belege, ...) - ohne das könnte
+	# ein angemeldeter Nutzer mit Upload-Recht über eine sehr große oder stark gepackte Datei Speicher/CPU
+	# des Servers erschöpfen.
+	request_body {
+		max_size 50MB
+	}
 	reverse_proxy 127.0.0.1:8000
 }
 

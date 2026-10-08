@@ -155,8 +155,10 @@ class Rechnung(TenantModel):
         self.nettobetrag = sum((p.nettobetrag for p in zeilen), Decimal("0.00"))
         self.steuerbetrag = sum((p.steuerbetrag for p in zeilen), Decimal("0.00"))
         self.betrag = self.nettobetrag + self.steuerbetrag
-        Rechnung.objects.filter(pk=self.pk).update(
-            nettobetrag=self.nettobetrag, steuerbetrag=self.steuerbetrag, betrag=self.betrag)
+        # .save() statt .update(), damit die Betragsänderung - anders als bei einem reinen SQL-UPDATE - auch
+        # im Änderungsprotokoll erscheint (das haengt an pre_save/post_save-Signalen, die .update() nicht
+        # auslöst).
+        self.save(update_fields=["nettobetrag", "steuerbetrag", "betrag"])
 
     @property
     def steuer_gruppen(self):
