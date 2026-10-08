@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.46.5)
+# Handbuch – Feuerix (Version 1.46.6)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente

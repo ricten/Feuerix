@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.46.6
+- Fix: Der Benutzername-Anzeige ("admin") neben den Menü-Icons fehlte die Bootstrap-Klasse `navbar-text` -
+  dadurch bekam sie weder die automatisch berechnete Kontrastfarbe noch den Schriftschatten der übrigen
+  Navigationselemente.
+
 ## 1.46.5
 - Die versuchsweise pro Karte wechselnde Farbe (Kartenkopf, Icon-Badges, Kennzahlen-Karten im Dashboard)
   wieder entfernt - Karten und Tabellen sehen jetzt wieder überall einheitlich in der Hauptfarbe aus statt

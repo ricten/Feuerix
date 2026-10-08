@@ -88,7 +88,7 @@
           </select>
         </form>
         {% endif %}
-        <span class="small"><i class="bi bi-person-circle me-1"></i>{{ user.get_username }}</span>
+        <span class="navbar-text small py-0"><i class="bi bi-person-circle me-1"></i>{{ user.get_username }}</span>
         <a class="btn btn-sm {% if web_akzentfarbe_2_textfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}" href="{% url 'password_change' %}"><i class="bi bi-key"></i> {% trans "Passwort" %}</a>
         <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-sm {% if web_akzentfarbe_2_textfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}"><i class="bi bi-box-arrow-right"></i> {% trans "Abmelden" %}</button></form>
       </div>
