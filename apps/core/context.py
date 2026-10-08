@@ -137,7 +137,10 @@ def _farbkontext(verein):
         "web_akzentfarbe_2": akzent1,
         "web_akzentfarbe_3": akzent2,
         "web_akzent_rgb": f"{r},{g},{b}",
+        # Kontrastfarbe fuer Text/Icons jeweils eigens je Hintergrund berechnet - das Menue-Band (Akzentfarbe 1)
+        # braucht nicht zwangslaeufig dieselbe Textfarbe wie das Logo-Band (Hauptfarbe) darueber.
         "web_akzenttextfarbe": lesbare_textfarbe(haupt),
+        "web_akzentfarbe_2_textfarbe": lesbare_textfarbe(akzent1),
         # Dunklere Variante der Haupt-/zweiten Akzentfarbe - fuer Icons/Text auf hell abgetoenten Hintergruenden
         # derselben Farbe (eine reine Aufhellung mit Weiss liesse sich sonst nicht zuverlaessig gegen sich
         # selbst lesbar halten, vor allem bei ohnehin hellen Farben wie Leuchtgelb).

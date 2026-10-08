@@ -304,6 +304,19 @@ class WeboberflaechenDesignTests(TestCase):
         r = self.client.get(reverse("login"))
         self.assertContains(r, "#EA580C")
 
+    def test_menueband_nutzt_eigene_kontrastfarbe_statt_die_des_logobands(self):
+        """Logo-Band (Hauptfarbe) und Menü-Band (Akzentfarbe 1) können unterschiedlich hell/dunkel sein - die
+        Textfarbe muss daher je Band einzeln berechnet werden, nicht pauschal nach der Hauptfarbe."""
+        User = get_user_model()
+        v = Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe_web="#1C1C1C",
+                                  akzentfarbe_web_2="#FFEE00")
+        admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=v, user=admin, rolle=Rolle.objects.get(verein=v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, 'navbar-top w-100 container-fluid d-flex align-items-center justify-content-between py-2 navbar-dark')
+        self.assertContains(r, 'navbar-menu navbar-light')
+
     def test_standard_akzentfarbe_ist_feuerwehrrot(self):
         """Ohne eigene Einstellung soll ein für Feuerwehr-Fördervereine passender Farbton verwendet werden,
         kein Standard-Blau."""

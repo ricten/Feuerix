@@ -3,6 +3,15 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.46.0
+- Fix: sichtbare Kante zwischen Logo- und Menü-Band der Navigationsleiste entfernt (Schatten sitzt jetzt am
+  gesamten Leisten-Block statt an beiden Bändern einzeln).
+- Die Text-/Icon-Kontrastfarbe im Menü-Band wird jetzt eigens anhand von Akzentfarbe 1 berechnet statt die
+  des Logo-Bands (Hauptfarbe) zu übernehmen - beide Bänder bleiben so unabhängig voneinander gut lesbar.
+- Tabellenköpfe nutzen jetzt denselben kompakten Label-Stil (klein, Großbuchstaben, dezent) wie die
+  Stammdaten-Sidebar auf Detailseiten, eingefärbt mit der jeweiligen Kartenfarbe - einheitlichere Typografie
+  statt unterschiedlich wirkender Überschriften je nach Stelle in der Oberfläche.
+
 ## 1.45.3
 - Werte in der Stammdaten-Sidebar (Detailseiten) wirkten neben den gut lesbaren, dezenten Labels zu generisch -
   jetzt kräftiger/dunkler statt normalem Fließtext, für mehr Kontrast zum Label darüber.
