@@ -64,12 +64,9 @@ body {
 .card {
   --card-akzent: var(--bs-primary);
   --card-akzent-dunkel: var(--bs-primary-dunkel);
-  --card-text: var(--bs-text-haupt);
 }
-.card:nth-of-type(3n+2) { --card-akzent: var(--bs-primary-2); --card-text: var(--bs-text-akzent1); }
-.card:nth-of-type(3n+3) {
-  --card-akzent: var(--bs-akzent2); --card-akzent-dunkel: var(--bs-akzent2-dunkel); --card-text: var(--bs-text-akzent2);
-}
+.card:nth-of-type(3n+2) { --card-akzent: var(--bs-primary-2); }
+.card:nth-of-type(3n+3) { --card-akzent: var(--bs-akzent2); --card-akzent-dunkel: var(--bs-akzent2-dunkel); }
 .card-header {
   border-radius: .9rem .9rem 0 0 !important;
   background: linear-gradient(135deg, color-mix(in srgb, var(--card-akzent) 16%, white),
@@ -150,18 +147,16 @@ a.text-reset .card:hover, .card.card-klickbar:hover {
 
 /* ---------------------------------------------------------------- Tabellen */
 table.tabelle td, table.tabelle th { vertical-align: middle; }
-/* Kraeftige, vollflaechige Kartenfarbe statt einer blassen Abtoenung - mit garantiert passender (serverseitig
-   berechneter) Text-/Iconfarbe, macht Tabellenkoepfe eindeutig als Spaltenueberschrift erkennbar, statt
-   zwischen "Kartenfarbe, aber blass" zu wirken. Gleiche Grossbuchstaben-Label-Optik wie die Sidebar. */
+/* Gleicher "Label"-Stil wie die Stammdaten-Sidebar (klein, Grossbuchstaben, dezent) statt normalem
+   Fliesstext in Zellenform - macht Tabellenkoepfe eindeutig als Spaltenueberschrift erkennbar. */
 .table-light, table.tabelle thead th {
-  background-color: var(--card-akzent, var(--bs-primary)) !important;
-  color: var(--card-text, #fff);
+  background-color: color-mix(in srgb, var(--card-akzent, var(--bs-primary)) 10%, white) !important;
   font-size: .72rem;
   text-transform: uppercase;
   letter-spacing: .04em;
   font-weight: 700;
+  color: var(--card-akzent-dunkel, var(--bs-primary-dunkel));
   border-bottom-width: 2px;
-  border-color: color-mix(in srgb, var(--card-akzent, var(--bs-primary)) 60%, black) !important;
 }
 .table-hover > tbody > tr:hover > * {
   background-color: color-mix(in srgb, var(--card-akzent, var(--bs-primary)) 6%, white);

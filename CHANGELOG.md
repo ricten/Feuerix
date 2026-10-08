@@ -3,11 +3,6 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
-## 1.46.2
-- Tabellenköpfe sind jetzt kräftig vollflächig in der jeweiligen Kartenfarbe eingefärbt (statt einer blassen
-  Abtönung mit teils schlecht wirkender dunkler Schrift) - mit automatisch berechneter, garantiert passender
-  Text-/Iconfarbe für jede der 3 Vorgabefarben.
-
 ## 1.46.1
 - Fix: Die Kontrastberechnung (welche Schrift-/Icon-Farbe zu einer gewählten Akzentfarbe passt) nutzte eine
   einfache RGB-Helligkeitsformel, die bei gesättigten Farben (v. a. Blau-/Rottönen) öfter die schlechter

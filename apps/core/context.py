@@ -145,7 +145,6 @@ def _farbkontext(verein):
         # braucht nicht zwangslaeufig dieselbe Textfarbe wie das Logo-Band (Hauptfarbe) darueber.
         "web_akzenttextfarbe": lesbare_textfarbe(haupt),
         "web_akzentfarbe_2_textfarbe": lesbare_textfarbe(akzent1),
-        "web_akzentfarbe_3_textfarbe": lesbare_textfarbe(akzent2),
         # Dunklere Variante der Haupt-/zweiten Akzentfarbe - fuer Icons/Text auf hell abgetoenten Hintergruenden
         # derselben Farbe (eine reine Aufhellung mit Weiss liesse sich sonst nicht zuverlaessig gegen sich
         # selbst lesbar halten, vor allem bei ohnehin hellen Farben wie Leuchtgelb).
