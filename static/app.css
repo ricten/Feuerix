@@ -13,7 +13,7 @@ body {
    Baender nebeneinander statt untereinander zwingen, deshalb hier wieder auf wrap zurueckgesetzt. */
 .navbar-split { flex-wrap: wrap; }
 .navbar-top {
-  background-color: var(--bs-primary);
+  background-image: linear-gradient(180deg, var(--bs-primary), var(--bs-primary-2));
   box-shadow: 0 3px 16px rgba(0, 0, 0, .22);
   position: relative; z-index: 1;
 }
@@ -49,19 +49,35 @@ body {
   box-shadow: 0 4px 18px rgba(20, 20, 40, .08), 0 1px 3px rgba(20, 20, 40, .05);
   transition: transform .15s ease, box-shadow .15s ease;
 }
+/* Karten wechseln sich reihum zwischen den 3 Vorgabefarben ab (Haupt-/Akzentfarbe 1/Akzentfarbe 2) statt
+   immer gleich auszusehen - ueber eine pro Karte gesetzte CSS-Variable, die Kartenkopf, Icon-Badge und die
+   Tabelle darin gemeinsam nutzen. Bewusst hell/dezent gehalten (siehe Prozentwerte unten). */
+.card {
+  --card-akzent: var(--bs-primary);
+  --card-akzent-dunkel: var(--bs-primary-dunkel);
+}
+.card:nth-of-type(3n+2) { --card-akzent: var(--bs-primary-2); }
+.card:nth-of-type(3n+3) { --card-akzent: var(--bs-akzent2); --card-akzent-dunkel: var(--bs-akzent2-dunkel); }
 .card-header {
   border-radius: .9rem .9rem 0 0 !important;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--bs-primary) 8%, white),
-                              color-mix(in srgb, var(--bs-primary-2) 5%, white));
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-akzent) 16%, white),
+                              color-mix(in srgb, var(--card-akzent) 5%, white));
 }
 .card-header .bi:first-child {
   display: inline-flex; align-items: center; justify-content: center;
   width: 1.8rem; height: 1.8rem; border-radius: 50%; font-size: .95rem; margin-right: .1rem;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--bs-primary) 18%, white),
-                              color-mix(in srgb, var(--bs-primary-2) 12%, white));
-  color: var(--bs-primary-dunkel) !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-akzent) 24%, white),
+                              color-mix(in srgb, var(--card-akzent) 12%, white));
+  color: var(--card-akzent-dunkel) !important;
 }
 .card-footer { border-radius: 0 0 .9rem .9rem !important; }
+/* Tabellen als letztes Element einer Karte (ohne Footer danach) sollen die untere Kartenrundung uebernehmen
+   statt mit eckigen Ecken ueber den abgerundeten Kartenrand hinauszuragen. overflow-x bleibt erhalten, damit
+   breite Tabellen weiterhin horizontal scrollbar sind. */
+.card > .table-responsive:last-child, .card > table:last-child {
+  border-radius: 0 0 calc(.9rem - 1px) calc(.9rem - 1px);
+  overflow-y: hidden;
+}
 a.text-reset .card:hover, .card.card-klickbar:hover {
   transform: translateY(-4px);
   box-shadow: 0 14px 30px color-mix(in srgb, var(--bs-primary) 16%, transparent), 0 3px 8px rgba(20, 20, 40, .08);
@@ -123,10 +139,10 @@ a.text-reset .card:hover, .card.card-klickbar:hover {
 /* ---------------------------------------------------------------- Tabellen */
 table.tabelle td, table.tabelle th { vertical-align: middle; }
 .table-light, table.tabelle thead th {
-  background-color: color-mix(in srgb, var(--bs-primary) 6%, white) !important;
+  background-color: color-mix(in srgb, var(--card-akzent, var(--bs-primary)) 7%, white) !important;
 }
 .table-hover > tbody > tr:hover > * {
-  background-color: color-mix(in srgb, var(--bs-primary) 5%, white);
+  background-color: color-mix(in srgb, var(--card-akzent, var(--bs-primary)) 6%, white);
 }
 
 /* ---------------------------------------------------------------- Überschriften */

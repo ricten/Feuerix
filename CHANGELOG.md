@@ -3,6 +3,15 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.45.2
+- Logo-Band der Navigationsleiste hat wieder den Farbverlauf (war nach dem Umbruch-Fix versehentlich auf eine
+  flache Farbe reduziert worden).
+- Kartenköpfe, ihre Icon-Badges und die Tabellenköpfe darin wechseln sich jetzt reihum zwischen den 3
+  Vorgabefarben (Haupt-/Akzentfarbe 1/Akzentfarbe 2) ab statt überall nahezu gleich auszusehen - bewusst hell
+  gehalten.
+- Fix: Tabellen am unteren Ende einer Karte (ohne Fußzeile danach) hatten eckige Ecken, die über die
+  abgerundete Karte hinausragten - übernehmen jetzt die Kartenrundung, horizontales Scrollen bleibt erhalten.
+
 ## 1.45.1
 - Fix: Das Menü-Band der zweigeteilten Navigationsleiste saß ab Desktop-Breite fälschlich neben statt unter dem
   Logo-Band (`navbar-expand-lg` erzwingt dort sonst `flex-wrap: nowrap` für die klassische einzeilige Navbar).
