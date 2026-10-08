@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.45.3
+- Werte in der Stammdaten-Sidebar (Detailseiten) wirkten neben den gut lesbaren, dezenten Labels zu generisch -
+  jetzt kräftiger/dunkler statt normalem Fließtext, für mehr Kontrast zum Label darüber.
+
 ## 1.45.2
 - Logo-Band der Navigationsleiste hat wieder den Farbverlauf (war nach dem Umbruch-Fix versehentlich auf eine
   flache Farbe reduziert worden).
