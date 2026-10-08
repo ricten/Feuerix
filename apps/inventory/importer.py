@@ -2,7 +2,7 @@
 from django.db import transaction
 
 from . import tabellen as t
-from .models import Gegenstand, Kategorie, Standort
+from .models import Gegenstand, Kategorie, Lagerort
 
 
 class ZeilenFehler(Exception):
@@ -55,7 +55,7 @@ def importieren(verein, dateiname, inhalt, testlauf=True, aktualisieren=True, ne
     if unbekannt:
         bericht["warnungen"].append("Nicht erkannte Spalten (werden ignoriert): " + ", ".join(unbekannt))
     kategorien = {k.name.lower(): k for k in Kategorie.objects.filter(verein=verein)}
-    standorte = {s.name.lower(): s for s in Standort.objects.filter(verein=verein)}
+    lagerorte = {s.name.lower(): s for s in Lagerort.objects.filter(verein=verein)}
 
     with transaction.atomic():
         for nr, zeile in enumerate(zeilen, start=2):  # Zeile 1 = Kopf
@@ -72,7 +72,7 @@ def importieren(verein, dateiname, inhalt, testlauf=True, aktualisieren=True, ne
                         g = Gegenstand(verein=verein)
                     # Felder setzen: leere Zellen überschreiben bestehende Werte NICHT
                     for feld, wert in d.items():
-                        if feld in ("kategorie", "standort", "inventarnummer"):
+                        if feld in ("kategorie", "lagerort", "inventarnummer"):
                             continue
                         if wert in (None, "") and not neu:
                             continue
@@ -88,15 +88,15 @@ def importieren(verein, dateiname, inhalt, testlauf=True, aktualisieren=True, ne
                             k = Kategorie.objects.create(verein=verein, name=d["kategorie"])
                             kategorien[k.name.lower()] = k
                         g.kategorie = k
-                    if d.get("standort"):
-                        s = standorte.get(d["standort"].lower())
+                    if d.get("lagerort"):
+                        s = lagerorte.get(d["lagerort"].lower())
                         if s is None:
                             if not neu_anlegen:
-                                raise ZeilenFehler(f"Standort „{d['standort']}“ existiert nicht (Option „unbekannte "
-                                                   "anlegen“ oder vorher unter Inventar-Standorte anlegen)")
-                            s = Standort.objects.create(verein=verein, name=d["standort"])
-                            standorte[s.name.lower()] = s
-                        g.standort = s
+                                raise ZeilenFehler(f"Lagerort „{d['lagerort']}“ existiert nicht (Option „unbekannte "
+                                                   "anlegen“ oder vorher unter Inventar-Lagerorte anlegen)")
+                            s = Lagerort.objects.create(verein=verein, name=d["lagerort"])
+                            lagerorte[s.name.lower()] = s
+                        g.lagerort = s
                     g.full_clean(exclude=["verein", "inventarnummer", "foto", "dokument"])
                     g.save()
                     bericht["neu" if neu else "aktualisiert"] += 1

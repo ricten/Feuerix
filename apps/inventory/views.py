@@ -362,11 +362,11 @@ def inventur_kontext(request, inv):
                                      ("beschaedigt", "⚠", "warning")):
                 akt.append(knopf(label, reverse("inventurposition_setzen", args=[p.pk]), post=True,
                                  stil=("" if p.ergebnis != erg else "") + stil, felder={"ergebnis": erg}))
-        zeilen.append({"url": None, "zellen": [p.inventarnummer, p.bezeichnung, p.standort_text,
+        zeilen.append({"url": None, "zellen": [p.inventarnummer, p.bezeichnung, p.lagerort_text,
                                                 p.get_ergebnis_display()], "aktionen": akt})
     return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": [
         {"titel": "Positionen" + (f" (Filter: {filt})" if filt else ""),
-         "spalten": ["Nr.", "Bezeichnung", "Standort (Soll)", "Ergebnis"], "zeilen": zeilen, "add_url": None,
+         "spalten": ["Nr.", "Bezeichnung", "Lagerort (Soll)", "Ergebnis"], "zeilen": zeilen, "add_url": None,
          "mit_aktionen": True}]}
 
 
@@ -433,7 +433,7 @@ def gegenstand_import_vorlage(request):
     ws = wb.active
     ws.title = "Inventar"
     ws.append([label for _, label in SPALTEN_ANZEIGE])
-    beispiel = {"bezeichnung": "Beamer Epson EB-X05", "kategorie": "Technik", "standort": "Lager",
+    beispiel = {"bezeichnung": "Beamer Epson EB-X05", "kategorie": "Technik", "lagerort": "Lager",
                "hersteller": "Epson", "modell": "EB-X05", "anschaffungsdatum": "01.03.2022",
                "anschaffungspreis": "450,00", "zustand": "gut", "verleihbar": "ja", "kaution": "50,00"}
     ws.append([beispiel.get(f, "") for f, _ in SPALTEN_ANZEIGE])
@@ -445,7 +445,7 @@ def gegenstand_import_vorlage(request):
               "Gegenstand wird aktualisiert.",
               "Leere Zellen überschreiben keine vorhandenen Daten.",
               "Datum: TT.MM.JJJJ. Zustand: neu, gut, gebrauchsspuren, defekt, ausgesondert. Verleihbar: ja/nein.",
-              "Kategorie/Standort müssen existieren (oder Option „unbekannte anlegen“ beim Import).",
+              "Kategorie/Lagerort müssen existieren (oder Option „unbekannte anlegen“ beim Import).",
               "Zeile 2 ist ein Beispiel und sollte gelöscht werden."]:
         hilfe.append([z])
     buf = BytesIO()
@@ -479,7 +479,7 @@ def gegenstand_etikett(request, pk):
 def gegenstand_etiketten(request):
     _pruefen(request, "inventar", "view")
     qs = (Gegenstand.objects.filter(verein=request.verein).exclude(zustand="ausgesondert")
-         .select_related("standort").order_by("inventarnummer"))
+         .select_related("lagerort").order_by("inventarnummer"))
     if not qs.exists():
         messages.info(request, "Kein Inventar vorhanden.")
         return redirect("gegenstand_list")

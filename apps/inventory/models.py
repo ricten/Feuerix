@@ -21,13 +21,13 @@ class Kategorie(TenantModel):
         return self.name
 
 
-class Standort(TenantModel):
+class Lagerort(TenantModel):
     name = models.CharField("Name", max_length=100)
     beschreibung = models.CharField("Beschreibung", max_length=200, blank=True)
 
     class Meta:
-        verbose_name = "Standort"
-        verbose_name_plural = "Inventar-Standorte"
+        verbose_name = "Lagerort"
+        verbose_name_plural = "Inventar-Lagerorte"
         unique_together = [("verein", "name")]
         ordering = ["name"]
 
@@ -49,7 +49,7 @@ class Gegenstand(TenantModel):
     anschaffungspreis = models.DecimalField("Anschaffungspreis (€)", max_digits=10, decimal_places=2, null=True,
                                             blank=True)
     aktueller_wert = models.DecimalField("Aktueller Wert (€)", max_digits=10, decimal_places=2, null=True, blank=True)
-    standort = models.ForeignKey(Standort, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Standort")
+    lagerort = models.ForeignKey(Lagerort, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Lagerort")
     verantwortlicher = models.ForeignKey("members.Mitglied", on_delete=models.SET_NULL, null=True, blank=True,
                                          related_name="+", verbose_name="Verantwortlicher")
     zustand = models.CharField("Zustand", max_length=15, choices=ZUSTAND, default="gut")
@@ -193,7 +193,7 @@ class Inventur(TenantModel):
             Inventurposition.objects.bulk_create([
                 Inventurposition(verein_id=self.verein_id, inventur=self, gegenstand=g,
                                  inventarnummer=g.inventarnummer, bezeichnung=g.bezeichnung,
-                                 standort_text=str(g.standort) if g.standort_id else "")
+                                 lagerort_text=str(g.lagerort) if g.lagerort_id else "")
                 for g in Gegenstand.objects.filter(verein_id=self.verein_id).exclude(zustand="ausgesondert")])
 
     def zaehlung(self):
@@ -210,7 +210,7 @@ class Inventurposition(TenantModel):
     gegenstand = models.ForeignKey(Gegenstand, on_delete=models.PROTECT, related_name="+", verbose_name="Gegenstand")
     inventarnummer = models.CharField("Inventarnummer", max_length=20)
     bezeichnung = models.CharField("Bezeichnung", max_length=200)
-    standort_text = models.CharField("Standort (Soll)", max_length=100, blank=True)
+    lagerort_text = models.CharField("Lagerort (Soll)", max_length=100, blank=True)
     ergebnis = models.CharField("Ergebnis", max_length=15, choices=ERGEBNIS, default="offen")
     notiz = models.CharField("Notiz", max_length=200, blank=True)
 

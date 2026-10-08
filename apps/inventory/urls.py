@@ -4,7 +4,7 @@ from apps.core.crud import crud, knopf
 
 from . import views
 from .forms import VerleihForm
-from .models import Gegenstand, Inventur, Kategorie, Standort, Verleih
+from .models import Gegenstand, Inventur, Kategorie, Lagerort, Verleih
 
 urlpatterns = [
     path("verleih/<int:pk>/ausgeben/", views.verleih_ausgeben, name="verleih_ausgeben"),
@@ -56,12 +56,12 @@ def verleih_listen_aktionen(request):
 
 
 urlpatterns += crud("inventar", Gegenstand, "inventar", list_display=("inventarnummer", "bezeichnung", "kategorie",
-                    "standort", "zustand", "verleihbar", "aktueller_wert"), suche=("inventarnummer", "bezeichnung",
-                    "seriennummer", "hersteller", "modell"), filter=("kategorie", "standort", "zustand", "verleihbar"),
-                    select_related=("kategorie", "standort"), kontext=views.gegenstand_kontext,
+                    "lagerort", "zustand", "verleihbar", "aktueller_wert"), suche=("inventarnummer", "bezeichnung",
+                    "seriennummer", "hersteller", "modell"), filter=("kategorie", "lagerort", "zustand", "verleihbar"),
+                    select_related=("kategorie", "lagerort"), kontext=views.gegenstand_kontext,
                     listen_aktionen=gegenstand_listen_aktionen)
 urlpatterns += crud("inventar-kategorien", Kategorie, "inventar", list_display=("name",))
-urlpatterns += crud("inventar-standorte", Standort, "inventar", list_display=("name", "beschreibung"))
+urlpatterns += crud("inventar-lagerorte", Lagerort, "inventar", list_display=("name", "beschreibung"))
 urlpatterns += crud("verleih", Verleih, "verleih", form=VerleihForm, list_display=("gegenstand", ("wer", "Entleiher"), "von", "bis",
                     "status", "veranstaltung"), select_related=("gegenstand", "entleiher", "veranstaltung"),
                     filter=("status", "gegenstand", "entleiher", "veranstaltung"), kontext=views.verleih_kontext,

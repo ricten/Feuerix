@@ -65,7 +65,7 @@ NAV = [
         (_("Ehrungsarten"), "ehrungsart_list", "ehrungen"),
         (_("Jubiläumsregeln"), "jubilaeumsregel_list", "ehrungen"),
         (_("Inventar-Kategorien"), "kategorie_list", "inventar"),
-        (_("Inventar-Standorte"), "standort_list", "inventar"),
+        (_("Inventar-Lagerorte"), "lagerort_list", "inventar"),
         (_("Mitglieder-Import"), "mitglieder_import", "mitglieder"),
         (_("Inventar-Import"), "gegenstand_import", "inventar"),
     ]),

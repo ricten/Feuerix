@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.39.0
+- "Standort" im Inventar in "Lagerort" umbenannt (Modell, Feld, Navigation, Import-Spalte, Etikettendruck,
+  Beispieldaten, Handbuch) - per Migration (RenameModel/RenameField), bestehende Daten/Zuordnungen bleiben
+  erhalten. Der Inventar-Import erkennt weiterhin auch die alte Spaltenüberschrift „Standort“.
+
 ## 1.38.1
 - Fix: bei schmalen, hohen Etiketten blieb eine grosse ungenutzte Luecke zwischen QR-Code und Text (Textblock
   wurde prozentual zur Etikettenhoehe statt absolut berechnet). QR-Code + Text werden jetzt als Einheit

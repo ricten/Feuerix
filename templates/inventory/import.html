@@ -5,13 +5,13 @@
 <div class="row g-3">
 <div class="col-xl-5">
   <div class="card shadow-sm"><div class="card-body">
-    <p>{% blocktrans %}Excel-Datei (<code>.xlsx</code>) oder CSV. Die erste Zeile enthält die Spaltenüberschriften (Pflicht: <strong>Bezeichnung</strong>). Übliche Überschriften wie „Inventarnr.“, „Standort“, „Anschaffungspreis“ werden erkannt.{% endblocktrans %}
+    <p>{% blocktrans %}Excel-Datei (<code>.xlsx</code>) oder CSV. Die erste Zeile enthält die Spaltenüberschriften (Pflicht: <strong>Bezeichnung</strong>). Übliche Überschriften wie „Inventarnr.“, „Lagerort“, „Anschaffungspreis“ werden erkannt.{% endblocktrans %}
     <a href="{% url 'gegenstand_import_vorlage' %}">{% trans "Vorlage herunterladen" %}</a></p>
     <form method="post" enctype="multipart/form-data">{% csrf_token %}
       <input type="file" name="datei" accept=".xlsx,.xlsm,.csv,.txt" class="form-control mb-3" required>
       <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="testlauf" id="t" {% if not post or post.testlauf %}checked{% endif %}><label class="form-check-label" for="t">{% blocktrans %}<strong>Nur Testlauf</strong> (es wird nichts gespeichert – erst prüfen, dann ohne Haken importieren){% endblocktrans %}</label></div>
       <div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="aktualisieren" id="a" {% if not post or post.aktualisieren %}checked{% endif %}><label class="form-check-label" for="a">{% trans "Bestehende Gegenstände aktualisieren (Abgleich über Inventarnummer)" %}</label></div>
-      <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="neu_anlegen" id="n" {% if post.neu_anlegen %}checked{% endif %}><label class="form-check-label" for="n">{% trans "Unbekannte Kategorien und Standorte automatisch anlegen" %}</label></div>
+      <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="neu_anlegen" id="n" {% if post.neu_anlegen %}checked{% endif %}><label class="form-check-label" for="n">{% trans "Unbekannte Kategorien und Lagerorte automatisch anlegen" %}</label></div>
       <button class="btn btn-primary"><i class="bi bi-play-fill"></i> {% trans "Starten" %}</button>
     </form>
   </div></div>

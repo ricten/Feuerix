@@ -127,20 +127,20 @@ class EtikettenTests(TestCase):
         # 2 x 4 = 8 Etiketten passen auf eine A4-Seite
         self.assertEqual(len(PdfReader(BytesIO(pdf)).pages), 1)
 
-    def test_standort_wird_aufgedruckt_wenn_vorhanden(self):
+    def test_lagerort_wird_aufgedruckt_wenn_vorhanden(self):
         from io import BytesIO
 
         from pypdf import PdfReader
 
-        from apps.inventory.models import Standort
+        from apps.inventory.models import Lagerort
         v = Verein.objects.create(name="Test e.V.", kuerzel="test")
-        ort = Standort.objects.create(verein=v, name="Gerätehaus Dachboden")
-        g = Gegenstand.objects.create(verein=v, bezeichnung="Beamer", standort=ort)
+        ort = Lagerort.objects.create(verein=v, name="Gerätehaus Dachboden")
+        g = Gegenstand.objects.create(verein=v, bezeichnung="Beamer", lagerort=ort)
         pdf = etiketten_pdf([g], lambda nr: f"https://example.org/scan/{nr}/", v)
         text = PdfReader(BytesIO(pdf)).pages[0].extract_text()
         self.assertIn("Gerätehaus Dachboden", text)
 
-    def test_ohne_standort_kein_fehler_und_keine_leere_zeile_im_text(self):
+    def test_ohne_lagerort_kein_fehler_und_keine_leere_zeile_im_text(self):
         v = Verein.objects.create(name="Test e.V.", kuerzel="test")
         g = Gegenstand.objects.create(verein=v, bezeichnung="Beamer")
         pdf = etiketten_pdf([g], lambda nr: f"https://example.org/scan/{nr}/", v)

@@ -6,7 +6,7 @@ SYNONYME = {
     "inventarnummer": ["inventarnummer", "inventarnr", "invnr", "nummer", "nr"],
     "bezeichnung": ["bezeichnung", "name", "gegenstand", "artikel"],
     "kategorie": ["kategorie", "art"],
-    "standort": ["standort", "lagerort"],
+    "lagerort": ["lagerort", "standort"],
     "hersteller": ["hersteller", "marke"],
     "modell": ["modell", "typ"],
     "seriennummer": ["seriennummer", "serialnummer", "serial", "sn"],
@@ -22,7 +22,7 @@ SYNONYME = {
 }
 SPALTEN_ANZEIGE = [  # Reihenfolge und Überschriften der Vorlage / des Exports
     ("inventarnummer", "Inventarnummer"), ("bezeichnung", "Bezeichnung"), ("kategorie", "Kategorie"),
-    ("standort", "Standort"), ("hersteller", "Hersteller"), ("modell", "Modell"), ("seriennummer", "Seriennummer"),
+    ("lagerort", "Lagerort"), ("hersteller", "Hersteller"), ("modell", "Modell"), ("seriennummer", "Seriennummer"),
     ("anschaffungsdatum", "Anschaffungsdatum"), ("anschaffungspreis", "Anschaffungspreis"),
     ("aktueller_wert", "Aktueller Wert"), ("zustand", "Zustand"), ("garantie_bis", "Garantie bis"),
     ("verleihbar", "Verleihbar"), ("leihgebuehr", "Leihgebühr"), ("kaution", "Kaution"), ("notizen", "Notizen"),

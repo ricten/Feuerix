@@ -85,7 +85,7 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 | Zahlungen/Bank | Zahlungen je Rechnung inkl. Rücklastschrift, Kontoauszug-Import in **CSV, MT940 und CAMT.053** (Format wird automatisch erkannt) mit Dublettenerkennung, automatische Zuordnung (Rechnungsnr. → Mitgliedsnr. → IBAN), Liste „manuelle Zuordnung erforderlich“; **SEPA-Sammellastschrift-Export** (pain.008/CORE) für offene Rechnungen mit SEPA-Mandat, automatische Erst-/Folgelastschrift-Erkennung; **FinTS-Abruf** direkt aus der Weboberfläche inkl. TAN-Abfrage (gegen eine echte Bank getestet, siehe unten) als Alternative zum manuellen Kontoauszug-Import |
 | Kassenbuch | Konten (Bank/Bar), Buchungskategorien mit steuerlicher Sphäre, Buchungen mit Belegnummer und Belegupload, Übernahme aus Zahlungen/Spenden/Aufwandsentschädigungen/Veranstaltungen (idempotent), **E-Rechnung importieren** (XRechnung/ZUGFeRD einlesen und als vorausgefüllte Ausgabe mit Beleg ablegen), **Beleg in Ablage übernehmen** (zusätzlich im allgemeinen Dokumentenarchiv einordnen) |
 | Kassenbericht | Zeitraumbericht mit Kontenübersicht, Einnahmen/Ausgaben je Kategorie und Sphäre, Vorjahresvergleich, Soll/Ist-Abgleich, Prüfungsbemerkung, Unterschriftszeilen, Kassenbuch-Anlage; PDF + Excel; Abschluss sperrt den Zeitraum und legt das PDF in der Ablage ab |
-| Inventar | Inventarnummern `INV-000001`, Kategorien, Standorte, Zustand, Garantie, Fotos/Dokumente, **Import** aus Excel/CSV (wie Mitglieder), Etikettendruck mit **QR-Code** je Gegenstand |
+| Inventar | Inventarnummern `INV-000001`, Kategorien, Lagerorte, Zustand, Garantie, Fotos/Dokumente, **Import** aus Excel/CSV (wie Mitglieder), Etikettendruck mit **QR-Code** je Gegenstand |
 | Verleih | Reservierung → Ausgabe → Rückgabe, Konfliktprüfung (Überschneidungen, defekt, überfällig), Kaution/Gebühr, Zustand bei Ausgabe/Rückgabe, Leihschein-PDF, Bezug zu Veranstaltungen; **Verleih-Warenkorb** (QR-Etiketten mit dem Handy scannen) und Sammelverleih für mehrere Gegenstände als ein **Vorgang** (gemeinsame Ausgabe/Rückgabe/Rechnung/Leihschein); bei Rückgabe wählbar, ob eine Kaution zurückgezahlt oder einbehalten (→ Rechnung) wird |
 | Inventur | Momentaufnahme des Bestands, Positionen abhaken (gefunden / nicht gefunden / beschädigt), Abschluss, Historie bleibt erhalten |
 | Spenden | Spenden (Geld/Sach/Aufwandsverzicht/Beitrag), Einzel- und Sammelbestätigungen, Ausstellen mit Nummernkreis `ZB-JJJJ-000001`, Storno, PDF, Prüfung der Vereinsdaten |
@@ -170,7 +170,7 @@ alle CPU-Kerne und beschleunigt deutlich). GitHub-Ablage und CI: [docs/GITHUB.md
 **Testdaten:** `python manage.py beispieldaten --verein <kuerzel> [--anzahl 40] [--ohne-inventar]` legt für einen
 bestehenden Verein fiktive Mitglieder sowie einen Beitragsjahr-Rechnungslauf mit realistischer Zahlungsverteilung an
 (vollständig bezahlt / teilbezahlt mit Mahnung / offen und überfällig) und ein Beispiel-Inventar (Feuerwehrausrüstung
-und Veranstaltungstechnik mit Kategorien/Standorten) – nur für Test-/Demoinstallationen, nicht für den
+und Veranstaltungstechnik mit Kategorien/Lagerorten) – nur für Test-/Demoinstallationen, nicht für den
 Produktivbetrieb gedacht.
 
 ## Noch nicht enthalten

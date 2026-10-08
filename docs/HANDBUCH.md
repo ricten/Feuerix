@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.38.1)
+# Handbuch – Feuerix (Version 1.39.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -335,10 +335,10 @@ Gegenbuchung) und legt das PDF automatisch in der Ablage ab.
 ## 6. Inventar und Verleih
 
 **Gegenstände** (*Inventar*) bekommen automatisch eine Inventarnummer (`INV-000001`), einen Zustand
-(neu/gut/gebrauchsspuren/defekt/ausgesondert), Kategorie und Standort, optional Kaution/Leihgebühr und ein Häkchen
+(neu/gut/gebrauchsspuren/defekt/ausgesondert), Kategorie und Lagerort, optional Kaution/Leihgebühr und ein Häkchen
 „Verleihbar“.
 
-**Import**: wie beim Mitglieder-Import – Testlauf, Abgleich über Inventarnummer, unbekannte Kategorien/Standorte
+**Import**: wie beim Mitglieder-Import – Testlauf, Abgleich über Inventarnummer, unbekannte Kategorien/Lagerorte
 optional automatisch anlegen.
 
 **Etiketten mit QR-Code**: „Etikett drucken“ (einzeln) oder „Etiketten drucken (alle)“ auf der Liste erzeugt ein
@@ -349,7 +349,7 @@ A4-Bogen (3 × 6, 58 × 40 mm). Werden „Etiketten je Zeile“ **und** „Etike
 gesetzt, wird die PDF-Seite stattdessen exakt auf die eingestellte Etikettengröße zugeschnitten (ein Etikett
 = eine Seite) – damit lässt sich z. B. ein Etikettendrucker mit Endlosrolle wie ein Dymo LabelWriter 450
 direkt bedrucken (Standardadresse 89 × 28 mm). Neben Inventarnummer und Bezeichnung wird – sofern gepflegt –
-auch der Standort mit aufgedruckt. Ist ein Etikett deutlich höher als breit (z. B. eine schmale Rolle
+auch der Lagerort mit aufgedruckt. Ist ein Etikett deutlich höher als breit (z. B. eine schmale Rolle
 hochkant), wird der Inhalt automatisch um 90° gedreht, damit der QR-Code die lange statt der kurzen Seite
 ausnutzt.
 

@@ -39,7 +39,7 @@ def _etikett_layout(breite, hoehe):
     und Textblock werden als eine Einheit senkrecht im Etikett zentriert (statt QR oben/Text unten fest
     anzupinnen) - sonst bleibt bei hohen Etiketten eine ungenutzte Lücke in der Mitte stehen."""
     rand = min(3 * mm, min(breite, hoehe) * 0.08)
-    text_block = min(12 * mm, hoehe * 0.35)   # Platz fuer drei Zeilen: Inventarnummer, Bezeichnung, Standort
+    text_block = min(12 * mm, hoehe * 0.35)   # Platz fuer drei Zeilen: Inventarnummer, Bezeichnung, Lagerort
     qr_groesse = max(5 * mm, min(breite - 2 * rand, hoehe - text_block - 2 * rand))
     inhalt_hoehe = qr_groesse + rand + text_block
     unten_frei = (hoehe - inhalt_hoehe) / 2
@@ -103,9 +103,9 @@ def etiketten_pdf(gegenstaende, scan_url, verein=None):
         c.drawCentredString(zeichenbreite / 2, unten_frei + text_block * 0.80, g.inventarnummer)
         c.setFont("Helvetica", 7)
         c.drawCentredString(zeichenbreite / 2, unten_frei + text_block * 0.46, g.bezeichnung[:30])
-        if g.standort_id:
+        if g.lagerort_id:
             c.setFont("Helvetica-Oblique", 6)
-            c.drawCentredString(zeichenbreite / 2, unten_frei + text_block * 0.14, str(g.standort)[:30])
+            c.drawCentredString(zeichenbreite / 2, unten_frei + text_block * 0.14, str(g.lagerort)[:30])
         c.restoreState()
     c.save()
     return buf.getvalue()

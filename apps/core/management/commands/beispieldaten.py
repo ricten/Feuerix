@@ -12,7 +12,7 @@ from django.core.management.base import BaseCommand, CommandError
 from apps.core.models import Verein
 from apps.finance import services as finance_services
 from apps.finance.models import Beitragsjahr, Rechnung, Zahlung
-from apps.inventory.models import Gegenstand, Kategorie, Standort
+from apps.inventory.models import Gegenstand, Kategorie, Lagerort
 from apps.members.models import Abteilung, Mitglied, Mitgliedsart
 
 VORNAMEN_M = ["Michael", "Thomas", "Andreas", "Stefan", "Christian", "Markus", "Daniel", "Alexander", "Florian",
@@ -33,7 +33,7 @@ ORTE = [("Musterstadt", "12345"), ("Musterstadt", "12345"), ("Musterstadt", "123
         ("Musterstadt-Nord", "12346"), ("Musterdorf", "12399")]
 ABTEILUNGEN = ["Löschzug 1", "Löschzug 2", "Jugendfeuerwehr", "Kommando", "Alters- und Ehrenabteilung", "Musikzug"]
 
-# (Bezeichnung, Kategorie, Standort, Hersteller, Modell, Zustand, Alter in Jahren, Anschaffungspreis, verleihbar,
+# (Bezeichnung, Kategorie, Lagerort, Hersteller, Modell, Zustand, Alter in Jahren, Anschaffungspreis, verleihbar,
 #  Kaution, Leihgebühr) - Einsatzausrüstung ist bewusst nicht verleihbar, Veranstaltungsausstattung schon.
 GEGENSTAENDE = [
     ("Feuerwehrhelm Rosenbauer HEROS", "Persönliche Schutzausrüstung", "Gerätehaus", "Rosenbauer", "HEROS-titan",
@@ -166,15 +166,15 @@ class Command(BaseCommand):
     def _gegenstaende(self, verein, heute):
         kategorien = {name: Kategorie.objects.get_or_create(verein=verein, name=name)[0]
                      for name in {g[1] for g in GEGENSTAENDE}}
-        standorte = {name: Standort.objects.get_or_create(verein=verein, name=name)[0]
+        lagerorte = {name: Lagerort.objects.get_or_create(verein=verein, name=name)[0]
                     for name in {g[2] for g in GEGENSTAENDE}}
-        for (bezeichnung, kategorie, standort, hersteller, modell, zustand, alter, preis, verleihbar, kaution,
+        for (bezeichnung, kategorie, lagerort, hersteller, modell, zustand, alter, preis, verleihbar, kaution,
              leihgebuehr) in GEGENSTAENDE:
             anschaffungsdatum = (_zufallsdatum(heute.year - alter, heute.year - alter) if alter
                                 else heute - timedelta(days=random.randint(1, 60)))
             aktueller_wert = (Decimal(str(preis)) * Decimal(str(ZUSTAND_WERTFAKTOR[zustand]))).quantize(Decimal("0.01"))
             Gegenstand.objects.create(
-                verein=verein, bezeichnung=bezeichnung, kategorie=kategorien[kategorie], standort=standorte[standort],
+                verein=verein, bezeichnung=bezeichnung, kategorie=kategorien[kategorie], lagerort=lagerorte[lagerort],
                 hersteller=hersteller, modell=modell, zustand=zustand, anschaffungsdatum=anschaffungsdatum,
                 anschaffungspreis=Decimal(str(preis)), aktueller_wert=aktueller_wert, verleihbar=verleihbar,
                 kaution=Decimal(str(kaution)), leihgebuehr=Decimal(str(leihgebuehr)))
