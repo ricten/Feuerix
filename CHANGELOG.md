@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.44.2
+- "Feuerix"-Schriftzug (Produktname-Badge) aus der Navigationsleiste entfernt - dort steht jetzt nur noch
+  Logo und Vereinsname. Logo in der Navigationsleiste weiter vergrößert (44px → 56px).
+
 ## 1.44.1
 - Nachbesserungen am Weboberflächen-Design nach Feedback: Farbverlauf in Buttons wieder entfernt (wirkte dort
   unruhig, die Navigationsleiste behält ihren Verlauf), dafür spürbarer Tiefeneffekt für alle Buttons

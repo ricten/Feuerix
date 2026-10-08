@@ -57,8 +57,7 @@
 <nav class="navbar navbar-expand-lg {% if web_akzenttextfarbe == '#000' %}navbar-light{% else %}navbar-dark{% endif %} mb-3"
      style="background-color: {{ web_akzentfarbe|default:'#AF2B1E' }};">
   <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'nach_login' %}{% else %}{% url 'dashboard' %}{% endif %}">{% if verein.logo %}<img src="{% url 'verein_logo' %}" alt="" style="height:44px;background:#fff;border-radius:6px;padding:3px;box-shadow:0 2px 6px rgba(0,0,0,.25)">{% endif %}{{ verein.name|default:product_name|default:"Feuerix" }}</a>
-    {% if verein and product_name %}<span class="navbar-text small d-none d-md-inline ms-2 px-2 py-1 rounded-pill fw-semibold" style="background-color: var(--bs-akzent2); color: var(--bs-akzent2-dunkel);">{{ product_name }}</span>{% endif %}
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'nach_login' %}{% else %}{% url 'dashboard' %}{% endif %}">{% if verein.logo %}<img src="{% url 'verein_logo' %}" alt="" style="height:56px;background:#fff;border-radius:6px;padding:3px;box-shadow:0 2px 6px rgba(0,0,0,.25)">{% endif %}{{ verein.name|default:product_name|default:"Feuerix" }}</a>
     <div class="ms-auto ms-lg-0 order-lg-2">{% include "core/_sprachauswahl.html" %}</div>
     {% if user.is_authenticated %}
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
