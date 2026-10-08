@@ -6,9 +6,11 @@ from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from reportlab.lib.units import mm
 
 from apps.core.models import Rolle, Verein, Zugang
+from apps.events.models import Veranstaltung
 from apps.finance.models import Rechnung
 from apps.inventory import importer
 from apps.inventory.models import Gegenstand, Verleih
@@ -355,6 +357,22 @@ class SammelverleihTests(TestCase):
         r = self.client.get(reverse("verleih_vorgang_leihschein", args=[vorgang]))
         self.assertEqual(r.status_code, 200)
         self.assertTrue(r.content.startswith(b"%PDF"))
+
+    def test_sammelverleih_fuer_veranstaltung_ohne_entleiher_ist_gueltig(self):
+        """Reserviert der Verein selbst Inventar für eine Veranstaltung, braucht es keinen Entleiher."""
+        ver = Veranstaltung.objects.create(verein=self.v, titel="Sommerfest", beginn=timezone.now())
+        r = self.client.post(reverse("verleih_sammel_add"),
+                             self._formular(entleiher="", veranstaltung=ver.pk))
+        self.assertEqual(r.status_code, 302)
+        positionen = list(Verleih.objects.filter(verein=self.v, veranstaltung=ver))
+        self.assertEqual(len(positionen), 2)
+        self.assertIn("Verein selbst", positionen[0].wer)
+
+    def test_sammelformular_wird_durch_veranstaltung_von_bis_aus_querystring_vorbelegt(self):
+        ver = Veranstaltung.objects.create(verein=self.v, titel="Sommerfest", beginn=timezone.now())
+        r = self.client.get(reverse("verleih_sammel_add") + f"?veranstaltung={ver.pk}&von=2026-07-01&bis=2026-07-03")
+        self.assertEqual(r.context["form"].initial["veranstaltung"], str(ver.pk))
+        self.assertEqual(r.context["form"].initial["von"], "2026-07-01")
 
     def test_vorgang_fremder_verein_ist_404(self):
         anderer = Verein.objects.create(name="Anderer e.V.", kuerzel="anderer")

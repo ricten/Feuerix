@@ -73,3 +73,21 @@ class WahlergebnisCrudTests(TestCase):
         w = Wahlergebnis.objects.create(verein=self.v, veranstaltung=self.ver, amt="Schriftführer", ergebnis="…")
         with self.assertRaises(NoReverseMatch):
             reverse("wahlergebnis_edit", args=[w.pk])
+
+
+class VeranstaltungInventarTests(TestCase):
+    """Die Schaltfläche "Inventar reservieren" muss direkt zur Mehrfachauswahl (Sammelverleih) führen - ein
+    Entleiher ist hier nicht nötig, da der Verein selbst reserviert."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.ver = Veranstaltung.objects.create(verein=self.v, titel="Sommerfest 2026", beginn=timezone.now())
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+
+    def test_inventar_reservieren_knopf_verweist_auf_sammelauswahl(self):
+        r = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
+        self.assertContains(r, reverse("verleih_sammel_add") + f"?veranstaltung={self.ver.pk}")

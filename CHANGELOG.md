@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.40.0
+- Inventar-Reservierung für Veranstaltungen: „Inventar reservieren“ auf der Veranstaltungsseite öffnet jetzt
+  die Mehrfachauswahl (Sammelverleih) statt eines Formulars pro Gegenstand - mehrere Gegenstände lassen sich
+  auf einmal ankreuzen. Ein Entleiher ist dabei nicht mehr nötig, da der Verein selbst reserviert.
+
 ## 1.39.2
 - Schriftgröße von Bezeichnung und Lagerort auf dem Etikett erhöht (7/6 pt → 9/8 pt) - wirkten im Vergleich
   zur Inventarnummer unnötig klein.

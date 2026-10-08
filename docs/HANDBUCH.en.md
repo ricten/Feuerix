@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.39.2)
+# Handbook – Feuerix (Version 1.40.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -408,8 +408,9 @@ converted into a donation via "Waive → donate the expense".
 The event detail page is a hub: agenda (including a "standard agenda" for general meetings with ten common
 items), tasks, a shift schedule with staffing status, registrations (members or guests, with a headcount),
 budget (planned/actual per line item), reserved inventory, as well as documents/mail merges and archive
-documents generated for the event. Directly from here: "Reserve inventory" (a pre-filled loan using the
-event's dates), "Create invitation"/"Invitation to members (mail merge)"/"Create minutes" (from the
+documents generated for the event. Directly from here: "Reserve inventory" opens the multi-select picker
+(check off several items at once, pre-filled with the event's dates) - no borrower is needed here since the
+association itself is reserving them. "Create invitation"/"Invitation to members (mail merge)"/"Create minutes" (from the
 respective default template), and, with an OpenSlides integration set up, "Create in OpenSlides"/"Transfer
 agenda". Every date can be exported as a calendar file (.ics).
 

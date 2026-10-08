@@ -30,10 +30,9 @@ def veranstaltung_kontext(request, v):
     r = request.rechte
     aktionen = []
     if r.darf("verleih", "add"):
-        aktionen.append(knopf("Inventar reservieren", reverse("verleih_add") + f"?veranstaltung={v.pk}"
+        aktionen.append(knopf("Inventar reservieren", reverse("verleih_sammel_add") + f"?veranstaltung={v.pk}"
                               f"&von={timezone.localtime(v.beginn):%Y-%m-%d}"
-                              f"&bis={timezone.localtime(v.ende or v.beginn):%Y-%m-%d}&next="
-                              + reverse("veranstaltung_detail", args=[v.pk])))
+                              f"&bis={timezone.localtime(v.ende or v.beginn):%Y-%m-%d}"))
     if r.darf("schriftverkehr", "add"):
         aktionen.append(knopf("Einladung erstellen", reverse("veranstaltung_schriftstueck", args=[v.pk, "einladung"]),
                               post=True, stil="primary"))

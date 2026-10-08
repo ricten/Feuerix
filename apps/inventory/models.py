@@ -129,21 +129,27 @@ class Verleih(TenantModel):
         ordering = ["-von", "-id"]
 
     def __str__(self):
-        wer = self.entleiher.name if self.entleiher_id else (self.entleiher_name or "?")
+        wer = self.wer
         g = self.gegenstand.inventarnummer if self.gegenstand_id else "?"
         return f"{g} → {wer} ({self.von:%d.%m.%Y})" if self.von else f"{g} → {wer}"
 
     @property
     def wer(self):
-        return self.entleiher.name if self.entleiher_id else self.entleiher_name
+        if self.entleiher_id:
+            return self.entleiher.name
+        if self.entleiher_name:
+            return self.entleiher_name
+        if self.veranstaltung_id:
+            return f"Verein selbst ({self.veranstaltung.titel})"
+        return "?"
 
     @property
     def ueberfaellig(self):
         return self.status == "ausgegeben" and self.bis < date.today()
 
     def clean(self):
-        if not (self.entleiher_id or self.entleiher_name):
-            raise ValidationError("Bitte ein Mitglied oder einen externen Entleiher angeben.")
+        if not (self.entleiher_id or self.entleiher_name or self.veranstaltung_id):
+            raise ValidationError("Bitte ein Mitglied, einen externen Entleiher oder eine Veranstaltung angeben.")
         if self.von and self.bis and self.bis < self.von:
             raise ValidationError("Das Rückgabedatum liegt vor dem Beginn.")
         if self.gegenstand_id and self.status in AKTIV:

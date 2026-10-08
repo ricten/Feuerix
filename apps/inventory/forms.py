@@ -40,8 +40,8 @@ class SammelverleihForm(forms.Form):
 
     def clean(self):
         cleaned = super().clean()
-        if not cleaned.get("entleiher") and not cleaned.get("entleiher_name"):
-            raise forms.ValidationError("Bitte ein Mitglied oder einen externen Entleiher angeben.")
+        if not cleaned.get("entleiher") and not cleaned.get("entleiher_name") and not cleaned.get("veranstaltung"):
+            raise forms.ValidationError("Bitte ein Mitglied, einen externen Entleiher oder eine Veranstaltung angeben.")
         if cleaned.get("von") and cleaned.get("bis") and cleaned["bis"] < cleaned["von"]:
             raise forms.ValidationError("Das Rückgabedatum liegt vor dem Beginn.")
         if not cleaned.get("gegenstaende"):

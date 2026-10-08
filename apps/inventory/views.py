@@ -249,7 +249,11 @@ def verleih_sammel_add(request):
                 return redirect("verleih_vorgang_detail", vorgang=vorgang)
     else:
         korb = request.session.get(_warenkorb_key(request), [])
-        form = SammelverleihForm(verein=request.verein, initial={"gegenstaende": korb} if korb else None)
+        initial = {"gegenstaende": korb} if korb else {}
+        for feld in ("veranstaltung", "von", "bis"):
+            if request.GET.get(feld):
+                initial[feld] = request.GET[feld]
+        form = SammelverleihForm(verein=request.verein, initial=initial or None)
     return render(request, "core/formular.html", {"form": form, "titel": "Mehrere Gegenstände verleihen",
                                                   "abbrechen_url": reverse("verleih_list")})
 
