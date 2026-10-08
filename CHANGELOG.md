@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.47.0
+- Englischen Übersetzungskatalog aufgefrischt: "Hilfe" fehlte komplett (übersetzte seit einiger Zeit nicht
+  nach "Help"), weitere ~25 seit den letzten Funktionen neu hinzugekommene Oberflächentexte waren noch
+  unübersetzt, und mehrere "fuzzy" markierte Einträge trugen versehentlich die Übersetzung eines anderen,
+  inhaltlich unpassenden Textes (z. B. "Vorstand abgleichen" zeigte "Sync members" statt "Sync board members").
+
 ## 1.46.6
 - Fix: Der Benutzername-Anzeige ("admin") neben den Menü-Icons fehlte die Bootstrap-Klasse `navbar-text` -
   dadurch bekam sie weder die automatisch berechnete Kontrastfarbe noch den Schriftschatten der übrigen
