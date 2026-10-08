@@ -58,15 +58,12 @@ body {
   box-shadow: 0 4px 18px rgba(20, 20, 40, .08), 0 1px 3px rgba(20, 20, 40, .05);
   transition: transform .15s ease, box-shadow .15s ease;
 }
-/* Karten wechseln sich reihum zwischen den 3 Vorgabefarben ab (Haupt-/Akzentfarbe 1/Akzentfarbe 2) statt
-   immer gleich auszusehen - ueber eine pro Karte gesetzte CSS-Variable, die Kartenkopf, Icon-Badge und die
-   Tabelle darin gemeinsam nutzen. Bewusst hell/dezent gehalten (siehe Prozentwerte unten). */
+/* Kartenkopf/Icon-Badge/Tabelle nutzen einheitlich die Hauptfarbe (ueber diese CSS-Variable) - bewusst keine
+   pro Karte wechselnde Farbe mehr, damit mehrere Karten/Tabellen untereinander einheitlich aussehen. */
 .card {
   --card-akzent: var(--bs-primary);
   --card-akzent-dunkel: var(--bs-primary-dunkel);
 }
-.card:nth-of-type(3n+2) { --card-akzent: var(--bs-primary-2); }
-.card:nth-of-type(3n+3) { --card-akzent: var(--bs-akzent2); --card-akzent-dunkel: var(--bs-akzent2-dunkel); }
 .card-header {
   border-radius: .9rem .9rem 0 0 !important;
   background: linear-gradient(135deg, color-mix(in srgb, var(--card-akzent) 16%, white),
@@ -116,24 +113,6 @@ a.text-reset .card:hover, .card.card-klickbar:hover {
 .card-kennzahl.border-danger .bi { background: color-mix(in srgb, var(--bs-danger) 14%, white); color: var(--bs-danger); }
 .card-kennzahl.border-warning { border-left-color: var(--bs-warning) !important; }
 .card-kennzahl.border-warning .bi { background: color-mix(in srgb, var(--bs-warning) 20%, white); color: #92650a; }
-
-/* Farbliche Abwechslung in Kennzahlen-Reihen statt derselben Farbe auf jeder Karte (reine Dekoration, betrifft
-   nicht die Status-Karten border-danger/-warning oben). */
-.row > div:nth-of-type(3n+2) > .card-kennzahl:not(.border-danger):not(.border-warning) {
-  border-left-color: color-mix(in srgb, var(--bs-primary-2) 75%, transparent);
-}
-.row > div:nth-of-type(3n+2) > .card-kennzahl:not(.border-danger):not(.border-warning) .bi {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--bs-primary-2) 20%, white),
-                              color-mix(in srgb, var(--bs-akzent2) 10%, white));
-}
-.row > div:nth-of-type(3n+3) > .card-kennzahl:not(.border-danger):not(.border-warning) {
-  border-left-color: color-mix(in srgb, var(--bs-akzent2) 80%, transparent);
-}
-.row > div:nth-of-type(3n+3) > .card-kennzahl:not(.border-danger):not(.border-warning) .bi {
-  background: linear-gradient(135deg, color-mix(in srgb, var(--bs-akzent2) 28%, white),
-                              color-mix(in srgb, var(--bs-akzent2) 12%, white));
-  color: var(--bs-akzent2-dunkel);
-}
 
 /* ---------------------------------------------------------------- Schaltflächen */
 /* Generelle Tiefe fuer alle Buttons (Schatten + dezentes Hochglanz-Highlight oben) statt der ganz flachen

@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.46.5
+- Die versuchsweise pro Karte wechselnde Farbe (Kartenkopf, Icon-Badges, Kennzahlen-Karten im Dashboard)
+  wieder entfernt - Karten und Tabellen sehen jetzt wieder überall einheitlich in der Hauptfarbe aus statt
+  reihum zwischen den 3 Vorgabefarben zu wechseln.
+
 ## 1.46.4
 - Fix: Tabellenköpfe wechselten durch die vorige Änderung je nach Karte die Farbe - mehrere Tabellen
   untereinander auf einer Seite wirkten dadurch uneinheitlich. Jetzt wieder bewusst immer dieselbe
