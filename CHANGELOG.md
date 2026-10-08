@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.41.2
+- Fix: Auswahlfeld und Buttons für "Lagerort (Ist)" bei der Inventur hingen am rechten Rand einer sehr breiten
+  Spalte, mit großer Lücke zur Spaltenüberschrift - jetzt linksbündig direkt neben "Ergebnis".
+
 ## 1.41.1
 - Inventur: "Lagerort (Ist)" ist jetzt ein Auswahlfeld mit den angelegten Lagerorten statt eines Freitextfelds
   (konsistent mit der Lagerort-Auswahl beim Gegenstand selbst).
