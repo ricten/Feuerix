@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.46.1
+- Fix: Die Kontrastberechnung (welche Schrift-/Icon-Farbe zu einer gewählten Akzentfarbe passt) nutzte eine
+  einfache RGB-Helligkeitsformel, die bei gesättigten Farben (v. a. Blau-/Rottönen) öfter die schlechter
+  lesbare Variante wählte. Jetzt die genauere WCAG-Leuchtdichteformel. Navigationstext bekommt zusätzlich
+  einen dezenten Schriftschatten für mehr Kontur bei mittelhellen Farben.
+
 ## 1.46.0
 - Fix: sichtbare Kante zwischen Logo- und Menü-Band der Navigationsleiste entfernt (Schatten sitzt jetzt am
   gesamten Leisten-Block statt an beiden Bändern einzeln).

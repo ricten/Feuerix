@@ -22,6 +22,16 @@ body {
   background-image: none;
   border-bottom: 3px solid var(--bs-akzent2);
 }
+/* Dezenter Schriftschatten fuer mehr Kontur - gerade bei mittelhellen/gesaettigten Farben (z. B. Blau) wirkt
+   reiner Schwarz/Weiss-Text ohne das sonst manchmal zu flau. */
+.navbar-split .navbar-dark .navbar-nav .nav-link, .navbar-split .navbar-dark .navbar-brand,
+.navbar-split .navbar-dark .navbar-text {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+}
+.navbar-split .navbar-light .navbar-nav .nav-link, .navbar-split .navbar-light .navbar-brand,
+.navbar-split .navbar-light .navbar-text {
+  text-shadow: 0 1px 1px rgba(255, 255, 255, .6);
+}
 
 /* ---------------------------------------------------------------- Dashboard-Begrüßung */
 .dash-hero {

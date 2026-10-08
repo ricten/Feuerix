@@ -285,7 +285,7 @@ class WeboberflaechenDesignTests(TestCase):
         Farbe) immer ausreichend dunkel/kontrastreich bleiben."""
         from apps.core.util import gemischte_farbe, lesbare_textfarbe
         for hell in ("#F7FA00", "#FFFFFF", "#FFEE00", "#AF2B1E", "#1C1C1C"):
-            dunkler = gemischte_farbe(hell, "#000000", 0.5)
+            dunkler = gemischte_farbe(hell, "#000000", 0.4)
             self.assertEqual(lesbare_textfarbe(dunkler), "#fff",
                              f"{hell} -> {dunkler} sollte dunkel genug für weißen Text/Hintergrundkontrast sein")
 
@@ -350,7 +350,7 @@ class WeboberflaechenDesignTests(TestCase):
         from apps.core.util import gemischte_farbe
         v = Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe_web="#AF2B1E")
         r = self.client.get(reverse("login"))
-        self.assertContains(r, f"--bs-primary-2: {gemischte_farbe('#AF2B1E', '#000000', 0.5)};")
+        self.assertContains(r, f"--bs-primary-2: {gemischte_farbe('#AF2B1E', '#000000', 0.6)};")
 
     def test_dritte_akzentfarbe_faellt_auf_leuchtgelb_zurueck_mit_lesbarer_textfarbe(self):
         """Akzentfarbe 2 (für Hervorhebungen/Icon-Badges) soll ohne eigene Einstellung ein gut lesbares
@@ -359,7 +359,7 @@ class WeboberflaechenDesignTests(TestCase):
         v = Verein.objects.create(name="Verein A", kuerzel="a")
         r = self.client.get(reverse("login"))
         self.assertContains(r, "--bs-akzent2: #F7FA00;")
-        self.assertContains(r, f"--bs-akzent2-dunkel: {gemischte_farbe('#F7FA00', '#000000', 0.5)};")
+        self.assertContains(r, f"--bs-akzent2-dunkel: {gemischte_farbe('#F7FA00', '#000000', 0.4)};")
 
     def test_farbpaletten_skript_wird_eingebunden(self):
         """Unter Farbfeldern (z. B. Akzentfarbe) soll eine Vorauswahl gängiger Feuerwehr-Farben angeboten

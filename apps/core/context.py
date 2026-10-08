@@ -122,14 +122,18 @@ def _farbkontext(verein):
     abgeleitet (nie per CSS color-mix mit unbekanntem Ergebnis) - nur so laesst sich dazu zuverlaessig eine
     kontrastreiche Text-/Icon-Farbe berechnen, unabhaengig davon wie hell oder dunkel die gewaehlte Farbe ist."""
     from .util import gemischte_farbe, hex_zu_rgb, lesbare_textfarbe
-    # Mischfaktor fuer alle "garantiert dunkel genug"-Ableitungen: 50% Original + 50% Schwarz macht selbst aus
-    # Weiss noch einen Grauton mit Helligkeit 128 (Schwellenwert fuer "braucht weisse Schrift" ist 150) - so
-    # bleiben Icons/Text darauf unabhaengig von der gewaehlten Akzentfarbe zuverlaessig lesbar.
-    DUNKEL_ANTEIL = 0.5
+    # Fuer die automatisch abgeleitete zweite Farbe (Gradient-/Hintergrundpartner) darf noch ordentlich Farbe
+    # uebrigbleiben - sie dient selbst als Hintergrund, nicht als Text.
+    GRADIENT_ANTEIL = 0.6
+    # Fuer "garantiert dunkel genug"-Text-/Icon-Farben dagegen deutlich dunkler mischen: 40% Original + 60%
+    # Schwarz haelt auch aus Weiss/Leuchtgelb noch eine Leuchtdichte unter dem WCAG-Schwellenwert (~0.179) fuer
+    # "braucht weisse Gegenfarbe" - nur so bleibt die Ableitung unabhaengig von der gewaehlten Akzentfarbe
+    # zuverlaessig als Text/Icon auf hellen Flaechen lesbar.
+    TEXT_DUNKEL_ANTEIL = 0.4
     haupt = (verein.akzentfarbe_web if verein and verein.akzentfarbe_web else "") or \
         (verein.akzentfarbe if verein and verein.akzentfarbe else "") or "#AF2B1E"
     akzent1 = (verein.akzentfarbe_web_2 if verein and verein.akzentfarbe_web_2 else "") or \
-        gemischte_farbe(haupt, "#000000", DUNKEL_ANTEIL)
+        gemischte_farbe(haupt, "#000000", GRADIENT_ANTEIL)
     akzent2 = (verein.akzentfarbe_web_3 if verein and verein.akzentfarbe_web_3 else "") or "#F7FA00"
     r, g, b = hex_zu_rgb(haupt)
     return {
@@ -144,8 +148,8 @@ def _farbkontext(verein):
         # Dunklere Variante der Haupt-/zweiten Akzentfarbe - fuer Icons/Text auf hell abgetoenten Hintergruenden
         # derselben Farbe (eine reine Aufhellung mit Weiss liesse sich sonst nicht zuverlaessig gegen sich
         # selbst lesbar halten, vor allem bei ohnehin hellen Farben wie Leuchtgelb).
-        "web_akzentfarbe_dunkel": gemischte_farbe(haupt, "#000000", DUNKEL_ANTEIL),
-        "web_akzentfarbe_3_dunkel": gemischte_farbe(akzent2, "#000000", DUNKEL_ANTEIL),
+        "web_akzentfarbe_dunkel": gemischte_farbe(haupt, "#000000", TEXT_DUNKEL_ANTEIL),
+        "web_akzentfarbe_3_dunkel": gemischte_farbe(akzent2, "#000000", TEXT_DUNKEL_ANTEIL),
     }
 
 

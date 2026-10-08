@@ -40,11 +40,26 @@ def hex_zu_rgb(hex_farbe, standard=(175, 43, 30)):
         return standard
 
 
-def lesbare_textfarbe(hex_farbe):
-    """'#000' oder '#fff', je nachdem was auf hex_farbe als Hintergrund besser lesbar ist (Helligkeitsformel)."""
+def _linearisiert(kanal):
+    """Ein 0..255-Farbkanal in den linearen sRGB-Raum (0..1), fuer die WCAG-Leuchtdichteformel."""
+    c = kanal / 255
+    return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def relative_leuchtdichte(hex_farbe):
+    """WCAG-relative Leuchtdichte (0..1) eines Hex-Farbcodes."""
     r, g, b = hex_zu_rgb(hex_farbe)
-    helligkeit = (r * 299 + g * 587 + b * 114) / 1000
-    return "#000" if helligkeit > 150 else "#fff"
+    return 0.2126 * _linearisiert(r) + 0.7152 * _linearisiert(g) + 0.0722 * _linearisiert(b)
+
+
+def lesbare_textfarbe(hex_farbe):
+    """'#000' oder '#fff', je nachdem was auf hex_farbe als Hintergrund den höheren WCAG-Kontrast ergibt.
+    Verwendet die tatsächliche (gamma-korrigierte) Leuchtdichte statt einer einfachen RGB-Helligkeitsformel -
+    letztere liegt bei gesättigten Farben (v. a. Blau-/Rottönen) öfter spürbar daneben."""
+    l = relative_leuchtdichte(hex_farbe)
+    kontrast_schwarz = (l + 0.05) / 0.05
+    kontrast_weiss = 1.05 / (l + 0.05)
+    return "#000" if kontrast_schwarz >= kontrast_weiss else "#fff"
 
 
 def rgb_zu_hex(r, g, b):
