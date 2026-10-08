@@ -3,6 +3,14 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.48.0
+- Englische Übersetzung auf alle Modellfelder und Auswahllisten (Status, Kategorien, Zahlarten usw.) in
+  sämtlichen 12 Modulen ausgeweitet - bisher blieben Spaltenüberschriften, Formularfeld-Bezeichnungen und
+  Statuswerte auf Listen-/Detailseiten Deutsch, obwohl die übrige Oberfläche bereits ins Englische umschaltete.
+  Zusätzlich wurden dabei mehrere veraltete ("fuzzy") Übersetzungen korrigiert, die durch spätere Textänderungen
+  inhaltlich nicht mehr zum zugehörigen Text passten (z. B. "Vorstand abgleichen" zeigte "Sync members" statt
+  "Sync board members").
+
 ## 1.47.0
 - Englischen Übersetzungskatalog aufgefrischt: "Hilfe" fehlte komplett (übersetzte seit einiger Zeit nicht
   nach "Help"), weitere ~25 seit den letzten Funktionen neu hinzugekommene Oberflächentexte waren noch

@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.47.0)
+# Handbook – Feuerix (Version 1.48.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -73,10 +73,10 @@ Reports, Administration) and only shows the entries for which your own role has 
 
 **Language:** top right in the menu bar (also on the login page, before signing in) you can switch between
 **German** and **English**. The choice is stored in a cookie and applies browser-wide until changed again.
-Currently translated: the navigation, login/logout, the dashboard, the list/detail/form pages (buttons,
-filters, messages), and all the stand-alone special pages (e.g. anniversaries, reports, import wizards,
-OpenSlides/Paperless settings); the domain-specific field names of individual modules (e.g. a member's form
-fields) are being translated gradually.
+Translated: the navigation, login/logout, the dashboard, the list/detail/form pages (buttons,
+filters, messages), all the stand-alone special pages (e.g. anniversaries, reports, import wizards,
+OpenSlides/Paperless settings), as well as the domain-specific field names and choice lists of every module
+(e.g. a member's form fields and status values).
 
 **Sorting lists:** in every table you can click a column header to sort by it (an arrow shows the direction);
 clicking again reverses the direction. This works for every column backed by a real data field (not for

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.47.0)
+# Handbuch – Feuerix (Version 1.48.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -73,10 +73,10 @@ hat.
 
 **Sprache:** Oben rechts in der Menüleiste (auch auf der Anmeldeseite, vor dem Einloggen) lässt sich zwischen
 **Deutsch** und **Englisch** wechseln. Die Auswahl wird in einem Cookie gespeichert und gilt browserweit, bis sie
-erneut geändert wird. Übersetzt sind aktuell die Navigation, An-/Abmeldung, das Dashboard, die
-Listen-/Detail-/Formularseiten (Buttons, Filter, Meldungen) sowie alle eigenständigen Spezialseiten (z. B.
-Jubiläen, Auswertungen, Import-Assistenten, OpenSlides-/Paperless-Einstellungen); die fachlichen Feldnamen der
-einzelnen Module (z. B. Formularfelder eines Mitglieds) folgen nach und nach.
+erneut geändert wird. Übersetzt sind die Navigation, An-/Abmeldung, das Dashboard, die
+Listen-/Detail-/Formularseiten (Buttons, Filter, Meldungen), alle eigenständigen Spezialseiten (z. B.
+Jubiläen, Auswertungen, Import-Assistenten, OpenSlides-/Paperless-Einstellungen) sowie die fachlichen
+Feldnamen und Auswahllisten aller Module (z. B. Formularfelder und Status eines Mitglieds).
 
 **Listen sortieren:** In jeder Tabelle lässt sich auf eine Spaltenüberschrift klicken, um danach zu sortieren
 (Pfeil zeigt die Richtung); ein zweiter Klick kehrt die Richtung um. Das funktioniert für alle Spalten, die ein

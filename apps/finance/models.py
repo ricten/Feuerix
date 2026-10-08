@@ -4,12 +4,13 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Case, DecimalField, F, Sum, When
+from django.utils.translation import gettext_lazy as _
 
 from apps.core.fields import VerschluesseltesTextField
 from apps.core.models import TenantModel, naechste_nummer
 from apps.core.util import upload_pfad
 
-STANDARD_STEUERHINWEIS = "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
+STANDARD_STEUERHINWEIS = _("Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen")
 
 
 def wirksame_summe(rechnungen_qs):
@@ -21,15 +22,15 @@ def wirksame_summe(rechnungen_qs):
 
 
 class Beitragsjahr(TenantModel):
-    jahr = models.PositiveIntegerField("Jahr")
-    faelligkeit = models.DateField("Fälligkeit")
-    alters_stichtag = models.DateField("Stichtag für Altersregeln")
-    abgerechnet_am = models.DateTimeField("Abgerechnet am", null=True, blank=True, editable=False)
-    bemerkung = models.CharField("Bemerkung", max_length=200, blank=True)
+    jahr = models.PositiveIntegerField(_("Jahr"))
+    faelligkeit = models.DateField(_("Fälligkeit"))
+    alters_stichtag = models.DateField(_("Stichtag für Altersregeln"))
+    abgerechnet_am = models.DateTimeField(_("Abgerechnet am"), null=True, blank=True, editable=False)
+    bemerkung = models.CharField(_("Bemerkung"), max_length=200, blank=True)
 
     class Meta:
-        verbose_name = "Beitragsjahr"
-        verbose_name_plural = "Beitragsjahre"
+        verbose_name = _("Beitragsjahr")
+        verbose_name_plural = _("Beitragsjahre")
         unique_together = [("verein", "jahr")]
         ordering = ["-jahr"]
 
@@ -39,22 +40,22 @@ class Beitragsjahr(TenantModel):
 
 class Beitragsregel(TenantModel):
     """Regeln ohne Programmierung: erste passende Regel (höchste Priorität) gewinnt."""
-    name = models.CharField("Name", max_length=100)
+    name = models.CharField(_("Name"), max_length=100)
     mitgliedsart = models.ForeignKey("members.Mitgliedsart", on_delete=models.CASCADE, null=True, blank=True,
-                                     verbose_name="Nur für Mitgliedsart")
-    nur_familie = models.BooleanField("Nur Familienmitgliedschaften", default=False,
-                                      help_text="Betrag wird nur beim 'Familienzahler' berechnet")
-    alter_von = models.PositiveIntegerField("Alter von", null=True, blank=True)
-    alter_bis = models.PositiveIntegerField("Alter bis (einschl.)", null=True, blank=True)
-    betrag = models.DecimalField("Jahresbeitrag (€)", max_digits=8, decimal_places=2)
-    prioritaet = models.IntegerField("Priorität (höher = zuerst)", default=10)
-    gueltig_ab_jahr = models.PositiveIntegerField("Gültig ab Jahr", null=True, blank=True)
-    gueltig_bis_jahr = models.PositiveIntegerField("Gültig bis Jahr", null=True, blank=True)
-    aktiv = models.BooleanField("Aktiv", default=True)
+                                     verbose_name=_("Nur für Mitgliedsart"))
+    nur_familie = models.BooleanField(_("Nur Familienmitgliedschaften"), default=False,
+                                      help_text=_("Betrag wird nur beim 'Familienzahler' berechnet"))
+    alter_von = models.PositiveIntegerField(_("Alter von"), null=True, blank=True)
+    alter_bis = models.PositiveIntegerField(_("Alter bis (einschl.)"), null=True, blank=True)
+    betrag = models.DecimalField(_("Jahresbeitrag (€)"), max_digits=8, decimal_places=2)
+    prioritaet = models.IntegerField(_("Priorität (höher = zuerst)"), default=10)
+    gueltig_ab_jahr = models.PositiveIntegerField(_("Gültig ab Jahr"), null=True, blank=True)
+    gueltig_bis_jahr = models.PositiveIntegerField(_("Gültig bis Jahr"), null=True, blank=True)
+    aktiv = models.BooleanField(_("Aktiv"), default=True)
 
     class Meta:
-        verbose_name = "Beitragsregel"
-        verbose_name_plural = "Beitragsregeln"
+        verbose_name = _("Beitragsregel")
+        verbose_name_plural = _("Beitragsregeln")
         ordering = ["-prioritaet", "name"]
 
     def __str__(self):
@@ -62,36 +63,36 @@ class Beitragsregel(TenantModel):
 
 
 class Rechnung(TenantModel):
-    TYP = [("beitrag", "Beitragsrechnung"), ("individuell", "Individuelle Rechnung"),
-           ("sammel", "Sammelrechnung"), ("gutschrift", "Gutschrift"), ("storno", "Storno")]
-    STATUS = [("entwurf", "Entwurf"), ("offen", "Offen"), ("teilbezahlt", "Teilweise bezahlt"),
-              ("bezahlt", "Bezahlt"), ("storniert", "Storniert"), ("verbucht", "Verbucht")]
+    TYP = [("beitrag", _("Beitragsrechnung")), ("individuell", _("Individuelle Rechnung")),
+           ("sammel", _("Sammelrechnung")), ("gutschrift", _("Gutschrift")), ("storno", _("Storno"))]
+    STATUS = [("entwurf", _("Entwurf")), ("offen", _("Offen")), ("teilbezahlt", _("Teilweise bezahlt")),
+              ("bezahlt", _("Bezahlt")), ("storniert", _("Storniert")), ("verbucht", _("Verbucht"))]
 
-    nummer = models.CharField("Rechnungsnummer", max_length=30, null=True, blank=True, default=None, editable=False)
-    typ = models.CharField("Art", max_length=12, choices=TYP, default="individuell")
-    status = models.CharField("Status", max_length=12, choices=STATUS, default="entwurf")
+    nummer = models.CharField(_("Rechnungsnummer"), max_length=30, null=True, blank=True, default=None, editable=False)
+    typ = models.CharField(_("Art"), max_length=12, choices=TYP, default="individuell")
+    status = models.CharField(_("Status"), max_length=12, choices=STATUS, default="entwurf")
     mitglied = models.ForeignKey("members.Mitglied", on_delete=models.PROTECT, null=True, blank=True,
-                                 verbose_name="Mitglied")
-    empfaenger_name = models.CharField("Empfänger", max_length=200, blank=True)
-    empfaenger_anschrift = models.TextField("Anschrift des Empfängers", blank=True)
-    datum = models.DateField("Rechnungsdatum", default=date.today)
-    faellig_am = models.DateField("Fällig am", null=True, blank=True)
-    jahr = models.PositiveIntegerField("Beitragsjahr", null=True, blank=True)
-    zeitraum_von = models.DateField("Leistungszeitraum von", null=True, blank=True)
-    zeitraum_bis = models.DateField("Leistungszeitraum bis", null=True, blank=True)
-    betrag = models.DecimalField("Betrag brutto (€)", max_digits=10, decimal_places=2, default=0, editable=False)
-    nettobetrag = models.DecimalField("Nettobetrag (€)", max_digits=10, decimal_places=2, default=0, editable=False)
-    steuerbetrag = models.DecimalField("Umsatzsteuer (€)", max_digits=10, decimal_places=2, default=0, editable=False)
-    kopftext = models.TextField("Text oben", blank=True)
-    fusstext = models.TextField("Text unten", blank=True)
+                                 verbose_name=_("Mitglied"))
+    empfaenger_name = models.CharField(_("Empfänger"), max_length=200, blank=True)
+    empfaenger_anschrift = models.TextField(_("Anschrift des Empfängers"), blank=True)
+    datum = models.DateField(_("Rechnungsdatum"), default=date.today)
+    faellig_am = models.DateField(_("Fällig am"), null=True, blank=True)
+    jahr = models.PositiveIntegerField(_("Beitragsjahr"), null=True, blank=True)
+    zeitraum_von = models.DateField(_("Leistungszeitraum von"), null=True, blank=True)
+    zeitraum_bis = models.DateField(_("Leistungszeitraum bis"), null=True, blank=True)
+    betrag = models.DecimalField(_("Betrag brutto (€)"), max_digits=10, decimal_places=2, default=0, editable=False)
+    nettobetrag = models.DecimalField(_("Nettobetrag (€)"), max_digits=10, decimal_places=2, default=0, editable=False)
+    steuerbetrag = models.DecimalField(_("Umsatzsteuer (€)"), max_digits=10, decimal_places=2, default=0, editable=False)
+    kopftext = models.TextField(_("Text oben"), blank=True)
+    fusstext = models.TextField(_("Text unten"), blank=True)
     storno_von = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True, editable=False,
-                                   related_name="gegenbuchungen", verbose_name="Bezieht sich auf")
-    versendet_am = models.DateTimeField("Per E-Mail versendet", null=True, blank=True, editable=False)
-    bemerkung = models.CharField("Bemerkung", max_length=200, blank=True)
+                                   related_name="gegenbuchungen", verbose_name=_("Bezieht sich auf"))
+    versendet_am = models.DateTimeField(_("Per E-Mail versendet"), null=True, blank=True, editable=False)
+    bemerkung = models.CharField(_("Bemerkung"), max_length=200, blank=True)
 
     class Meta:
-        verbose_name = "Rechnung"
-        verbose_name_plural = "Rechnungen"
+        verbose_name = _("Rechnung")
+        verbose_name_plural = _("Rechnungen")
         unique_together = [("verein", "nummer")]
         ordering = ["-datum", "-id"]
 
@@ -177,16 +178,16 @@ class Rechnung(TenantModel):
 
 class Rechnungsposition(TenantModel):
     rechnung = models.ForeignKey(Rechnung, on_delete=models.CASCADE, related_name="positionen",
-                                 verbose_name="Rechnung")
-    text = models.CharField("Bezeichnung", max_length=300)
-    menge = models.DecimalField("Menge", max_digits=8, decimal_places=2, default=1)
-    einzelpreis = models.DecimalField("Einzelpreis netto (€)", max_digits=10, decimal_places=2)
-    steuersatz = models.DecimalField("Umsatzsteuersatz (%)", max_digits=5, decimal_places=2, default=0,
-                                     help_text="0 für umsatzsteuerfreie Positionen (z. B. ideeller Bereich).")
+                                 verbose_name=_("Rechnung"))
+    text = models.CharField(_("Bezeichnung"), max_length=300)
+    menge = models.DecimalField(_("Menge"), max_digits=8, decimal_places=2, default=1)
+    einzelpreis = models.DecimalField(_("Einzelpreis netto (€)"), max_digits=10, decimal_places=2)
+    steuersatz = models.DecimalField(_("Umsatzsteuersatz (%)"), max_digits=5, decimal_places=2, default=0,
+                                     help_text=_("0 für umsatzsteuerfreie Positionen (z. B. ideeller Bereich)."))
 
     class Meta:
-        verbose_name = "Rechnungsposition"
-        verbose_name_plural = "Rechnungspositionen"
+        verbose_name = _("Rechnungsposition")
+        verbose_name_plural = _("Rechnungspositionen")
         ordering = ["id"]
 
     def __str__(self):
@@ -211,7 +212,7 @@ class Rechnungsposition(TenantModel):
 
     def clean(self):
         if self.rechnung_id and self.rechnung.status != "entwurf":
-            raise ValidationError("Positionen können nur bei Rechnungen im Status 'Entwurf' geändert werden.")
+            raise ValidationError(_("Positionen können nur bei Rechnungen im Status 'Entwurf' geändert werden."))
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -220,29 +221,29 @@ class Rechnungsposition(TenantModel):
     def delete(self, *args, **kwargs):
         r = self.rechnung
         if r.status != "entwurf":
-            raise ValidationError("Nur bei Entwürfen möglich.")
+            raise ValidationError(_("Nur bei Entwürfen möglich."))
         super().delete(*args, **kwargs)
         r.neu_berechnen()
 
 
 class Bankumsatz(TenantModel):
-    STATUS = [("neu", "Neu"), ("zugeordnet", "Zugeordnet"), ("manuell", "Manuelle Zuordnung erforderlich"),
-              ("ignoriert", "Ignoriert")]
-    buchungsdatum = models.DateField("Buchungsdatum")
-    betrag = models.DecimalField("Betrag (€)", max_digits=10, decimal_places=2)
-    gegenkonto_name = models.CharField("Name", max_length=200, blank=True)
-    gegenkonto_iban = VerschluesseltesTextField("IBAN", blank=True)
-    verwendungszweck = models.TextField("Verwendungszweck", blank=True)
-    status = models.CharField("Status", max_length=12, choices=STATUS, default="neu")
+    STATUS = [("neu", _("Neu")), ("zugeordnet", _("Zugeordnet")), ("manuell", _("Manuelle Zuordnung erforderlich")),
+              ("ignoriert", _("Ignoriert"))]
+    buchungsdatum = models.DateField(_("Buchungsdatum"))
+    betrag = models.DecimalField(_("Betrag (€)"), max_digits=10, decimal_places=2)
+    gegenkonto_name = models.CharField(_("Name"), max_length=200, blank=True)
+    gegenkonto_iban = VerschluesseltesTextField(_("IBAN"), blank=True)
+    verwendungszweck = models.TextField(_("Verwendungszweck"), blank=True)
+    status = models.CharField(_("Status"), max_length=12, choices=STATUS, default="neu")
     pruefsumme = models.CharField(max_length=40, blank=True, editable=False)
     fints_zugang = models.ForeignKey("FinTSZugang", on_delete=models.SET_NULL, null=True, blank=True,
-                                     editable=False, related_name="bankumsaetze", verbose_name="FinTS-Zugang")
+                                     editable=False, related_name="bankumsaetze", verbose_name=_("FinTS-Zugang"))
 
     AUDIT_MASK = ("gegenkonto_iban",)
 
     class Meta:
-        verbose_name = "Bankumsatz"
-        verbose_name_plural = "Bankumsätze"
+        verbose_name = _("Bankumsatz")
+        verbose_name_plural = _("Bankumsätze")
         ordering = ["-buchungsdatum", "-id"]
         indexes = [models.Index(fields=["verein", "pruefsumme"])]
 
@@ -251,21 +252,21 @@ class Bankumsatz(TenantModel):
 
 
 class Zahlung(TenantModel):
-    ART = [("ueberweisung", "Überweisung"), ("lastschrift", "SEPA-Lastschrift"), ("bar", "Bar"),
-           ("rueckzahlung", "Rückzahlung"), ("sonstige", "Sonstige")]
-    rechnung = models.ForeignKey(Rechnung, on_delete=models.PROTECT, related_name="zahlungen", verbose_name="Rechnung")
-    datum = models.DateField("Zahlungsdatum", default=date.today)
-    betrag = models.DecimalField("Betrag (€)", max_digits=10, decimal_places=2)
-    art = models.CharField("Zahlungsart", max_length=12, choices=ART, default="ueberweisung")
-    ruecklastschrift = models.BooleanField("Rücklastschrift (Betrag wird abgezogen)", default=False)
-    referenz = models.CharField("Referenz", max_length=200, blank=True)
-    bemerkung = models.CharField("Bemerkung", max_length=200, blank=True)
+    ART = [("ueberweisung", _("Überweisung")), ("lastschrift", _("SEPA-Lastschrift")), ("bar", _("Bar")),
+           ("rueckzahlung", _("Rückzahlung")), ("sonstige", _("Sonstige"))]
+    rechnung = models.ForeignKey(Rechnung, on_delete=models.PROTECT, related_name="zahlungen", verbose_name=_("Rechnung"))
+    datum = models.DateField(_("Zahlungsdatum"), default=date.today)
+    betrag = models.DecimalField(_("Betrag (€)"), max_digits=10, decimal_places=2)
+    art = models.CharField(_("Zahlungsart"), max_length=12, choices=ART, default="ueberweisung")
+    ruecklastschrift = models.BooleanField(_("Rücklastschrift (Betrag wird abgezogen)"), default=False)
+    referenz = models.CharField(_("Referenz"), max_length=200, blank=True)
+    bemerkung = models.CharField(_("Bemerkung"), max_length=200, blank=True)
     bankumsatz = models.OneToOneField(Bankumsatz, on_delete=models.SET_NULL, null=True, blank=True, editable=False,
                                       related_name="zahlung")
 
     class Meta:
-        verbose_name = "Zahlung"
-        verbose_name_plural = "Zahlungen"
+        verbose_name = _("Zahlung")
+        verbose_name_plural = _("Zahlungen")
         ordering = ["-datum", "-id"]
 
     def __str__(self):
@@ -279,8 +280,8 @@ class Zahlung(TenantModel):
         # Rechnung noch eine Zahlung erhalten darf - sie gleicht den einbehaltenen/erstatteten Betrag aus.
         ist_rueckzahlung = self.art == "rueckzahlung" and r.typ in ("storno", "gutschrift")
         if r.status == "entwurf" or (r.status in ("storniert", "verbucht") and not ist_rueckzahlung):
-            raise ValidationError("Auf diese Rechnung kann keine Zahlung gebucht werden (Status: "
-                                  f"{r.get_status_display()}).")
+            raise ValidationError(_("Auf diese Rechnung kann keine Zahlung gebucht werden (Status: %(status)s).") %
+                                  {"status": r.get_status_display()})
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -293,15 +294,15 @@ class Zahlung(TenantModel):
 
 
 class SepaEinzug(TenantModel):
-    nummer = models.CharField("Nummer", max_length=30, editable=False)
-    faelligkeitsdatum = models.DateField("Fälligkeitsdatum (Einzugstermin)")
-    anzahl = models.PositiveIntegerField("Anzahl Lastschriften", default=0, editable=False)
-    summe = models.DecimalField("Summe (€)", max_digits=10, decimal_places=2, default=0, editable=False)
-    datei = models.FileField("SEPA-XML-Datei", upload_to=upload_pfad, editable=False)
+    nummer = models.CharField(_("Nummer"), max_length=30, editable=False)
+    faelligkeitsdatum = models.DateField(_("Fälligkeitsdatum (Einzugstermin)"))
+    anzahl = models.PositiveIntegerField(_("Anzahl Lastschriften"), default=0, editable=False)
+    summe = models.DecimalField(_("Summe (€)"), max_digits=10, decimal_places=2, default=0, editable=False)
+    datei = models.FileField(_("SEPA-XML-Datei"), upload_to=upload_pfad, editable=False)
 
     class Meta:
-        verbose_name = "SEPA-Einzug"
-        verbose_name_plural = "SEPA-Einzüge"
+        verbose_name = _("SEPA-Einzug")
+        verbose_name_plural = _("SEPA-Einzüge")
         unique_together = [("verein", "nummer")]
         ordering = ["-erstellt"]
 
@@ -310,20 +311,20 @@ class SepaEinzug(TenantModel):
 
 
 class SepaEinzugPosition(TenantModel):
-    SEQUENZTYP = [("FRST", "Erstlastschrift (FRST)"), ("RCUR", "Folgelastschrift (RCUR)")]
-    einzug = models.ForeignKey(SepaEinzug, on_delete=models.CASCADE, related_name="positionen", verbose_name="Einzug")
+    SEQUENZTYP = [("FRST", _("Erstlastschrift (FRST)")), ("RCUR", _("Folgelastschrift (RCUR)"))]
+    einzug = models.ForeignKey(SepaEinzug, on_delete=models.CASCADE, related_name="positionen", verbose_name=_("Einzug"))
     rechnung = models.ForeignKey(Rechnung, on_delete=models.PROTECT, related_name="sepa_positionen",
-                                 verbose_name="Rechnung")
+                                 verbose_name=_("Rechnung"))
     mitglied = models.ForeignKey("members.Mitglied", on_delete=models.PROTECT, related_name="+",
-                                 verbose_name="Mitglied")
-    betrag = models.DecimalField("Betrag (€)", max_digits=10, decimal_places=2)
-    mandatsreferenz = models.CharField("SEPA-Mandatsreferenz", max_length=35)
-    mandatsdatum = models.DateField("Datum des SEPA-Mandats")
-    sequenztyp = models.CharField("Sequenztyp", max_length=4, choices=SEQUENZTYP)
+                                 verbose_name=_("Mitglied"))
+    betrag = models.DecimalField(_("Betrag (€)"), max_digits=10, decimal_places=2)
+    mandatsreferenz = models.CharField(_("SEPA-Mandatsreferenz"), max_length=35)
+    mandatsdatum = models.DateField(_("Datum des SEPA-Mandats"))
+    sequenztyp = models.CharField(_("Sequenztyp"), max_length=4, choices=SEQUENZTYP)
 
     class Meta:
-        verbose_name = "SEPA-Einzugsposition"
-        verbose_name_plural = "SEPA-Einzugspositionen"
+        verbose_name = _("SEPA-Einzugsposition")
+        verbose_name_plural = _("SEPA-Einzugspositionen")
         ordering = ["id"]
 
     def __str__(self):
@@ -335,27 +336,27 @@ class FinTSZugang(TenantModel):
     Abruf erneut eingegeben; die Online-Banking-Kennung (Login-Name, keine PIN) liegt verschluesselt in der
     Datenbank (siehe VerschluesseltesTextField). Ein Verein kann mehrere Zugaenge anlegen (z. B. je Bank); jedes
     Kassenbuch-Konto kann optional einem davon zugeordnet werden (accounting.Konto.fints_zugang)."""
-    bezeichnung = models.CharField("Bezeichnung", max_length=100, default="",
-                                   help_text="Zur Unterscheidung, wenn mehrere Zugänge angelegt sind, z. B. Name der Bank")
-    blz = models.CharField("Bankleitzahl", max_length=8)
-    kennung = VerschluesseltesTextField("Online-Banking-Kennung",
-                                        help_text="Die Kennung fürs Online-Banking, nicht die PIN")
-    bank_url = models.URLField("FinTS-Adresse der Bank",
-                               help_text="Von der Bank vorgegebene FinTS-Serveradresse, z. B. https://banking.beispielbank.de/fints30")
-    tage = models.PositiveIntegerField("Tage rückwirkend abrufen", default=60)
+    bezeichnung = models.CharField(_("Bezeichnung"), max_length=100, default="",
+                                   help_text=_("Zur Unterscheidung, wenn mehrere Zugänge angelegt sind, z. B. Name der Bank"))
+    blz = models.CharField(_("Bankleitzahl"), max_length=8)
+    kennung = VerschluesseltesTextField(_("Online-Banking-Kennung"),
+                                        help_text=_("Die Kennung fürs Online-Banking, nicht die PIN"))
+    bank_url = models.URLField(_("FinTS-Adresse der Bank"),
+                               help_text=_("Von der Bank vorgegebene FinTS-Serveradresse, z. B. https://banking.beispielbank.de/fints30"))
+    tage = models.PositiveIntegerField(_("Tage rückwirkend abrufen"), default=60)
     abzurufende_ibans = models.TextField(
-        "Abzurufende Konten (IBAN)", blank=True,
-        help_text="Kommagetrennt. Leer = alle Konten dieses Zugangs werden abgerufen (Standard). Ein "
+        _("Abzurufende Konten (IBAN)"), blank=True,
+        help_text=_("Kommagetrennt. Leer = alle Konten dieses Zugangs werden abgerufen (Standard). Ein "
                   "Online-Banking-Zugang deckt oft mehrere Konten ab - hier lässt sich der Abruf auf einzelne "
-                  "davon beschränken. Über „Kontodaten abrufen“ bequem per Haken auswählbar.")
-    letzter_abruf = models.DateTimeField("Letzter erfolgreicher Abruf", null=True, blank=True, editable=False)
-    letzte_meldung = models.CharField("Letzte Meldung", max_length=300, blank=True, editable=False)
+                  "davon beschränken. Über „Kontodaten abrufen“ bequem per Haken auswählbar."))
+    letzter_abruf = models.DateTimeField(_("Letzter erfolgreicher Abruf"), null=True, blank=True, editable=False)
+    letzte_meldung = models.CharField(_("Letzte Meldung"), max_length=300, blank=True, editable=False)
 
     AUDIT_MASK = ("kennung",)
 
     class Meta:
-        verbose_name = "FinTS-Zugang"
-        verbose_name_plural = "FinTS-Zugänge"
+        verbose_name = _("FinTS-Zugang")
+        verbose_name_plural = _("FinTS-Zugänge")
         ordering = ["bezeichnung"]
 
     def __str__(self):
@@ -367,16 +368,16 @@ class FinTSZugang(TenantModel):
 
 
 class Mahnung(TenantModel):
-    STUFE = [(1, "Zahlungserinnerung"), (2, "1. Mahnung"), (3, "2. Mahnung / letzte Mahnung")]
-    rechnung = models.ForeignKey(Rechnung, on_delete=models.PROTECT, related_name="mahnungen", verbose_name="Rechnung")
-    stufe = models.PositiveSmallIntegerField("Stufe", choices=STUFE, default=1)
-    datum = models.DateField("Datum", default=date.today)
-    frist = models.DateField("Neue Zahlungsfrist")
-    gebuehr = models.DecimalField("Mahngebühr (€)", max_digits=8, decimal_places=2, default=0)
+    STUFE = [(1, _("Zahlungserinnerung")), (2, _("1. Mahnung")), (3, _("2. Mahnung / letzte Mahnung"))]
+    rechnung = models.ForeignKey(Rechnung, on_delete=models.PROTECT, related_name="mahnungen", verbose_name=_("Rechnung"))
+    stufe = models.PositiveSmallIntegerField(_("Stufe"), choices=STUFE, default=1)
+    datum = models.DateField(_("Datum"), default=date.today)
+    frist = models.DateField(_("Neue Zahlungsfrist"))
+    gebuehr = models.DecimalField(_("Mahngebühr (€)"), max_digits=8, decimal_places=2, default=0)
 
     class Meta:
-        verbose_name = "Mahnung"
-        verbose_name_plural = "Mahnungen"
+        verbose_name = _("Mahnung")
+        verbose_name_plural = _("Mahnungen")
         ordering = ["-datum", "-stufe"]
 
     def __str__(self):
