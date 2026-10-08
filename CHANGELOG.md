@@ -3,6 +3,9 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.48.2
+- "Passwort" und "Abmelden" sitzen jetzt im Logo-Band neben der Sprachauswahl statt weiter unten im Menü-Band.
+
 ## 1.48.1
 - Reserviert der Verein selbst Inventar für eine Veranstaltung (kein Entleiher), werden Leihgebühr und Kaution
   jetzt automatisch auf 0 gesetzt statt die am Gegenstand hinterlegten Werte zu übernehmen - der Verein muss
