@@ -3,6 +3,16 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.44.1
+- Nachbesserungen am Weboberflächen-Design nach Feedback: Farbverlauf in Buttons wieder entfernt (wirkte dort
+  unruhig, die Navigationsleiste behält ihren Verlauf), dafür spürbarer Tiefeneffekt für alle Buttons
+  (Schatten + dezentes Hochglanz-Highlight statt reiner Flat-Optik). Fließtext-Links nutzen jetzt die
+  dunklere, kontrastsichere Farbvariante statt der rohen Akzentfarbe (vermeidet grelle/schwer lesbare
+  Linktexte z. B. bei hellen Akzentfarben). Dashboard bekommt einen Begrüßungsbereich mit Farbverlauf,
+  Datum und dekorativem Icon statt einer nackten Überschrift; Kennzahlen-Karten wechseln sich jetzt farblich
+  ab statt überall dieselbe Akzentfarbe zu zeigen; dezentes Punktraster im Seitenhintergrund und farbige
+  Icon-Badges in allen Kartenköpfen sorgen für mehr visuelle Tiefe.
+
 ## 1.44.0
 - Weboberfläche optisch aufgewertet: Farbverläufe statt flacher Farben (Navigation, Schaltflächen,
   Kennzahlen-Karten, Kartenköpfe), tiefere Schatten und ein deutlicherer Hover-Effekt auf Karten. Neues Modell

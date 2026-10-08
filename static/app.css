@@ -1,11 +1,33 @@
 body {
-  background: linear-gradient(180deg, #f2f4f8 0%, #eef1f5 420px, #eef1f5 100%);
+  background-color: #eef1f5;
+  background-image:
+    radial-gradient(circle, rgba(20, 20, 40, .05) 1px, transparent 1px),
+    linear-gradient(180deg, #f2f4f8 0%, #eef1f5 420px, #eef1f5 100%);
+  background-size: 22px 22px, auto;
   background-attachment: fixed;
 }
 .navbar-brand { font-weight: 600; }
 .navbar {
   background-image: linear-gradient(135deg, var(--bs-primary), var(--bs-primary-2));
   box-shadow: 0 3px 16px rgba(0, 0, 0, .22);
+}
+
+/* ---------------------------------------------------------------- Dashboard-Begrüßung */
+.dash-hero {
+  background-image: linear-gradient(135deg, var(--bs-primary), var(--bs-primary-2));
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--bs-primary) 25%, transparent);
+}
+.dash-hero-glow {
+  position: absolute; top: -50%; right: -8%; width: 55%; height: 200%;
+  background: radial-gradient(circle, var(--bs-akzent2) 0%, transparent 70%);
+  opacity: .22; pointer-events: none;
+}
+.dash-hero-icon {
+  position: absolute; right: 1.5rem; bottom: -1.2rem; font-size: 8rem; opacity: .12; pointer-events: none;
+}
+.dash-dot {
+  width: .55rem; height: .55rem; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--bs-primary), var(--bs-primary-2));
 }
 
 /* ---------------------------------------------------------------- Karten */
@@ -19,6 +41,13 @@ body {
   border-radius: .9rem .9rem 0 0 !important;
   background: linear-gradient(135deg, color-mix(in srgb, var(--bs-primary) 8%, white),
                               color-mix(in srgb, var(--bs-primary-2) 5%, white));
+}
+.card-header .bi:first-child {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.8rem; height: 1.8rem; border-radius: 50%; font-size: .95rem; margin-right: .1rem;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--bs-primary) 18%, white),
+                              color-mix(in srgb, var(--bs-primary-2) 12%, white));
+  color: var(--bs-primary-dunkel) !important;
 }
 .card-footer { border-radius: 0 0 .9rem .9rem !important; }
 a.text-reset .card:hover, .card.card-klickbar:hover {
@@ -45,13 +74,39 @@ a.text-reset .card:hover, .card.card-klickbar:hover {
 .card-kennzahl.border-warning { border-left-color: var(--bs-warning) !important; }
 .card-kennzahl.border-warning .bi { background: color-mix(in srgb, var(--bs-warning) 20%, white); color: #92650a; }
 
+/* Farbliche Abwechslung in Kennzahlen-Reihen statt derselben Farbe auf jeder Karte (reine Dekoration, betrifft
+   nicht die Status-Karten border-danger/-warning oben). */
+.row > div:nth-of-type(3n+2) > .card-kennzahl:not(.border-danger):not(.border-warning) {
+  border-left-color: color-mix(in srgb, var(--bs-primary-2) 75%, transparent);
+}
+.row > div:nth-of-type(3n+2) > .card-kennzahl:not(.border-danger):not(.border-warning) .bi {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--bs-primary-2) 20%, white),
+                              color-mix(in srgb, var(--bs-akzent2) 10%, white));
+}
+.row > div:nth-of-type(3n+3) > .card-kennzahl:not(.border-danger):not(.border-warning) {
+  border-left-color: color-mix(in srgb, var(--bs-akzent2) 80%, transparent);
+}
+.row > div:nth-of-type(3n+3) > .card-kennzahl:not(.border-danger):not(.border-warning) .bi {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--bs-akzent2) 28%, white),
+                              color-mix(in srgb, var(--bs-akzent2) 12%, white));
+  color: var(--bs-akzent2-dunkel);
+}
+
 /* ---------------------------------------------------------------- Schaltflächen */
-.btn-primary {
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--bs-primary) 35%, transparent);
+/* Generelle Tiefe fuer alle Buttons (Schatten + dezentes Hochglanz-Highlight oben) statt der ganz flachen
+   Bootstrap-Standardoptik - bewusst ohne Farbverlauf in der Fuellung selbst. */
+.btn {
+  box-shadow: 0 2px 5px rgba(20, 20, 40, .14), inset 0 1px 0 rgba(255, 255, 255, .22);
   transition: transform .12s ease, box-shadow .12s ease, background-color .15s ease, border-color .15s ease;
 }
-.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 14px color-mix(in srgb, var(--bs-primary) 45%, transparent); }
-.btn-primary:active { transform: translateY(0); }
+.btn:hover { transform: translateY(-1px); box-shadow: 0 5px 12px rgba(20, 20, 40, .2), inset 0 1px 0 rgba(255, 255, 255, .25); }
+.btn:active { transform: translateY(0); box-shadow: inset 0 2px 5px rgba(0, 0, 0, .2); }
+.btn-primary {
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--bs-primary) 35%, transparent), inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+.btn-primary:hover {
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--bs-primary) 45%, transparent), inset 0 1px 0 rgba(255, 255, 255, .3);
+}
 
 /* ---------------------------------------------------------------- Tabellen */
 table.tabelle td, table.tabelle th { vertical-align: middle; }

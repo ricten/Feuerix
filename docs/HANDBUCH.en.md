@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.44.0)
+# Handbook – Feuerix (Version 1.44.1)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -39,9 +39,10 @@ This handbook and the detailed documents are also available directly in the web 
 
 ## 1. Login and interface
 
-After logging in, staff with an administration account land on the **dashboard** (member counts, this year's
-fee status, upcoming anniversaries/honours, overdue loans, upcoming dates, open tasks and expense requests).
-Members who only have self-service access (see chapter 3) instead land directly on "My Data".
+After logging in, staff with an administration account land on the **dashboard** – a personal greeting with
+the date at the top, followed by member counts, this year's fee status, upcoming anniversaries/honours,
+overdue loans, upcoming dates, open tasks and expense requests. Members who only have self-service access
+(see chapter 3) instead land directly on "My Data".
 
 **Preview:** the detail pages of invoices, reminders, donation receipts, cash reports, documents and mail
 merges (there, the first letter) show the generated PDF right on the page; in the archive this applies to

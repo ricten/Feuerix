@@ -1,7 +1,16 @@
 {% extends "base.html" %}
 {% load verein_tags i18n %}
 {% block content %}
-<h3 class="mb-3"><i class="bi bi-speedometer2" style="color: var(--bs-primary);"></i> {% trans "Übersicht" %} {{ jahr }}</h3>
+<div class="dash-hero position-relative overflow-hidden rounded-4 p-4 p-md-5 mb-4"
+    style="color: {{ web_akzenttextfarbe|default:'#fff' }};">
+  <div class="dash-hero-glow"></div>
+  <i class="bi bi-speedometer2 dash-hero-icon"></i>
+  <div class="position-relative">
+    <div class="small text-uppercase fw-semibold mb-1" style="opacity:.8">{% now "l, j. F Y" %}</div>
+    <h1 class="h2 fw-bold mb-1">{% blocktrans with name=user.get_full_name|default:user.get_username %}Willkommen zurück, {{ name }}{% endblocktrans %}</h1>
+    <div style="opacity:.9">{% trans "Übersicht" %} {{ jahr }}{% if verein.name %} · {{ verein.name }}{% endif %}</div>
+  </div>
+</div>
 <div class="row g-3 mb-3">
   {% for label, wert in kennzahlen %}
   <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
@@ -22,8 +31,8 @@
     <div class="card">
       <div class="card-header d-flex align-items-center gap-2"><i class="bi bi-calendar-event" style="color: var(--bs-primary);"></i> <strong>{% trans "Nächste Veranstaltungen" %}</strong></div>
       <ul class="list-group list-group-flush">
-      {% for v in kommende %}<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <a href="{% url 'veranstaltung_detail' v.pk %}" class="text-decoration-none">{{ v.titel }}</a>
+      {% for v in kommende %}<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+        <a href="{% url 'veranstaltung_detail' v.pk %}" class="text-decoration-none d-flex align-items-center gap-2"><span class="dash-dot"></span>{{ v.titel }}</a>
         <span class="text-muted small">{{ v.beginn|date:"d.m.Y H:i" }}{% if v.ort %} · {{ v.ort }}{% endif %}</span>
       </li>
       {% empty %}<li class="list-group-item text-muted">{% trans "Keine anstehenden Veranstaltungen." %}</li>{% endfor %}
