@@ -54,7 +54,8 @@ Mitgliedsarten (Beispielbeträge!), Ehrungsarten und Jubiläumsregeln angelegt. 
 ## Design der Weboberfläche
 
 Navigation, Buttons und Links verwenden die pro Verein einstellbare **Akzentfarbe** (*Verwaltung ›
-Verein/Einstellungen*, dieselbe Farbe wie auf Briefen/PDFs, Standard: Feuerwehrrot #AF2B1E) – die Textfarbe in der
+Verein/Einstellungen*, Standard: Feuerwehrrot #AF2B1E) – standardmäßig dieselbe Farbe wie auf Briefen/PDFs,
+über das separate Feld „Akzentfarbe (Weboberfläche)“ aber auch unabhängig davon einstellbar. Die Textfarbe in der
 Navigationsleiste wird automatisch für Lesbarkeit berechnet, farbig unterlegte Hover-Effekte markieren den
 aktiven/angehovten Menüpunkt. Unter den Farbfeldern steht eine Klick-Vorauswahl gängiger Feuerwehr-Farben zur
 Verfügung, jede beliebige Farbe lässt sich aber weiterhin frei eintragen.

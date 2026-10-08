@@ -33,6 +33,15 @@ class DocxExportTests(TestCase):
         v = Verein.objects.create(name="Test e.V.", kuerzel="test4", akzentfarbe="#EA580C")
         self.assertEqual(_farbe_fuss(v), RGBColor.from_string("EA580C"))
 
+    def test_dokumentfarbe_ignoriert_eigene_web_akzentfarbe(self):
+        """Dokumente und Weboberfläche sind unabhängig einstellbar - eine eigene Web-Farbe darf den
+        Briefkopf nicht beeinflussen."""
+        from docx.shared import RGBColor
+        from apps.documents.docx_export import _farbe
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test5", akzentfarbe="#EA580C",
+                                  akzentfarbe_web="#003366")
+        self.assertEqual(_farbe(v), RGBColor.from_string("EA580C"))
+
     def test_schriftstueck_docx_mit_logo_ohne_tabelle(self):
         import base64
         import zipfile

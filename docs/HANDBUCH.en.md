@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.42.0)
+# Handbook – Feuerix (Version 1.43.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -447,13 +447,15 @@ top left; the logo top right (uploadable under *Administration › Club/Settings
 **accent colour**; and a footer with the register entry/email, authorised representative/address and bank
 details – separated by a second dividing line in the optional **second accent colour** (falls back to the
 first if not set). No template coding needed: the design results automatically from the club settings. The
-same accent colour is also used in the **web interface** (navigation bar, buttons, links, a coloured hover
-effect when moving over menu items) – logo, navigation and icons (Bootstrap Icons) give a consistent look
-across the application, letters and PDFs. Almost every button in the application automatically gets a
-matching icon based on its text; every sub-page additionally shows the icon of its navigation group again,
-top right. The default accent colour is a fire-brigade red (#AF2B1E); below the colour fields in the club
-settings, a small set of common fire-brigade colours (two shades of red, black, charcoal, signal yellow, dark
-blue) is offered as one-click presets – any other colour can still be typed in freely at any time.
+same accent colour is also used in the **web interface** by default (navigation bar, buttons, links, a
+coloured hover effect when moving over menu items) – but a separate **"Accent colour (web interface)"** field
+lets you set a different colour just for the application, independent of letters/PDFs (e.g. one colour for
+the app, another for the letterhead). Logo, navigation and icons (Bootstrap Icons) still give a consistent
+look. Almost every button in the application automatically gets a matching icon based on its text; every
+sub-page additionally shows the icon of its navigation group again, top right. The default accent colour is a
+fire-brigade red (#AF2B1E); below the colour fields in the club settings, a small set of common fire-brigade
+colours (two shades of red, black, charcoal, signal yellow, dark blue) is offered as one-click presets – any
+other colour can still be typed in freely at any time.
 
 **Public documents:** when creating/editing an archive document, "Publicly visible on the start page" can be
 enabled (default: off). A document marked this way – e.g. the privacy policy or an intake form for

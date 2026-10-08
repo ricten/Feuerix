@@ -294,6 +294,22 @@ class WeboberflaechenDesignTests(TestCase):
         v = Verein.objects.create(name="Verein A", kuerzel="a")
         self.assertEqual(v.akzentfarbe, "#AF2B1E")
 
+    def test_eigene_web_akzentfarbe_weicht_von_briefen_ab(self):
+        """Dokumente und Weboberfläche sollen unabhängig voneinander einstellbar sein."""
+        User = get_user_model()
+        v = Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe="#EA580C", akzentfarbe_web="#003366")
+        admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=v, user=admin, rolle=Rolle.objects.get(verein=v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "#003366")
+        self.assertNotContains(r, "#EA580C")
+
+    def test_ohne_eigene_web_akzentfarbe_gilt_die_farbe_der_dokumente(self):
+        v = Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe="#EA580C")
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, "#EA580C")
+
     def test_farbpaletten_skript_wird_eingebunden(self):
         """Unter Farbfeldern (z. B. Akzentfarbe) soll eine Vorauswahl gängiger Feuerwehr-Farben angeboten
         werden - umgesetzt per generischem JS fuer alle type=color-Felder, siehe static/farbpaletten.js."""

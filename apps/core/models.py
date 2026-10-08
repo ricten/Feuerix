@@ -52,13 +52,19 @@ class Verein(models.Model):
                                                default=960)
     logo = models.ImageField("Vereinslogo (PNG oder JPG)", upload_to=logo_pfad, blank=True,
                              help_text="Wird auf Briefen, Rechnungen und Word-Dokumenten oben rechts gedruckt.")
-    akzentfarbe = models.CharField("Akzentfarbe (Briefe, PDFs und Weboberfläche)", max_length=7, default="#AF2B1E",
+    akzentfarbe = models.CharField("Akzentfarbe (Briefe und PDFs)", max_length=7, default="#AF2B1E",
                                    help_text="Hex-Code, z. B. #AF2B1E (Feuerwehrrot) – für Überschrift/Linie im "
-                                             "Briefkopf sowie Navigationsleiste und Schaltflächen in der "
-                                             "Weboberfläche. Unter dem Farbfeld stehen gängige Feuerwehr-Farben "
-                                             "zur Auswahl, es kann aber jede beliebige Farbe eingetragen werden.")
+                                             "Briefkopf. Gilt auch für die Weboberfläche, solange unten keine "
+                                             "eigene Farbe dafür eingetragen ist. Unter dem Farbfeld stehen "
+                                             "gängige Feuerwehr-Farben zur Auswahl, es kann aber jede beliebige "
+                                             "Farbe eingetragen werden.")
     akzentfarbe_fuss = models.CharField("Zweite Akzentfarbe (Linie über der Fußzeile)", max_length=7, blank=True,
-                                        help_text="Optional, Hex-Code z. B. #005199. Leer = gleiche Farbe wie oben.")
+                                        help_text="Optional, Hex-Code z. B. #005199. Leer = gleiche Farbe wie oben "
+                                                  "(für Briefe/PDFs).")
+    akzentfarbe_web = models.CharField("Akzentfarbe (Weboberfläche)", max_length=7, blank=True,
+                                       help_text="Optional eigene Farbe nur für Navigationsleiste und "
+                                                 "Schaltflächen in der Anwendung, unabhängig von Briefen/PDFs. "
+                                                 "Leer = gleiche Farbe wie oben.")
     unterschrift_1 = models.CharField("Unterschrift 1 (Briefe)", max_length=150, blank=True,
                                       help_text="z. B. Max Mustermann, 1. Vorsitzender")
     unterschrift_2 = models.CharField("Unterschrift 2 (Briefe)", max_length=150, blank=True)

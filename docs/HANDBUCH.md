@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.42.0)
+# Handbuch – Feuerix (Version 1.43.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -452,14 +452,16 @@ oben links, Logo oben rechts (unter *Verwaltung › Verein/Einstellungen* hochla
 **Akzentfarbe**, und eine Fußzeile mit Registereintrag/E-Mail, Vertretungsberechtigtem/Anschrift sowie
 Bankverbindung – getrennt durch eine zweite Trennlinie in der optionalen **zweiten Akzentfarbe** (fällt auf die
 erste zurück, wenn nicht gesetzt). Kein Vorlagen-Code nötig: das Design ergibt sich automatisch
-aus den Vereinseinstellungen. Dieselbe Akzentfarbe wird auch in der **Weboberfläche** verwendet (Navigationsleiste,
-Schaltflächen, Links, farbig unterlegter Hover-Effekt beim Überfahren der Menüpunkte) – Logo, Navigation und Icons
-(Bootstrap Icons) ergeben ein einheitliches Erscheinungsbild zwischen Anwendung, Briefen und PDFs. Nahezu jeder
-Button in der Anwendung bekommt automatisch anhand seines Textes ein passendes Icon; auf jeder Unterseite
-erscheint zusätzlich oben rechts das Icon der zugehörigen Navigationsgruppe wieder. Standardmäßig ist die
-Akzentfarbe ein Feuerwehrrot (#AF2B1E); unter den Farbfeldern in den Vereinseinstellungen steht außerdem eine
-kleine Auswahl gängiger Feuerwehr-Farben (Rot in zwei Tönen, Schwarz, Anthrazit, Leuchtgelb, Dunkelblau) als
-Klick-Vorlage zur Verfügung – es lässt sich aber jederzeit jede beliebige Farbe frei eintragen.
+aus den Vereinseinstellungen. Dieselbe Akzentfarbe wird standardmäßig auch in der **Weboberfläche** verwendet
+(Navigationsleiste, Schaltflächen, Links, farbig unterlegter Hover-Effekt beim Überfahren der Menüpunkte) –
+lässt sich dort über die separate **„Akzentfarbe (Weboberfläche)“** aber unabhängig von Briefen/PDFs eigens
+einstellen (z. B. andere Farbe für die Anwendung als auf dem Briefpapier). Logo, Navigation und Icons
+(Bootstrap Icons) ergeben trotzdem ein einheitliches Erscheinungsbild. Nahezu jeder Button in der Anwendung
+bekommt automatisch anhand seines Textes ein passendes Icon; auf jeder Unterseite erscheint zusätzlich oben
+rechts das Icon der zugehörigen Navigationsgruppe wieder. Standardmäßig ist die Akzentfarbe ein Feuerwehrrot
+(#AF2B1E); unter den Farbfeldern in den Vereinseinstellungen steht außerdem eine kleine Auswahl gängiger
+Feuerwehr-Farben (Rot in zwei Tönen, Schwarz, Anthrazit, Leuchtgelb, Dunkelblau) als Klick-Vorlage zur
+Verfügung – es lässt sich aber jederzeit jede beliebige Farbe frei eintragen.
 
 **Öffentliche Dokumente**: Beim Anlegen/Bearbeiten eines Ablage-Dokuments lässt sich „Öffentlich auf der
 Startseite sichtbar“ aktivieren (Standard: aus). Ein so markiertes Dokument – z. B. die Datenschutzerklärung

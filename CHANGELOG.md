@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.43.0
+- Neues Feld "Akzentfarbe (Weboberfläche)": Dokumente (Briefe/PDFs/Word) und die Weboberfläche lassen sich
+  jetzt unabhängig voneinander einfärben, statt zwingend dieselbe Akzentfarbe zu teilen. Bleibt das neue Feld
+  leer, gilt weiterhin die Farbe der Dokumente - bestehendes Verhalten ändert sich also nicht automatisch.
+
 ## 1.42.0
 - Standard-Akzentfarbe (Weboberfläche, Briefe, PDFs) ist jetzt ein Feuerwehrrot (#AF2B1E) statt Blau. Unter den
   Farbfeldern in den Vereinseinstellungen steht zusätzlich eine Klick-Vorauswahl gängiger Feuerwehr-Farben

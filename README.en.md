@@ -56,7 +56,8 @@ under *Administration › Membership Types / Fees*.
 ## Web interface design
 
 Navigation, buttons and links use the per-club configurable **accent colour** (*Administration ›
-Club/Settings*, the same colour as on letters/PDFs, default: fire-brigade red #AF2B1E) – the text colour in
+Club/Settings*, default: fire-brigade red #AF2B1E) – by default the same colour as on letters/PDFs, but
+settable independently via the separate "Accent colour (web interface)" field. The text colour in
 the navigation bar is calculated automatically for readability, and coloured hover effects mark the
 active/hovered menu item. The colour fields offer a one-click preset row of common fire-brigade colours; any
 colour can still be entered freely. Icons come from
