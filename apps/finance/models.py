@@ -10,7 +10,9 @@ from apps.core.fields import VerschluesseltesTextField
 from apps.core.models import TenantModel, naechste_nummer
 from apps.core.util import upload_pfad
 
-STANDARD_STEUERHINWEIS = _("Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen")
+# Bewusst kein gettext_lazy: wird als tatsächlicher Feldwert in die ZUGFeRD/Factur-X-XML (BT-120) geschrieben,
+# die facturx-Bibliothek prüft dort strikt auf echten str (ein Lazy-Proxy wird abgelehnt).
+STANDARD_STEUERHINWEIS = "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
 
 
 def wirksame_summe(rechnungen_qs):

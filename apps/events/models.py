@@ -1,3 +1,4 @@
+import uuid
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
@@ -29,6 +30,8 @@ class Veranstaltung(TenantModel):
     anmeldeschluss = models.DateField(_("Anmeldeschluss"), null=True, blank=True)
     notizen = models.TextField(_("Interne Notizen"), blank=True)
     openslides_meeting_id = models.PositiveIntegerField(_("OpenSlides-Meeting-ID"), null=True, blank=True, editable=False)
+    rueckmeldung_code = models.UUIDField(_("Code für öffentliche Rückmeldung"), default=uuid.uuid4, editable=False,
+                                         unique=True)
 
     class Meta:
         verbose_name = _("Veranstaltung")

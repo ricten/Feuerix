@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.49.0
+- Neu: Öffentlicher Rückmeldungs-Link bei Veranstaltungen mit Anmeldepflicht - Zu-/Absage mit Namen und
+  Personenzahl, ohne Login, über einen nicht erratbaren Link auf der Veranstaltungsseite.
+- Fix: `factur-x` auf `<7.0` begrenzt (ab 7.0 geänderte Datenstruktur hätte den ZUGFeRD-Export brechen können).
+
 ## 1.48.2
 - "Passwort" und "Abmelden" sitzen jetzt im Logo-Band neben der Sprachauswahl statt weiter unten im Menü-Band.
 

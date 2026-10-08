@@ -1,16 +1,20 @@
+from datetime import date
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import format_html
+from django.utils.translation import gettext as _
 
 from apps.core.crud import abschnitt, knopf
 from apps.core.util import geld
 
-from .models import Tagesordnungspunkt, Veranstaltung
+from .models import Anmeldung, Tagesordnungspunkt, Veranstaltung
 
 STANDARD_TOP = [
     ("Begrüßung und Feststellung der ordnungsgemäßen Einladung und Beschlussfähigkeit", ""),
@@ -65,6 +69,9 @@ def veranstaltung_kontext(request, v):
     if v.anmeldungen.exists():
         hinweise.append(f"Zugesagte Personen: {zugesagt}" + (f" von erwartet {v.erwartete_teilnehmer}"
                                                              if v.erwartete_teilnehmer else ""))
+    if v.anmeldung_erforderlich:
+        link = request.build_absolute_uri(reverse("veranstaltung_rueckmeldung", args=[v.rueckmeldung_code]))
+        hinweise.append(format_html('{} <a href="{}">{}</a>', "Rückmeldungs-Link zum Weitergeben:", link, link))
     offene_schichten = [sc for sc in v.schichten.all() if sc.einsaetze.count() < sc.benoetigt]
     if offene_schichten:
         hinweise.append(f"{len(offene_schichten)} Schicht(en) noch nicht voll besetzt.")
@@ -95,6 +102,32 @@ def veranstaltung_kontext(request, v):
     if v.openslides_meeting_id:
         hinweise.append(f"OpenSlides-Versammlung Nr. {v.openslides_meeting_id} ist verknüpft.")
     return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": ab}
+
+
+def rueckmeldung(request, code):
+    """Öffentliche Zu-/Absage zu einer Veranstaltung mit Rückmeldepflicht - ohne Anmeldung, über einen nicht
+    erratbaren Link (siehe Hinweis auf der Veranstaltungsseite, zum Weitergeben an die Eingeladenen)."""
+    v = get_object_or_404(Veranstaltung, rueckmeldung_code=code, anmeldung_erforderlich=True)
+    frist_abgelaufen = bool(v.anmeldeschluss and v.anmeldeschluss < date.today())
+    gespeichert = None
+    if request.method == "POST" and not frist_abgelaufen:
+        name = request.POST.get("name", "").strip()
+        status = request.POST.get("status")
+        if name and status in ("zugesagt", "abgesagt"):
+            try:
+                personen = max(1, int(request.POST.get("personen") or 1))
+            except ValueError:
+                personen = 1
+            Anmeldung.objects.update_or_create(
+                verein_id=v.verein_id, veranstaltung=v, mitglied=None, name=name,
+                defaults={"status": status, "personen": personen,
+                         "bemerkung": request.POST.get("bemerkung", "")[:200]})
+            gespeichert = status
+        else:
+            messages.error(request, _("Bitte Ihren Namen angeben."))
+    return render(request, "events/rueckmeldung.html",
+                 {"veranstaltung": v, "frist_abgelaufen": frist_abgelaufen, "gespeichert": gespeichert,
+                  "titel": f"{_('Rückmeldung')} – {v.titel}"})
 
 
 @login_required
