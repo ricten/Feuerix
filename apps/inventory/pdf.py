@@ -115,10 +115,10 @@ def etiketten_pdf(gegenstaende, scan_url, verein=None):
         mitte_x, unten_y, text_hoehe = layout["text_mitte_x"], layout["text_unten_y"], layout["text_hoehe"]
         c.setFont("Helvetica-Bold", 11)
         c.drawCentredString(mitte_x, unten_y + text_hoehe * 0.80, g.inventarnummer)
-        c.setFont("Helvetica", 7)
+        c.setFont("Helvetica", 9)
         c.drawCentredString(mitte_x, unten_y + text_hoehe * 0.46, g.bezeichnung[:30])
         if g.lagerort_id:
-            c.setFont("Helvetica-Oblique", 6)
+            c.setFont("Helvetica-Oblique", 8)
             c.drawCentredString(mitte_x, unten_y + text_hoehe * 0.14, str(g.lagerort)[:30])
         c.restoreState()
     c.save()
