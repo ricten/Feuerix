@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.46.3
+- Fix: Tabellenkopf nutzt wieder dieselbe Kartenfarbe wie der Kartenkopf darüber (statt immer die Hauptfarbe
+  zu zeigen) - sonst wirkten Kartenkopf und Tabellenkopf innerhalb derselben Karte farblich inkonsistent.
+- Fix: Tabellen ohne Kartenkopf davor (z. B. Listenansichten) hatten eckige obere Ecken, die über die
+  abgerundete Karte hinausragten - übernehmen jetzt auch oben die Kartenrundung.
+
 ## 1.46.2
 - Die kräftig vollflächig eingefärbten Tabellenköpfe aus der letzten Version wurden als zu grell empfunden -
   zurückgenommen auf die blasse Abtönung. Tabellenköpfe sind jetzt außerdem bewusst immer einheitlich in der
