@@ -7,9 +7,18 @@ body {
   background-attachment: fixed;
 }
 .navbar-brand { font-weight: 600; }
-.navbar {
-  background-image: linear-gradient(135deg, var(--bs-primary), var(--bs-primary-2));
+/* Navigationsleiste in zwei Baendern: oben Logo/Vereinsname (Farbverlauf, oben -> unten), darunter das Menue
+   in der unteren Verlauffarbe weitergefuehrt und mit einer Akzentlinie abgeschlossen. */
+.navbar-top {
+  background-image: linear-gradient(180deg, var(--bs-primary), var(--bs-primary-2));
   box-shadow: 0 3px 16px rgba(0, 0, 0, .22);
+  position: relative; z-index: 1;
+}
+.navbar-menu {
+  background-color: var(--bs-primary-2);
+  background-image: none;
+  border-bottom: 3px solid var(--bs-akzent2);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, .18);
 }
 
 /* ---------------------------------------------------------------- Dashboard-Begrüßung */

@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.45.0
+- Navigationsleiste in zwei Bändern: oben Logo/Vereinsname mit Farbverlauf von der Haupt- zur ersten
+  Akzentfarbe, darunter das Menü in der unteren Verlauffarbe weitergeführt und mit einer Akzentlinie
+  (Akzentfarbe 2) abgeschlossen.
+
 ## 1.44.2
 - "Feuerix"-Schriftzug (Produktname-Badge) aus der Navigationsleiste entfernt - dort steht jetzt nur noch
   Logo und Vereinsname. Logo in der Navigationsleiste weiter vergrößert (44px → 56px).

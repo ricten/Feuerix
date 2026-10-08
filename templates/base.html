@@ -54,14 +54,20 @@
   </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg {% if web_akzenttextfarbe == '#000' %}navbar-light{% else %}navbar-dark{% endif %} mb-3"
-     style="background-color: {{ web_akzentfarbe|default:'#AF2B1E' }};">
-  <div class="container-fluid">
+<nav class="navbar navbar-expand-lg {% if web_akzenttextfarbe == '#000' %}navbar-light{% else %}navbar-dark{% endif %} p-0 mb-3">
+  <div class="navbar-top w-100 container-fluid d-flex align-items-center justify-content-between py-2"
+      style="background-color: {{ web_akzentfarbe|default:'#AF2B1E' }};">
     <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'nach_login' %}{% else %}{% url 'dashboard' %}{% endif %}">{% if verein.logo %}<img src="{% url 'verein_logo' %}" alt="" style="height:56px;background:#fff;border-radius:6px;padding:3px;box-shadow:0 2px 6px rgba(0,0,0,.25)">{% endif %}{{ verein.name|default:product_name|default:"Feuerix" }}</a>
-    <div class="ms-auto ms-lg-0 order-lg-2">{% include "core/_sprachauswahl.html" %}</div>
-    {% if user.is_authenticated %}
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
-    <div class="collapse navbar-collapse order-lg-1" id="nav">
+    <div class="d-flex align-items-center gap-2">
+      {% include "core/_sprachauswahl.html" %}
+      {% if user.is_authenticated %}
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
+      {% endif %}
+    </div>
+  </div>
+  {% if user.is_authenticated %}
+  <div class="collapse navbar-collapse navbar-menu" id="nav" style="background-color: {{ web_akzentfarbe_2|default:'#1C1C1C' }};">
+    <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between py-1">
       <ul class="navbar-nav me-auto">
         {% for gruppe, icon, punkte in navigation %}
         <li class="nav-item dropdown">
@@ -72,7 +78,7 @@
         </li>
         {% endfor %}
       </ul>
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex align-items-center gap-2 my-1">
         {% if vereine|length > 1 %}
         <form method="post" action="{% url 'verein_waehlen' %}" class="d-flex">{% csrf_token %}
           <select name="verein" class="form-select form-select-sm" onchange="this.form.submit()" title="{% trans 'Verein wechseln' %}">
@@ -85,8 +91,8 @@
         <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn btn-sm {% if web_akzenttextfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}"><i class="bi bi-box-arrow-right"></i> {% trans "Abmelden" %}</button></form>
       </div>
     </div>
-    {% endif %}
   </div>
+  {% endif %}
 </nav>
 <main class="container-fluid px-4 pb-5">
   {% if update_verfuegbare_version %}
