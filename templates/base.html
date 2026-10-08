@@ -15,6 +15,10 @@
   <style>
     :root {
       --bs-primary: {{ web_akzentfarbe|default:"#AF2B1E" }};
+      --bs-primary-2: {{ web_akzentfarbe_2|default:"#1C1C1C" }};
+      --bs-primary-dunkel: {{ web_akzentfarbe_dunkel|default:"#7A1E14" }};
+      --bs-akzent2: {{ web_akzentfarbe_3|default:"#F7FA00" }};
+      --bs-akzent2-dunkel: {{ web_akzentfarbe_3_dunkel|default:"#9A9C00" }};
       --bs-primary-rgb: {{ web_akzent_rgb|default:"175,43,30" }};
       --bs-link-color: var(--bs-primary);
       --bs-link-color-rgb: var(--bs-primary-rgb);
@@ -30,6 +34,12 @@
       --bs-btn-active-bg: color-mix(in srgb, var(--bs-primary) 75%, black);
       --bs-btn-active-border-color: color-mix(in srgb, var(--bs-primary) 70%, black);
       --bs-btn-active-color: {{ web_akzenttextfarbe|default:"#fff" }};
+      background-image: linear-gradient(135deg, var(--bs-primary), var(--bs-primary-2));
+      border-color: transparent;
+    }
+    .btn-primary:hover, .btn-primary:focus {
+      background-image: linear-gradient(135deg, color-mix(in srgb, var(--bs-primary) 88%, black),
+                                         color-mix(in srgb, var(--bs-primary-2) 88%, black));
     }
     .btn-outline-primary {
       --bs-btn-color: var(--bs-primary); --bs-btn-border-color: var(--bs-primary);
@@ -51,8 +61,8 @@
 <nav class="navbar navbar-expand-lg {% if web_akzenttextfarbe == '#000' %}navbar-light{% else %}navbar-dark{% endif %} mb-3"
      style="background-color: {{ web_akzentfarbe|default:'#AF2B1E' }};">
   <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'nach_login' %}{% else %}{% url 'dashboard' %}{% endif %}">{% if verein.logo %}<img src="{% url 'verein_logo' %}" alt="" style="height:30px;background:#fff;border-radius:4px;padding:2px">{% endif %}{{ verein.name|default:product_name|default:"Feuerix" }}</a>
-    {% if verein and product_name %}<span class="navbar-text small d-none d-md-inline ms-2 px-2 py-1 rounded-pill" style="background-color: rgba({% if web_akzenttextfarbe == '#000' %}0,0,0{% else %}255,255,255{% endif %}, .2);">{{ product_name }}</span>{% endif %}
+    <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'nach_login' %}{% else %}{% url 'dashboard' %}{% endif %}">{% if verein.logo %}<img src="{% url 'verein_logo' %}" alt="" style="height:44px;background:#fff;border-radius:6px;padding:3px;box-shadow:0 2px 6px rgba(0,0,0,.25)">{% endif %}{{ verein.name|default:product_name|default:"Feuerix" }}</a>
+    {% if verein and product_name %}<span class="navbar-text small d-none d-md-inline ms-2 px-2 py-1 rounded-pill fw-semibold" style="background-color: var(--bs-akzent2); color: var(--bs-akzent2-dunkel);">{{ product_name }}</span>{% endif %}
     <div class="ms-auto ms-lg-0 order-lg-2">{% include "core/_sprachauswahl.html" %}</div>
     {% if user.is_authenticated %}
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>

@@ -1,20 +1,29 @@
-body { background: #eef1f5; }
+body {
+  background: linear-gradient(180deg, #f2f4f8 0%, #eef1f5 420px, #eef1f5 100%);
+  background-attachment: fixed;
+}
 .navbar-brand { font-weight: 600; }
+.navbar {
+  background-image: linear-gradient(135deg, var(--bs-primary), var(--bs-primary-2));
+  box-shadow: 0 3px 16px rgba(0, 0, 0, .22);
+}
 
 /* ---------------------------------------------------------------- Karten */
 .card {
   border: 1px solid rgba(0, 0, 0, .06);
   border-radius: .9rem;
-  box-shadow: 0 2px 10px rgba(20, 20, 40, .06), 0 1px 2px rgba(20, 20, 40, .04);
-}
-.card-header { border-radius: .9rem .9rem 0 0 !important; background: rgba(0, 0, 0, .015); }
-.card-footer { border-radius: 0 0 .9rem .9rem !important; }
-a.text-reset .card, .card.card-klickbar {
+  box-shadow: 0 4px 18px rgba(20, 20, 40, .08), 0 1px 3px rgba(20, 20, 40, .05);
   transition: transform .15s ease, box-shadow .15s ease;
 }
+.card-header {
+  border-radius: .9rem .9rem 0 0 !important;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--bs-primary) 8%, white),
+                              color-mix(in srgb, var(--bs-primary-2) 5%, white));
+}
+.card-footer { border-radius: 0 0 .9rem .9rem !important; }
 a.text-reset .card:hover, .card.card-klickbar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(20, 20, 40, .1), 0 2px 6px rgba(20, 20, 40, .06);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--bs-primary) 16%, transparent), 0 3px 8px rgba(20, 20, 40, .08);
 }
 
 /* ---------------------------------------------------------------- Kennzahlen (Dashboard) */
@@ -22,10 +31,27 @@ a.text-reset .card:hover, .card.card-klickbar:hover {
   border-left: 4px solid var(--bs-primary);
   border-left-color: color-mix(in srgb, var(--bs-primary) 70%, transparent);
 }
-.card-kennzahl .zahl { font-size: 1.9rem; font-weight: 700; line-height: 1.1; color: #1f2937; }
-.card-kennzahl .bi { font-size: 1.3rem; color: var(--bs-primary); opacity: .8; }
+.card-kennzahl .zahl { font-size: 2.1rem; font-weight: 800; line-height: 1.1; color: #1f2937; letter-spacing: -.01em; }
+.card-kennzahl .text-muted .bi {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.9rem; height: 1.9rem; margin-right: .4rem; border-radius: 50%; font-size: 1rem;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--bs-primary) 18%, white),
+                              color-mix(in srgb, var(--bs-primary-2) 12%, white));
+  /* dunklere Stufe statt der rohen Akzentfarbe - bleibt so auch bei hellen Akzentfarben (z. B. Gelb) lesbar */
+  color: var(--bs-primary-dunkel); vertical-align: middle;
+}
 .card-kennzahl.border-danger { border-left-color: var(--bs-danger) !important; }
+.card-kennzahl.border-danger .bi { background: color-mix(in srgb, var(--bs-danger) 14%, white); color: var(--bs-danger); }
 .card-kennzahl.border-warning { border-left-color: var(--bs-warning) !important; }
+.card-kennzahl.border-warning .bi { background: color-mix(in srgb, var(--bs-warning) 20%, white); color: #92650a; }
+
+/* ---------------------------------------------------------------- Schaltflächen */
+.btn-primary {
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--bs-primary) 35%, transparent);
+  transition: transform .12s ease, box-shadow .12s ease, background-color .15s ease, border-color .15s ease;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 5px 14px color-mix(in srgb, var(--bs-primary) 45%, transparent); }
+.btn-primary:active { transform: translateY(0); }
 
 /* ---------------------------------------------------------------- Tabellen */
 table.tabelle td, table.tabelle th { vertical-align: middle; }
@@ -40,7 +66,7 @@ table.tabelle td, table.tabelle th { vertical-align: middle; }
 main h3 {
   font-size: 1.5rem;
   padding-bottom: .5rem;
-  border-bottom: 3px solid color-mix(in srgb, var(--bs-primary) 25%, transparent);
+  border-bottom: 3px solid color-mix(in srgb, var(--bs-akzent2) 55%, transparent);
   display: inline-block;
 }
 

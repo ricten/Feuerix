@@ -63,15 +63,19 @@ class VereinForm(TenantModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for feld in ("akzentfarbe", "akzentfarbe_fuss", "akzentfarbe_web"):
+        for feld in ("akzentfarbe", "akzentfarbe_fuss", "akzentfarbe_web", "akzentfarbe_web_2", "akzentfarbe_web_3"):
             self.fields[feld].widget = forms.TextInput(attrs={"type": "color",
                                                                "class": "form-control form-control-color"})
-        # Farbfeld kann technisch keinen leeren Wert anzeigen - ohne eigene Farbe die Hauptfarbe vorbelegen
-        # (entspricht dem tatsächlichen Fallback-Verhalten beim Drucken bzw. in der Weboberfläche).
+        # Farbfeld kann technisch keinen leeren Wert anzeigen - ohne eigene Farbe sinnvoll vorbelegen (entspricht
+        # dem tatsächlichen Fallback-Verhalten beim Drucken bzw. in der Weboberfläche, siehe _farbkontext()).
         if not self.initial.get("akzentfarbe_fuss"):
             self.initial["akzentfarbe_fuss"] = self.instance.akzentfarbe or "#AF2B1E"
         if not self.initial.get("akzentfarbe_web"):
             self.initial["akzentfarbe_web"] = self.instance.akzentfarbe or "#AF2B1E"
+        if not self.initial.get("akzentfarbe_web_2"):
+            self.initial["akzentfarbe_web_2"] = self.instance.akzentfarbe_web or self.instance.akzentfarbe or "#1C1C1C"
+        if not self.initial.get("akzentfarbe_web_3"):
+            self.initial["akzentfarbe_web_3"] = "#F7FA00"
 
 
 class RechteFelderMixin:

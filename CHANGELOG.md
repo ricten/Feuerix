@@ -3,6 +3,14 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.44.0
+- Weboberfläche optisch aufgewertet: Farbverläufe statt flacher Farben (Navigation, Schaltflächen,
+  Kennzahlen-Karten, Kartenköpfe), tiefere Schatten und ein deutlicherer Hover-Effekt auf Karten. Neues Modell
+  mit einer Hauptfarbe und zwei Akzentfarben (Akzentfarbe 1 für Farbverläufe, Akzentfarbe 2 für
+  Icon-Hervorhebungen/Überschriften, Standard: Leuchtgelb) - alle serverseitig berechnet, damit die jeweilige
+  Text-/Icon-Farbe darauf auch bei sehr hellen Akzentfarben automatisch kontrastreich bleibt. Logo und
+  Vereinsname in der Navigationsleiste sind jetzt größer.
+
 ## 1.43.0
 - Neues Feld "Akzentfarbe (Weboberfläche)": Dokumente (Briefe/PDFs/Word) und die Weboberfläche lassen sich
   jetzt unabhängig voneinander einfärben, statt zwingend dieselbe Akzentfarbe zu teilen. Bleibt das neue Feld

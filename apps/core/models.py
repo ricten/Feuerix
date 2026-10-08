@@ -61,10 +61,20 @@ class Verein(models.Model):
     akzentfarbe_fuss = models.CharField("Zweite Akzentfarbe (Linie über der Fußzeile)", max_length=7, blank=True,
                                         help_text="Optional, Hex-Code z. B. #005199. Leer = gleiche Farbe wie oben "
                                                   "(für Briefe/PDFs).")
-    akzentfarbe_web = models.CharField("Akzentfarbe (Weboberfläche)", max_length=7, blank=True,
+    akzentfarbe_web = models.CharField("Hauptfarbe (Weboberfläche)", max_length=7, blank=True,
                                        help_text="Optional eigene Farbe nur für Navigationsleiste und "
                                                  "Schaltflächen in der Anwendung, unabhängig von Briefen/PDFs. "
                                                  "Leer = gleiche Farbe wie oben.")
+    akzentfarbe_web_2 = models.CharField("Akzentfarbe 1 (Weboberfläche, für Farbverläufe)", max_length=7,
+                                         blank=True,
+                                         help_text="Optional, für Farbverläufe in Navigation und Schaltflächen "
+                                                   "(z. B. Rot nach Schwarz). Leer = automatisch aus der "
+                                                   "Hauptfarbe abgeleitet (dunklere Stufe).")
+    akzentfarbe_web_3 = models.CharField("Akzentfarbe 2 (Weboberfläche, für Hervorhebungen)", max_length=7,
+                                         blank=True,
+                                         help_text="Optional, für Icon-Hintergründe auf den Kennzahlen-Karten und "
+                                                   "ähnliche Hervorhebungen. Leer = Leuchtgelb (#F7FA00). Die "
+                                                   "Textfarbe darauf wird automatisch für Lesbarkeit berechnet.")
     unterschrift_1 = models.CharField("Unterschrift 1 (Briefe)", max_length=150, blank=True,
                                       help_text="z. B. Max Mustermann, 1. Vorsitzender")
     unterschrift_2 = models.CharField("Unterschrift 2 (Briefe)", max_length=150, blank=True)

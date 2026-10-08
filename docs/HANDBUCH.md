@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.43.0)
+# Handbuch – Feuerix (Version 1.44.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -461,7 +461,17 @@ bekommt automatisch anhand seines Textes ein passendes Icon; auf jeder Unterseit
 rechts das Icon der zugehörigen Navigationsgruppe wieder. Standardmäßig ist die Akzentfarbe ein Feuerwehrrot
 (#AF2B1E); unter den Farbfeldern in den Vereinseinstellungen steht außerdem eine kleine Auswahl gängiger
 Feuerwehr-Farben (Rot in zwei Tönen, Schwarz, Anthrazit, Leuchtgelb, Dunkelblau) als Klick-Vorlage zur
-Verfügung – es lässt sich aber jederzeit jede beliebige Farbe frei eintragen.
+Verfügung – es lässt sich aber jederzeit jede beliebige Farbe frei eintragen. Navigationsleiste, Schaltflächen,
+Kennzahlen-Karten und Kartenköpfe verwenden dabei Farbverläufe statt einer einzelnen flachen Farbe, für mehr
+Tiefe – aus insgesamt einer **Hauptfarbe** und zwei **Akzentfarben** (alle unter *Verwaltung ›
+Verein/Einstellungen* einstellbar): „Hauptfarbe (Weboberfläche)“ bestimmt Navigation/Schaltflächen/Links,
+„Akzentfarbe 1“ ist der zweite Verlaufspunkt dieser Farbverläufe (fällt ohne eigene Einstellung auf eine
+automatisch abgeleitete dunklere Stufe der Hauptfarbe zurück), und „Akzentfarbe 2“ hebt Icon-Hintergründe auf
+den Kennzahlen-Karten sowie die Überschriften-Unterstreichung hervor (Standard: Leuchtgelb). Die jeweilige
+Text-/Icon-Farbe darauf wird automatisch für ausreichenden Kontrast berechnet – auch bei sehr hellen
+Akzentfarben bleibt die Schrift lesbar, unabhängig davon, welche Farbe eingetragen wird. Logo und Vereinsname
+erscheinen in der Navigationsleiste zusätzlich etwas größer als auf Standard-Vereinsverwaltungs-Oberflächen
+üblich.
 
 **Öffentliche Dokumente**: Beim Anlegen/Bearbeiten eines Ablage-Dokuments lässt sich „Öffentlich auf der
 Startseite sichtbar“ aktivieren (Standard: aus). Ein so markiertes Dokument – z. B. die Datenschutzerklärung

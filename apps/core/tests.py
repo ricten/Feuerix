@@ -273,6 +273,22 @@ class WeboberflaechenDesignTests(TestCase):
         self.assertIn(lesbare_textfarbe(""), ("#000", "#fff"))
         self.assertIn(lesbare_textfarbe(None), ("#000", "#fff"))
 
+    def test_gemischte_farbe_interpoliert_linear(self):
+        from apps.core.util import gemischte_farbe
+        self.assertEqual(gemischte_farbe("#FFFFFF", "#000000", 0.5), "#808080")
+        self.assertEqual(gemischte_farbe("#AF2B1E", "#000000", 1.0), "#AF2B1E")
+        self.assertEqual(gemischte_farbe("#AF2B1E", "#000000", 0.0), "#000000")
+
+    def test_dunklere_variante_bleibt_auch_bei_hellen_akzentfarben_kontrastreich(self):
+        """Kontrast-Absicherung: unabhängig davon, wie hell die gewählte Akzentfarbe ist (z. B. Leuchtgelb),
+        soll die daraus abgeleitete dunklere Variante (für Icons auf hell abgetönten Hintergründen derselben
+        Farbe) immer ausreichend dunkel/kontrastreich bleiben."""
+        from apps.core.util import gemischte_farbe, lesbare_textfarbe
+        for hell in ("#F7FA00", "#FFFFFF", "#FFEE00", "#AF2B1E", "#1C1C1C"):
+            dunkler = gemischte_farbe(hell, "#000000", 0.5)
+            self.assertEqual(lesbare_textfarbe(dunkler), "#fff",
+                             f"{hell} -> {dunkler} sollte dunkel genug für weißen Text/Hintergrundkontrast sein")
+
     def test_navigation_zeigt_eigene_akzentfarbe_und_icons(self):
         User = get_user_model()
         v = Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe="#EA580C")
@@ -309,6 +325,28 @@ class WeboberflaechenDesignTests(TestCase):
         v = Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe="#EA580C")
         r = self.client.get(reverse("login"))
         self.assertContains(r, "#EA580C")
+
+    def test_zweite_web_akzentfarbe_fuer_farbverlauf_wird_gesetzt(self):
+        """Für die Farbverläufe (Navigation, Schaltflächen) lässt sich eine zweite Akzentfarbe hinterlegen."""
+        v = Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe_web="#AF2B1E",
+                                  akzentfarbe_web_2="#1C1C1C")
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, "--bs-primary-2: #1C1C1C;")
+
+    def test_ohne_zweite_web_akzentfarbe_wird_sie_automatisch_abgeleitet(self):
+        from apps.core.util import gemischte_farbe
+        v = Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe_web="#AF2B1E")
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, f"--bs-primary-2: {gemischte_farbe('#AF2B1E', '#000000', 0.5)};")
+
+    def test_dritte_akzentfarbe_faellt_auf_leuchtgelb_zurueck_mit_lesbarer_textfarbe(self):
+        """Akzentfarbe 2 (für Hervorhebungen/Icon-Badges) soll ohne eigene Einstellung ein gut lesbares
+        Leuchtgelb sein, inkl. automatisch berechneter, dunklerer Textfarbe dafür."""
+        from apps.core.util import gemischte_farbe
+        v = Verein.objects.create(name="Verein A", kuerzel="a")
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, "--bs-akzent2: #F7FA00;")
+        self.assertContains(r, f"--bs-akzent2-dunkel: {gemischte_farbe('#F7FA00', '#000000', 0.5)};")
 
     def test_farbpaletten_skript_wird_eingebunden(self):
         """Unter Farbfeldern (z. B. Akzentfarbe) soll eine Vorauswahl gängiger Feuerwehr-Farben angeboten

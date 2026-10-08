@@ -53,17 +53,19 @@ Mitgliedsarten (Beispielbeträge!), Ehrungsarten und Jubiläumsregeln angelegt. 
 
 ## Design der Weboberfläche
 
-Navigation, Buttons und Links verwenden die pro Verein einstellbare **Akzentfarbe** (*Verwaltung ›
-Verein/Einstellungen*, Standard: Feuerwehrrot #AF2B1E) – standardmäßig dieselbe Farbe wie auf Briefen/PDFs,
-über das separate Feld „Akzentfarbe (Weboberfläche)“ aber auch unabhängig davon einstellbar. Die Textfarbe in der
-Navigationsleiste wird automatisch für Lesbarkeit berechnet, farbig unterlegte Hover-Effekte markieren den
-aktiven/angehovten Menüpunkt. Unter den Farbfeldern steht eine Klick-Vorauswahl gängiger Feuerwehr-Farben zur
-Verfügung, jede beliebige Farbe lässt sich aber weiterhin frei eintragen.
-Icons stammen von [Bootstrap Icons](https://icons.getbootstrap.com/), lokal ausgeliefert wie Bootstrap/HTMX (kein
-CDN, DSGVO-freundlich); nahezu jeder Button bekommt anhand seines Labels automatisch ein passendes Icon
-(`apps/core/crud.py::_icon_fuer`), zusätzlich zeigt jede Unterseite oben rechts das Icon ihrer Navigationsgruppe.
-Karten sind durchgehend abgerundet mit weichem Schatten und akzentfarbenen Details (Kennzahlen-Karten mit
-farbiger Linie links, Tabellenköpfe leicht eingefärbt, Karten mit Link-Ziel heben sich beim Hover leicht an).
+Navigation, Buttons, Kennzahlen-Karten und Kartenköpfe verwenden statt flacher Farben Farbverläufe aus einer
+**Hauptfarbe** und zwei **Akzentfarben** (*Verwaltung › Verein/Einstellungen*, Standard: Feuerwehrrot #AF2B1E
++ automatisch abgeleitetes Dunkelrot + Leuchtgelb) – standardmäßig dieselbe Hauptfarbe wie auf Briefen/PDFs,
+über separate Web-Farbfelder aber auch unabhängig davon einstellbar. Die Text-/Icon-Farbe auf jeder dieser
+Farben wird serverseitig automatisch für ausreichenden Kontrast berechnet (`apps/core/util.py::gemischte_farbe`/
+`lesbare_textfarbe`) – bleibt also auch bei sehr hellen Akzentfarben lesbar. Unter den Farbfeldern steht eine
+Klick-Vorauswahl gängiger Feuerwehr-Farben zur Verfügung, jede beliebige Farbe lässt sich aber weiterhin frei
+eintragen. Icons stammen von [Bootstrap Icons](https://icons.getbootstrap.com/), lokal ausgeliefert wie
+Bootstrap/HTMX (kein CDN, DSGVO-freundlich); nahezu jeder Button bekommt anhand seines Labels automatisch ein
+passendes Icon (`apps/core/crud.py::_icon_fuer`), zusätzlich zeigt jede Unterseite oben rechts das Icon ihrer
+Navigationsgruppe. Karten sind durchgehend abgerundet mit spürbar mehr Tiefe (weicherer, kräftigerer Schatten)
+und akzentfarbenen Details (Kennzahlen-Karten mit farbiger Linie links und Icon-Badge, Tabellenköpfe leicht
+eingefärbt, Karten mit Link-Ziel heben sich beim Hover deutlich an).
 Detailseiten nutzen ab `xl`-Breite eine zweispaltige Ansicht (Stammdaten als Sidebar links, verknüpfte Listen
 rechts) statt einer einzigen langen Spalte, um breite Bildschirme besser auszunutzen.
 

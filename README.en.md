@@ -55,19 +55,21 @@ under *Administration › Membership Types / Fees*.
 
 ## Web interface design
 
-Navigation, buttons and links use the per-club configurable **accent colour** (*Administration ›
-Club/Settings*, default: fire-brigade red #AF2B1E) – by default the same colour as on letters/PDFs, but
-settable independently via the separate "Accent colour (web interface)" field. The text colour in
-the navigation bar is calculated automatically for readability, and coloured hover effects mark the
-active/hovered menu item. The colour fields offer a one-click preset row of common fire-brigade colours; any
-colour can still be entered freely. Icons come from
+Navigation, buttons, stat cards and card headers use colour gradients rather than flat colours, built from a
+per-club configurable **main colour** and two **accent colours** (*Administration › Club/Settings*, default:
+fire-brigade red #AF2B1E + an automatically derived darker red + signal yellow) – by default the same main
+colour as on letters/PDFs, but settable independently via separate web colour fields. The text/icon colour on
+each of these is calculated server-side for sufficient contrast (`apps/core/util.py::gemischte_farbe`/
+`lesbare_textfarbe`) – staying readable even with very light accent colours. The colour fields offer a
+one-click preset row of common fire-brigade colours; any colour can still be entered freely. Icons come from
 [Bootstrap Icons](https://icons.getbootstrap.com/), served locally like Bootstrap/HTMX (no CDN,
 GDPR-friendly); almost every button automatically gets a matching icon based on its label
 (`apps/core/crud.py::_icon_fuer`), and every sub-page additionally shows the icon of its navigation group,
-top right. Cards are consistently rounded with a soft shadow and accent-coloured details (key-figure cards
-with a coloured line on the left, slightly tinted table headers, cards with a link target lift slightly on
-hover). From the `xl` breakpoint up, detail pages use a two-column layout (core data as a sidebar on the
-left, linked lists on the right) instead of a single long column, to make better use of wide screens.
+top right. Cards are consistently rounded with a noticeably deeper, softer shadow and accent-coloured details
+(key-figure cards with a coloured line and icon badge on the left, slightly tinted table headers, cards with a
+link target lift clearly on hover). From the `xl` breakpoint up, detail pages use a two-column layout (core
+data as a sidebar on the left, linked lists on the right) instead of a single long column, to make better use
+of wide screens.
 
 ## Language and cookie notice
 

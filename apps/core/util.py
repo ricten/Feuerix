@@ -47,6 +47,21 @@ def lesbare_textfarbe(hex_farbe):
     return "#000" if helligkeit > 150 else "#fff"
 
 
+def rgb_zu_hex(r, g, b):
+    """Formatiert ein (r, g, b)-Tupel (auch mit Fließkommazahlen) als Hex-Farbcode '#RRGGBB'."""
+    r, g, b = (max(0, min(255, round(x))) for x in (r, g, b))
+    return f"#{r:02X}{g:02X}{b:02X}"
+
+
+def gemischte_farbe(hex_a, hex_b, anteil_a):
+    """Mischt zwei Hex-Farben linear (anteil_a = Anteil der ersten Farbe, 0..1) - serverseitig statt per CSS
+    color-mix(), damit z. B. die Kontrastfarbe zum Ergebnis zuverlässig berechnet werden kann."""
+    ra, ga, ba = hex_zu_rgb(hex_a)
+    rb, gb, bb = hex_zu_rgb(hex_b)
+    anteil_b = 1 - anteil_a
+    return rgb_zu_hex(ra * anteil_a + rb * anteil_b, ga * anteil_a + gb * anteil_b, ba * anteil_a + bb * anteil_b)
+
+
 def betrag_in_worten(betrag):
     from num2words import num2words
     betrag = Decimal(betrag).quantize(Decimal("0.01"))
