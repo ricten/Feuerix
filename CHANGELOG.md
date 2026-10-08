@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.49.1
+- Fix: Migration für den Rückmeldungs-Code (1.49.0) brach beim Deploy auf Bestandsdaten ab ("could not
+  create unique index ... duplicated"), weil ein einzelner AddField mit Callable-Default allen bestehenden
+  Veranstaltungen denselben Code vergibt. Jetzt in drei Schritten: Feld erst ohne Unique-Zwang anlegen, dann
+  pro Zeile einen eigenen Code vergeben, erst danach die Unique-Constraint setzen.
+
 ## 1.49.0
 - Neu: Öffentlicher Rückmeldungs-Link bei Veranstaltungen mit Anmeldepflicht - Zu-/Absage mit Namen und
   Personenzahl, ohne Login, über einen nicht erratbaren Link auf der Veranstaltungsseite.
