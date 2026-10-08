@@ -12,7 +12,7 @@ from apps.core.models import Rolle, Verein, Zugang
 from apps.finance.models import Rechnung
 from apps.inventory import importer
 from apps.inventory.models import Gegenstand, Verleih
-from apps.inventory.pdf import _etikett_layout, etiketten_pdf
+from apps.inventory.pdf import _etikett_layout, _etikett_modus, etiketten_pdf
 from apps.members.models import Mitglied
 
 CSV = ("Bezeichnung;Hersteller;Zustand;Verleihbar\n"
@@ -147,28 +147,80 @@ class EtikettenTests(TestCase):
         self.assertTrue(pdf.startswith(b"%PDF"))
 
 
+class EtikettModusTests(TestCase):
+    """_etikett_modus() waehlt zwischen gestapelt (QR oben/Text unten), nebeneinander (QR links/Text rechts -
+    fuer sehr flache/breite Etiketten) und gedreht (90°, fuer deutlich hoehere als breite Etiketten; danach wird
+    erneut geprueft, ob die GEDREHTE Flaeche ihrerseits nebeneinander verlangt)."""
+
+    def test_quadratisches_etikett_wird_gestapelt(self):
+        gedreht, nebeneinander, _, _ = _etikett_modus(58 * mm, 40 * mm)
+        self.assertFalse(gedreht)
+        self.assertFalse(nebeneinander)
+
+    def test_flaches_breites_etikett_wird_nebeneinander_gezeichnet(self):
+        # z. B. eine kurze Dymo-Rolle, deutlich breiter als hoch
+        gedreht, nebeneinander, zeichenbreite, zeichenhoehe = _etikett_modus(89 * mm, 15 * mm)
+        self.assertFalse(gedreht)
+        self.assertTrue(nebeneinander)
+        self.assertEqual((zeichenbreite, zeichenhoehe), (89 * mm, 15 * mm))
+
+    def test_sehr_schmales_hohes_etikett_wird_gedreht_und_dann_nebeneinander(self):
+        # Nach dem Drehen (90°) ist aus 15 x 120 mm eine 120 x 15 mm Flaeche geworden - die ist selbst wieder
+        # so flach, dass nebeneinander statt gestapelt sinnvoller ist.
+        gedreht, nebeneinander, zeichenbreite, zeichenhoehe = _etikett_modus(15 * mm, 120 * mm)
+        self.assertTrue(gedreht)
+        self.assertTrue(nebeneinander)
+        self.assertEqual((zeichenbreite, zeichenhoehe), (120 * mm, 15 * mm))
+
+    def test_maessig_hohes_etikett_wird_nur_gedreht(self):
+        gedreht, nebeneinander, _, _ = _etikett_modus(40 * mm, 58 * mm)
+        self.assertTrue(gedreht)
+        self.assertFalse(nebeneinander)
+
+
 class EtikettLayoutTests(TestCase):
     """Regressionsschutz für den Fehler aus einem realen Ausdruck: bei einem schmalen, hohen Etikett blieb
     zwischen QR-Code und Text eine grosse ungenutzte Luecke, weil der Textblock prozentual zur (grossen) Höhe
-    berechnet wurde. Jetzt absolute Textblockgroesse plus senkrechte Zentrierung von QR-Code+Text als Einheit."""
+    berechnet wurde. Jetzt absolute Groessen plus senkrechte Zentrierung von QR-Code und Textbox - sowohl im
+    gestapelten als auch im nebeneinander-Modus."""
 
-    def test_schmales_hohes_etikett_hat_keine_grosse_luecke(self):
-        breite, hoehe = 25 * mm, 89 * mm
-        l = _etikett_layout(breite, hoehe)
-        # Der Freiraum ueber und unter dem zentrierten Inhalt darf nicht den Grossteil des Etiketts einnehmen
-        self.assertLess(l["unten_frei"] * 2, hoehe * 0.8)
-        self.assertGreater(l["unten_frei"], 0)
+    def _faelle(self):
+        """-> [(breite, hoehe, nebeneinander)] fuer alle praxisrelevanten Faelle."""
+        for breite, hoehe in [(58 * mm, 40 * mm), (89 * mm, 28 * mm), (25 * mm, 89 * mm), (10 * mm, 10 * mm),
+                              (89 * mm, 15 * mm), (120 * mm, 15 * mm)]:
+            _gedreht, nebeneinander, zb, zh = _etikett_modus(breite, hoehe)
+            yield zb, zh, nebeneinander
 
-    def test_inhalt_bleibt_innerhalb_des_etiketts(self):
-        for breite, hoehe in [(58 * mm, 40 * mm), (89 * mm, 28 * mm), (25 * mm, 89 * mm), (10 * mm, 10 * mm)]:
-            with self.subTest(breite=breite, hoehe=hoehe):
-                l = _etikett_layout(breite, hoehe)
-                inhalt_hoehe = l["qr_groesse"] + l["rand"] + l["text_block"]
-                self.assertLessEqual(inhalt_hoehe + 2 * max(l["unten_frei"], 0), hoehe + 1)  # +1 Toleranz
+    def test_qr_code_bleibt_innerhalb_des_etiketts(self):
+        for breite, hoehe, nebeneinander in self._faelle():
+            with self.subTest(breite=breite, hoehe=hoehe, nebeneinander=nebeneinander):
+                l = _etikett_layout(breite, hoehe, nebeneinander)
+                self.assertGreaterEqual(l["qr_x"], 0)
+                self.assertGreaterEqual(l["qr_y"], 0)
+                self.assertLessEqual(l["qr_x"] + l["qr_groesse"], breite + 0.5)
+                self.assertLessEqual(l["qr_y"] + l["qr_groesse"], hoehe + 0.5)
 
-    def test_text_rueckt_bei_sehr_hohem_etikett_nicht_zu_nah_an_den_rand(self):
-        l = _etikett_layout(25 * mm, 89 * mm)
-        self.assertGreater(l["unten_frei"], 2 * mm)
+    def test_textbox_bleibt_innerhalb_des_etiketts(self):
+        for breite, hoehe, nebeneinander in self._faelle():
+            with self.subTest(breite=breite, hoehe=hoehe, nebeneinander=nebeneinander):
+                l = _etikett_layout(breite, hoehe, nebeneinander)
+                self.assertGreaterEqual(l["text_unten_y"], 0)
+                self.assertLessEqual(l["text_unten_y"] + l["text_hoehe"], hoehe + 0.5)
+
+    def test_gestapelt_zentriert_inhalt_senkrecht_ohne_grosse_luecke(self):
+        breite, hoehe = 58 * mm, 40 * mm
+        l = _etikett_layout(breite, hoehe, nebeneinander=False)
+        frei_oben = hoehe - (l["qr_y"] + l["qr_groesse"])
+        self.assertGreater(l["text_unten_y"], 0)
+        self.assertLess(frei_oben * 2, hoehe * 0.8)   # kein grosser ungenutzter Rand oben+unten zusammen
+
+    def test_nebeneinander_nutzt_die_volle_hoehe_fuer_den_qr_code(self):
+        breite, hoehe = 89 * mm, 15 * mm
+        l = _etikett_layout(breite, hoehe, nebeneinander=True)
+        # QR-Code soll die kurze Seite (Hoehe) weitgehend ausfuellen, nicht nur einen kleinen zentrierten Teil
+        self.assertGreater(l["qr_groesse"], hoehe * 0.7)
+        # Text steht rechts vom QR-Code, nicht darunter/darueber
+        self.assertGreater(l["text_mitte_x"], l["qr_x"] + l["qr_groesse"])
 
 
 class ScanTests(TestCase):

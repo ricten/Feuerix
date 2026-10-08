@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.39.1
+- Sehr flache/breite Etiketten (z. B. nach dem automatischen Drehen schmaler, hoher Etiketten) zeigen QR-Code
+  und Text jetzt nebeneinander statt untereinander - sonst wäre der QR-Code durch die geringe Höhe unnötig
+  klein geraten.
+
 ## 1.39.0
 - "Standort" im Inventar in "Lagerort" umbenannt (Modell, Feld, Navigation, Import-Spalte, Etikettendruck,
   Beispieldaten, Handbuch) - per Migration (RenameModel/RenameField), bestehende Daten/Zuordnungen bleiben

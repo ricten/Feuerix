@@ -30,20 +30,41 @@ def _qr_zeichnen(c, url, x, y, groesse):
     renderPDF.draw(d, c, x, y)
 
 
-def _etikett_layout(breite, hoehe):
-    """Berechnet Rand, Textblockhöhe, QR-Code-Größe und den freien Platz unter dem Inhalt für ein Etikett
-    gegebener Größe (in Punkten, also bereits *mm). Rand und Textblock sind bewusst kleine ABSOLUTE Maße (nicht
-    prozentual zur Etikettenhöhe!): Bei einem schmalen, hohen Etikett würde ein prozentualer Textblock unnötig
-    viel Platz beanspruchen und eine große Lücke zwischen QR-Code und Text entstehen lassen. Nur bei sehr
-    kleinen Etiketten wird zur Sicherheit heruntergerechnet, damit auf Mini-Formaten nichts überlappt. QR-Code
-    und Textblock werden als eine Einheit senkrecht im Etikett zentriert (statt QR oben/Text unten fest
-    anzupinnen) - sonst bleibt bei hohen Etiketten eine ungenutzte Lücke in der Mitte stehen."""
+def _etikett_modus(breite, hoehe):
+    """Entscheidet die Ausrichtung des Etikett-Inhalts:
+    - `gedreht`: der Inhalt wird um 90° gedreht gezeichnet (deutlich höhere als breite Etiketten, z. B. eine
+      schmale Rolle hochkant) - der QR-Code nutzt dann die lange statt der kurzen Seite aus.
+    - `nebeneinander`: QR-Code links, Text rechts statt QR oben/Text unten (sehr flache/breite Etiketten bzw.
+      nach dem Drehen immer noch sehr flache Etiketten) - ein gestapeltes Layout würde den QR-Code dort unnötig
+      klein werden lassen, da die Höhe der limitierende Faktor wäre.
+    -> (gedreht, nebeneinander, zeichenbreite, zeichenhöhe) - Breite/Höhe der Zeichenfläche NACH dem Drehen."""
+    gedreht = hoehe > breite * 1.2
+    zeichenbreite, zeichenhoehe = (hoehe, breite) if gedreht else (breite, hoehe)
+    nebeneinander = zeichenbreite > zeichenhoehe * 1.8
+    return gedreht, nebeneinander, zeichenbreite, zeichenhoehe
+
+
+def _etikett_layout(breite, hoehe, nebeneinander):
+    """Berechnet die Geometrie (QR-Code-Position/-Größe, Textbereich) für ein Etikett gegebener Größe (in
+    Punkten, also bereits *mm). Maße sind bewusst klein und ABSOLUT (nicht prozentual zur Etikettengröße) -
+    sonst entstünde bei einem großen Etikett unnötig viel Leerraum bzw. bei einem kleinen Überlappungen. Die
+    Rückgabe ist für beide Modi einheitlich (qr_x/qr_y/qr_groesse sowie eine Textbox text_mitte_x/text_unten_y/
+    text_hoehe für bis zu drei zentrierte Zeilen), damit das Zeichnen selbst modusunabhängig bleibt:
+    - Gestapelt: QR-Code oben, Textbox darunter - beides als Einheit senkrecht zentriert (sonst bliebe bei
+      hohen Etiketten eine ungenutzte Lücke in der Mitte stehen).
+    - Nebeneinander: QR-Code links über die volle Höhe, Textbox rechts daneben, beide senkrecht zentriert."""
     rand = min(3 * mm, min(breite, hoehe) * 0.08)
-    text_block = min(12 * mm, hoehe * 0.35)   # Platz fuer drei Zeilen: Inventarnummer, Bezeichnung, Lagerort
-    qr_groesse = max(5 * mm, min(breite - 2 * rand, hoehe - text_block - 2 * rand))
-    inhalt_hoehe = qr_groesse + rand + text_block
-    unten_frei = (hoehe - inhalt_hoehe) / 2
-    return {"rand": rand, "text_block": text_block, "qr_groesse": qr_groesse, "unten_frei": unten_frei}
+    if nebeneinander:
+        qr_groesse = max(5 * mm, min(hoehe - 2 * rand, breite * 0.55))
+        text_x0 = rand + qr_groesse + rand
+        text_breite = max(breite - text_x0 - rand, 8 * mm)
+        return {"qr_x": rand, "qr_y": (hoehe - qr_groesse) / 2, "qr_groesse": qr_groesse,
+               "text_mitte_x": text_x0 + text_breite / 2, "text_unten_y": rand, "text_hoehe": hoehe - 2 * rand}
+    text_hoehe = min(12 * mm, hoehe * 0.35)   # Platz fuer drei Zeilen: Inventarnummer, Bezeichnung, Lagerort
+    qr_groesse = max(5 * mm, min(breite - 2 * rand, hoehe - text_hoehe - 2 * rand))
+    unten_frei = (hoehe - (qr_groesse + rand + text_hoehe)) / 2
+    return {"qr_x": (breite - qr_groesse) / 2, "qr_y": unten_frei + text_hoehe + rand, "qr_groesse": qr_groesse,
+           "text_mitte_x": breite / 2, "text_unten_y": unten_frei, "text_hoehe": text_hoehe}
 
 
 def etiketten_pdf(gegenstaende, scan_url, verein=None):
@@ -63,15 +84,8 @@ def etiketten_pdf(gegenstaende, scan_url, verein=None):
     einzelblatt = spalten == 1 and zeilen == 1
     pagesize = (breite, hoehe) if einzelblatt else A4
 
-    # Deutlich höhere als breite Etiketten (z. B. eine schmale Dymo-Rolle hochkant) werden gedreht gezeichnet:
-    # der QR-Code nutzt dann die lange statt der kurzen Seite aus, statt klein und zentriert mit viel Leerraum
-    # auf der schmalen Seite zu kleben. Für breiter-als-hohe Etiketten (die uebliche Ausrichtung, z. B. 89x28mm)
-    # ist das bereits die optimale Lage - dort wird nicht gedreht.
-    gedreht = hoehe > breite * 1.2
-    zeichenbreite, zeichenhoehe = (hoehe, breite) if gedreht else (breite, hoehe)
-    layout = _etikett_layout(zeichenbreite, zeichenhoehe)
-    rand, text_block, qr_groesse, unten_frei = (layout["rand"], layout["text_block"], layout["qr_groesse"],
-                                                layout["unten_frei"])
+    gedreht, nebeneinander, zeichenbreite, zeichenhoehe = _etikett_modus(breite, hoehe)
+    layout = _etikett_layout(zeichenbreite, zeichenhoehe, nebeneinander)
 
     buf = BytesIO()
     c = canvas.Canvas(buf, pagesize=pagesize)
@@ -97,15 +111,15 @@ def etiketten_pdf(gegenstaende, scan_url, verein=None):
             c.rotate(-90)
         else:
             c.translate(x, y)
-        _qr_zeichnen(c, scan_url(g.inventarnummer), (zeichenbreite - qr_groesse) / 2,
-                    unten_frei + text_block + rand, qr_groesse)
+        _qr_zeichnen(c, scan_url(g.inventarnummer), layout["qr_x"], layout["qr_y"], layout["qr_groesse"])
+        mitte_x, unten_y, text_hoehe = layout["text_mitte_x"], layout["text_unten_y"], layout["text_hoehe"]
         c.setFont("Helvetica-Bold", 11)
-        c.drawCentredString(zeichenbreite / 2, unten_frei + text_block * 0.80, g.inventarnummer)
+        c.drawCentredString(mitte_x, unten_y + text_hoehe * 0.80, g.inventarnummer)
         c.setFont("Helvetica", 7)
-        c.drawCentredString(zeichenbreite / 2, unten_frei + text_block * 0.46, g.bezeichnung[:30])
+        c.drawCentredString(mitte_x, unten_y + text_hoehe * 0.46, g.bezeichnung[:30])
         if g.lagerort_id:
             c.setFont("Helvetica-Oblique", 6)
-            c.drawCentredString(zeichenbreite / 2, unten_frei + text_block * 0.14, str(g.lagerort)[:30])
+            c.drawCentredString(mitte_x, unten_y + text_hoehe * 0.14, str(g.lagerort)[:30])
         c.restoreState()
     c.save()
     return buf.getvalue()
