@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.50.2
+- Fix: Paperless-/OpenSlides-Verbindungsadresse und FinTS-Bankadresse ließen sich auf interne Dienste
+  (z. B. das interne Redis/Postgres, Cloud-Metadata-Adressen) setzen - wer die Verbindung im eigenen
+  Verein ändern darf, konnte darüber Serverinterna abfragen (SSRF). Jetzt serverseitig abgelehnt. Ergebnis
+  eines Sicherheits-Code-Reviews.
+
 ## 1.50.1
 - Fix: Spenden ließen sich nach Ausstellung der zugehörigen Zuwendungsbestätigung noch ändern/löschen -
   die Quittung hätte dann einen falschen Betrag bescheinigt. Jetzt wie die Quittung selbst gesperrt.

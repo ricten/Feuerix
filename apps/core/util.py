@@ -1,8 +1,42 @@
+import ipaddress
 import os
 import re
+import socket
 import unicodedata
 import uuid
 from decimal import Decimal
+from urllib.parse import urlparse
+
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
+
+INTERNE_HOSTNAMEN = {"localhost", "db", "redis", "web", "worker"}
+
+
+def pruefe_oeffentliche_adresse(url):
+    """Verhindert SSRF (Server-Side Request Forgery) bei vom Nutzer frei konfigurierten externen Diensten
+    (Paperless-, OpenSlides-Verbindung, FinTS-Bankadresse): nur echte, öffentlich erreichbare Adressen
+    sind erlaubt - keine internen Docker-Hostnamen und keine privaten/loopback/link-local IP-Bereiche
+    (z. B. Cloud-Metadata-Dienste wie 169.254.169.254). Wer die Verbindung nur im eigenen Verein ändern
+    darf, soll darüber nicht interne Dienste des Servers ansprechen können. Kein Schutz gegen Angriffe, bei
+    denen der Server erst NACH dem Speichern auf eine andere (interne) Adresse umgeleitet wird (DNS-
+    Rebinding) - das deckt dieses einfache, einmalige Prüfen beim Speichern bewusst nicht ab. Lässt sich der
+    Hostname nicht auflösen (kein Internetzugriff gerade, DNS-Problem, o. ä.), wird NICHT blockiert - sonst
+    könnte schon ein kurzer DNS-Ausfall das Speichern einer eigentlich unbedenklichen Adresse verhindern;
+    der eigentliche Schutz (interne Hostnamen, private IP-Literale) greift unabhängig davon immer."""
+    host = (urlparse(url).hostname or "").lower()
+    if not host:
+        raise ValidationError(_("Ungültige Adresse."))
+    if host in INTERNE_HOSTNAMEN:
+        raise ValidationError(_("Diese Adresse ist nicht erlaubt (interner Hostname)."))
+    try:
+        infos = socket.getaddrinfo(host, None)
+    except OSError:
+        return
+    for info in infos:
+        ip = ipaddress.ip_address(info[4][0])
+        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast:
+            raise ValidationError(_("Diese Adresse ist nicht erlaubt (privater/interner Adressbereich)."))
 
 
 def ascii_kennung(s):

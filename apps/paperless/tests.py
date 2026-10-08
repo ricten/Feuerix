@@ -319,3 +319,15 @@ class UebersichtHakenTests(TestCase):
         self.assertEqual(wert(d, "paperless_uebergeben"), "✓")
         d.paperless_fehler = "Fehler"
         self.assertEqual(wert(d, "paperless_uebergeben"), "–")
+
+
+class SsrfSchutzTests(TestCase):
+    """Die Paperless-Adresse darf nicht auf interne Dienste (SSRF) zeigen - siehe
+    apps.core.util.pruefe_oeffentliche_adresse."""
+
+    def test_interne_adresse_wird_bei_voller_pruefung_abgelehnt(self):
+        from django.core.exceptions import ValidationError
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        verbindung = PaperlessVerbindung(verein=v, url="http://127.0.0.1:6379/")
+        with self.assertRaises(ValidationError):
+            verbindung.clean()

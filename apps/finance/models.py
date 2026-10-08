@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.core.fields import VerschluesseltesTextField
 from apps.core.models import TenantModel, naechste_nummer
-from apps.core.util import upload_pfad
+from apps.core.util import pruefe_oeffentliche_adresse, upload_pfad
 
 # Bewusst kein gettext_lazy: wird als tatsächlicher Feldwert in die ZUGFeRD/Factur-X-XML (BT-120) geschrieben,
 # die facturx-Bibliothek prüft dort strikt auf echten str (ein Lazy-Proxy wird abgelehnt).
@@ -382,6 +382,10 @@ class FinTSZugang(TenantModel):
 
     def __str__(self):
         return self.bezeichnung
+
+    def clean(self):
+        if self.bank_url:
+            pruefe_oeffentliche_adresse(self.bank_url)
 
     @property
     def iban_liste(self):

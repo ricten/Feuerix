@@ -822,6 +822,19 @@ class _FakeFinTSClient:
         return self._send_tan_ergebnis
 
 
+class FinTSSsrfSchutzTests(TestCase):
+    """Die FinTS-Bankadresse darf nicht auf interne Dienste (SSRF) zeigen - siehe
+    apps.core.util.pruefe_oeffentliche_adresse."""
+
+    def test_interne_adresse_wird_bei_voller_pruefung_abgelehnt(self):
+        from django.core.exceptions import ValidationError
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        zugang = FinTSZugang(verein=v, bezeichnung="Testbank", blz="12030000", kennung="x",
+                             bank_url="http://10.0.0.5/fints30")
+        with self.assertRaises(ValidationError):
+            zugang.clean()
+
+
 @override_settings(FINTS_PRODUCT_ID="TEST123456")
 class FinTSAbrufTests(TestCase):
     def setUp(self):

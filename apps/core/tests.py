@@ -6,8 +6,11 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
+from django.core.exceptions import ValidationError
+
 from apps.core.crud import _icon_fuer, _sortierbar, knopf
 from apps.core.models import AuditLog, Rolle, Systemeinstellung, Verein, Zugang, naechste_nummer
+from apps.core.util import pruefe_oeffentliche_adresse
 from apps.members.models import Mitglied
 
 
@@ -658,3 +661,26 @@ class UpdateBenachrichtigungAnzeigeTests(TestCase):
         r = self.client.get(reverse("dashboard"))
         self.assertContains(r, "AGPL-3.0")
         self.assertContains(r, "ist freie Software")
+
+
+class SsrfSchutzTests(TestCase):
+    """pruefe_oeffentliche_adresse() schuetzt nutzerkonfigurierte externe Adressen (Paperless-/OpenSlides-
+    Verbindung, FinTS-Bankadresse) vor SSRF auf interne Dienste - nur private/interne Ziele werden
+    abgelehnt, echte oeffentliche Adressen bleiben erlaubt."""
+
+    def test_interner_hostname_wird_abgelehnt(self):
+        for host in ("localhost", "db", "redis", "web", "worker"):
+            with self.assertRaises(ValidationError):
+                pruefe_oeffentliche_adresse(f"http://{host}/")
+
+    def test_private_und_link_local_ip_wird_abgelehnt(self):
+        for ip in ("127.0.0.1", "10.0.0.5", "192.168.1.1", "169.254.169.254"):
+            with self.assertRaises(ValidationError):
+                pruefe_oeffentliche_adresse(f"http://{ip}/")
+
+    def test_oeffentliche_ip_bleibt_erlaubt(self):
+        pruefe_oeffentliche_adresse("http://8.8.8.8/")
+
+    def test_leere_adresse_wird_abgelehnt(self):
+        with self.assertRaises(ValidationError):
+            pruefe_oeffentliche_adresse("nicht-mal-eine-url")

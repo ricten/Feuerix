@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.core.fields import VerschluesseltesTextField
 from apps.core.models import TenantModel
+from apps.core.util import pruefe_oeffentliche_adresse
 
 
 class OpenSlidesVerbindung(TenantModel):
@@ -36,6 +37,10 @@ class OpenSlidesVerbindung(TenantModel):
 
     def __str__(self):
         return f"OpenSlides {self.url}"
+
+    def clean(self):
+        if self.url:
+            pruefe_oeffentliche_adresse(self.url)
 
     @property
     def admin_ids(self):

@@ -179,3 +179,15 @@ class VeranstaltungWahlergebnisseViewTests(TestCase):
         r2 = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
         self.assertContains(r2, "Wahlergebnisse (aus OpenSlides)")
         self.assertContains(r2, "1. Vorsitzender")
+
+
+class SsrfSchutzTests(TestCase):
+    """Die OpenSlides-Adresse darf nicht auf interne Dienste (SSRF) zeigen - siehe
+    apps.core.util.pruefe_oeffentliche_adresse."""
+
+    def test_interne_adresse_wird_bei_voller_pruefung_abgelehnt(self):
+        from django.core.exceptions import ValidationError
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        verbindung = OpenSlidesVerbindung(verein=v, url="http://169.254.169.254/", benutzername="bot")
+        with self.assertRaises(ValidationError):
+            verbindung.clean()

@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.core.fields import VerschluesseltesTextField
 from apps.core.models import TenantModel
+from apps.core.util import pruefe_oeffentliche_adresse
 
 
 class PaperlessVerbindung(TenantModel):
@@ -48,6 +49,10 @@ class PaperlessVerbindung(TenantModel):
 
     def __str__(self):
         return f"Paperless {self.url}"
+
+    def clean(self):
+        if self.url:
+            pruefe_oeffentliche_adresse(self.url)
 
     @property
     def tag_liste(self):
