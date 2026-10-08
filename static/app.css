@@ -154,20 +154,20 @@ a.text-reset .card:hover, .card.card-klickbar:hover {
 /* ---------------------------------------------------------------- Tabellen */
 table.tabelle td, table.tabelle th { vertical-align: middle; }
 /* Gleicher "Label"-Stil wie die Stammdaten-Sidebar (klein, Grossbuchstaben, dezent) statt normalem
-   Fliesstext in Zellenform - macht Tabellenkoepfe eindeutig als Spaltenueberschrift erkennbar. Nutzt dieselbe
-   Kartenfarbe (--card-akzent) wie der Kartenkopf darueber - sonst wirken Kartenkopf und Tabellenkopf
-   innerhalb derselben Karte farblich inkonsistent zueinander. */
+   Fliesstext in Zellenform - macht Tabellenkoepfe eindeutig als Spaltenueberschrift erkennbar. Bewusst immer
+   in der Hauptfarbe statt der pro Karte wechselnden Kartenfarbe - mehrere Tabellen untereinander auf einer
+   Seite sollen einheitlich aussehen, auch wenn ihre Kartenkoepfe (dekorativ) unterschiedliche Farben haben. */
 .table-light, table.tabelle thead th {
-  background-color: color-mix(in srgb, var(--card-akzent, var(--bs-primary)) 10%, white) !important;
+  background-color: color-mix(in srgb, var(--bs-primary) 10%, white) !important;
   font-size: .72rem;
   text-transform: uppercase;
   letter-spacing: .04em;
   font-weight: 700;
-  color: var(--card-akzent-dunkel, var(--bs-primary-dunkel));
+  color: var(--bs-primary-dunkel);
   border-bottom-width: 2px;
 }
 .table-hover > tbody > tr:hover > * {
-  background-color: color-mix(in srgb, var(--card-akzent, var(--bs-primary)) 6%, white);
+  background-color: color-mix(in srgb, var(--bs-primary) 6%, white);
 }
 
 /* ---------------------------------------------------------------- Überschriften */

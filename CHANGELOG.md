@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.46.4
+- Fix: Tabellenköpfe wechselten durch die vorige Änderung je nach Karte die Farbe - mehrere Tabellen
+  untereinander auf einer Seite wirkten dadurch uneinheitlich. Jetzt wieder bewusst immer dieselbe
+  (Haupt-)Farbe für alle Tabellenköpfe, unabhängig von der (weiterhin dekorativ wechselnden) Kartenfarbe.
+
 ## 1.46.3
 - Fix: Tabellenkopf nutzt wieder dieselbe Kartenfarbe wie der Kartenkopf darüber (statt immer die Hauptfarbe
   zu zeigen) - sonst wirkten Kartenkopf und Tabellenkopf innerhalb derselben Karte farblich inkonsistent.

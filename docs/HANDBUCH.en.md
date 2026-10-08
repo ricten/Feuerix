@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.46.3)
+# Handbook – Feuerix (Version 1.46.4)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
