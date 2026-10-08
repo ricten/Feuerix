@@ -506,11 +506,11 @@ def gegenstand_etiketten(request):
     return r
 
 
-@login_required
 def _warenkorb_key(request):
     return f"verleih_warenkorb_{request.verein.pk}"
 
 
+@login_required
 def gegenstand_scan(request, inventarnummer):
     """Ziel des QR-Codes auf dem Etikett: legt den Gegenstand über die Inventarnummer in den Verleih-Warenkorb
     (Session) - so lassen sich beim Ausleihen mehrere Etiketten nacheinander scannen, bevor der Verleih für alle

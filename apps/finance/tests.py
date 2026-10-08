@@ -108,6 +108,20 @@ class BeitragsTests(TestCase):
         r.refresh_from_db()
         self.assertEqual(r.status, "bezahlt")
 
+    def test_bankzuordnung_ueber_rechnungsnummer_lehnt_unpassenden_betrag_ab(self):
+        """Rechnungsnummern sind fortlaufend und damit erratbar - ein Betrag, der nicht zum offenen Betrag
+        der getroffenen Rechnung passt, darf nicht automatisch gutgeschrieben werden."""
+        from apps.finance.models import Bankumsatz
+        services.beitragsjahr_abrechnen(self.bj)
+        r = Rechnung.objects.get(verein=self.v)
+        Bankumsatz.objects.create(verein=self.v, buchungsdatum=date.today(), betrag=5000,
+                                  gegenkonto_name="Unbekannt", verwendungszweck=f"Spende {r.nummer}")
+        ok, manuell = services.zuordnen(self.v)
+        self.assertEqual((ok, manuell), (0, 1))
+        r.refresh_from_db()
+        self.assertEqual(r.status, "offen")
+        self.assertEqual(r.zahlungen.count(), 0)
+
 
 class RueckzahlungTests(TestCase):
     """Storniert man eine bereits bezahlte Rechnung, muss sich die Rückzahlung an den Zahler buchen lassen -

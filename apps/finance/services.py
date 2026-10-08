@@ -198,8 +198,13 @@ def zuordnen(verein, umsaetze=None):
         mo = RE_RECHNUNG.search(text)
         if mo:
             nr = f"RE-{mo.group(1)}-{int(mo.group(2)):06d}"
-            rechnung = Rechnung.objects.filter(verein=verein, nummer=nr).exclude(
+            treffer = Rechnung.objects.filter(verein=verein, nummer=nr).exclude(
                 status__in=["entwurf", "storniert", "verbucht"]).first()
+            # Rechnungsnummern sind fortlaufend und damit erratbar/einsehbar (eigene alte Rechnung) - ohne
+            # Betragsabgleich könnte ein unpassender Betrag versehentlich einer fremden Rechnung gutgeschrieben
+            # werden (z. B. ein winziger Betrag markiert sie fälschlich als "teilbezahlt").
+            if treffer is not None and abs(u.betrag) <= treffer.offen_betrag:
+                rechnung = treffer
         if rechnung is None:
             m = None
             mm = RE_MITGLIED.search(text)

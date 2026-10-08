@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.50.5
+- Fix: Bankumsatz-Zuordnung über die Rechnungsnummer im Verwendungszweck prüfte den Betrag nicht gegen den
+  offenen Rechnungsbetrag - fortlaufende, damit erratbare Rechnungsnummern hätten so einem unpassenden
+  Betrag fälschlich einer fremden Rechnung gutgeschrieben werden können.
+
 ## 1.50.4
 - Fix: Betragsänderungen einer Rechnung durch Hinzufügen/Ändern/Löschen einer Position erschienen nicht im
   Änderungsprotokoll (reines SQL-UPDATE statt .save(), damit ohne Audit-Signale). Jetzt protokolliert.
