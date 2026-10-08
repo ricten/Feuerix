@@ -20,6 +20,11 @@
       --bs-akzent2: {{ web_akzentfarbe_3|default:"#F7FA00" }};
       --bs-akzent2-dunkel: {{ web_akzentfarbe_3_dunkel|default:"#9A9C00" }};
       --bs-primary-rgb: {{ web_akzent_rgb|default:"175,43,30" }};
+      /* Fertig berechnete Kontrastfarbe (schwarz/weiss) je Vorgabefarbe - fuer kraeftige/solide Flaechen wie
+         Tabellenkoepfe, bei denen eine helle Abtoenung + dunkler Text (siehe Icon-Badges) zu blass wirkt. */
+      --bs-text-haupt: {{ web_akzenttextfarbe|default:"#fff" }};
+      --bs-text-akzent1: {{ web_akzentfarbe_2_textfarbe|default:"#fff" }};
+      --bs-text-akzent2: {{ web_akzentfarbe_3_textfarbe|default:"#000" }};
       /* Linktext nutzt die dunklere, kontrastsichere Variante statt der rohen Akzentfarbe - die kann auf
          weissem Hintergrund je nach gewaehlter Farbe (z. B. Orange/Gelb) sonst zu grell/schlecht lesbar wirken. */
       --bs-link-color: var(--bs-primary-dunkel);

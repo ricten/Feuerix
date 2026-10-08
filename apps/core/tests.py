@@ -360,6 +360,14 @@ class WeboberflaechenDesignTests(TestCase):
         r = self.client.get(reverse("login"))
         self.assertContains(r, "--bs-akzent2: #F7FA00;")
         self.assertContains(r, f"--bs-akzent2-dunkel: {gemischte_farbe('#F7FA00', '#000000', 0.4)};")
+        self.assertContains(r, "--bs-text-akzent2: #000;")
+
+    def test_tabellenkopf_textfarbe_wird_pro_akzentfarbe_serverseitig_berechnet(self):
+        """Tabellenkoepfe sind kraeftig in der Kartenfarbe gefaerbt (app.css, var(--card-akzent)) - die
+        serverseitig berechnete Textfarbe dazu muss fuer alle drei Vorgabefarben verfuegbar sein."""
+        v = Verein.objects.create(name="Verein A", kuerzel="a", akzentfarbe_web="#003366")
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, "--bs-text-haupt: #fff;")
 
     def test_farbpaletten_skript_wird_eingebunden(self):
         """Unter Farbfeldern (z. B. Akzentfarbe) soll eine Vorauswahl gängiger Feuerwehr-Farben angeboten
