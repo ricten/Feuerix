@@ -54,9 +54,8 @@
   </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg {% if web_akzenttextfarbe == '#000' %}navbar-light{% else %}navbar-dark{% endif %} p-0 mb-3">
-  <div class="navbar-top w-100 container-fluid d-flex align-items-center justify-content-between py-2"
-      style="background-color: {{ web_akzentfarbe|default:'#AF2B1E' }};">
+<nav class="navbar navbar-expand-lg navbar-split {% if web_akzenttextfarbe == '#000' %}navbar-light{% else %}navbar-dark{% endif %} p-0 mb-3">
+  <div class="navbar-top w-100 container-fluid d-flex align-items-center justify-content-between py-2">
     <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'nach_login' %}{% else %}{% url 'dashboard' %}{% endif %}">{% if verein.logo %}<img src="{% url 'verein_logo' %}" alt="" style="height:56px;background:#fff;border-radius:6px;padding:3px;box-shadow:0 2px 6px rgba(0,0,0,.25)">{% endif %}{{ verein.name|default:product_name|default:"Feuerix" }}</a>
     <div class="d-flex align-items-center gap-2">
       {% include "core/_sprachauswahl.html" %}
@@ -66,7 +65,7 @@
     </div>
   </div>
   {% if user.is_authenticated %}
-  <div class="collapse navbar-collapse navbar-menu" id="nav" style="background-color: {{ web_akzentfarbe_2|default:'#1C1C1C' }};">
+  <div class="collapse navbar-collapse navbar-menu" id="nav">
     <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between py-1">
       <ul class="navbar-nav me-auto">
         {% for gruppe, icon, punkte in navigation %}

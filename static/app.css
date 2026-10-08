@@ -7,10 +7,13 @@ body {
   background-attachment: fixed;
 }
 .navbar-brand { font-weight: 600; }
-/* Navigationsleiste in zwei Baendern: oben Logo/Vereinsname (Farbverlauf, oben -> unten), darunter das Menue
-   in der unteren Verlauffarbe weitergefuehrt und mit einer Akzentlinie abgeschlossen. */
+/* Navigationsleiste in zwei Baendern: oben Logo/Vereinsname in der Hauptfarbe, darunter das Menue in der
+   zweiten Farbe weitergefuehrt und mit einer Akzentlinie abgeschlossen. navbar-expand-lg erzwingt ab dem
+   lg-Breakpoint sonst flex-wrap:nowrap (fuer die klassische einzeilige Navbar) - das wuerde unsere beiden
+   Baender nebeneinander statt untereinander zwingen, deshalb hier wieder auf wrap zurueckgesetzt. */
+.navbar-split { flex-wrap: wrap; }
 .navbar-top {
-  background-image: linear-gradient(180deg, var(--bs-primary), var(--bs-primary-2));
+  background-color: var(--bs-primary);
   box-shadow: 0 3px 16px rgba(0, 0, 0, .22);
   position: relative; z-index: 1;
 }

@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.45.1
+- Fix: Das Menü-Band der zweigeteilten Navigationsleiste saß ab Desktop-Breite fälschlich neben statt unter dem
+  Logo-Band (`navbar-expand-lg` erzwingt dort sonst `flex-wrap: nowrap` für die klassische einzeilige Navbar).
+  Außerdem war der Farbverlauf im oberen Band nicht sauber, dort jetzt eine einfache Flächenfarbe statt Verlauf.
+
 ## 1.45.0
 - Navigationsleiste in zwei Bändern: oben Logo/Vereinsname mit Farbverlauf von der Haupt- zur ersten
   Akzentfarbe, darunter das Menü in der unteren Verlauffarbe weitergeführt und mit einer Akzentlinie
