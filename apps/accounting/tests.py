@@ -93,6 +93,22 @@ class KassenberichtTests(TestCase):
         self.assertEqual((z1["zahlung"], z2["zahlung"]), (1, 0))
         self.assertEqual(Buchung.objects.filter(verein=self.v, quelle="zahlung").count(), 1)
 
+    def test_zahlung_gesperrt_nach_uebernahme_in_abgeschlossenen_bericht(self):
+        """Eine Zahlung, die bereits ins Kassenbuch uebernommen und der Kassenbericht dafuer abgeschlossen
+        wurde, darf nicht mehr geaendert/geloescht werden - sonst passt der abgeschlossene Bericht nicht
+        mehr zum (dann veraenderten) Live-Zustand."""
+        from apps.finance.models import Rechnung, Zahlung
+        from apps.accounting.services import uebernehmen
+        r = Rechnung.objects.create(verein=self.v, typ="beitrag", status="offen", empfaenger_name="Max",
+                                    datum=date(2026, 3, 1))
+        z = Zahlung.objects.create(verein=self.v, rechnung=r, betrag=Decimal("60"), datum=date(2026, 3, 5))
+        self.assertFalse(z.gesperrt)
+        uebernehmen(self.v, date(2026, 1, 1), date(2026, 12, 31))
+        self.assertFalse(z.gesperrt)
+        Kassenbericht.objects.create(verein=self.v, titel="KB", von=date(2026, 1, 1), bis=date(2026, 12, 31),
+                                     status="abgeschlossen")
+        self.assertTrue(z.gesperrt)
+
     def test_uebernahme_bucht_rueckzahlung_als_ausgabe(self):
         from apps.finance.models import Rechnung, Zahlung
         from apps.accounting.services import uebernehmen

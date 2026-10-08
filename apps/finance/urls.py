@@ -56,7 +56,8 @@ urlpatterns += crud("rechnungspositionen", Rechnungsposition, "rechnungen", form
                     bearbeitbar=_position_bearbeitbar, loeschbar=_position_bearbeitbar, select_related=("rechnung",))
 urlpatterns += crud("zahlungen", Zahlung, "zahlungen", list_display=("datum", "rechnung", "betrag", "art",
                     "ruecklastschrift", "referenz"), select_related=("rechnung",), suche=("rechnung__nummer", "referenz"),
-                    filter=("rechnung",), ordering=("-datum", "-id"))
+                    filter=("rechnung",), ordering=("-datum", "-id"),
+                    bearbeitbar=lambda z: not z.gesperrt, loeschbar=lambda z: not z.gesperrt)
 urlpatterns += crud("mahnungen", Mahnung, "rechnungen", list_display=("rechnung", "stufe", "datum", "frist", "gebuehr"),
                     select_related=("rechnung",), kontext=views.mahnung_kontext, add=False)
 urlpatterns += crud("bankumsaetze", Bankumsatz, "bank", list_display=("buchungsdatum", "betrag", "gegenkonto_name",

@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Case, DecimalField, F, Sum, When
 from django.utils.translation import gettext_lazy as _
@@ -182,8 +183,13 @@ class Rechnungsposition(TenantModel):
     rechnung = models.ForeignKey(Rechnung, on_delete=models.CASCADE, related_name="positionen",
                                  verbose_name=_("Rechnung"))
     text = models.CharField(_("Bezeichnung"), max_length=300)
-    menge = models.DecimalField(_("Menge"), max_digits=8, decimal_places=2, default=1)
-    einzelpreis = models.DecimalField(_("Einzelpreis netto (€)"), max_digits=10, decimal_places=2)
+    # Storno/Gutschrift erzeugen ihre Ausgleichsposition mit negativem einzelpreis direkt per .create() (siehe
+    # services.storniere()/gutschrift()) - das umgeht Validatoren bewusst (die greifen nur bei full_clean()/
+    # ModelForm). Hier wird daher nur der normale Erfassungsweg über das Formular abgesichert.
+    menge = models.DecimalField(_("Menge"), max_digits=8, decimal_places=2, default=1,
+                                validators=[MinValueValidator(Decimal("0.01"))])
+    einzelpreis = models.DecimalField(_("Einzelpreis netto (€)"), max_digits=10, decimal_places=2,
+                                      validators=[MinValueValidator(Decimal("0.01"))])
     steuersatz = models.DecimalField(_("Umsatzsteuersatz (%)"), max_digits=5, decimal_places=2, default=0,
                                      help_text=_("0 für umsatzsteuerfreie Positionen (z. B. ideeller Bereich)."))
 
@@ -258,7 +264,8 @@ class Zahlung(TenantModel):
            ("rueckzahlung", _("Rückzahlung")), ("sonstige", _("Sonstige"))]
     rechnung = models.ForeignKey(Rechnung, on_delete=models.PROTECT, related_name="zahlungen", verbose_name=_("Rechnung"))
     datum = models.DateField(_("Zahlungsdatum"), default=date.today)
-    betrag = models.DecimalField(_("Betrag (€)"), max_digits=10, decimal_places=2)
+    betrag = models.DecimalField(_("Betrag (€)"), max_digits=10, decimal_places=2, help_text=_("immer positiv erfassen"),
+                                 validators=[MinValueValidator(Decimal("0.01"))])
     art = models.CharField(_("Zahlungsart"), max_length=12, choices=ART, default="ueberweisung")
     ruecklastschrift = models.BooleanField(_("Rücklastschrift (Betrag wird abgezogen)"), default=False)
     referenz = models.CharField(_("Referenz"), max_length=200, blank=True)
@@ -274,7 +281,19 @@ class Zahlung(TenantModel):
     def __str__(self):
         return f"{'−' if self.ruecklastschrift else ''}{self.betrag} € auf {self.rechnung}"
 
+    @property
+    def gesperrt(self):
+        """Bereits ins Kassenbuch uebernommene Zahlungen in einem abgeschlossenen Kassenbericht sind
+        unveraenderlich - sonst wuerde der bereits abgeschlossene Bericht nicht mehr zum (dann veraenderten)
+        Live-Zustand passen."""
+        from apps.accounting.models import Buchung
+        b = Buchung.objects.filter(verein_id=self.verein_id, quelle="zahlung", quelle_id=self.pk).first()
+        return bool(b and b.gesperrt)
+
     def clean(self):
+        if self.gesperrt:
+            raise ValidationError(_("Diese Zahlung wurde bereits in einen abgeschlossenen Kassenbericht "
+                                    "übernommen und kann nicht mehr geändert werden."))
         if not self.rechnung_id:
             return
         r = self.rechnung

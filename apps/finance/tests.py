@@ -160,6 +160,73 @@ class RueckzahlungTests(TestCase):
         self.assertContains(r, "Rückzahlung buchen")
 
 
+class ZahlungSperreTests(TestCase):
+    """Eine bereits ins Kassenbuch uebernommene Zahlung in einem abgeschlossenen Kassenbericht darf nicht
+    mehr geaendert/geloescht werden."""
+
+    def setUp(self):
+        from apps.accounting.models import Kassenbericht, Konto
+        from apps.accounting.services import uebernehmen
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        bank = Konto.objects.get(verein=self.v, name="Bankkonto")
+        bank.eroeffnungsdatum = date(2025, 1, 1)
+        bank.save()
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        r = Rechnung.objects.create(verein=self.v, typ="beitrag", status="offen", empfaenger_name="Max",
+                                    datum=date(2026, 3, 1))
+        self.z = Zahlung.objects.create(verein=self.v, rechnung=r, betrag=Decimal("60"), datum=date(2026, 3, 5))
+        uebernehmen(self.v, date(2026, 1, 1), date(2026, 12, 31))
+        Kassenbericht.objects.create(verein=self.v, titel="KB", von=date(2026, 1, 1), bis=date(2026, 12, 31),
+                                     status="abgeschlossen")
+
+    def test_bearbeiten_und_loeschen_verboten(self):
+        r = self.client.get(reverse("zahlung_edit", args=[self.z.pk]))
+        self.assertEqual(r.status_code, 403)
+        r = self.client.post(reverse("zahlung_edit", args=[self.z.pk]), {
+            "rechnung": self.z.rechnung_id, "datum": self.z.datum, "betrag": "5", "art": "ueberweisung"})
+        self.assertEqual(r.status_code, 403)
+        r = self.client.post(reverse("zahlung_delete", args=[self.z.pk]))
+        self.assertEqual(r.status_code, 403)
+        self.z.refresh_from_db()
+        self.assertEqual(self.z.betrag, Decimal("60"))
+
+
+class NegativeWerteValidierungTests(TestCase):
+    """Server-seitige Untergrenzen gegen manipulierte Formular-POSTs (z. B. per curl) - negative Beträge/
+    Mengen dürfen über das normale Formular nicht eingetragen werden können."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.r = Rechnung.objects.create(verein=self.v, typ="individuell", status="entwurf",
+                                         empfaenger_name="Max Muster", datum=date(2026, 3, 1))
+
+    def test_negativer_einzelpreis_wird_abgelehnt(self):
+        self.client.post(reverse("rechnungsposition_add"), {
+            "rechnung": self.r.pk, "text": "Ware", "menge": "1", "einzelpreis": "-50.00", "steuersatz": "0"})
+        self.assertEqual(Rechnungsposition.objects.filter(rechnung=self.r).count(), 0)
+
+    def test_negative_menge_wird_abgelehnt(self):
+        self.client.post(reverse("rechnungsposition_add"), {
+            "rechnung": self.r.pk, "text": "Ware", "menge": "-3", "einzelpreis": "50.00", "steuersatz": "0"})
+        self.assertEqual(Rechnungsposition.objects.filter(rechnung=self.r).count(), 0)
+
+    def test_negativer_zahlungsbetrag_wird_abgelehnt(self):
+        self.r.status = "offen"
+        self.r.save()
+        self.client.post(reverse("zahlung_add"), {
+            "rechnung": self.r.pk, "datum": date.today(), "betrag": "-60", "art": "ueberweisung"})
+        self.assertEqual(Zahlung.objects.filter(rechnung=self.r).count(), 0)
+
+
 class SepaExportTests(TestCase):
     def setUp(self):
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test", iban="DE02120300000000202051",

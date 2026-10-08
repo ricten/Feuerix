@@ -3,6 +3,14 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.50.1
+- Fix: Spenden ließen sich nach Ausstellung der zugehörigen Zuwendungsbestätigung noch ändern/löschen -
+  die Quittung hätte dann einen falschen Betrag bescheinigt. Jetzt wie die Quittung selbst gesperrt.
+- Fix: Zahlungen ließen sich auch nach Übernahme in einen abgeschlossenen Kassenbericht noch ändern/
+  löschen. Jetzt gesperrt, solange der Kassenbericht abgeschlossen ist.
+- Fix: Rechnungsposition (Menge/Einzelpreis) und Zahlung (Betrag) ließen sich über das Formular auf
+  negative Werte setzen - Server-seitige Untergrenze ergänzt. Ergebnis eines Sicherheits-Code-Reviews.
+
 ## 1.50.0
 - Neu: Schutz vor Brute-Force-/Credential-Stuffing-Angriffen auf `/login/` und `/admin/login/`
   (`django-axes`) - nach 5 fehlgeschlagenen Versuchen wird die Kombination aus Benutzername und

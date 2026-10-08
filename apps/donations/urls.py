@@ -16,7 +16,7 @@ urlpatterns += crud("spenden", Spende, "spenden", list_display=("datum", ("name_
                     "betrag", "bestaetigung"), suche=("spender_name", "spender__nachname", "zweck"),
                     filter=("art", "spender"), select_related=("spender", "bestaetigung"), kontext=views.spende_kontext,
                     listen_aktionen=views.spenden_listen_aktionen, ordering=("-datum", "-id"),
-                    loeschbar=lambda s: s.bestaetigung_id is None)
+                    bearbeitbar=lambda s: s.bestaetigung_id is None, loeschbar=lambda s: s.bestaetigung_id is None)
 urlpatterns += crud("spendenquittungen", Zuwendungsbestaetigung, "spenden", list_display=("nummer", "spender_name",
                     "art", "betrag", "datum_bis", "status"), filter=("status", "typ"), suche=("nummer", "spender_name"),
                     kontext=views.bestaetigung_kontext, bearbeitbar=lambda b: b.status == "entwurf",
