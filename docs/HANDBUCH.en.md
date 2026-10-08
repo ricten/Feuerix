@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.38.0)
+# Handbook – Feuerix (Version 1.38.1)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -343,7 +343,10 @@ size and layout can be adjusted under *Administration › Club/Settings* ("label
 row"/"label rows per page") – by default a multi-column A4 sheet (3 × 6, 58 × 40 mm). If both "labels per
 row" and "label rows per page" are set to 1, the PDF page is instead cropped exactly to the configured label
 size (one label = one page) – which lets you print directly on a continuous-roll label printer such as a
-Dymo LabelWriter 450 (standard address label, 89 × 28 mm).
+Dymo LabelWriter 450 (standard address label, 89 × 28 mm). Besides the inventory number and description, the
+storage location is printed too, if one is set. If a label is noticeably taller than it is wide (e.g. a
+narrow roll used in portrait orientation), the content is automatically rotated 90° so the QR code makes use
+of the long side instead of the short one.
 
 **Starting a loan:**
 - *Manually* via "Create loan/reservation" on an item (the full form, including adjusting the deposit/

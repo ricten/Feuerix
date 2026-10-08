@@ -478,7 +478,8 @@ def gegenstand_etikett(request, pk):
 @login_required
 def gegenstand_etiketten(request):
     _pruefen(request, "inventar", "view")
-    qs = Gegenstand.objects.filter(verein=request.verein).exclude(zustand="ausgesondert").order_by("inventarnummer")
+    qs = (Gegenstand.objects.filter(verein=request.verein).exclude(zustand="ausgesondert")
+         .select_related("standort").order_by("inventarnummer"))
     if not qs.exists():
         messages.info(request, "Kein Inventar vorhanden.")
         return redirect("gegenstand_list")

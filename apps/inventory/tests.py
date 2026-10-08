@@ -6,12 +6,13 @@ from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from reportlab.lib.units import mm
 
 from apps.core.models import Rolle, Verein, Zugang
 from apps.finance.models import Rechnung
 from apps.inventory import importer
 from apps.inventory.models import Gegenstand, Verleih
-from apps.inventory.pdf import etiketten_pdf
+from apps.inventory.pdf import _etikett_layout, etiketten_pdf
 from apps.members.models import Mitglied
 
 CSV = ("Bezeichnung;Hersteller;Zustand;Verleihbar\n"
@@ -125,6 +126,49 @@ class EtikettenTests(TestCase):
         pdf = etiketten_pdf(gegenstaende, lambda nr: f"https://example.org/scan/{nr}/", v)
         # 2 x 4 = 8 Etiketten passen auf eine A4-Seite
         self.assertEqual(len(PdfReader(BytesIO(pdf)).pages), 1)
+
+    def test_standort_wird_aufgedruckt_wenn_vorhanden(self):
+        from io import BytesIO
+
+        from pypdf import PdfReader
+
+        from apps.inventory.models import Standort
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        ort = Standort.objects.create(verein=v, name="Gerätehaus Dachboden")
+        g = Gegenstand.objects.create(verein=v, bezeichnung="Beamer", standort=ort)
+        pdf = etiketten_pdf([g], lambda nr: f"https://example.org/scan/{nr}/", v)
+        text = PdfReader(BytesIO(pdf)).pages[0].extract_text()
+        self.assertIn("Gerätehaus Dachboden", text)
+
+    def test_ohne_standort_kein_fehler_und_keine_leere_zeile_im_text(self):
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        g = Gegenstand.objects.create(verein=v, bezeichnung="Beamer")
+        pdf = etiketten_pdf([g], lambda nr: f"https://example.org/scan/{nr}/", v)
+        self.assertTrue(pdf.startswith(b"%PDF"))
+
+
+class EtikettLayoutTests(TestCase):
+    """Regressionsschutz für den Fehler aus einem realen Ausdruck: bei einem schmalen, hohen Etikett blieb
+    zwischen QR-Code und Text eine grosse ungenutzte Luecke, weil der Textblock prozentual zur (grossen) Höhe
+    berechnet wurde. Jetzt absolute Textblockgroesse plus senkrechte Zentrierung von QR-Code+Text als Einheit."""
+
+    def test_schmales_hohes_etikett_hat_keine_grosse_luecke(self):
+        breite, hoehe = 25 * mm, 89 * mm
+        l = _etikett_layout(breite, hoehe)
+        # Der Freiraum ueber und unter dem zentrierten Inhalt darf nicht den Grossteil des Etiketts einnehmen
+        self.assertLess(l["unten_frei"] * 2, hoehe * 0.8)
+        self.assertGreater(l["unten_frei"], 0)
+
+    def test_inhalt_bleibt_innerhalb_des_etiketts(self):
+        for breite, hoehe in [(58 * mm, 40 * mm), (89 * mm, 28 * mm), (25 * mm, 89 * mm), (10 * mm, 10 * mm)]:
+            with self.subTest(breite=breite, hoehe=hoehe):
+                l = _etikett_layout(breite, hoehe)
+                inhalt_hoehe = l["qr_groesse"] + l["rand"] + l["text_block"]
+                self.assertLessEqual(inhalt_hoehe + 2 * max(l["unten_frei"], 0), hoehe + 1)  # +1 Toleranz
+
+    def test_text_rueckt_bei_sehr_hohem_etikett_nicht_zu_nah_an_den_rand(self):
+        l = _etikett_layout(25 * mm, 89 * mm)
+        self.assertGreater(l["unten_frei"], 2 * mm)
 
 
 class ScanTests(TestCase):

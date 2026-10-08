@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.38.1
+- Fix: bei schmalen, hohen Etiketten blieb eine grosse ungenutzte Luecke zwischen QR-Code und Text (Textblock
+  wurde prozentual zur Etikettenhoehe statt absolut berechnet). QR-Code + Text werden jetzt als Einheit
+  zentriert, bei deutlich hoeheren als breiten Etiketten wird der Inhalt zusaetzlich automatisch um 90°
+  gedreht. Ausserdem wird jetzt - sofern gepflegt - der Standort mit aufs Etikett gedruckt.
+
 ## 1.38.0
 - Etikettengröße und -raster für den Inventar-Etikettendruck sind jetzt unter Vereinseinstellungen frei
   konfigurierbar (Breite/Höhe, Spalten/Zeilen). Bei 1 Spalte × 1 Zeile wird die PDF-Seite exakt auf die

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.38.0)
+# Handbuch – Feuerix (Version 1.38.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -348,7 +348,10 @@ System. Größe und Anordnung der Etiketten lassen sich unter *Verwaltung › Ve
 A4-Bogen (3 × 6, 58 × 40 mm). Werden „Etiketten je Zeile“ **und** „Etikettenzeilen je Seite“ beide auf 1
 gesetzt, wird die PDF-Seite stattdessen exakt auf die eingestellte Etikettengröße zugeschnitten (ein Etikett
 = eine Seite) – damit lässt sich z. B. ein Etikettendrucker mit Endlosrolle wie ein Dymo LabelWriter 450
-direkt bedrucken (Standardadresse 89 × 28 mm).
+direkt bedrucken (Standardadresse 89 × 28 mm). Neben Inventarnummer und Bezeichnung wird – sofern gepflegt –
+auch der Standort mit aufgedruckt. Ist ein Etikett deutlich höher als breit (z. B. eine schmale Rolle
+hochkant), wird der Inhalt automatisch um 90° gedreht, damit der QR-Code die lange statt der kurzen Seite
+ausnutzt.
 
 **Verleih starten**:
 - *Manuell* über „Verleih / Reservierung anlegen“ auf dem Gegenstand (voller Formular-Umfang, inkl. Kaution/
