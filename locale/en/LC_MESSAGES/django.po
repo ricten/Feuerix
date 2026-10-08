@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Feuerix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-08 21:22+0200\n"
+"POT-Creation-Date: 2026-10-08 22:27+0200\n"
 "PO-Revision-Date: 2026-09-24 07:41+0200\n"
 "Last-Translator: Feuerix\n"
 "Language-Team: English\n"
@@ -41,8 +41,8 @@ msgid "Barkasse"
 msgstr "Cash account"
 
 #: .\apps\accounting\models.py:20 .\apps\events\models.py:78
-#: .\apps\events\models.py:151 .\apps\finance\models.py:182
-#: .\apps\finance\models.py:339 .\apps\honors\models.py:10
+#: .\apps\events\models.py:151 .\apps\finance\models.py:184
+#: .\apps\finance\models.py:341 .\apps\honors\models.py:10
 #: .\apps\inventory\models.py:44 .\apps\inventory\models.py:188
 #: .\apps\inventory\models.py:225
 msgid "Bezeichnung"
@@ -53,7 +53,7 @@ msgstr "Description"
 #: .\apps\documents\models.py:123 .\apps\documents\models.py:151
 #: .\apps\donations\models.py:15 .\apps\donations\models.py:60
 #: .\apps\events\models.py:19 .\apps\events\models.py:150
-#: .\apps\finance\models.py:72
+#: .\apps\finance\models.py:74
 msgid "Art"
 msgstr "Type"
 
@@ -76,13 +76,13 @@ msgstr "Entries can only be recorded from this date onward."
 
 #: .\apps\accounting\models.py:26 .\apps\accounting\models.py:50
 #: .\apps\core\models.py:99 .\apps\core\models.py:144
-#: .\apps\documents\models.py:129 .\apps\finance\models.py:54
+#: .\apps\documents\models.py:129 .\apps\finance\models.py:56
 #: .\apps\honors\models.py:11 .\apps\members\models.py:100
 msgid "Aktiv"
 msgstr "Active"
 
-#: .\apps\accounting\models.py:28 .\apps\finance\models.py:240
-#: .\apps\finance\models.py:358
+#: .\apps\accounting\models.py:28 .\apps\finance\models.py:242
+#: .\apps\finance\models.py:360
 msgid "FinTS-Zugang"
 msgstr "FinTS connection"
 
@@ -113,7 +113,7 @@ msgstr "Expense"
 
 #: .\apps\accounting\models.py:45 .\apps\core\models.py:16
 #: .\apps\core\models.py:118 .\apps\documents\models.py:23
-#: .\apps\finance\models.py:43 .\apps\finance\models.py:234
+#: .\apps\finance\models.py:45 .\apps\finance\models.py:236
 #: .\apps\honors\models.py:24 .\apps\inventory\models.py:13
 #: .\apps\inventory\models.py:26 .\apps\members\models.py:15
 #: .\apps\members\models.py:42 .\apps\members\models.py:57
@@ -162,13 +162,13 @@ msgstr "From expense allowance"
 msgid "Aus Veranstaltungsbudget"
 msgstr "From event budget"
 
-#: .\apps\accounting\models.py:66 .\apps\finance\models.py:232
+#: .\apps\accounting\models.py:66 .\apps\finance\models.py:234
 msgid "Buchungsdatum"
 msgstr "Entry date"
 
 #: .\apps\accounting\models.py:68 .\apps\allowances\models.py:23
-#: .\apps\donations\models.py:19 .\apps\finance\models.py:233
-#: .\apps\finance\models.py:259 .\apps\finance\models.py:320
+#: .\apps\donations\models.py:19 .\apps\finance\models.py:235
+#: .\apps\finance\models.py:261 .\apps\finance\models.py:322
 msgid "Betrag (€)"
 msgstr "Amount (€)"
 
@@ -240,7 +240,7 @@ msgstr ""
 "This period belongs to a closed cash book report – entry not possible."
 
 #: .\apps\accounting\models.py:119 .\apps\documents\models.py:149
-#: .\apps\donations\models.py:12 .\apps\finance\models.py:68
+#: .\apps\donations\models.py:12 .\apps\finance\models.py:70
 msgid "Entwurf"
 msgstr "Draft"
 
@@ -270,8 +270,8 @@ msgstr "Period to"
 #: .\apps\accounting\models.py:123 .\apps\allowances\models.py:21
 #: .\apps\documents\models.py:161 .\apps\donations\models.py:16
 #: .\apps\events\models.py:20 .\apps\events\models.py:63
-#: .\apps\events\models.py:126 .\apps\finance\models.py:73
-#: .\apps\finance\models.py:237 .\apps\inventory\models.py:107
+#: .\apps\events\models.py:126 .\apps\finance\models.py:75
+#: .\apps\finance\models.py:239 .\apps\inventory\models.py:107
 #: .\apps\inventory\models.py:190 .\apps\members\models.py:114
 #: .\templates\inventory\vorgang.html:10
 #: .\templates\openslides\einstellungen.html:24
@@ -368,13 +368,13 @@ msgstr "Rejected"
 msgid "Verzicht (in Spende umgewandelt)"
 msgstr "Waived (converted into donation)"
 
-#: .\apps\allowances\models.py:19 .\apps\finance\models.py:76
+#: .\apps\allowances\models.py:19 .\apps\finance\models.py:78
 #: .\templates\allowances\uebersicht.html:10
 msgid "Empfänger"
 msgstr "Recipient"
 
 #: .\apps\allowances\models.py:22 .\apps\documents\models.py:158
-#: .\apps\finance\models.py:374 .\apps\honors\models.py:40
+#: .\apps\finance\models.py:376 .\apps\honors\models.py:40
 #: .\templates\honors\jubilaeen.html:9
 #: .\templates\paperless\sammelversand.html:11
 msgid "Datum"
@@ -406,8 +406,8 @@ msgstr "Receipt / Statement"
 
 #: .\apps\allowances\models.py:32 .\apps\donations\models.py:70
 #: .\apps\events\models.py:103 .\apps\events\models.py:127
-#: .\apps\finance\models.py:29 .\apps\finance\models.py:91
-#: .\apps\finance\models.py:263 .\apps\inventory\models.py:192
+#: .\apps\finance\models.py:31 .\apps\finance\models.py:93
+#: .\apps\finance\models.py:265 .\apps\inventory\models.py:192
 #: .\templates\events\rueckmeldung.html:31
 msgid "Bemerkung"
 msgstr "Remark"
@@ -488,23 +488,23 @@ msgstr "Archive folders"
 msgid "Finanzen"
 msgstr "Finance"
 
-#: .\apps\core\context.py:25 .\apps\finance\models.py:33
+#: .\apps\core\context.py:25 .\apps\finance\models.py:35
 msgid "Beitragsjahre"
 msgstr "Membership-fee years"
 
-#: .\apps\core\context.py:26 .\apps\finance\models.py:95
+#: .\apps\core\context.py:26 .\apps\finance\models.py:97
 msgid "Rechnungen"
 msgstr "Invoices"
 
-#: .\apps\core\context.py:27 .\apps\finance\models.py:269
+#: .\apps\core\context.py:27 .\apps\finance\models.py:271
 msgid "Zahlungen"
 msgstr "Payments"
 
-#: .\apps\core\context.py:28 .\apps\finance\models.py:246
+#: .\apps\core\context.py:28 .\apps\finance\models.py:248
 msgid "Bankumsätze"
 msgstr "Bank transactions"
 
-#: .\apps\core\context.py:29 .\apps\finance\models.py:305
+#: .\apps\core\context.py:29 .\apps\finance\models.py:307
 msgid "SEPA-Einzüge"
 msgstr "SEPA direct debits"
 
@@ -576,7 +576,7 @@ msgstr "OpenSlides connection"
 msgid "Paperless-Anbindung"
 msgstr "Paperless connection"
 
-#: .\apps\core\context.py:56 .\apps\finance\models.py:359
+#: .\apps\core\context.py:56 .\apps\finance\models.py:361
 #: .\templates\finance\fints_abrufen.html:20
 #: .\templates\finance\fints_kontodaten.html:20
 msgid "FinTS-Zugänge"
@@ -594,7 +594,7 @@ msgstr "Roles (advanced)"
 msgid "Berechtigungsmatrix"
 msgstr "Permission matrix"
 
-#: .\apps\core\context.py:60 .\apps\finance\models.py:58
+#: .\apps\core\context.py:60 .\apps\finance\models.py:60
 msgid "Beitragsregeln"
 msgstr "Membership-fee rules"
 
@@ -689,7 +689,7 @@ msgstr "Register court / No."
 msgid "Bank"
 msgstr "Bank"
 
-#: .\apps\core\models.py:24 .\apps\finance\models.py:235
+#: .\apps\core\models.py:24 .\apps\finance\models.py:237
 #: .\apps\members\models.py:130 .\templates\finance\fints_kontodaten.html:46
 msgid "IBAN"
 msgstr "IBAN"
@@ -872,8 +872,8 @@ msgstr "e.g. John Doe, 1st Chairperson"
 msgid "Unterschrift 2 (Briefe)"
 msgstr "Signature 2 (letters)"
 
-#: .\apps\core\models.py:83 .\templates\base.html:116
-#: .\templates\base.html:119
+#: .\apps\core\models.py:83 .\templates\base.html:123
+#: .\templates\base.html:126
 msgid "Impressum"
 msgstr "Legal notice"
 
@@ -1052,7 +1052,7 @@ msgstr "Membership trend (joins/leaves)"
 
 #: .\apps\core\views.py:175 .\apps\core\views.py:197 .\apps\core\views.py:202
 #: .\apps\core\views.py:212 .\apps\core\views.py:218
-#: .\apps\finance\models.py:25 .\apps\inventory\models.py:189
+#: .\apps\finance\models.py:27 .\apps\inventory\models.py:189
 msgid "Jahr"
 msgstr "Year"
 
@@ -1097,12 +1097,12 @@ msgstr "Membership-fee revenue"
 msgid "Soll"
 msgstr "Due"
 
-#: .\apps\core\views.py:197 .\apps\finance\models.py:69
+#: .\apps\core\views.py:197 .\apps\finance\models.py:71
 msgid "Bezahlt"
 msgstr "Paid"
 
 #: .\apps\core\views.py:197 .\apps\events\models.py:56
-#: .\apps\events\models.py:119 .\apps\finance\models.py:68
+#: .\apps\events\models.py:119 .\apps\finance\models.py:70
 #: .\apps\inventory\models.py:220
 msgid "Offen"
 msgstr "Outstanding"
@@ -1132,9 +1132,9 @@ msgstr "Total"
 msgid "Aufwandsentschädigungen je Jahr"
 msgstr "Expense allowances per year"
 
-#: .\apps\documents\models.py:13 .\apps\finance\models.py:94
-#: .\apps\finance\models.py:181 .\apps\finance\models.py:257
-#: .\apps\finance\models.py:317 .\apps\finance\models.py:372
+#: .\apps\documents\models.py:13 .\apps\finance\models.py:96
+#: .\apps\finance\models.py:183 .\apps\finance\models.py:259
+#: .\apps\finance\models.py:319 .\apps\finance\models.py:374
 #: .\templates\finance\sepa_einzug_neu.html:24
 msgid "Rechnung"
 msgstr "Invoice"
@@ -1198,7 +1198,7 @@ msgid "Datei"
 msgstr "File"
 
 #: .\apps\documents\models.py:57 .\apps\members\models.py:254
-#: .\templates\base.html:114
+#: .\templates\base.html:121
 msgid "Version"
 msgstr "Version"
 
@@ -1426,12 +1426,12 @@ msgstr "Donation in kind"
 msgid "Ausgestellt"
 msgstr "Issued"
 
-#: .\apps\donations\models.py:12 .\apps\finance\models.py:69
+#: .\apps\donations\models.py:12 .\apps\finance\models.py:71
 #: .\apps\inventory\models.py:96
 msgid "Storniert"
 msgstr "Cancelled"
 
-#: .\apps\donations\models.py:13 .\apps\finance\models.py:297
+#: .\apps\donations\models.py:13 .\apps\finance\models.py:299
 msgid "Nummer"
 msgstr "Number"
 
@@ -1539,7 +1539,7 @@ msgstr "Date of donation"
 msgid "Betrag / Wert (€)"
 msgstr "Amount / value (€)"
 
-#: .\apps\donations\models.py:61 .\apps\finance\models.py:236
+#: .\apps\donations\models.py:61 .\apps\finance\models.py:238
 msgid "Verwendungszweck"
 msgstr "Purpose"
 
@@ -1551,7 +1551,7 @@ msgstr "Description of the donation in kind"
 msgid "z. B. Kaufbeleg, Schätzung, Gutachten"
 msgstr "e.g. purchase receipt, estimate, expert appraisal"
 
-#: .\apps\donations\models.py:67 .\apps\finance\models.py:245
+#: .\apps\donations\models.py:67 .\apps\finance\models.py:247
 msgid "Bankumsatz"
 msgstr "Bank transaction"
 
@@ -1691,8 +1691,8 @@ msgstr "This shift is already fully staffed."
 msgid "Zugesagt"
 msgstr "Accepted"
 
-#: .\apps\events\models.py:123 .\apps\finance\models.py:75
-#: .\apps\finance\models.py:319 .\apps\honors\models.py:38
+#: .\apps\events\models.py:123 .\apps\finance\models.py:77
+#: .\apps\finance\models.py:321 .\apps\honors\models.py:38
 #: .\apps\members\models.py:159 .\apps\members\models.py:225
 #: .\apps\members\models.py:250 .\apps\paperless\models.py:62
 #: .\templates\finance\sepa_einzug_neu.html:24
@@ -1782,321 +1782,316 @@ msgid "Wahlergebnisse"
 msgstr "Election results"
 
 #: .\apps\events\views.py:127
-#| msgid "Bitte ein Mitglied oder einen Namen angeben."
 msgid "Bitte Ihren Namen angeben."
 msgstr "Please enter your name."
 
-#: .\apps\finance\models.py:13
-msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
-msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
-
-#: .\apps\finance\models.py:26
+#: .\apps\finance\models.py:28
 msgid "Fälligkeit"
 msgstr "Due date"
 
-#: .\apps\finance\models.py:27
+#: .\apps\finance\models.py:29
 msgid "Stichtag für Altersregeln"
 msgstr "Reference date for age rules"
 
-#: .\apps\finance\models.py:28
+#: .\apps\finance\models.py:30
 msgid "Abgerechnet am"
 msgstr "Billed on"
 
-#: .\apps\finance\models.py:32 .\apps\finance\models.py:80
+#: .\apps\finance\models.py:34 .\apps\finance\models.py:82
 msgid "Beitragsjahr"
 msgstr "Membership-fee year"
 
-#: .\apps\finance\models.py:45
+#: .\apps\finance\models.py:47
 msgid "Nur für Mitgliedsart"
 msgstr "Only for member type"
 
-#: .\apps\finance\models.py:46
+#: .\apps\finance\models.py:48
 msgid "Nur Familienmitgliedschaften"
 msgstr "Only family memberships"
 
-#: .\apps\finance\models.py:47
+#: .\apps\finance\models.py:49
 msgid "Betrag wird nur beim 'Familienzahler' berechnet"
 msgstr "The amount is only calculated for the 'family payer'."
 
-#: .\apps\finance\models.py:48
+#: .\apps\finance\models.py:50
 msgid "Alter von"
 msgstr "Age from"
 
-#: .\apps\finance\models.py:49
+#: .\apps\finance\models.py:51
 msgid "Alter bis (einschl.)"
 msgstr "Age to (inclusive)"
 
-#: .\apps\finance\models.py:50
+#: .\apps\finance\models.py:52
 msgid "Jahresbeitrag (€)"
 msgstr "Annual fee (€)"
 
-#: .\apps\finance\models.py:51
+#: .\apps\finance\models.py:53
 msgid "Priorität (höher = zuerst)"
 msgstr "Priority (higher = first)"
 
-#: .\apps\finance\models.py:52
+#: .\apps\finance\models.py:54
 msgid "Gültig ab Jahr"
 msgstr "Valid from year"
 
-#: .\apps\finance\models.py:53
+#: .\apps\finance\models.py:55
 msgid "Gültig bis Jahr"
 msgstr "Valid until year"
 
-#: .\apps\finance\models.py:57
+#: .\apps\finance\models.py:59
 msgid "Beitragsregel"
 msgstr "Membership-fee rule"
 
-#: .\apps\finance\models.py:66
+#: .\apps\finance\models.py:68
 msgid "Beitragsrechnung"
 msgstr "Membership-fee invoice"
 
-#: .\apps\finance\models.py:66
+#: .\apps\finance\models.py:68
 msgid "Individuelle Rechnung"
 msgstr "Individual invoice"
 
-#: .\apps\finance\models.py:67
+#: .\apps\finance\models.py:69
 msgid "Sammelrechnung"
 msgstr "Collective invoice"
 
-#: .\apps\finance\models.py:67
+#: .\apps\finance\models.py:69
 msgid "Gutschrift"
 msgstr "Credit note"
 
-#: .\apps\finance\models.py:67
+#: .\apps\finance\models.py:69
 msgid "Storno"
 msgstr "Cancellation"
 
-#: .\apps\finance\models.py:68
+#: .\apps\finance\models.py:70
 msgid "Teilweise bezahlt"
 msgstr "Partially paid"
 
-#: .\apps\finance\models.py:69
+#: .\apps\finance\models.py:71
 msgid "Verbucht"
 msgstr "Posted"
 
-#: .\apps\finance\models.py:71
+#: .\apps\finance\models.py:73
 msgid "Rechnungsnummer"
 msgstr "Invoice number"
 
-#: .\apps\finance\models.py:77
+#: .\apps\finance\models.py:79
 msgid "Anschrift des Empfängers"
 msgstr "Recipient's address"
 
-#: .\apps\finance\models.py:78
+#: .\apps\finance\models.py:80
 msgid "Rechnungsdatum"
 msgstr "Invoice date"
 
-#: .\apps\finance\models.py:79 .\templates\finance\sepa_einzug_neu.html:24
+#: .\apps\finance\models.py:81 .\templates\finance\sepa_einzug_neu.html:24
 msgid "Fällig am"
 msgstr "Due on"
 
-#: .\apps\finance\models.py:81
+#: .\apps\finance\models.py:83
 msgid "Leistungszeitraum von"
 msgstr "Service period from"
 
-#: .\apps\finance\models.py:82
+#: .\apps\finance\models.py:84
 msgid "Leistungszeitraum bis"
 msgstr "Service period to"
 
-#: .\apps\finance\models.py:83
+#: .\apps\finance\models.py:85
 msgid "Betrag brutto (€)"
 msgstr "Gross amount (€)"
 
-#: .\apps\finance\models.py:84
+#: .\apps\finance\models.py:86
 msgid "Nettobetrag (€)"
 msgstr "Net amount (€)"
 
-#: .\apps\finance\models.py:85
+#: .\apps\finance\models.py:87
 msgid "Umsatzsteuer (€)"
 msgstr "VAT (€)"
 
-#: .\apps\finance\models.py:86
+#: .\apps\finance\models.py:88
 msgid "Text oben"
 msgstr "Text above"
 
-#: .\apps\finance\models.py:87
+#: .\apps\finance\models.py:89
 msgid "Text unten"
 msgstr "Text below"
 
-#: .\apps\finance\models.py:89
+#: .\apps\finance\models.py:91
 msgid "Bezieht sich auf"
 msgstr "Relates to"
 
-#: .\apps\finance\models.py:90
+#: .\apps\finance\models.py:92
 msgid "Per E-Mail versendet"
 msgstr "Sent by email"
 
-#: .\apps\finance\models.py:183
+#: .\apps\finance\models.py:185
 msgid "Menge"
 msgstr "Quantity"
 
-#: .\apps\finance\models.py:184
+#: .\apps\finance\models.py:186
 msgid "Einzelpreis netto (€)"
 msgstr "Unit price net (€)"
 
-#: .\apps\finance\models.py:185
+#: .\apps\finance\models.py:187
 msgid "Umsatzsteuersatz (%)"
 msgstr "VAT rate (%)"
 
-#: .\apps\finance\models.py:186
+#: .\apps\finance\models.py:188
 msgid "0 für umsatzsteuerfreie Positionen (z. B. ideeller Bereich)."
 msgstr "0 for VAT-exempt line items (e.g. non-profit sphere)."
 
-#: .\apps\finance\models.py:189
+#: .\apps\finance\models.py:191
 msgid "Rechnungsposition"
 msgstr "Invoice line item"
 
-#: .\apps\finance\models.py:190
+#: .\apps\finance\models.py:192
 msgid "Rechnungspositionen"
 msgstr "Invoice line items"
 
-#: .\apps\finance\models.py:215
+#: .\apps\finance\models.py:217
 msgid ""
 "Positionen können nur bei Rechnungen im Status 'Entwurf' geändert werden."
 msgstr "Line items can only be changed for invoices with status 'Draft'."
 
-#: .\apps\finance\models.py:224
+#: .\apps\finance\models.py:226
 msgid "Nur bei Entwürfen möglich."
 msgstr "Only possible for drafts."
 
-#: .\apps\finance\models.py:230 .\apps\inventory\models.py:40
+#: .\apps\finance\models.py:232 .\apps\inventory\models.py:40
 #: .\templates\core\liste.html:12
 msgid "Neu"
 msgstr "New"
 
-#: .\apps\finance\models.py:230
+#: .\apps\finance\models.py:232
 msgid "Zugeordnet"
 msgstr "Matched"
 
-#: .\apps\finance\models.py:230
+#: .\apps\finance\models.py:232
 msgid "Manuelle Zuordnung erforderlich"
 msgstr "Manual matching required"
 
-#: .\apps\finance\models.py:231
+#: .\apps\finance\models.py:233
 msgid "Ignoriert"
 msgstr "Ignored"
 
-#: .\apps\finance\models.py:255 .\apps\members\models.py:104
+#: .\apps\finance\models.py:257 .\apps\members\models.py:104
 msgid "Überweisung"
 msgstr "Bank transfer"
 
-#: .\apps\finance\models.py:255 .\apps\members\models.py:104
+#: .\apps\finance\models.py:257 .\apps\members\models.py:104
 msgid "SEPA-Lastschrift"
 msgstr "SEPA direct debit"
 
-#: .\apps\finance\models.py:255 .\apps\members\models.py:104
+#: .\apps\finance\models.py:257 .\apps\members\models.py:104
 msgid "Bar"
 msgstr "Cash"
 
-#: .\apps\finance\models.py:256
+#: .\apps\finance\models.py:258
 msgid "Rückzahlung"
 msgstr "Refund"
 
-#: .\apps\finance\models.py:256 .\templates\allowances\uebersicht.html:10
+#: .\apps\finance\models.py:258 .\templates\allowances\uebersicht.html:10
 msgid "Sonstige"
 msgstr "Other"
 
-#: .\apps\finance\models.py:258
+#: .\apps\finance\models.py:260
 msgid "Zahlungsdatum"
 msgstr "Payment date"
 
-#: .\apps\finance\models.py:260 .\apps\members\models.py:128
+#: .\apps\finance\models.py:262 .\apps\members\models.py:128
 msgid "Zahlungsart"
 msgstr "Payment method"
 
-#: .\apps\finance\models.py:261
+#: .\apps\finance\models.py:263
 msgid "Rücklastschrift (Betrag wird abgezogen)"
 msgstr "Returned direct debit (amount will be deducted)"
 
-#: .\apps\finance\models.py:262
+#: .\apps\finance\models.py:264
 msgid "Referenz"
 msgstr "Reference"
 
-#: .\apps\finance\models.py:268
+#: .\apps\finance\models.py:270
 msgid "Zahlung"
 msgstr "Payment"
 
-#: .\apps\finance\models.py:283
+#: .\apps\finance\models.py:285
 #, python-format
 msgid ""
 "Auf diese Rechnung kann keine Zahlung gebucht werden (Status: %(status)s)."
 msgstr "No payment can be posted to this invoice (status: %(status)s)."
 
-#: .\apps\finance\models.py:298 .\templates\finance\sepa_einzug_neu.html:15
+#: .\apps\finance\models.py:300 .\templates\finance\sepa_einzug_neu.html:15
 msgid "Fälligkeitsdatum (Einzugstermin)"
 msgstr "Due date (collection date)"
 
-#: .\apps\finance\models.py:299
+#: .\apps\finance\models.py:301
 msgid "Anzahl Lastschriften"
 msgstr "Number of direct debits"
 
-#: .\apps\finance\models.py:300
+#: .\apps\finance\models.py:302
 msgid "Summe (€)"
 msgstr "Total (€)"
 
-#: .\apps\finance\models.py:301
+#: .\apps\finance\models.py:303
 msgid "SEPA-XML-Datei"
 msgstr "SEPA XML file"
 
-#: .\apps\finance\models.py:304
+#: .\apps\finance\models.py:306
 msgid "SEPA-Einzug"
 msgstr "SEPA direct debit collection"
 
-#: .\apps\finance\models.py:314
+#: .\apps\finance\models.py:316
 msgid "Erstlastschrift (FRST)"
 msgstr "First direct debit (FRST)"
 
-#: .\apps\finance\models.py:314
+#: .\apps\finance\models.py:316
 msgid "Folgelastschrift (RCUR)"
 msgstr "Recurring direct debit (RCUR)"
 
-#: .\apps\finance\models.py:315
+#: .\apps\finance\models.py:317
 msgid "Einzug"
 msgstr "Collection"
 
-#: .\apps\finance\models.py:321 .\apps\members\models.py:132
+#: .\apps\finance\models.py:323 .\apps\members\models.py:132
 msgid "SEPA-Mandatsreferenz"
 msgstr "SEPA mandate reference"
 
-#: .\apps\finance\models.py:322 .\apps\members\models.py:133
+#: .\apps\finance\models.py:324 .\apps\members\models.py:133
 msgid "Datum des SEPA-Mandats"
 msgstr "Date of the SEPA mandate"
 
-#: .\apps\finance\models.py:323 .\templates\finance\sepa_einzug_neu.html:24
+#: .\apps\finance\models.py:325 .\templates\finance\sepa_einzug_neu.html:24
 msgid "Sequenztyp"
 msgstr "Sequence type"
 
-#: .\apps\finance\models.py:326
+#: .\apps\finance\models.py:328
 msgid "SEPA-Einzugsposition"
 msgstr "SEPA direct debit item"
 
-#: .\apps\finance\models.py:327
+#: .\apps\finance\models.py:329
 msgid "SEPA-Einzugspositionen"
 msgstr "SEPA direct debit items"
 
-#: .\apps\finance\models.py:340
+#: .\apps\finance\models.py:342
 msgid ""
 "Zur Unterscheidung, wenn mehrere Zugänge angelegt sind, z. B. Name der Bank"
 msgstr ""
 "To tell entries apart when several accesses are set up, e.g. the bank's name"
 
-#: .\apps\finance\models.py:341
+#: .\apps\finance\models.py:343
 msgid "Bankleitzahl"
 msgstr "Bank sort code"
 
-#: .\apps\finance\models.py:342
+#: .\apps\finance\models.py:344
 msgid "Online-Banking-Kennung"
 msgstr "Online banking ID"
 
-#: .\apps\finance\models.py:343
+#: .\apps\finance\models.py:345
 msgid "Die Kennung fürs Online-Banking, nicht die PIN"
 msgstr "The ID for online banking, not the PIN"
 
-#: .\apps\finance\models.py:344
+#: .\apps\finance\models.py:346
 msgid "FinTS-Adresse der Bank"
 msgstr "Bank's FinTS address"
 
-#: .\apps\finance\models.py:345
+#: .\apps\finance\models.py:347
 msgid ""
 "Von der Bank vorgegebene FinTS-Serveradresse, z. B. "
 "https://banking.beispielbank.de/fints30"
@@ -2104,15 +2099,15 @@ msgstr ""
 "FinTS server address specified by the bank, e.g. "
 "https://banking.beispielbank.de/fints30"
 
-#: .\apps\finance\models.py:346
+#: .\apps\finance\models.py:348
 msgid "Tage rückwirkend abrufen"
 msgstr "Days to retrieve retroactively"
 
-#: .\apps\finance\models.py:348
+#: .\apps\finance\models.py:350
 msgid "Abzurufende Konten (IBAN)"
 msgstr "Accounts to retrieve (IBAN)"
 
-#: .\apps\finance\models.py:349
+#: .\apps\finance\models.py:351
 msgid ""
 "Kommagetrennt. Leer = alle Konten dieses Zugangs werden abgerufen "
 "(Standard). Ein Online-Banking-Zugang deckt oft mehrere Konten ab - hier "
@@ -2124,43 +2119,43 @@ msgstr ""
 "lets retrieval be restricted to individual ones. Conveniently selectable via"
 " checkboxes under \"Retrieve account data\"."
 
-#: .\apps\finance\models.py:352
+#: .\apps\finance\models.py:354
 msgid "Letzter erfolgreicher Abruf"
 msgstr "Last successful retrieval"
 
-#: .\apps\finance\models.py:353
+#: .\apps\finance\models.py:355
 msgid "Letzte Meldung"
 msgstr "Last message"
 
-#: .\apps\finance\models.py:371
+#: .\apps\finance\models.py:373
 msgid "Zahlungserinnerung"
 msgstr "Payment reminder"
 
-#: .\apps\finance\models.py:371
+#: .\apps\finance\models.py:373
 msgid "1. Mahnung"
 msgstr "1st reminder"
 
-#: .\apps\finance\models.py:371
+#: .\apps\finance\models.py:373
 msgid "2. Mahnung / letzte Mahnung"
 msgstr "2nd reminder / final reminder"
 
-#: .\apps\finance\models.py:373
+#: .\apps\finance\models.py:375
 msgid "Stufe"
 msgstr "Level"
 
-#: .\apps\finance\models.py:375
+#: .\apps\finance\models.py:377
 msgid "Neue Zahlungsfrist"
 msgstr "New payment deadline"
 
-#: .\apps\finance\models.py:376
+#: .\apps\finance\models.py:378
 msgid "Mahngebühr (€)"
 msgstr "Reminder fee (€)"
 
-#: .\apps\finance\models.py:379
+#: .\apps\finance\models.py:381
 msgid "Mahnung"
 msgstr "Reminder"
 
-#: .\apps\finance\models.py:380
+#: .\apps\finance\models.py:382
 msgid "Mahnungen"
 msgstr "Reminders"
 
@@ -3047,41 +3042,49 @@ msgstr "Note"
 msgid "Keine Einträge."
 msgstr "No entries."
 
-#: .\templates\base.html:66 .\templates\registration\login.html:16
+#: .\templates\base.html:8 .\templates\base.html:12
+msgid ""
+"Vereinsverwaltung für Feuerwehr-Fördervereine: Mitglieder, Finanzen, "
+"Veranstaltungen, Inventar und mehr."
+msgstr ""
+"Club management software for fire brigade support associations: members, "
+"finances, events, inventory and more."
+
+#: .\templates\base.html:73 .\templates\registration\login.html:16
 msgid "Passwort"
 msgstr "Password"
 
-#: .\templates\base.html:67
+#: .\templates\base.html:74
 msgid "Abmelden"
 msgstr "Log out"
 
-#: .\templates\base.html:88
+#: .\templates\base.html:95
 msgid "Verein wechseln"
 msgstr "Switch club"
 
-#: .\templates\base.html:103
+#: .\templates\base.html:110
 #, python-format
 msgid "Eine neue Feuerix-Version ist verfügbar: %(version)s."
 msgstr "A new Feuerix version is available: %(version)s."
 
-#: .\templates\base.html:104
+#: .\templates\base.html:111
 msgid "Änderungen ansehen"
 msgstr "View changes"
 
-#: .\templates\base.html:117
+#: .\templates\base.html:124
 msgid "Downloads"
 msgstr "Downloads"
 
-#: .\templates\base.html:123
+#: .\templates\base.html:130
 #, python-format
 msgid "%(product_name)s ist freie Software"
 msgstr "%(product_name)s is free software"
 
-#: .\templates\base.html:123
+#: .\templates\base.html:130
 msgid "Quellcode"
 msgstr "Source code"
 
-#: .\templates\base.html:126
+#: .\templates\base.html:133
 msgid ""
 "Diese Seite verwendet ausschließlich technisch notwendige Cookies "
 "(Anmeldung, Sicherheit, Spracheinstellung) – keine Tracking- oder Marketing-"
@@ -3090,7 +3093,7 @@ msgstr ""
 "This site uses only strictly necessary cookies (login, security, language "
 "preference) – no tracking or marketing cookies."
 
-#: .\templates\base.html:127
+#: .\templates\base.html:134
 msgid "Verstanden"
 msgstr "Got it"
 
@@ -3339,7 +3342,6 @@ msgstr[0] "Create %(anzahl)s draft"
 msgstr[1] "Create %(anzahl)s drafts"
 
 #: .\templates\events\rueckmeldung.html:5
-#| msgid "Rückzahlung"
 msgid "Rückmeldung"
 msgstr "RSVP"
 
@@ -3359,12 +3361,10 @@ msgstr ""
 "Unfortunately the registration deadline for this event has already passed."
 
 #: .\templates\events\rueckmeldung.html:27
-#| msgid "Name"
 msgid "Ihr Name"
 msgstr "Your name"
 
 #: .\templates\events\rueckmeldung.html:31
-#| msgid "Position"
 msgid "optional"
 msgstr "optional"
 
@@ -3942,6 +3942,9 @@ msgstr "Incorrect username or password."
 #: .\templates\registration\login.html:17
 msgid "Anmelden"
 msgstr "Sign in"
+
+#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
+#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
 
 #~ msgid "Zuwendungsbestätigungen"
 #~ msgstr "Donation receipts"

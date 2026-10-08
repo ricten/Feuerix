@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.49.2
+- Meta-Tags ergänzt (Beschreibung, `theme-color`, Open-Graph für bessere Linkvorschauen, `noindex` da
+  mandantenspezifische Vereinsdaten nicht in Suchmaschinen gehören).
+
 ## 1.49.1
 - Fix: Migration für den Rückmeldungs-Code (1.49.0) brach beim Deploy auf Bestandsdaten ab ("could not
   create unique index ... duplicated"), weil ein einzelner AddField mit Callable-Default allen bestehenden

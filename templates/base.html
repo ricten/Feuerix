@@ -4,6 +4,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="{% blocktrans %}Vereinsverwaltung für Feuerwehr-Fördervereine: Mitglieder, Finanzen, Veranstaltungen, Inventar und mehr.{% endblocktrans %}">
+  <meta name="theme-color" content="{{ web_akzentfarbe|default:'#AF2B1E' }}">
+  <meta property="og:site_name" content="{{ verein.name|default:product_name|default:'Feuerix' }}">
+  <meta property="og:title" content="{{ titel|default:product_name|default:'Feuerix' }}">
+  <meta property="og:description" content="{% blocktrans %}Vereinsverwaltung für Feuerwehr-Fördervereine: Mitglieder, Finanzen, Veranstaltungen, Inventar und mehr.{% endblocktrans %}">
+  <meta property="og:type" content="website">
   <title>{% block title %}{{ titel|default:product_name|default:"Feuerix" }}{% endblock %} – {{ product_name|default:"Feuerix" }}</title>
   <link rel="icon" type="image/svg+xml" href="{% static 'branding/icon.svg' %}">
   <link rel="stylesheet" href="{% static 'vendor/bootstrap.min.css' %}">
