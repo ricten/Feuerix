@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.50.3
+- Fix: Kassenbericht-Excel-Export (Kassenbuch-Blatt) hatte - anders als der generische CSV/Excel-Export an
+  anderer Stelle im Projekt - keinen Schutz gegen Formel-Injection in Buchungstext/Belegnummer. Ergänzt.
+- Fix: Kassenbericht-Excel-Export brach mit "Cannot convert ... to Excel" ab, weil die Sphäre-Bezeichnung
+  (Ideeller Bereich, Zweckbetrieb, ...) ein nicht in einen reinen Text aufgelöster Übersetzungs-Platzhalter
+  war - openpyxl verlangt dafür echten Text.
+
 ## 1.50.2
 - Fix: Paperless-/OpenSlides-Verbindungsadresse und FinTS-Bankadresse ließen sich auf interne Dienste
   (z. B. das interne Redis/Postgres, Cloud-Metadata-Adressen) setzen - wer die Verbindung im eigenen

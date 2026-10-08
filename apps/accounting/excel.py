@@ -3,6 +3,8 @@ from io import BytesIO
 from openpyxl import Workbook
 from openpyxl.styles import Font
 
+from apps.core.crud import _sicher
+
 from .services import berichtsdaten
 
 
@@ -28,7 +30,7 @@ def kassenbericht_xlsx(b):
     for c in ws[ws.max_row]:
         c.font = fett
     for l, e, a, r in d["sphaeren"]:
-        ws.append([l, float(e), float(a), float(r)])
+        ws.append([str(l), float(e), float(a), float(r)])
     for spalte, breite in zip("ABCDE", (38, 16, 16, 16, 16)):
         ws.column_dimensions[spalte].width = breite
 
@@ -40,7 +42,7 @@ def kassenbericht_xlsx(b):
             c.font = fett
         for g in gruppen:
             for n, s, v in g["zeilen"]:
-                w.append([g["label"], n, float(s), float(v)])
+                w.append([str(g["label"]), n, float(s), float(v)])
         w.append(["", "Summe", float(gesamt), float(vj)])
         for c in w[w.max_row]:
             c.font = fett
@@ -52,7 +54,7 @@ def kassenbericht_xlsx(b):
     for c in j[1]:
         c.font = fett
     for x in d["buchungen"]:
-        j.append([x.datum, x.belegnummer, x.text, x.kategorie.name, x.konto.name,
+        j.append([x.datum, _sicher(x.belegnummer), _sicher(x.text), x.kategorie.name, x.konto.name,
                   float(x.betrag) if x.typ == "einnahme" else None, float(x.betrag) if x.typ == "ausgabe" else None])
         j.cell(j.max_row, 1).number_format = "DD.MM.YYYY"
     for spalte, breite in zip("ABCDEFG", (12, 16, 50, 30, 16, 14, 14)):

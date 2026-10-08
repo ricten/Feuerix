@@ -109,6 +109,20 @@ class KassenberichtTests(TestCase):
                                      status="abgeschlossen")
         self.assertTrue(z.gesperrt)
 
+    def test_xlsx_export_schuetzt_vor_formel_injection(self):
+        """Buchungstext/Belegnummer sind freier Vorstands-/Kassenwart-Text - ein Wert wie
+        '=HYPERLINK(...)' darf beim Oeffnen in Excel nicht als Formel ausgefuehrt werden."""
+        import io
+        from openpyxl import load_workbook
+        from apps.accounting.excel import kassenbericht_xlsx
+        Buchung.objects.create(verein=self.v, datum=date(2026, 2, 1), typ="einnahme", betrag=Decimal("5"),
+                               konto=self.bank, kategorie=self.ein,
+                               text='=HYPERLINK("http://evil.example/","x")')
+        b = Kassenbericht.objects.create(verein=self.v, titel="KB", von=date(2026, 1, 1), bis=date(2026, 12, 31))
+        wb = load_workbook(io.BytesIO(kassenbericht_xlsx(b)))
+        werte = [row[2].value for row in wb["Kassenbuch"].iter_rows(min_row=2)]
+        self.assertIn('\'=HYPERLINK("http://evil.example/","x")', werte)
+
     def test_uebernahme_bucht_rueckzahlung_als_ausgabe(self):
         from apps.finance.models import Rechnung, Zahlung
         from apps.accounting.services import uebernehmen
