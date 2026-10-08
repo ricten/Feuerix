@@ -68,7 +68,7 @@
         <tbody>
         {% for z in a.zeilen %}
           <tr{% if z.id %} id="{{ z.id }}"{% endif %}>{% for c in z.zellen %}<td>{% if forloop.first and z.url %}<a href="{{ z.url }}">{{ c }}</a>{% else %}{{ c }}{% endif %}</td>{% endfor %}
-          {% if a.mit_aktionen %}<td class="text-end">{% include a.zeile_vorlage|default:"core/_buttons.html" with buttons=z.aktionen zeile=z %}</td>{% endif %}</tr>
+          {% if a.mit_aktionen %}<td class="text-end">{% include a.zeile_vorlage|default:"core/_buttons.html" with buttons=z.aktionen zeile=z auswahl=a.lagerorte %}</td>{% endif %}</tr>
         {% empty %}<tr><td colspan="{{ a.spalten|length }}" class="text-muted">{% trans "Keine Einträge." %}</td></tr>{% endfor %}
         </tbody></table></div>
     </div>

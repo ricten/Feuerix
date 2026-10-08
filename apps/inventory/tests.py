@@ -531,27 +531,29 @@ class InventurTests(TestCase):
         Zugang.objects.create(verein=self.v, user=self.verwalter,
                               rolle=Rolle.objects.get(verein=self.v, name="Inventarverwalter"))
         self.client.login(username="verwalter", password="pw-Test-12345")
-        ort = Lagerort.objects.create(verein=self.v, name="Gerätehaus")
-        self.g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", lagerort=ort)
+        self.ort = Lagerort.objects.create(verein=self.v, name="Gerätehaus")
+        self.dachboden = Lagerort.objects.create(verein=self.v, name="Dachboden")
+        self.g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", lagerort=self.ort)
         self.inv = Inventur.objects.create(verein=self.v, name="Inventur 2026")
         self.p = Inventurposition.objects.filter(inventur=self.inv, gegenstand=self.g).get()
 
     def test_snapshot_uebernimmt_lagerort_als_soll_wert(self):
         self.assertEqual(self.p.lagerort_text, "Gerätehaus")
-        self.assertEqual(self.p.lagerort_ist_text, "")
+        self.assertIsNone(self.p.lagerort_ist_id)
 
-    def test_detailseite_zeigt_eingabefeld_fuer_lagerort_ist(self):
+    def test_detailseite_zeigt_auswahlfeld_fuer_lagerort_ist(self):
         r = self.client.get(reverse("inventur_detail", args=[self.inv.pk]))
         self.assertContains(r, "Lagerort (Ist)")
         self.assertContains(r, f'id="position-{self.p.pk}"')
+        self.assertContains(r, "Dachboden")
 
     def test_setzen_speichert_ergebnis_und_lagerort_ist_und_springt_zur_position(self):
         r = self.client.post(reverse("inventurposition_setzen", args=[self.p.pk]),
-                             {"ergebnis": "gefunden", "lagerort_ist": "Dachboden"})
+                             {"ergebnis": "gefunden", "lagerort_ist": self.dachboden.pk})
         self.assertRedirects(r, reverse("inventur_detail", args=[self.inv.pk]) + f"#position-{self.p.pk}")
         self.p.refresh_from_db()
         self.assertEqual(self.p.ergebnis, "gefunden")
-        self.assertEqual(self.p.lagerort_ist_text, "Dachboden")
+        self.assertEqual(self.p.lagerort_ist, self.dachboden)
 
     def test_nur_speichern_knopf_laesst_ergebnis_unveraendert(self):
         """Der Speichern-Knopf hat kein 'ergebnis' im gültigen Wertebereich - nur der Lagerort (Ist) wird
@@ -559,23 +561,31 @@ class InventurTests(TestCase):
         self.p.ergebnis = "gefunden"
         self.p.save(update_fields=["ergebnis"])
         self.client.post(reverse("inventurposition_setzen", args=[self.p.pk]),
-                         {"ergebnis": "", "lagerort_ist": "Keller"})
+                         {"ergebnis": "", "lagerort_ist": self.dachboden.pk})
         self.p.refresh_from_db()
         self.assertEqual(self.p.ergebnis, "gefunden")
-        self.assertEqual(self.p.lagerort_ist_text, "Keller")
+        self.assertEqual(self.p.lagerort_ist, self.dachboden)
+
+    def test_lagerort_eines_fremden_vereins_wird_ignoriert(self):
+        anderer = Verein.objects.create(name="Anderer e.V.", kuerzel="anderer")
+        fremder_ort = Lagerort.objects.create(verein=anderer, name="Fremdlager")
+        self.client.post(reverse("inventurposition_setzen", args=[self.p.pk]),
+                         {"ergebnis": "gefunden", "lagerort_ist": fremder_ort.pk})
+        self.p.refresh_from_db()
+        self.assertIsNone(self.p.lagerort_ist_id)
 
     def test_abgeschlossene_inventur_zeigt_lagerort_ist_nur_als_text_ohne_formular(self):
-        self.p.lagerort_ist_text = "Keller"
-        self.p.save(update_fields=["lagerort_ist_text"])
+        self.p.lagerort_ist = self.dachboden
+        self.p.save(update_fields=["lagerort_ist"])
         self.inv.status = "abgeschlossen"
         self.inv.save(update_fields=["status"])
         r = self.client.get(reverse("inventur_detail", args=[self.inv.pk]))
-        self.assertContains(r, "Keller")
+        self.assertContains(r, "Dachboden")
         self.assertNotContains(r, "name=\"lagerort_ist\"")
 
     def test_abgeschlossene_inventur_lehnt_setzen_ab(self):
         self.inv.status = "abgeschlossen"
         self.inv.save(update_fields=["status"])
         r = self.client.post(reverse("inventurposition_setzen", args=[self.p.pk]),
-                             {"ergebnis": "gefunden", "lagerort_ist": "Keller"})
+                             {"ergebnis": "gefunden", "lagerort_ist": self.dachboden.pk})
         self.assertEqual(r.status_code, 403)

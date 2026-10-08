@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.41.0)
+# Handbook – Feuerix (Version 1.41.1)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -377,8 +377,9 @@ the items are returned one after another instead of all at once.
 
 **Stock takes**: "Create stock take" creates a snapshot of the current stock (every item that hasn't been
 retired), recording each item's current location as its "location (expected)". On the stock-take page, items
-are marked with a click as ✓ found, ✗ not found, or ⚠ damaged; each row also has a field for the "location
-(actual)" found during the count (e.g. if an item was moved) – the save button alone stores just the location
+are marked with a click as ✓ found, ✗ not found, or ⚠ damaged; each row also has a dropdown (picked from the
+club's configured locations) for the "location (actual)" found during the count (e.g. if an item was moved) –
+the save button alone stores just the location
 without changing the result. Clicking any of these buttons returns you to that same row instead of jumping to
 the top of the page. "Close stock take" fixes the result permanently.
 

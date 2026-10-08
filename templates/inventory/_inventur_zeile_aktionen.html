@@ -1,11 +1,13 @@
 {% load i18n %}
 {% if buttons %}
 <form method="post" action="{{ zeile.setzen_url }}" class="d-flex gap-1 justify-content-end flex-nowrap">{% csrf_token %}
-  <input type="text" name="lagerort_ist" value="{{ zeile.lagerort_ist }}" placeholder="{% trans 'Lagerort (Ist)' %}"
-        class="form-control form-control-sm" style="max-width:8rem" title="{% trans 'Tatsächlich vorgefundener Lagerort' %}">
+  <select name="lagerort_ist" class="form-select form-select-sm" style="max-width:9rem" title="{% trans 'Tatsächlich vorgefundener Lagerort' %}">
+    <option value="">– {% trans "Lagerort (Ist)" %} –</option>
+    {% for ort in auswahl %}<option value="{{ ort.pk }}" {% if ort.pk == zeile.lagerort_ist_id %}selected{% endif %}>{{ ort.name }}</option>{% endfor %}
+  </select>
   <button class="btn btn-sm btn-outline-secondary" name="ergebnis" value="" title="{% trans 'Nur Lagerort speichern' %}"><i class="bi bi-save"></i></button>
   {% for b in buttons %}<button class="btn btn-sm btn-{{ b.stil }}" name="ergebnis" value="{{ b.wert }}" title="{{ b.titel }}">{{ b.label }}</button>{% endfor %}
 </form>
 {% else %}
-{{ zeile.lagerort_ist|default:"–" }}
+{{ zeile.lagerort_ist_name|default:"–" }}
 {% endif %}

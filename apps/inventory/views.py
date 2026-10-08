@@ -14,7 +14,7 @@ from apps.core.crud import abschnitt, knopf
 from apps.finance import services as finance_services
 
 from .forms import SammelverleihForm
-from .models import Gegenstand, Inventur, Inventurposition, Verleih
+from .models import Gegenstand, Inventur, Inventurposition, Lagerort, Verleih
 from .pdf import etiketten_pdf, leihschein_pdf, leihschein_sammel_pdf
 
 
@@ -357,7 +357,8 @@ def inventur_kontext(request, inv):
     zeilen = []
     kann = request.rechte.darf("inventur", "change") and inv.status == "laufend"
     filt = request.GET.get("zeige", "")
-    for p in inv.positionen.all():
+    lagerorte = list(Lagerort.objects.filter(verein=request.verein).order_by("name"))
+    for p in inv.positionen.select_related("lagerort_ist"):
         if filt and p.ergebnis != filt:
             continue
         akt = []
@@ -368,11 +369,12 @@ def inventur_kontext(request, inv):
         zeilen.append({"id": f"position-{p.pk}", "url": None,
                        "zellen": [p.inventarnummer, p.bezeichnung, p.lagerort_text, p.get_ergebnis_display()],
                        "aktionen": akt, "setzen_url": reverse("inventurposition_setzen", args=[p.pk]),
-                       "lagerort_ist": p.lagerort_ist_text})
+                       "lagerort_ist_id": p.lagerort_ist_id,
+                       "lagerort_ist_name": str(p.lagerort_ist) if p.lagerort_ist_id else ""})
     return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": [
         {"titel": "Positionen" + (f" (Filter: {filt})" if filt else ""),
          "spalten": ["Nr.", "Bezeichnung", "Lagerort (Soll)", "Ergebnis"], "zeilen": zeilen, "add_url": None,
-         "mit_aktionen": True, "aktionen_titel": "Lagerort (Ist)",
+         "mit_aktionen": True, "aktionen_titel": "Lagerort (Ist)", "lagerorte": lagerorte,
          "zeile_vorlage": "inventory/_inventur_zeile_aktionen.html"}]}
 
 
@@ -388,10 +390,13 @@ def inventurposition_setzen(request, pk):
     if erg in dict(Inventurposition.ERGEBNIS):
         p.ergebnis = erg
         felder.append("ergebnis")
-    lagerort_ist = request.POST.get("lagerort_ist", "").strip()
-    if lagerort_ist != p.lagerort_ist_text:
-        p.lagerort_ist_text = lagerort_ist
-        felder.append("lagerort_ist_text")
+    lagerort_ist_raw = request.POST.get("lagerort_ist", "")
+    lagerort_ist_id = int(lagerort_ist_raw) if lagerort_ist_raw.isdigit() else None
+    if lagerort_ist_id and not Lagerort.objects.filter(verein=request.verein, pk=lagerort_ist_id).exists():
+        lagerort_ist_id = None
+    if lagerort_ist_id != p.lagerort_ist_id:
+        p.lagerort_ist_id = lagerort_ist_id
+        felder.append("lagerort_ist")
     p.save(update_fields=felder)
     return redirect(reverse("inventur_detail", args=[p.inventur_id]) + f"#position-{p.pk}")
 

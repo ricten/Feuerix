@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.41.0)
+# Handbuch – Feuerix (Version 1.41.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -383,7 +383,8 @@ gemeinsamen Rechnung** – auch wenn die Positionen nacheinander statt gemeinsam
 **Inventuren**: „Inventur anlegen“ erstellt eine Momentaufnahme des aktuellen Bestands (alle nicht ausgesonderten
 Gegenstände) mit dem jeweils hinterlegten Lagerort als „Lagerort (Soll)“. Auf der Inventurseite werden Positionen
 per Klick als ✓ gefunden, ✗ nicht gefunden oder ⚠ beschädigt markiert; zusätzlich lässt sich dort je Position der
-tatsächlich vorgefundene „Lagerort (Ist)“ eintragen (z. B. wenn ein Gegenstand umgeräumt wurde) – mit dem
+tatsächlich vorgefundene „Lagerort (Ist)“ per Auswahlfeld aus den angelegten Lagerorten auswählen (z. B. wenn ein
+Gegenstand umgeräumt wurde) – mit dem
 Speichern-Knopf allein lässt sich der Lagerort auch ohne Änderung des Ergebnisses sichern. Nach einem Klick
 springt die Seite zur jeweiligen Position zurück statt an den Seitenanfang. „Inventur abschließen“ fixiert das
 Ergebnis endgültig.

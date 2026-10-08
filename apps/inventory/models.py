@@ -217,8 +217,9 @@ class Inventurposition(TenantModel):
     inventarnummer = models.CharField("Inventarnummer", max_length=20)
     bezeichnung = models.CharField("Bezeichnung", max_length=200)
     lagerort_text = models.CharField("Lagerort (Soll)", max_length=100, blank=True)
-    lagerort_ist_text = models.CharField("Lagerort (Ist)", max_length=100, blank=True,
-                                         help_text="Bei der Zählung tatsächlich vorgefundener Lagerort, falls abweichend.")
+    lagerort_ist = models.ForeignKey(Lagerort, on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+                                     verbose_name="Lagerort (Ist)",
+                                     help_text="Bei der Zählung tatsächlich vorgefundener Lagerort, falls abweichend.")
     ergebnis = models.CharField("Ergebnis", max_length=15, choices=ERGEBNIS, default="offen")
     notiz = models.CharField("Notiz", max_length=200, blank=True)
 
