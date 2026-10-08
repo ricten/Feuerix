@@ -516,7 +516,7 @@ class ErechnungExportTests(TestCase):
     def test_xsd_pruefung_lehnt_fehlendes_pflichtfeld_ab(self):
         from facturx.generate_xml import generate_cii_xml
         daten = erechnung._cii_data_dict(self.r)
-        del daten["BT-27"]  # Verkaeufername ist Pflicht
+        del daten["BG-4"]["name"]  # Verkaeufername ist Pflicht
         with self.assertRaises(Exception):
             generate_cii_xml(daten, level=erechnung.LEVEL, check_xsd=True, check_schematron=False)
 

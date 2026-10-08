@@ -72,15 +72,36 @@ def _cii_data_dict(rechnung):
         steuer_gruppen = [{"BT-116": "0.00", "BT-117": "0.00", "BT-118": "E",
                           "BT-120": v.rechnung_steuerhinweis or STANDARD_STEUERHINWEIS}]
 
+    # Verkäufer (BG-4) und Käufer (BG-7) als verschachtelte "party_dict"s - ab facturx 7.0 erwartet die
+    # Bibliothek hier keine flachen BT-27/BT-35/... mehr, sondern diese Struktur (name/country_code/addr_l1/
+    # city/postcode/vat_identifier/tax_identifier).
+    verkaeufer = {"name": v.name, "country_code": "DE"}
+    if v.anschrift:
+        verkaeufer["addr_l1"] = v.anschrift
+    if v.ort:
+        verkaeufer["city"] = v.ort
+    if v.plz:
+        verkaeufer["postcode"] = v.plz
+    if v.steuernummer:
+        verkaeufer["tax_identifier"] = v.steuernummer
+    if v.ust_idnr:
+        verkaeufer["vat_identifier"] = v.ust_idnr
+
+    kaeufer = {"name": rechnung.empfaenger_name or "-", "country_code": "DE"}
+    if strasse:
+        kaeufer["addr_l1"] = strasse
+    if ort:
+        kaeufer["city"] = ort
+    if plz:
+        kaeufer["postcode"] = plz
+
     d = {
         "BT-1": rechnung.nummer or f"ENTWURF-{rechnung.pk}",
         "BT-2": rechnung.datum,
         "BT-3": "381" if rechnung.betrag < 0 else "380",
         "BT-5": "EUR",
-        "BT-27": v.name,
-        "BT-40": "DE",
-        "BT-44": rechnung.empfaenger_name or "-",
-        "BT-55": "DE",
+        "BG-4": verkaeufer,
+        "BG-7": kaeufer,
         # BT-72 (tatsächliches Lieferdatum) wird immer gesetzt - ohne jedes Feld im Lieferabschnitt
         # (kein Lieferort, kein Lieferdatum) erzeugt die facturx-Bibliothek ein leeres, laut Schema aber
         # nicht "nillable" ApplicableHeaderTradeDelivery-Element und die XSD-Prüfung schlägt fehl.
@@ -93,24 +114,8 @@ def _cii_data_dict(rechnung):
         "BT-112": _betrag(rechnung.betrag),
         "BT-115": _betrag(rechnung.betrag),
     }
-    if v.anschrift:
-        d["BT-35"] = v.anschrift
-    if v.ort:
-        d["BT-37"] = v.ort
-    if v.plz:
-        d["BT-38"] = v.plz
-    if v.steuernummer:
-        d["BT-32"] = v.steuernummer
-    if v.ust_idnr:
-        d["BT-31"] = v.ust_idnr
     if rechnung.faellig_am:
         d["BT-9"] = rechnung.faellig_am
-    if strasse:
-        d["BT-50"] = strasse
-    if ort:
-        d["BT-52"] = ort
-    if plz:
-        d["BT-53"] = plz
     if v.iban:
         d["BT-81"] = "58"  # SEPA-Überweisung
         d["BT-84"] = v.iban.replace(" ", "")

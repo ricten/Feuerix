@@ -6,7 +6,8 @@ Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folge
 ## 1.49.0
 - Neu: Öffentlicher Rückmeldungs-Link bei Veranstaltungen mit Anmeldepflicht - Zu-/Absage mit Namen und
   Personenzahl, ohne Login, über einen nicht erratbaren Link auf der Veranstaltungsseite.
-- Fix: `factur-x` auf `<7.0` begrenzt (ab 7.0 geänderte Datenstruktur hätte den ZUGFeRD-Export brechen können).
+- Fix: ZUGFeRD-Export (`erechnung.py`) an die ab `factur-x` 7.0 geänderte Datenstruktur angepasst (Verkäufer/
+  Käufer jetzt als verschachtelte Objekte statt einzelner Felder) - keine Versionsobergrenze nötig.
 
 ## 1.48.2
 - "Passwort" und "Abmelden" sitzen jetzt im Logo-Band neben der Sprachauswahl statt weiter unten im Menü-Band.
