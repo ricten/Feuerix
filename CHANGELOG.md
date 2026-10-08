@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.41.0
+- Inventur: je Position lässt sich jetzt zusätzlich der tatsächlich vorgefundene "Lagerort (Ist)" erfassen
+  (eigenes Feld neben "Lagerort (Soll)"); ein Speichern-Knopf sichert den Lagerort auch ohne Änderung des
+  Ergebnisses.
+- Fix: Klick auf ✓/✗/⚠ bei der Inventur sprang bisher immer an den Seitenanfang zurück - die Seite springt
+  jetzt wieder zur jeweils bearbeiteten Position.
+
 ## 1.40.0
 - Inventar-Reservierung für Veranstaltungen: „Inventar reservieren“ auf der Veranstaltungsseite öffnet jetzt
   die Mehrfachauswahl (Sammelverleih) statt eines Formulars pro Gegenstand - mehrere Gegenstände lassen sich

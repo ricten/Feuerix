@@ -362,16 +362,18 @@ def inventur_kontext(request, inv):
             continue
         akt = []
         if kann:
-            for erg, label, stil in (("gefunden", "✓", "success"), ("nicht_gefunden", "✗", "danger"),
-                                     ("beschaedigt", "⚠", "warning")):
-                akt.append(knopf(label, reverse("inventurposition_setzen", args=[p.pk]), post=True,
-                                 stil=("" if p.ergebnis != erg else "") + stil, felder={"ergebnis": erg}))
-        zeilen.append({"url": None, "zellen": [p.inventarnummer, p.bezeichnung, p.lagerort_text,
-                                                p.get_ergebnis_display()], "aktionen": akt})
+            akt = [{"label": "✓", "wert": "gefunden", "stil": "success", "titel": "Gefunden"},
+                  {"label": "✗", "wert": "nicht_gefunden", "stil": "danger", "titel": "Nicht gefunden"},
+                  {"label": "⚠", "wert": "beschaedigt", "stil": "warning", "titel": "Beschädigt"}]
+        zeilen.append({"id": f"position-{p.pk}", "url": None,
+                       "zellen": [p.inventarnummer, p.bezeichnung, p.lagerort_text, p.get_ergebnis_display()],
+                       "aktionen": akt, "setzen_url": reverse("inventurposition_setzen", args=[p.pk]),
+                       "lagerort_ist": p.lagerort_ist_text})
     return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": [
         {"titel": "Positionen" + (f" (Filter: {filt})" if filt else ""),
          "spalten": ["Nr.", "Bezeichnung", "Lagerort (Soll)", "Ergebnis"], "zeilen": zeilen, "add_url": None,
-         "mit_aktionen": True}]}
+         "mit_aktionen": True, "aktionen_titel": "Lagerort (Ist)",
+         "zeile_vorlage": "inventory/_inventur_zeile_aktionen.html"}]}
 
 
 @login_required
@@ -381,11 +383,17 @@ def inventurposition_setzen(request, pk):
     p = get_object_or_404(Inventurposition, pk=pk, verein=request.verein)
     if p.inventur.status != "laufend":
         raise PermissionDenied
+    felder = ["geaendert"]
     erg = request.POST.get("ergebnis")
     if erg in dict(Inventurposition.ERGEBNIS):
         p.ergebnis = erg
-        p.save(update_fields=["ergebnis", "geaendert"])
-    return redirect("inventur_detail", pk=p.inventur_id)
+        felder.append("ergebnis")
+    lagerort_ist = request.POST.get("lagerort_ist", "").strip()
+    if lagerort_ist != p.lagerort_ist_text:
+        p.lagerort_ist_text = lagerort_ist
+        felder.append("lagerort_ist_text")
+    p.save(update_fields=felder)
+    return redirect(reverse("inventur_detail", args=[p.inventur_id]) + f"#position-{p.pk}")
 
 
 @login_required

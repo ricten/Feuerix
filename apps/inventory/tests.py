@@ -13,7 +13,7 @@ from apps.core.models import Rolle, Verein, Zugang
 from apps.events.models import Veranstaltung
 from apps.finance.models import Rechnung
 from apps.inventory import importer
-from apps.inventory.models import Gegenstand, Verleih
+from apps.inventory.models import Gegenstand, Inventur, Inventurposition, Lagerort, Verleih
 from apps.inventory.pdf import _etikett_layout, _etikett_modus, etiketten_pdf
 from apps.members.models import Mitglied
 
@@ -521,3 +521,61 @@ class RueckgabeTests(TestCase):
         self.assertIsNotNone(self.verleih.rechnung_id)
         r = self.client.get(reverse("verleih_detail", args=[self.verleih.pk]))
         self.assertNotContains(r, "Rechnung ansehen")
+
+
+class InventurTests(TestCase):
+    def setUp(self):
+        User = get_user_model()
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.verwalter = User.objects.create_user("verwalter", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.verwalter,
+                              rolle=Rolle.objects.get(verein=self.v, name="Inventarverwalter"))
+        self.client.login(username="verwalter", password="pw-Test-12345")
+        ort = Lagerort.objects.create(verein=self.v, name="Gerätehaus")
+        self.g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", lagerort=ort)
+        self.inv = Inventur.objects.create(verein=self.v, name="Inventur 2026")
+        self.p = Inventurposition.objects.filter(inventur=self.inv, gegenstand=self.g).get()
+
+    def test_snapshot_uebernimmt_lagerort_als_soll_wert(self):
+        self.assertEqual(self.p.lagerort_text, "Gerätehaus")
+        self.assertEqual(self.p.lagerort_ist_text, "")
+
+    def test_detailseite_zeigt_eingabefeld_fuer_lagerort_ist(self):
+        r = self.client.get(reverse("inventur_detail", args=[self.inv.pk]))
+        self.assertContains(r, "Lagerort (Ist)")
+        self.assertContains(r, f'id="position-{self.p.pk}"')
+
+    def test_setzen_speichert_ergebnis_und_lagerort_ist_und_springt_zur_position(self):
+        r = self.client.post(reverse("inventurposition_setzen", args=[self.p.pk]),
+                             {"ergebnis": "gefunden", "lagerort_ist": "Dachboden"})
+        self.assertRedirects(r, reverse("inventur_detail", args=[self.inv.pk]) + f"#position-{self.p.pk}")
+        self.p.refresh_from_db()
+        self.assertEqual(self.p.ergebnis, "gefunden")
+        self.assertEqual(self.p.lagerort_ist_text, "Dachboden")
+
+    def test_nur_speichern_knopf_laesst_ergebnis_unveraendert(self):
+        """Der Speichern-Knopf hat kein 'ergebnis' im gültigen Wertebereich - nur der Lagerort (Ist) wird
+        aktualisiert, das bisherige Ergebnis bleibt erhalten."""
+        self.p.ergebnis = "gefunden"
+        self.p.save(update_fields=["ergebnis"])
+        self.client.post(reverse("inventurposition_setzen", args=[self.p.pk]),
+                         {"ergebnis": "", "lagerort_ist": "Keller"})
+        self.p.refresh_from_db()
+        self.assertEqual(self.p.ergebnis, "gefunden")
+        self.assertEqual(self.p.lagerort_ist_text, "Keller")
+
+    def test_abgeschlossene_inventur_zeigt_lagerort_ist_nur_als_text_ohne_formular(self):
+        self.p.lagerort_ist_text = "Keller"
+        self.p.save(update_fields=["lagerort_ist_text"])
+        self.inv.status = "abgeschlossen"
+        self.inv.save(update_fields=["status"])
+        r = self.client.get(reverse("inventur_detail", args=[self.inv.pk]))
+        self.assertContains(r, "Keller")
+        self.assertNotContains(r, "name=\"lagerort_ist\"")
+
+    def test_abgeschlossene_inventur_lehnt_setzen_ab(self):
+        self.inv.status = "abgeschlossen"
+        self.inv.save(update_fields=["status"])
+        r = self.client.post(reverse("inventurposition_setzen", args=[self.p.pk]),
+                             {"ergebnis": "gefunden", "lagerort_ist": "Keller"})
+        self.assertEqual(r.status_code, 403)

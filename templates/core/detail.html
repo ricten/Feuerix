@@ -64,11 +64,11 @@
       <div class="card-header d-flex justify-content-between align-items-center"><strong>{{ a.titel }}</strong>
         {% if a.add_url %}<a class="btn btn-sm btn-outline-primary" href="{{ a.add_url }}"><i class="bi bi-plus-lg"></i> {% trans "Hinzufügen" %}</a>{% endif %}</div>
       <div class="table-responsive"><table class="table table-sm table-hover mb-0 tabelle">
-        <thead class="table-light"><tr>{% for s in a.spalten %}<th>{{ s }}</th>{% endfor %}{% if a.mit_aktionen %}<th></th>{% endif %}</tr></thead>
+        <thead class="table-light"><tr>{% for s in a.spalten %}<th>{{ s }}</th>{% endfor %}{% if a.mit_aktionen %}<th>{{ a.aktionen_titel|default:"" }}</th>{% endif %}</tr></thead>
         <tbody>
         {% for z in a.zeilen %}
-          <tr>{% for c in z.zellen %}<td>{% if forloop.first and z.url %}<a href="{{ z.url }}">{{ c }}</a>{% else %}{{ c }}{% endif %}</td>{% endfor %}
-          {% if a.mit_aktionen %}<td class="text-end">{% include "core/_buttons.html" with buttons=z.aktionen %}</td>{% endif %}</tr>
+          <tr{% if z.id %} id="{{ z.id }}"{% endif %}>{% for c in z.zellen %}<td>{% if forloop.first and z.url %}<a href="{{ z.url }}">{{ c }}</a>{% else %}{{ c }}{% endif %}</td>{% endfor %}
+          {% if a.mit_aktionen %}<td class="text-end">{% include a.zeile_vorlage|default:"core/_buttons.html" with buttons=z.aktionen zeile=z %}</td>{% endif %}</tr>
         {% empty %}<tr><td colspan="{{ a.spalten|length }}" class="text-muted">{% trans "Keine Einträge." %}</td></tr>{% endfor %}
         </tbody></table></div>
     </div>
