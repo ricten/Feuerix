@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.50.0
+- Neu: Schutz vor Brute-Force-/Credential-Stuffing-Angriffen auf `/login/` und `/admin/login/`
+  (`django-axes`) - nach 5 fehlgeschlagenen Versuchen wird die Kombination aus Benutzername und
+  IP-Adresse für eine Stunde gesperrt. Ergebnis eines Sicherheits-Code-Reviews.
+
 ## 1.49.2
 - Meta-Tags ergänzt (Beschreibung, `theme-color`, Open-Graph für bessere Linkvorschauen, `noindex` da
   mandantenspezifische Vereinsdaten nicht in Suchmaschinen gehören).

@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "apps.openslides",
     "apps.paperless",
     "apps.accounting",
+    "axes",
 ]
 
 MIDDLEWARE = [
@@ -49,6 +50,14 @@ MIDDLEWARE = [
     "apps.core.middleware.MandantMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    # Muss die letzte Middleware sein (siehe django-axes-Doku).
+    "axes.middleware.AxesMiddleware",
+]
+
+# django-axes muss vor dem Standard-Backend stehen, damit es Login-Versuche ueberhaupt sperren kann.
+AUTHENTICATION_BACKENDS = [
+    "axes.backends.AxesStandaloneBackend",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -123,6 +132,18 @@ if HTTPS:
     SECURE_HSTS_PRELOAD = True
     SECURE_SSL_REDIRECT = True
 USE_X_FORWARDED_FOR = _bool("USE_X_FORWARDED_FOR")
+
+# Schutz vor Brute-Force-/Credential-Stuffing-Angriffen auf /login/ und /admin/login/: nach
+# AXES_FAILURE_LIMIT fehlgeschlagenen Versuchen wird die Kombination aus Benutzername und IP-Adresse fuer
+# AXES_COOLOFF_TIME gesperrt - eine einzelne IP (z. B. hinter einem gemeinsamen NAT) sperrt dadurch nicht
+# automatisch alle Benutzernamen gleichzeitig aus.
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = 1  # Stunden
+AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
+AXES_RESET_ON_SUCCESS = True
+# Waehrend "manage.py test" nicht aktiv - sonst wuerden Tests mit absichtlich falschen Zugangsdaten
+# sich gegenseitig sperren koennen.
+AXES_ENABLED = "test" not in sys.argv
 
 # E-Mail
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
