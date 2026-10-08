@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.42.0
+- Standard-Akzentfarbe (Weboberfläche, Briefe, PDFs) ist jetzt ein Feuerwehrrot (#AF2B1E) statt Blau. Unter den
+  Farbfeldern in den Vereinseinstellungen steht zusätzlich eine Klick-Vorauswahl gängiger Feuerwehr-Farben
+  (zwei Rottöne, Schwarz, Anthrazit, Leuchtgelb, Dunkelblau) zur Verfügung - jede Farbe bleibt frei editierbar.
+
 ## 1.41.2
 - Fix: Auswahlfeld und Buttons für "Lagerort (Ist)" bei der Inventur hingen am rechten Rand einer sehr breiten
   Spalte, mit großer Lücke zur Spaltenüberschrift - jetzt linksbündig direkt neben "Ergebnis".

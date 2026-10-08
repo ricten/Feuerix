@@ -288,6 +288,19 @@ class WeboberflaechenDesignTests(TestCase):
         r = self.client.get(reverse("login"))
         self.assertContains(r, "#EA580C")
 
+    def test_standard_akzentfarbe_ist_feuerwehrrot(self):
+        """Ohne eigene Einstellung soll ein für Feuerwehr-Fördervereine passender Farbton verwendet werden,
+        kein Standard-Blau."""
+        v = Verein.objects.create(name="Verein A", kuerzel="a")
+        self.assertEqual(v.akzentfarbe, "#AF2B1E")
+
+    def test_farbpaletten_skript_wird_eingebunden(self):
+        """Unter Farbfeldern (z. B. Akzentfarbe) soll eine Vorauswahl gängiger Feuerwehr-Farben angeboten
+        werden - umgesetzt per generischem JS fuer alle type=color-Felder, siehe static/farbpaletten.js."""
+        Verein.objects.create(name="Verein A", kuerzel="a")
+        r = self.client.get(reverse("login"))
+        self.assertContains(r, "farbpaletten.js")
+
     def test_knopf_bekommt_automatisch_ein_passendes_icon(self):
         self.assertEqual(knopf("Löschen", "#")["icon"], "bi-trash")
         self.assertEqual(knopf("Import (Excel/CSV)", "#")["icon"], "bi-upload")

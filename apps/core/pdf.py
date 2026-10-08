@@ -14,7 +14,7 @@ from reportlab.platypus import (BaseDocTemplate, Frame, NextPageTemplate, PageBr
 
 LOGO_BREITE = 55 * mm
 LOGO_HOEHE = 28 * mm
-STANDARD_AKZENTFARBE = "#1F4E79"
+STANDARD_AKZENTFARBE = "#AF2B1E"
 BRIEFKOPF_TEXTFARBE = "#646363"
 RAND_LINKS = 25 * mm
 RAND_RECHTS = 10 * mm

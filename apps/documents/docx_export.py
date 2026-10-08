@@ -8,7 +8,7 @@ from io import BytesIO
 from .pdf import absaetze
 from .platzhalter import ersetzen
 
-STANDARD_AKZENTFARBE = "1F4E79"
+STANDARD_AKZENTFARBE = "AF2B1E"
 BRIEFKOPF_TEXTFARBE = "646363"
 LOGO_BREITE_CM = 5.5
 LOGO_HOEHE_CM = 2.8

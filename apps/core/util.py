@@ -29,7 +29,7 @@ def logo_pfad(instance, dateiname):
     return f"vereine/{instance.kuerzel}/logo_{uuid.uuid4().hex[:8]}{ext}"
 
 
-def hex_zu_rgb(hex_farbe, standard=(31, 78, 121)):
+def hex_zu_rgb(hex_farbe, standard=(175, 43, 30)):
     """Zerlegt einen Hex-Farbcode (z. B. '#1F4E79') in ein (r, g, b)-Tupel, mit Standardwert bei ungültigem Wert."""
     hex_farbe = (hex_farbe or "").lstrip("#")
     if len(hex_farbe) != 6:

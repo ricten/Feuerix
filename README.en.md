@@ -56,8 +56,10 @@ under *Administration › Membership Types / Fees*.
 ## Web interface design
 
 Navigation, buttons and links use the per-club configurable **accent colour** (*Administration ›
-Club/Settings*, the same colour as on letters/PDFs) – the text colour in the navigation bar is calculated
-automatically for readability, and coloured hover effects mark the active/hovered menu item. Icons come from
+Club/Settings*, the same colour as on letters/PDFs, default: fire-brigade red #AF2B1E) – the text colour in
+the navigation bar is calculated automatically for readability, and coloured hover effects mark the
+active/hovered menu item. The colour fields offer a one-click preset row of common fire-brigade colours; any
+colour can still be entered freely. Icons come from
 [Bootstrap Icons](https://icons.getbootstrap.com/), served locally like Bootstrap/HTMX (no CDN,
 GDPR-friendly); almost every button automatically gets a matching icon based on its label
 (`apps/core/crud.py::_icon_fuer`), and every sub-page additionally shows the icon of its navigation group,

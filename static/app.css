@@ -61,3 +61,11 @@ dl.felder dt { font-weight: 500; color: #555; }
   margin-bottom: .9rem;
   font-size: 1rem;
 }
+
+/* ---------------------------------------------------------------- Farbpaletten (siehe farbpaletten.js) */
+.farbpaletten-reihe { display: inline-flex; gap: .35rem; margin: .4rem 0 0 .1rem; vertical-align: middle; }
+.farbpaletten-swatch {
+  width: 1.4rem; height: 1.4rem; padding: 0; border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, .25); cursor: pointer;
+}
+.farbpaletten-swatch:hover, .farbpaletten-swatch:focus-visible { transform: scale(1.15); outline: none; }

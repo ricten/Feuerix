@@ -54,8 +54,10 @@ Mitgliedsarten (Beispielbeträge!), Ehrungsarten und Jubiläumsregeln angelegt. 
 ## Design der Weboberfläche
 
 Navigation, Buttons und Links verwenden die pro Verein einstellbare **Akzentfarbe** (*Verwaltung ›
-Verein/Einstellungen*, dieselbe Farbe wie auf Briefen/PDFs) – die Textfarbe in der Navigationsleiste wird
-automatisch für Lesbarkeit berechnet, farbig unterlegte Hover-Effekte markieren den aktiven/angehovten Menüpunkt.
+Verein/Einstellungen*, dieselbe Farbe wie auf Briefen/PDFs, Standard: Feuerwehrrot #AF2B1E) – die Textfarbe in der
+Navigationsleiste wird automatisch für Lesbarkeit berechnet, farbig unterlegte Hover-Effekte markieren den
+aktiven/angehovten Menüpunkt. Unter den Farbfeldern steht eine Klick-Vorauswahl gängiger Feuerwehr-Farben zur
+Verfügung, jede beliebige Farbe lässt sich aber weiterhin frei eintragen.
 Icons stammen von [Bootstrap Icons](https://icons.getbootstrap.com/), lokal ausgeliefert wie Bootstrap/HTMX (kein
 CDN, DSGVO-freundlich); nahezu jeder Button bekommt anhand seines Labels automatisch ein passendes Icon
 (`apps/core/crud.py::_icon_fuer`), zusätzlich zeigt jede Unterseite oben rechts das Icon ihrer Navigationsgruppe.

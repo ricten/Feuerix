@@ -11,10 +11,11 @@
   <link rel="stylesheet" href="{% static 'app.css' %}">
   <script src="{% static 'vendor/htmx.min.js' %}" defer></script>
   <script src="{% static 'vendor/bootstrap.bundle.min.js' %}" defer></script>
+  <script src="{% static 'farbpaletten.js' %}" defer></script>
   <style>
     :root {
-      --bs-primary: {{ web_akzentfarbe|default:"#1F4E79" }};
-      --bs-primary-rgb: {{ web_akzent_rgb|default:"31,78,121" }};
+      --bs-primary: {{ web_akzentfarbe|default:"#AF2B1E" }};
+      --bs-primary-rgb: {{ web_akzent_rgb|default:"175,43,30" }};
       --bs-link-color: var(--bs-primary);
       --bs-link-color-rgb: var(--bs-primary-rgb);
       --bs-link-hover-color: color-mix(in srgb, var(--bs-primary) 80%, black);
@@ -48,7 +49,7 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg {% if web_akzenttextfarbe == '#000' %}navbar-light{% else %}navbar-dark{% endif %} mb-3"
-     style="background-color: {{ web_akzentfarbe|default:'#1F4E79' }};">
+     style="background-color: {{ web_akzentfarbe|default:'#AF2B1E' }};">
   <div class="container-fluid">
     <a class="navbar-brand d-flex align-items-center gap-2" href="{% if user.is_authenticated %}{% url 'nach_login' %}{% else %}{% url 'dashboard' %}{% endif %}">{% if verein.logo %}<img src="{% url 'verein_logo' %}" alt="" style="height:30px;background:#fff;border-radius:4px;padding:2px">{% endif %}{{ verein.name|default:product_name|default:"Feuerix" }}</a>
     {% if verein and product_name %}<span class="navbar-text small d-none d-md-inline ms-2 px-2 py-1 rounded-pill" style="background-color: rgba({% if web_akzenttextfarbe == '#000' %}0,0,0{% else %}255,255,255{% endif %}, .2);">{{ product_name }}</span>{% endif %}

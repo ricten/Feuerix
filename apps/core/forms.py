@@ -70,7 +70,7 @@ class VereinForm(TenantModelForm):
         # Farbfeld kann technisch keinen leeren Wert anzeigen - ohne eigene Farbe die Hauptfarbe vorbelegen
         # (entspricht dem tatsächlichen Fallback-Verhalten beim Drucken).
         if not self.initial.get("akzentfarbe_fuss"):
-            self.initial["akzentfarbe_fuss"] = self.instance.akzentfarbe or "#1F4E79"
+            self.initial["akzentfarbe_fuss"] = self.instance.akzentfarbe or "#AF2B1E"
 
 
 class RechteFelderMixin:

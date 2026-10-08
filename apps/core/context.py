@@ -119,7 +119,7 @@ def version(request):
 def _farbkontext(verein):
     """CSS-Variablen fuer die Akzentfarbe der Weboberflaeche - je Verein einstellbar (Vereinseinstellungen)."""
     from .util import hex_zu_rgb, lesbare_textfarbe
-    akzent = (verein.akzentfarbe if verein and verein.akzentfarbe else "") or "#1F4E79"
+    akzent = (verein.akzentfarbe if verein and verein.akzentfarbe else "") or "#AF2B1E"
     r, g, b = hex_zu_rgb(akzent)
     return {
         "web_akzentfarbe": akzent,

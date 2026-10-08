@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.41.2)
+# Handbook – Feuerix (Version 1.42.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -451,7 +451,9 @@ same accent colour is also used in the **web interface** (navigation bar, button
 effect when moving over menu items) – logo, navigation and icons (Bootstrap Icons) give a consistent look
 across the application, letters and PDFs. Almost every button in the application automatically gets a
 matching icon based on its text; every sub-page additionally shows the icon of its navigation group again,
-top right.
+top right. The default accent colour is a fire-brigade red (#AF2B1E); below the colour fields in the club
+settings, a small set of common fire-brigade colours (two shades of red, black, charcoal, signal yellow, dark
+blue) is offered as one-click presets – any other colour can still be typed in freely at any time.
 
 **Public documents:** when creating/editing an archive document, "Publicly visible on the start page" can be
 enabled (default: off). A document marked this way – e.g. the privacy policy or an intake form for
