@@ -85,7 +85,30 @@ def _ausgeben(v, username):
     v.ausgegeben_von = username
     v.zustand_bei_ausgabe = v.gegenstand.zustand
     v.save()
+    _rueckgabe_aufgabe_anlegen(v)
     return True
+
+
+def _rueckgabe_aufgabe_anlegen(v):
+    """Legt beim Ausgeben automatisch eine Aufgabe zur Rückgabe-Kontrolle an (fällig zum geplanten
+    Rückgabedatum) - erscheint damit in der normalen Aufgabenliste/-Startseiten-Kachel wie jede andere
+    Aufgabe. Ohne festen Zuständigen (kein naheliegender Standardwert), daher auch keine Fälligkeits-E-Mail
+    dafür - rein als Erinnerung in der Liste gedacht."""
+    from apps.events.models import Aufgabe
+    aufgabe = Aufgabe.objects.create(
+        verein=v.verein, titel=f"Rückgabe prüfen: {v.gegenstand.bezeichnung} ({v.wer})", faellig=v.bis,
+        beschreibung=f"Automatisch angelegt beim Ausgeben des Gegenstands \"{v.gegenstand.bezeichnung}\" "
+                    f"an {v.wer}.")
+    v.aufgabe = aufgabe
+    v.save(update_fields=["aufgabe", "geaendert"])
+
+
+def _rueckgabe_aufgabe_abschliessen(v):
+    if v.aufgabe_id and v.aufgabe.status != "erledigt":
+        a = v.aufgabe
+        a.status = "erledigt"
+        a.ergebnis = f"Automatisch erledigt: Rückgabe am {date.today():%d.%m.%Y} gebucht."
+        a.save()
 
 
 def _rueckgabe(v, zustand, kaution_einbehalten=False):
@@ -101,6 +124,7 @@ def _rueckgabe(v, zustand, kaution_einbehalten=False):
     if v.gegenstand.zustand != zustand:
         v.gegenstand.zustand = zustand
         v.gegenstand.save()
+    _rueckgabe_aufgabe_abschliessen(v)
     return True
 
 

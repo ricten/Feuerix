@@ -10,7 +10,7 @@ from django.utils import timezone
 from reportlab.lib.units import mm
 
 from apps.core.models import Rolle, Verein, Zugang
-from apps.events.models import Veranstaltung
+from apps.events.models import Aufgabe, Veranstaltung
 from apps.finance.models import Rechnung
 from apps.inventory import importer
 from apps.inventory.models import Gegenstand, Inventur, Inventurposition, Lagerort, Verleih
@@ -545,6 +545,61 @@ class RueckgabeTests(TestCase):
         self.assertNotContains(r, "Rechnung ansehen")
 
 
+class VerleihAutomatischeAufgabeTests(TestCase):
+    """Beim Ausgeben wird automatisch eine Aufgabe zur Rückgabe-Kontrolle angelegt (fällig zum geplanten
+    Rückgabedatum), die bei der Rückgabe automatisch wieder abgeschlossen wird."""
+
+    def setUp(self):
+        User = get_user_model()
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.verwalter = User.objects.create_user("verwalter", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.verwalter,
+                              rolle=Rolle.objects.get(verein=self.v, name="Inventarverwalter"))
+        self.client.login(username="verwalter", password="pw-Test-12345")
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster")
+        self.g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", verleihbar=True)
+        self.verleih = Verleih.objects.create(verein=self.v, gegenstand=self.g, entleiher=self.m,
+                                              von=date.today(), bis=date.today() + timedelta(days=5),
+                                              status="reserviert")
+
+    def test_ausgeben_legt_aufgabe_mit_rueckgabedatum_an(self):
+        self.client.post(reverse("verleih_ausgeben", args=[self.verleih.pk]))
+        self.verleih.refresh_from_db()
+        self.assertIsNotNone(self.verleih.aufgabe_id)
+        a = self.verleih.aufgabe
+        self.assertEqual(a.faellig, self.verleih.bis)
+        self.assertEqual(a.status, "offen")
+        self.assertIn("Beamer", a.titel)
+        self.assertIn("Max Muster", a.titel)
+
+    def test_rueckgabe_schliesst_aufgabe_automatisch_ab(self):
+        self.client.post(reverse("verleih_ausgeben", args=[self.verleih.pk]))
+        self.verleih.refresh_from_db()
+        aufgabe_id = self.verleih.aufgabe_id
+        self.client.post(reverse("verleih_rueckgabe", args=[self.verleih.pk]),
+                         {f"zustand_{self.verleih.pk}": "gut"})
+        a = Aufgabe.objects.get(pk=aufgabe_id)
+        self.assertEqual(a.status, "erledigt")
+        self.assertIn("Automatisch erledigt", a.ergebnis)
+
+    def test_sammelausgabe_und_sammelrueckgabe_funktionieren_ebenso(self):
+        vorgang = uuid.uuid4()
+        g2 = Gegenstand.objects.create(verein=self.v, bezeichnung="Zelt", verleihbar=True)
+        v2 = Verleih.objects.create(verein=self.v, gegenstand=g2, entleiher=self.m, von=date.today(),
+                                    bis=date.today() + timedelta(days=3), status="reserviert", vorgang=vorgang)
+        self.verleih.vorgang = vorgang
+        self.verleih.save(update_fields=["vorgang"])
+        self.client.post(reverse("verleih_vorgang_ausgeben", args=[vorgang]))
+        self.verleih.refresh_from_db()
+        v2.refresh_from_db()
+        self.assertIsNotNone(self.verleih.aufgabe_id)
+        self.assertIsNotNone(v2.aufgabe_id)
+        self.client.post(reverse("verleih_vorgang_rueckgabe", args=[vorgang]),
+                         {f"zustand_{self.verleih.pk}": "gut", f"zustand_{v2.pk}": "gut"})
+        self.assertEqual(Aufgabe.objects.get(pk=self.verleih.aufgabe_id).status, "erledigt")
+        self.assertEqual(Aufgabe.objects.get(pk=v2.aufgabe_id).status, "erledigt")
+
+
 class InventurTests(TestCase):
     def setUp(self):
         User = get_user_model()
@@ -611,3 +666,34 @@ class InventurTests(TestCase):
         r = self.client.post(reverse("inventurposition_setzen", args=[self.p.pk]),
                              {"ergebnis": "gefunden", "lagerort_ist": self.dachboden.pk})
         self.assertEqual(r.status_code, 403)
+
+
+class VerleihFaelligkeitsStufeTests(TestCase):
+    """Dieselbe Ampellogik wie bei Aufgabe: rot unter 2 Tage, gelb 2 bis unter 10, gruen ab 10 Tagen -
+    bei Reservierungen bezogen auf die Abholung (von), bei ausgegebenen Gegenstaenden auf die Rueckgabe (bis)."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster")
+        self.g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", verleihbar=True)
+
+    def test_reserviert_bezieht_sich_auf_abholung(self):
+        v = Verleih.objects.create(verein=self.v, gegenstand=self.g, entleiher=self.m,
+                                   von=date.today() + timedelta(days=1), bis=date.today() + timedelta(days=20),
+                                   status="reserviert")
+        self.assertEqual(v.relevantes_datum, v.von)
+        self.assertEqual(v.faelligkeits_stufe, "rot")
+
+    def test_ausgegeben_bezieht_sich_auf_rueckgabe(self):
+        v = Verleih.objects.create(verein=self.v, gegenstand=self.g, entleiher=self.m,
+                                   von=date.today() - timedelta(days=5), bis=date.today() + timedelta(days=5),
+                                   status="ausgegeben")
+        self.assertEqual(v.relevantes_datum, v.bis)
+        self.assertEqual(v.faelligkeits_stufe, "gelb")
+
+    def test_zurueckgegeben_hat_keine_stufe_mehr(self):
+        v = Verleih.objects.create(verein=self.v, gegenstand=self.g, entleiher=self.m,
+                                   von=date.today() - timedelta(days=5), bis=date.today() - timedelta(days=1),
+                                   status="zurueckgegeben")
+        self.assertIsNone(v.relevantes_datum)
+        self.assertIsNone(v.faelligkeits_stufe)

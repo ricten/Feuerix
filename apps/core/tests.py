@@ -1,4 +1,5 @@
-from datetime import timedelta
+import json
+from datetime import date, timedelta
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
@@ -9,7 +10,7 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 
 from apps.core.crud import _icon_fuer, _sortierbar, knopf
-from apps.core.models import AuditLog, Rolle, Systemeinstellung, Verein, Zugang, naechste_nummer
+from apps.core.models import AuditLog, DashboardEinstellung, Rolle, Systemeinstellung, Verein, Zugang, naechste_nummer
 from apps.core.util import pruefe_oeffentliche_adresse
 from apps.members.models import Mitglied
 
@@ -735,3 +736,92 @@ class StartseiteBannerTests(TestCase):
         self.v.refresh_from_db()
         self.assertEqual(self.v.startseite_banner, "Bitte Beiträge bis 31.01. überweisen.")
         self.assertEqual(self.v.startseite_banner_art, "warnung")
+
+
+class DashboardKachelnTests(TestCase):
+    """Reihenfolge/Sichtbarkeit der Startseiten-Kacheln ("Nächste Veranstaltungen", "Meine Aufgaben",
+    "Anstehende Verleihe") ist pro Benutzerkonto per Drag & Drop bzw. Checkbox änderbar und wird
+    gespeichert (dashboard_kacheln_speichern)."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+
+    def test_ohne_gespeicherte_einstellung_standardreihenfolge(self):
+        r = self.client.get(reverse("dashboard"))
+        inhalt = r.content.decode()
+        self.assertLess(inhalt.index('data-kachel="veranstaltungen"'), inhalt.index('data-kachel="aufgaben"'))
+        self.assertLess(inhalt.index('data-kachel="aufgaben"'), inhalt.index('data-kachel="verleihe"'))
+        self.assertNotIn("display:none", inhalt)
+
+    def test_reihenfolge_speichern_wirkt_sich_auf_naechsten_aufruf_aus(self):
+        r = self.client.post(reverse("dashboard_kacheln_speichern"),
+                             data=json.dumps({"reihenfolge": ["verleihe", "aufgaben", "veranstaltungen"],
+                                             "ausgeblendet": []}),
+                             content_type="application/json")
+        self.assertEqual(r.status_code, 200)
+        einst = DashboardEinstellung.objects.get(user=self.admin)
+        self.assertEqual(einst.kacheln_reihenfolge, ["verleihe", "aufgaben", "veranstaltungen"])
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, 'data-kachel="veranstaltungen"\n      style="order: 2;')
+
+    def test_ausblenden_setzt_display_none(self):
+        self.client.post(reverse("dashboard_kacheln_speichern"),
+                         data=json.dumps({"reihenfolge": [], "ausgeblendet": ["aufgaben"]}),
+                         content_type="application/json")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, 'data-kachel="aufgaben"\n      style="order: 1; display:none;')
+
+    def test_unbekannte_kachel_wird_ignoriert(self):
+        r = self.client.post(reverse("dashboard_kacheln_speichern"),
+                             data=json.dumps({"reihenfolge": ["erfundene_kachel", "aufgaben"],
+                                             "ausgeblendet": ["auch_erfunden"]}),
+                             content_type="application/json")
+        self.assertEqual(r.status_code, 200)
+        einst = DashboardEinstellung.objects.get(user=self.admin)
+        self.assertEqual(einst.kacheln_reihenfolge, ["aufgaben"])
+        self.assertEqual(einst.kacheln_ausgeblendet, [])
+
+    def test_ohne_login_abgelehnt(self):
+        self.client.logout()
+        r = self.client.post(reverse("dashboard_kacheln_speichern"), data=json.dumps({}),
+                             content_type="application/json")
+        self.assertEqual(r.status_code, 302)  # redirect zum Login
+
+
+class DashboardAnstehendeVerleiheTests(TestCase):
+    """Die Kachel "Anstehende Verleihe" zeigt reservierte (bezogen auf die Abholung) und ausgegebene
+    (bezogen auf die Rückgabe) Gegenstände - zurückgegebene/stornierte nicht mehr."""
+
+    def setUp(self):
+        from apps.members.models import Mitglied, Mitgliedsart
+        from apps.inventory.models import Gegenstand, Verleih
+        self.Verleih, self.Gegenstand = Verleih, Gegenstand
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        art = Mitgliedsart.objects.get(verein=self.v, name="Aktiv")
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster", mitgliedsart=art)
+        self.g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", verleihbar=True)
+
+    def test_reservierter_und_ausgegebener_verleih_werden_angezeigt(self):
+        self.Verleih.objects.create(verein=self.v, gegenstand=self.g, entleiher=self.m,
+                                    von=date.today() + timedelta(days=1),
+                                    bis=date.today() + timedelta(days=3), status="reserviert")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "Beamer")
+        self.assertContains(r, "Anstehende Verleihe")
+
+    def test_zurueckgegebener_verleih_wird_nicht_angezeigt(self):
+        self.Verleih.objects.create(verein=self.v, gegenstand=self.g, entleiher=self.m,
+                                    von=date.today() - timedelta(days=5),
+                                    bis=date.today() - timedelta(days=1), status="zurueckgegeben")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "Keine anstehenden Verleihe.")

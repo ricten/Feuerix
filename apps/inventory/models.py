@@ -122,6 +122,9 @@ class Verleih(TenantModel):
     rechnung = models.ForeignKey("finance.Rechnung", on_delete=models.SET_NULL, null=True, blank=True,
                                  editable=False, related_name="verleih_positionen",
                                  verbose_name=_("Rechnung (Leihgebühr)"))
+    aufgabe = models.OneToOneField("events.Aufgabe", on_delete=models.SET_NULL, null=True, blank=True,
+                                   editable=False, related_name="verleih",
+                                   verbose_name=_("Automatisch erzeugte Rückgabe-Aufgabe"))
     notizen = models.TextField(_("Notizen"), blank=True)
 
     class Meta:
@@ -147,6 +150,23 @@ class Verleih(TenantModel):
     @property
     def ueberfaellig(self):
         return self.status == "ausgegeben" and self.bis < date.today()
+
+    @property
+    def relevantes_datum(self):
+        """Das fuer die Dringlichkeit massgebliche Datum: bei Reservierungen die Abholung (von), bei bereits
+        ausgegebenen Gegenstaenden die geplante Rueckgabe (bis). None, wenn schon zurueckgegeben/storniert."""
+        if self.status == "reserviert":
+            return self.von
+        if self.status == "ausgegeben":
+            return self.bis
+        return None
+
+    @property
+    def faelligkeits_stufe(self):
+        """'rot'/'gelb'/'gruen' je nach Resttagen bis zum relevanten Datum, oder None - siehe
+        apps.core.util.faelligkeits_stufe (dieselbe Ampellogik wie bei Aufgabe.faelligkeits_stufe)."""
+        from apps.core.util import faelligkeits_stufe
+        return faelligkeits_stufe(self.relevantes_datum)
 
     def clean(self):
         if not (self.entleiher_id or self.entleiher_name or self.veranstaltung_id):

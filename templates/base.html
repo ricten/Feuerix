@@ -104,6 +104,7 @@
   {% endif %}
 </nav>
 <main class="container-fluid px-4 pb-5">
+  {% block vor_meldungen %}{% endblock %}
   {% if update_verfuegbare_version %}
   <div class="alert alert-info alert-dismissible fade show d-flex align-items-center gap-2">
     <i class="bi bi-arrow-up-circle"></i>

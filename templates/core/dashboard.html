@@ -1,12 +1,6 @@
 {% extends "base.html" %}
-{% load verein_tags i18n %}
-{% block content %}
-{% if verein.startseite_banner_aktiv %}
-<div class="alert alert-{% if verein.startseite_banner_art == 'wichtig' %}danger{% elif verein.startseite_banner_art == 'warnung' %}warning{% else %}info{% endif %} alert-dismissible fade show mb-4" style="white-space: pre-line;">
-  {{ verein.startseite_banner }}
-  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>
-{% endif %}
+{% load verein_tags i18n static %}
+{% block vor_meldungen %}
 <div class="dash-hero position-relative overflow-hidden rounded-4 p-4 p-md-5 mb-4"
     style="color: {{ web_akzenttextfarbe|default:'#fff' }};">
   <div class="dash-hero-glow"></div>
@@ -17,6 +11,14 @@
     <div style="opacity:.9">{% trans "Übersicht" %} {{ jahr }}{% if verein.name %} · {{ verein.name }}{% endif %}</div>
   </div>
 </div>
+{% endblock %}
+{% block content %}
+{% if verein.startseite_banner_aktiv %}
+<div class="alert alert-{% if verein.startseite_banner_art == 'wichtig' %}danger{% elif verein.startseite_banner_art == 'warnung' %}warning{% else %}info{% endif %} alert-dismissible fade show mb-4" style="white-space: pre-line;">
+  {{ verein.startseite_banner }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
 <div class="row g-3 mb-3">
   {% for label, wert in kennzahlen %}
   <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
@@ -32,10 +34,36 @@
   <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small"><i class="bi bi-calendar-check"></i> {% trans "Offene Aufgaben (Veranstaltungen)" %}</div><div class="zahl">{{ offene_aufgaben }}</div></div></div></div>
   {% if aufwand_offen %}<div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl border-warning"><div class="card-body"><div class="text-muted small"><i class="bi bi-cash-coin"></i> {% trans "Aufwandsanträge zur Genehmigung" %}</div><div class="zahl">{{ aufwand_offen }}</div></div></div></div>{% endif %}
 </div>
-<div class="row g-3">
-  <div class="{% if meine_aufgaben %}col-xl-8{% else %}col-xl-12{% endif %}">
+<div class="d-flex justify-content-end mb-2">
+  <div class="dropdown">
+    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="bi bi-sliders"></i> {% trans "Kacheln anpassen" %}
+    </button>
+    <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 280px;">
+      <div class="form-check">
+        <input class="form-check-input kachel-sichtbar-toggle" type="checkbox" value="veranstaltungen" id="kachel-sichtbar-veranstaltungen" {% if "veranstaltungen" not in kacheln_ausgeblendet %}checked{% endif %}>
+        <label class="form-check-label" for="kachel-sichtbar-veranstaltungen">{% trans "Nächste Veranstaltungen" %}</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input kachel-sichtbar-toggle" type="checkbox" value="aufgaben" id="kachel-sichtbar-aufgaben" {% if "aufgaben" not in kacheln_ausgeblendet %}checked{% endif %}>
+        <label class="form-check-label" for="kachel-sichtbar-aufgaben">{% trans "Meine Aufgaben" %}</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input kachel-sichtbar-toggle" type="checkbox" value="verleihe" id="kachel-sichtbar-verleihe" {% if "verleihe" not in kacheln_ausgeblendet %}checked{% endif %}>
+        <label class="form-check-label" for="kachel-sichtbar-verleihe">{% trans "Anstehende Verleihe" %}</label>
+      </div>
+      <div class="form-text mt-2">{% trans "Reihenfolge per Ziehen am Griff-Symbol in der Kachel-Kopfzeile ändern." %}</div>
+    </div>
+  </div>
+</div>
+<div class="row g-3" id="dashboard-kacheln" data-speichern-url="{% url 'dashboard_kacheln_speichern' %}">
+  <div class="col-xl-4 dashboard-kachel" data-kachel="veranstaltungen"
+      style="order: {{ kachel_order.veranstaltungen }};{% if "veranstaltungen" in kacheln_ausgeblendet %} display:none;{% endif %}">
     <div class="card">
-      <div class="card-header d-flex align-items-center gap-2"><i class="bi bi-calendar-event" style="color: var(--bs-primary);"></i> <strong>{% trans "Nächste Veranstaltungen" %}</strong></div>
+      <div class="card-header d-flex align-items-center gap-2">
+        <span class="kachel-griff" draggable="true" title="{% trans 'Verschieben' %}"><i class="bi bi-grip-vertical"></i></span>
+        <i class="bi bi-calendar-event" style="color: var(--bs-primary);"></i> <strong>{% trans "Nächste Veranstaltungen" %}</strong>
+      </div>
       <ul class="list-group list-group-flush">
       {% for v in kommende %}<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
         <a href="{% url 'veranstaltung_detail' v.pk %}" class="text-decoration-none d-flex align-items-center gap-2"><span class="dash-dot"></span>{{ v.titel }}</a>
@@ -45,10 +73,11 @@
       </ul>
     </div>
   </div>
-  {% if meine_aufgaben %}
-  <div class="col-xl-4">
+  <div class="col-xl-4 dashboard-kachel" data-kachel="aufgaben"
+      style="order: {{ kachel_order.aufgaben }};{% if "aufgaben" in kacheln_ausgeblendet %} display:none;{% endif %}">
     <div class="card border-{% if meine_aufgaben_farbe == 'rot' %}danger{% elif meine_aufgaben_farbe == 'gelb' %}warning{% else %}success{% endif %}">
       <div class="card-header d-flex align-items-center gap-2" style="background: var(--bs-{% if meine_aufgaben_farbe == 'rot' %}danger{% elif meine_aufgaben_farbe == 'gelb' %}warning{% else %}success{% endif %}-bg-subtle);">
+        <span class="kachel-griff" draggable="true" title="{% trans 'Verschieben' %}"><i class="bi bi-grip-vertical"></i></span>
         <i class="bi bi-list-check"></i> <strong>{% trans "Meine Aufgaben" %}</strong>
       </div>
       <ul class="list-group list-group-flush">
@@ -56,10 +85,26 @@
         <a href="{% url 'aufgabe_detail' a.pk %}" class="text-decoration-none d-flex align-items-center gap-2"><span class="dash-dot"></span>{{ a.titel }}{% if a.veranstaltung %} <span class="text-muted small">({{ a.veranstaltung.titel }})</span>{% endif %}</a>
         {% if a.faellig %}<span class="text-muted small">{% if a.faelligkeits_stufe == 'rot' %}<i class="bi bi-exclamation-triangle text-danger"></i>{% endif %} {{ a.faellig|date:"d.m.Y" }}</span>{% endif %}
       </li>
-      {% endfor %}
+      {% empty %}<li class="list-group-item text-muted">{% trans "Keine offenen eigenen Aufgaben." %}</li>{% endfor %}
       </ul>
     </div>
   </div>
-  {% endif %}
+  <div class="col-xl-4 dashboard-kachel" data-kachel="verleihe"
+      style="order: {{ kachel_order.verleihe }};{% if "verleihe" in kacheln_ausgeblendet %} display:none;{% endif %}">
+    <div class="card">
+      <div class="card-header d-flex align-items-center gap-2">
+        <span class="kachel-griff" draggable="true" title="{% trans 'Verschieben' %}"><i class="bi bi-grip-vertical"></i></span>
+        <i class="bi bi-box-seam" style="color: var(--bs-primary);"></i> <strong>{% trans "Anstehende Verleihe" %}</strong>
+      </div>
+      <ul class="list-group list-group-flush">
+      {% for ver in anstehende_verleihe %}<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-3{% if ver.faelligkeits_stufe == 'rot' %} list-group-item-danger{% elif ver.faelligkeits_stufe == 'gelb' %} list-group-item-warning{% endif %}">
+        <a href="{% url 'verleih_detail' ver.pk %}" class="text-decoration-none d-flex align-items-center gap-2"><span class="dash-dot"></span>{{ ver.gegenstand.bezeichnung }} <span class="text-muted small">({{ ver.wer }})</span></a>
+        <span class="text-muted small">{% if ver.faelligkeits_stufe == 'rot' %}<i class="bi bi-exclamation-triangle text-danger"></i>{% endif %} {% if ver.status == "reserviert" %}{% trans "Abholung" %}{% else %}{% trans "Rückgabe" %}{% endif %} {{ ver.relevantes_datum|date:"d.m.Y" }}</span>
+      </li>
+      {% empty %}<li class="list-group-item text-muted">{% trans "Keine anstehenden Verleihe." %}</li>{% endfor %}
+      </ul>
+    </div>
+  </div>
 </div>
+<script src="{% static 'dashboard_kacheln.js' %}" defer></script>
 {% endblock %}

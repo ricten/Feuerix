@@ -13,6 +13,22 @@ from django.utils.translation import gettext as _
 INTERNE_HOSTNAMEN = {"localhost", "db", "redis", "web", "worker"}
 
 
+def faelligkeits_stufe(datum):
+    """'rot'/'gelb'/'gruen' je nach Resttagen bis zu einem Datum, oder None ohne Datum - rot: unter 2 Tage
+    (inkl. überfällig), gelb: 2 bis unter 10 Tage, grün: ab 10 Tagen. Gemeinsam genutzt von Aufgabe
+    (Fälligkeit) und Verleih (geplante Rückgabe), damit beide Kacheln auf der Startseite dieselbe
+    Ampellogik verwenden."""
+    from datetime import date
+    if not datum:
+        return None
+    resttage = (datum - date.today()).days
+    if resttage < 2:
+        return "rot"
+    if resttage < 10:
+        return "gelb"
+    return "gruen"
+
+
 def pruefe_oeffentliche_adresse(url):
     """Verhindert SSRF (Server-Side Request Forgery) bei vom Nutzer frei konfigurierten externen Diensten
     (Paperless-, OpenSlides-Verbindung, FinTS-Bankadresse): nur echte, öffentlich erreichbare Adressen

@@ -275,3 +275,20 @@ class Systemeinstellung(models.Model):
                 return None
         neu, akt = teile(self.update_verfuegbare_version), teile(aktuelle_version)
         return self.update_verfuegbare_version if (neu is not None and akt is not None and neu > akt) else ""
+
+
+class DashboardEinstellung(models.Model):
+    """Persönliche Reihenfolge/Sichtbarkeit der Kacheln auf der Startseite - pro Benutzerkonto, nicht pro
+    Verein (die Vorliebe für die Anordnung ist in aller Regel unabhängig davon, welchen Verein man gerade
+    ansieht). Nur über die eigene Startseite änderbar (Drag & Drop/Ein-Ausblenden), kein eigenes Formular."""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+                                related_name="dashboard_einstellung")
+    kacheln_reihenfolge = models.JSONField(_("Kachel-Reihenfolge"), default=list, blank=True)
+    kacheln_ausgeblendet = models.JSONField(_("Ausgeblendete Kacheln"), default=list, blank=True)
+
+    class Meta:
+        verbose_name = _("Dashboard-Einstellung")
+        verbose_name_plural = _("Dashboard-Einstellungen")
+
+    def __str__(self):
+        return f"Dashboard-Einstellung von {self.user}"

@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.55.1)
+# Handbook – Feuerix (Version 1.56.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -43,6 +43,12 @@ After logging in, staff with an administration account land on the **dashboard**
 the date at the top, followed by member counts, this year's fee status, upcoming anniversaries/honours,
 overdue loans, upcoming dates, open tasks and expense requests. Members who only have self-service access
 (see chapter 3) instead land directly on "My Data".
+
+Below that, three tiles show "Next events", "My tasks" (chapter 9) and "Upcoming loans" (reservations by
+pickup date, items on loan by their planned return date - using the same traffic-light colours as tasks).
+"Customise tiles" at the top right lets you show or hide each tile individually; the order can be changed by
+dragging the handle icon in each tile's header. Both are saved per user account, independent of the club
+currently selected.
 
 **Preview:** the detail pages of invoices, reminders, donation receipts, cash reports, documents and mail
 merges (there, the first letter) show the generated PDF right on the page; in the archive this applies to
@@ -370,6 +376,10 @@ items together, take them all back together, print a shared loan slip, and – s
 stays accurate) and – if a deposit was taken – whether it is **refunded** or **kept**. This is a deliberate,
 independent decision and is not automatically derived from "defective". If the deposit is to be refunded but
 hasn't been paid out yet, a "Deposit refunded" button appears to tick off.
+
+**Issuing** an item automatically creates a "Check return: …" task (due on the planned return date, see
+chapter 9) - it shows up in the task list and on the homepage like any other task. **Returning** the item
+automatically marks that task as done, no manual upkeep needed.
 
 **Billing**: if a returned item has a lending fee, an invoice to the borrower (member or external person) is
 created automatically on return. Deposits that are kept are added as an extra line item on the same invoice.

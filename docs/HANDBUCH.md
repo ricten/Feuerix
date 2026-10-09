@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.55.1)
+# Handbuch – Feuerix (Version 1.56.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -43,6 +43,12 @@ Nach der Anmeldung landen Mitarbeiter:innen mit einem Verwaltungszugang auf dem 
 persönliche Begrüßung mit Datum, darunter Mitgliederzahlen, Beitragsstand des laufenden Jahres, anstehende
 Jubiläen/Ehrungen, überfällige Ausleihen, nächste Termine, offene Aufgaben und Aufwandsanträge. Mitglieder, die
 nur einen Selbstdatenpflege-Zugang haben (siehe Kapitel 3), landen stattdessen direkt auf „Mein Konto“.
+
+Darunter zeigen drei Kacheln „Nächste Veranstaltungen“, „Meine Aufgaben“ (Kapitel 9) und „Anstehende Verleihe“
+(reservierte Gegenstände bezogen auf die Abholung, ausgegebene bezogen auf die geplante Rückgabe - mit
+derselben Ampelfarbe wie bei Aufgaben). Über „Kacheln anpassen“ rechts oberhalb lässt sich jede Kachel einzeln
+ein-/ausblenden; die Reihenfolge lässt sich am Griff-Symbol in der jeweiligen Kachel-Kopfzeile per Ziehen
+ändern. Beides wird pro Benutzerkonto gespeichert, unabhängig vom gerade gewählten Verein.
 
 **Vorschau:** Die Detailseiten von Rechnungen, Mahnungen, Zuwendungsbestätigungen, Kassenberichten,
 Schriftstücken und Serienbriefen (dort der erste Brief) zeigen das erzeugte PDF direkt auf der Seite an; in der
@@ -374,6 +380,11 @@ gewählt (wirkt sich sofort auch auf den Gegenstand selbst aus, damit die Invent
 Kaution hinterlegt ist – ob sie **zurückgezahlt** oder **einbehalten** wird. Das ist eine bewusste, unabhängige
 Entscheidung und wird nicht automatisch aus „defekt“ abgeleitet. Ist die Kaution zurückzuzahlen, aber noch nicht
 ausgezahlt, erscheint der Button „Kaution zurückgezahlt“ zum Abhaken.
+
+Beim **Ausgeben** wird automatisch eine Aufgabe „Rückgabe prüfen: … “ angelegt (fällig zum geplanten
+Rückgabedatum, siehe Kapitel 9) - sie erscheint wie jede andere Aufgabe in der Aufgabenliste und auf der
+Startseite. Bei der **Rückgabe** wird diese Aufgabe automatisch als erledigt markiert, keine manuelle Pflege
+nötig.
 
 **Abrechnung**: Hat ein zurückgegebener Gegenstand eine Leihgebühr, wird beim Zurücknehmen automatisch eine
 Rechnung an den Entleiher erstellt (Mitglied oder externe Person). Einbehaltene Kautionen landen als zusätzliche

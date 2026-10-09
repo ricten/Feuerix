@@ -50,6 +50,8 @@ body {
   width: .55rem; height: .55rem; border-radius: 50%; flex-shrink: 0;
   background: linear-gradient(135deg, var(--bs-primary), var(--bs-primary-2));
 }
+.kachel-griff { cursor: grab; opacity: .55; }
+.kachel-griff:active { cursor: grabbing; }
 
 /* ---------------------------------------------------------------- Karten */
 .card {

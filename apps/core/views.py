@@ -1,3 +1,4 @@
+import json
 import os
 from collections import Counter, defaultdict
 from datetime import date, timedelta
@@ -7,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Sum
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -16,8 +17,10 @@ from django.views.decorators.http import require_POST
 from . import audit
 from .crud import REGISTRY, wert
 from .forms import VereinForm
-from .models import Verein, Zugang
+from .models import DashboardEinstellung, Verein, Zugang
 from .util import geld
+
+DASHBOARD_KACHELN = ("veranstaltungen", "aufgaben", "verleihe")
 
 
 def _vorbereiten(request):
@@ -86,6 +89,17 @@ def dashboard(request):
         meine_aufgaben_farbe = "gelb"
     else:
         meine_aufgaben_farbe = "gruen"
+    anstehende_verleihe = sorted(
+        Verleih.objects.filter(verein=v, status__in=["reserviert", "ausgegeben"])
+        .select_related("gegenstand", "entleiher", "veranstaltung"),
+        key=lambda x: x.relevantes_datum or date.max)[:8]
+    # Persoenliche Kachel-Reihenfolge/-Sichtbarkeit (Drag & Drop bzw. Ein-/Ausblenden auf der Startseite) -
+    # unbekannte/entfernte Kacheln werden stillschweigend ignoriert, neue haengen sich hinten an.
+    einst = getattr(request.user, "dashboard_einstellung", None)
+    gespeicherte_reihenfolge = [k for k in (einst.kacheln_reihenfolge if einst else []) if k in DASHBOARD_KACHELN]
+    kacheln_ausgeblendet = set((einst.kacheln_ausgeblendet if einst else [])) & set(DASHBOARD_KACHELN)
+    kachel_reihenfolge = gespeicherte_reihenfolge + [k for k in DASHBOARD_KACHELN if k not in gespeicherte_reihenfolge]
+    kachel_order = {k: i for i, k in enumerate(kachel_reihenfolge)}
     mitglieder = Mitglied.objects.filter(verein=v)
     aktive = mitglieder.filter(status="aktiv")
     grenze18 = date(heute.year - 18, heute.month, heute.day) if not (heute.month == 2 and heute.day == 29) \
@@ -114,9 +128,28 @@ def dashboard(request):
         "aufwand_offen": Aufwandsentschaedigung.objects.filter(verein=v, status="beantragt").count(),
         "meine_aufgaben": meine_aufgaben,
         "meine_aufgaben_farbe": meine_aufgaben_farbe,
+        "anstehende_verleihe": anstehende_verleihe,
+        "kachel_order": kachel_order,
+        "kacheln_ausgeblendet": kacheln_ausgeblendet,
         "jahr": jahr,
     }
     return render(request, "core/dashboard.html", ctx)
+
+
+@login_required
+@require_POST
+def dashboard_kacheln_speichern(request):
+    """Speichert die per Drag & Drop bzw. Ein-/Ausblenden geänderte Kachel-Reihenfolge/-Sichtbarkeit auf der
+    Startseite - pro Benutzerkonto, unabhängig vom gerade gewählten Verein."""
+    try:
+        daten = json.loads(request.body)
+    except (ValueError, TypeError):
+        return HttpResponseBadRequest()
+    reihenfolge = [k for k in daten.get("reihenfolge", []) if k in DASHBOARD_KACHELN]
+    ausgeblendet = [k for k in daten.get("ausgeblendet", []) if k in DASHBOARD_KACHELN]
+    DashboardEinstellung.objects.update_or_create(
+        user=request.user, defaults={"kacheln_reihenfolge": reihenfolge, "kacheln_ausgeblendet": ausgeblendet})
+    return JsonResponse({"ok": True})
 
 
 @login_required

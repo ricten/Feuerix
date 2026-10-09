@@ -3,6 +3,15 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.56.0
+- Neu: Startseite lässt sich personalisieren - Kacheln („Nächste Veranstaltungen“, „Meine Aufgaben“,
+  „Anstehende Verleihe“) einzeln ein-/ausblenden und per Ziehen am Griff-Symbol neu anordnen, pro
+  Benutzerkonto gespeichert. Reihenfolge oben: Willkommen-Banner, Meldungen, dann der Vereinsbanner.
+- Neu: Kachel „Anstehende Verleihe“ auf der Startseite (reservierte Gegenstände nach Abholdatum, ausgegebene
+  nach geplanter Rückgabe), mit derselben Ampelfarbe wie bei Aufgaben.
+- Neu: Beim Ausgeben eines Gegenstands wird automatisch eine Aufgabe zur Rückgabe-Kontrolle angelegt (fällig
+  zum geplanten Rückgabedatum) und bei der Rückgabe automatisch wieder abgeschlossen.
+
 ## 1.55.1
 - Fix: Abgerundete Kartenecken zeigten bei farbiger Kopfzeile/erster Listenzeile eine kleine eckige Kerbe
   (fehlendes `overflow: hidden`). Dabei auch behoben: die Kopfzeile der „Meine Aufgaben“-Kachel übernahm die
