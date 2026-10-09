@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.54.0
+- Neu: Die Kachel „Meine Aufgaben“ auf der Startseite färbt jede Zeile nach Resttagen bis zur Fälligkeit
+  (grün/gelb/rot) und wechselt als Ganzes erst zur dringlicheren Farbe, sobald mindestens zwei eigene
+  Aufgaben dieselbe Stufe erreichen.
+
 ## 1.53.0
 - Neu: Aufgaben bekommen wie bei einem Ticketsystem anhängbare Zwischennotizen (Zeitstempel, Benutzer,
   nachträglich nicht änderbar) sowie ein beim Abschließen (Status „Erledigt“) verpflichtendes Ergebnisfeld.

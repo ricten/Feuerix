@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.53.0)
+# Handbook – Feuerix (Version 1.54.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -431,8 +431,11 @@ board tasks without a specific date (e.g. coming out of a board meeting, which i
 with the type "Meeting") just leave it empty. A task whose due date has passed and that's not yet marked
 "Done" triggers a one-off email to whoever is responsible (provided they have an email address on file - the
 check runs in the background, at the latest on the next page load by a logged-in user). If the person
-responsible is themselves logged in via a member account, their own open tasks also show up on the homepage,
-with overdue ones visually highlighted.
+responsible is themselves logged in via a member account, their own open tasks also show up in a dedicated
+"My tasks" tile on the homepage. Each row is coloured by days remaining until due (green from 10 days,
+yellow under 10, red under 2 or overdue); the tile as a whole only switches to the more urgent colour once
+**at least two** of the user's own tasks reach the same level - a single task that's nearly due doesn't turn
+the whole tile alarming on its own.
 
 The task detail page lets you attach **progress notes**, like a ticketing system - each with a timestamp and
 username, and not editable afterwards - so the history stays traceable even when several people work on the

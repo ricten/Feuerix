@@ -309,6 +309,93 @@ class MeineAufgabenDashboardTests(TestCase):
         self.assertNotContains(r, "Fremde Aufgabe")
 
 
+class AufgabeFaelligkeitsStufeTests(TestCase):
+    """Rot: unter 2 Tage (inkl. ueberfaellig), gelb: 2 bis unter 10 Tage, gruen: ab 10 Tagen."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+
+    def test_ueberfaellig_ist_rot(self):
+        a = Aufgabe.objects.create(verein=self.v, titel="X", faellig=date.today() - timedelta(days=1))
+        self.assertEqual(a.faelligkeits_stufe, "rot")
+
+    def test_ein_tag_ist_rot(self):
+        a = Aufgabe.objects.create(verein=self.v, titel="X", faellig=date.today() + timedelta(days=1))
+        self.assertEqual(a.faelligkeits_stufe, "rot")
+
+    def test_zwei_tage_ist_gelb(self):
+        a = Aufgabe.objects.create(verein=self.v, titel="X", faellig=date.today() + timedelta(days=2))
+        self.assertEqual(a.faelligkeits_stufe, "gelb")
+
+    def test_neun_tage_ist_gelb(self):
+        a = Aufgabe.objects.create(verein=self.v, titel="X", faellig=date.today() + timedelta(days=9))
+        self.assertEqual(a.faelligkeits_stufe, "gelb")
+
+    def test_zehn_tage_ist_gruen(self):
+        a = Aufgabe.objects.create(verein=self.v, titel="X", faellig=date.today() + timedelta(days=10))
+        self.assertEqual(a.faelligkeits_stufe, "gruen")
+
+    def test_ohne_faelligkeit_ist_none(self):
+        a = Aufgabe.objects.create(verein=self.v, titel="X")
+        self.assertIsNone(a.faelligkeits_stufe)
+
+    def test_erledigt_ist_none(self):
+        a = Aufgabe.objects.create(verein=self.v, titel="X", faellig=date.today() - timedelta(days=5),
+                                   status="erledigt", ergebnis="Fertig.")
+        self.assertIsNone(a.faelligkeits_stufe)
+
+
+class MeineAufgabenKachelfarbeTests(TestCase):
+    """Die Kachel "Meine Aufgaben" eskaliert erst auf eine dringlichere Farbe, sobald mindestens zwei
+    Aufgaben dieselbe Dringlichkeitsstufe erreichen - eine einzelne knapp fällige Aufgabe allein soll die
+    ganze Kachel nicht grell machen."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        art = Mitgliedsart.objects.get(verein=self.v, name="Aktiv")
+        User = get_user_model()
+        self.user = User.objects.create_user("max", password="pw-Test-12345")
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster", mitgliedsart=art,
+                                         eintrittsdatum=date(2015, 1, 1), benutzer=self.user)
+        Zugang.objects.create(verein=self.v, user=self.user,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="max", password="pw-Test-12345")
+
+    def _aufgabe(self, titel, tage):
+        return Aufgabe.objects.create(verein=self.v, titel=titel, zustaendig=self.m,
+                                      faellig=date.today() + timedelta(days=tage))
+
+    def test_ohne_dringende_aufgaben_ist_gruen(self):
+        self._aufgabe("Weit weg", 30)
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "border-success")
+
+    def test_eine_einzelne_rote_aufgabe_eskaliert_nicht(self):
+        self._aufgabe("Knapp dran", 1)
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "border-success")
+        self.assertNotContains(r, "border-danger")
+
+    def test_zwei_rote_aufgaben_eskalieren_auf_rot(self):
+        self._aufgabe("Knapp dran 1", 1)
+        self._aufgabe("Knapp dran 2", -1)
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "border-danger")
+
+    def test_zwei_gelbe_aufgaben_eskalieren_auf_gelb(self):
+        self._aufgabe("Bald faellig 1", 3)
+        self._aufgabe("Bald faellig 2", 5)
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "border-warning")
+
+    def test_zeilen_sind_einzeln_eingefaerbt_auch_ohne_eskalation(self):
+        self._aufgabe("Knapp dran", 1)
+        self._aufgabe("Weit weg", 30)
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "border-success")  # Kachel bleibt gruen (nur 1 rote Aufgabe)
+        self.assertContains(r, "list-group-item-danger")  # die Zeile selbst ist trotzdem rot markiert
+
+
 class AufgabeErgebnisPflichtTests(TestCase):
     """Beim Abschliessen (Status 'Erledigt') muss ein Ergebnis eingetragen sein - wie bei einem Ticketsystem
     ein Abschlusskommentar."""

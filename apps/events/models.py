@@ -82,6 +82,21 @@ class Aufgabe(TenantModel):
         from datetime import date
         return bool(self.faellig and self.faellig < date.today() and self.status != "erledigt")
 
+    @property
+    def faelligkeits_stufe(self):
+        """'rot'/'gelb'/'gruen' je nach Resttagen bis zur Fälligkeit, oder None ohne Fälligkeit/bei bereits
+        erledigten Aufgaben (keine Dringlichkeit mehr). rot: unter 2 Tage (inkl. überfällig), gelb: 2 bis
+        unter 10 Tage, grün: ab 10 Tagen."""
+        from datetime import date
+        if not self.faellig or self.status == "erledigt":
+            return None
+        resttage = (self.faellig - date.today()).days
+        if resttage < 2:
+            return "rot"
+        if resttage < 10:
+            return "gelb"
+        return "gruen"
+
     def clean(self):
         if self.status == "erledigt" and not self.ergebnis:
             raise ValidationError(_("Bitte beim Abschließen ein Ergebnis eintragen."))

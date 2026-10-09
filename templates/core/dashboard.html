@@ -47,12 +47,14 @@
   </div>
   {% if meine_aufgaben %}
   <div class="col-xl-4">
-    <div class="card">
-      <div class="card-header d-flex align-items-center gap-2"><i class="bi bi-list-check" style="color: var(--bs-primary);"></i> <strong>{% trans "Meine Aufgaben" %}</strong></div>
+    <div class="card border-{% if meine_aufgaben_farbe == 'rot' %}danger{% elif meine_aufgaben_farbe == 'gelb' %}warning{% else %}success{% endif %}">
+      <div class="card-header d-flex align-items-center gap-2 bg-{% if meine_aufgaben_farbe == 'rot' %}danger-subtle{% elif meine_aufgaben_farbe == 'gelb' %}warning-subtle{% else %}success-subtle{% endif %}">
+        <i class="bi bi-list-check"></i> <strong>{% trans "Meine Aufgaben" %}</strong>
+      </div>
       <ul class="list-group list-group-flush">
-      {% for a in meine_aufgaben %}<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-3{% if a.ueberfaellig %} list-group-item-danger{% endif %}">
+      {% for a in meine_aufgaben %}<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-3{% if a.faelligkeits_stufe == 'rot' %} list-group-item-danger{% elif a.faelligkeits_stufe == 'gelb' %} list-group-item-warning{% endif %}">
         <a href="{% url 'aufgabe_detail' a.pk %}" class="text-decoration-none d-flex align-items-center gap-2"><span class="dash-dot"></span>{{ a.titel }}{% if a.veranstaltung %} <span class="text-muted small">({{ a.veranstaltung.titel }})</span>{% endif %}</a>
-        {% if a.faellig %}<span class="text-muted small">{% if a.ueberfaellig %}<i class="bi bi-exclamation-triangle text-danger"></i>{% endif %} {{ a.faellig|date:"d.m.Y" }}</span>{% endif %}
+        {% if a.faellig %}<span class="text-muted small">{% if a.faelligkeits_stufe == 'rot' %}<i class="bi bi-exclamation-triangle text-danger"></i>{% endif %} {{ a.faellig|date:"d.m.Y" }}</span>{% endif %}
       </li>
       {% endfor %}
       </ul>

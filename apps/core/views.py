@@ -1,5 +1,5 @@
 import os
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import date, timedelta
 
 from django.apps import apps as django_apps
@@ -69,8 +69,18 @@ def dashboard(request):
         v.aufgaben_geprueft_am = timezone.now()
         v.save(update_fields=["aufgaben_geprueft_am"])
     mitglied = getattr(request.user, "mitglied_zugang", None)
-    meine_aufgaben = (Aufgabe.objects.filter(verein=v, zustaendig=mitglied).exclude(status="erledigt")
-                      .select_related("veranstaltung").order_by("faellig")[:8] if mitglied else [])
+    alle_meine_aufgaben = (list(Aufgabe.objects.filter(verein=v, zustaendig=mitglied).exclude(status="erledigt")
+                               .select_related("veranstaltung").order_by("faellig")) if mitglied else [])
+    meine_aufgaben = alle_meine_aufgaben[:8]
+    # Die Kachel soll nicht schon wegen einer einzelnen knapp fälligen Aufgabe grell werden - erst ab zwei
+    # Aufgaben in derselben Dringlichkeitsstufe schlägt die Kachelfarbe insgesamt dorthin um.
+    stufen = Counter(a.faelligkeits_stufe for a in alle_meine_aufgaben if a.faelligkeits_stufe)
+    if stufen.get("rot", 0) >= 2:
+        meine_aufgaben_farbe = "rot"
+    elif stufen.get("gelb", 0) >= 2:
+        meine_aufgaben_farbe = "gelb"
+    else:
+        meine_aufgaben_farbe = "gruen"
     mitglieder = Mitglied.objects.filter(verein=v)
     aktive = mitglieder.filter(status="aktiv")
     grenze18 = date(heute.year - 18, heute.month, heute.day) if not (heute.month == 2 and heute.day == 29) \
@@ -98,6 +108,7 @@ def dashboard(request):
         "offene_aufgaben": Aufgabe.objects.filter(verein=v).exclude(status="erledigt").count(),
         "aufwand_offen": Aufwandsentschaedigung.objects.filter(verein=v, status="beantragt").count(),
         "meine_aufgaben": meine_aufgaben,
+        "meine_aufgaben_farbe": meine_aufgaben_farbe,
         "jahr": jahr,
     }
     return render(request, "core/dashboard.html", ctx)
