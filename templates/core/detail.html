@@ -19,6 +19,16 @@
   </div></div>
 {% endif %}
 {% for h in hinweise %}<div class="alert alert-info py-2">{{ h }}</div>{% endfor %}
+{% if aufgabe_erledigen %}
+<div class="card mb-3"><div class="card-body">
+  <h6>{% trans "Als erledigt markieren" %}</h6>
+  <form method="post" action="{{ aufgabe_erledigen.url }}" class="row g-2">{% csrf_token %}
+    <div class="col-md-8"><textarea name="ergebnis" class="form-control form-control-sm" rows="2"
+        placeholder="{% trans 'Ergebnis - was wurde erreicht/entschieden?' %}" required>{{ aufgabe_erledigen.ergebnis }}</textarea></div>
+    <div class="col-auto"><button class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> {% trans "Erledigt" %}</button></div>
+  </form>
+</div></div>
+{% endif %}
 {% if zuweisen %}
 <div class="card mb-3"><div class="card-body">
   <h6>{% trans "Einer Rechnung zuordnen" %}</h6>

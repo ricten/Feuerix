@@ -3,6 +3,14 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.57.0
+- Neu: Aufgaben lassen sich direkt auf der Detailseite per Knopf mit Ergebnis-Eingabefeld erledigen, ohne
+  den Umweg über das Bearbeiten-Formular.
+- Die Kachel „Meine Aufgaben“ auf der Startseite wird nur noch bei bald fälligen/überfälligen Aufgaben
+  farblich hervorgehoben (gelb/rot), nicht mehr grün eingefärbt, wenn alles unkritisch ist. Die Kennzahlen-
+  Kacheln oben auf der Startseite lassen sich jetzt ebenfalls per Ziehen am Griff-Symbol verschieben und
+  ausblenden.
+
 ## 1.56.1
 - Neu: Die beim Ausgeben automatisch angelegte Rückgabe-Aufgabe wird zunächst der ausgebenden Person
   zugewiesen (statt unzugeordnet zu bleiben). Ist am Gegenstand ein „Verantwortlicher“ hinterlegt, bekommt

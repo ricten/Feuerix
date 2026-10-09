@@ -19,27 +19,16 @@
   <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
 {% endif %}
-<div class="row g-3 mb-3">
-  {% for label, wert in kennzahlen %}
-  <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
-  {% endfor %}
-  {% if request.rechte|darf:"beitraege.view" %}
-  {% for label, wert in finanzen %}
-  <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
-  {% endfor %}
-  {% endif %}
-  <div class="col-6 col-lg-3 col-xxl-2"><a class="text-decoration-none text-reset" href="{% url 'jubilaeen' %}"><div class="card card-kennzahl card-klickbar"><div class="card-body"><div class="text-muted small"><i class="bi bi-award"></i> {% trans "Jubiläen" %} {{ jahr }}</div><div class="zahl">{{ jubilaeen }}</div></div></div></a></div>
-  <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small"><i class="bi bi-award"></i> {% trans "Ehrungen" %} {{ jahr }}</div><div class="zahl">{{ ehrungen }}</div></div></div></div>
-  <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl {% if ueberfaellig %}border-danger{% endif %}"><div class="card-body"><div class="text-muted small"><i class="bi bi-exclamation-triangle"></i> {% trans "Überfällige Verleihe" %}</div><div class="zahl">{{ ueberfaellig }}</div></div></div></div>
-  <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small"><i class="bi bi-calendar-check"></i> {% trans "Offene Aufgaben (Veranstaltungen)" %}</div><div class="zahl">{{ offene_aufgaben }}</div></div></div></div>
-  {% if aufwand_offen %}<div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl border-warning"><div class="card-body"><div class="text-muted small"><i class="bi bi-cash-coin"></i> {% trans "Aufwandsanträge zur Genehmigung" %}</div><div class="zahl">{{ aufwand_offen }}</div></div></div></div>{% endif %}
-</div>
 <div class="d-flex justify-content-end mb-2">
   <div class="dropdown">
     <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
       <i class="bi bi-sliders"></i> {% trans "Kacheln anpassen" %}
     </button>
     <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 280px;">
+      <div class="form-check">
+        <input class="form-check-input kachel-sichtbar-toggle" type="checkbox" value="kennzahlen" id="kachel-sichtbar-kennzahlen" {% if "kennzahlen" not in kacheln_ausgeblendet %}checked{% endif %}>
+        <label class="form-check-label" for="kachel-sichtbar-kennzahlen">{% trans "Kennzahlen" %}</label>
+      </div>
       <div class="form-check">
         <input class="form-check-input kachel-sichtbar-toggle" type="checkbox" value="veranstaltungen" id="kachel-sichtbar-veranstaltungen" {% if "veranstaltungen" not in kacheln_ausgeblendet %}checked{% endif %}>
         <label class="form-check-label" for="kachel-sichtbar-veranstaltungen">{% trans "Nächste Veranstaltungen" %}</label>
@@ -57,6 +46,25 @@
   </div>
 </div>
 <div class="row g-3" id="dashboard-kacheln" data-speichern-url="{% url 'dashboard_kacheln_speichern' %}">
+  <div class="col-12 dashboard-kachel" data-kachel="kennzahlen"
+      style="order: {{ kachel_order.kennzahlen }};{% if "kennzahlen" in kacheln_ausgeblendet %} display:none;{% endif %}">
+    <div class="mb-2"><span class="kachel-griff" draggable="true" title="{% trans 'Verschieben' %}"><i class="bi bi-grip-vertical"></i></span></div>
+    <div class="row g-3">
+      {% for label, wert in kennzahlen %}
+      <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
+      {% endfor %}
+      {% if request.rechte|darf:"beitraege.view" %}
+      {% for label, wert in finanzen %}
+      <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="zahl">{{ wert }}</div></div></div></div>
+      {% endfor %}
+      {% endif %}
+      <div class="col-6 col-lg-3 col-xxl-2"><a class="text-decoration-none text-reset" href="{% url 'jubilaeen' %}"><div class="card card-kennzahl card-klickbar"><div class="card-body"><div class="text-muted small"><i class="bi bi-award"></i> {% trans "Jubiläen" %} {{ jahr }}</div><div class="zahl">{{ jubilaeen }}</div></div></div></a></div>
+      <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small"><i class="bi bi-award"></i> {% trans "Ehrungen" %} {{ jahr }}</div><div class="zahl">{{ ehrungen }}</div></div></div></div>
+      <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl {% if ueberfaellig %}border-danger{% endif %}"><div class="card-body"><div class="text-muted small"><i class="bi bi-exclamation-triangle"></i> {% trans "Überfällige Verleihe" %}</div><div class="zahl">{{ ueberfaellig }}</div></div></div></div>
+      <div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl"><div class="card-body"><div class="text-muted small"><i class="bi bi-calendar-check"></i> {% trans "Offene Aufgaben (Veranstaltungen)" %}</div><div class="zahl">{{ offene_aufgaben }}</div></div></div></div>
+      {% if aufwand_offen %}<div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl border-warning"><div class="card-body"><div class="text-muted small"><i class="bi bi-cash-coin"></i> {% trans "Aufwandsanträge zur Genehmigung" %}</div><div class="zahl">{{ aufwand_offen }}</div></div></div></div>{% endif %}
+    </div>
+  </div>
   <div class="col-xl-4 dashboard-kachel" data-kachel="veranstaltungen"
       style="order: {{ kachel_order.veranstaltungen }};{% if "veranstaltungen" in kacheln_ausgeblendet %} display:none;{% endif %}">
     <div class="card">
@@ -75,8 +83,8 @@
   </div>
   <div class="col-xl-4 dashboard-kachel" data-kachel="aufgaben"
       style="order: {{ kachel_order.aufgaben }};{% if "aufgaben" in kacheln_ausgeblendet %} display:none;{% endif %}">
-    <div class="card border-{% if meine_aufgaben_farbe == 'rot' %}danger{% elif meine_aufgaben_farbe == 'gelb' %}warning{% else %}success{% endif %}">
-      <div class="card-header d-flex align-items-center gap-2" style="background: var(--bs-{% if meine_aufgaben_farbe == 'rot' %}danger{% elif meine_aufgaben_farbe == 'gelb' %}warning{% else %}success{% endif %}-bg-subtle);">
+    <div class="card{% if meine_aufgaben_farbe == 'rot' %} border-danger{% elif meine_aufgaben_farbe == 'gelb' %} border-warning{% endif %}">
+      <div class="card-header d-flex align-items-center gap-2"{% if meine_aufgaben_farbe == 'rot' %} style="background: var(--bs-danger-bg-subtle);"{% elif meine_aufgaben_farbe == 'gelb' %} style="background: var(--bs-warning-bg-subtle);"{% endif %}>
         <span class="kachel-griff" draggable="true" title="{% trans 'Verschieben' %}"><i class="bi bi-grip-vertical"></i></span>
         <i class="bi bi-list-check"></i> <strong>{% trans "Meine Aufgaben" %}</strong>
       </div>

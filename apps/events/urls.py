@@ -15,6 +15,7 @@ def _aufgabe_zeile_klasse(a):
 urlpatterns = [
     path("veranstaltungen/kalender.ics", views.veranstaltungen_ics, name="veranstaltungen_ics"),
     path("veranstaltungen/<int:pk>/standard-tagesordnung/", views.tagesordnung_standard, name="tagesordnung_standard"),
+    path("aufgaben/<int:pk>/erledigt/", views.aufgabe_erledigen, name="aufgabe_erledigen"),
     path("veranstaltungen/rueckmeldung/<uuid:code>/", views.rueckmeldung, name="veranstaltung_rueckmeldung"),
 ]
 urlpatterns += crud("veranstaltungen", Veranstaltung, "veranstaltungen",

@@ -20,7 +20,7 @@ from .forms import VereinForm
 from .models import DashboardEinstellung, Verein, Zugang
 from .util import geld
 
-DASHBOARD_KACHELN = ("veranstaltungen", "aufgaben", "verleihe")
+DASHBOARD_KACHELN = ("kennzahlen", "veranstaltungen", "aufgaben", "verleihe")
 
 
 def _vorbereiten(request):

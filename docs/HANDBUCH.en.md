@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.56.1)
+# Handbook – Feuerix (Version 1.57.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -44,11 +44,13 @@ the date at the top, followed by member counts, this year's fee status, upcoming
 overdue loans, upcoming dates, open tasks and expense requests. Members who only have self-service access
 (see chapter 3) instead land directly on "My Data".
 
-Below that, three tiles show "Next events", "My tasks" (chapter 9) and "Upcoming loans" (reservations by
-pickup date, items on loan by their planned return date - using the same traffic-light colours as tasks).
-"Customise tiles" at the top right lets you show or hide each tile individually; the order can be changed by
-dragging the handle icon in each tile's header. Both are saved per user account, independent of the club
-currently selected.
+Below that, the key-figures tiles (member counts, fee status, anniversaries/honours, etc.) appear, followed by
+three further tiles showing "Next events", "My tasks" (chapter 9) and "Upcoming loans" (reservations by
+pickup date, items on loan by their planned return date - using the same traffic-light colours as tasks,
+without a special highlight for green). "Customise tiles" at the top right lets you show or hide each of
+these tiles individually (including the key-figures tiles as a whole); the order can be changed by dragging
+the handle icon in each tile's header. Both are saved per user account, independent of the club currently
+selected.
 
 **Preview:** the detail pages of invoices, reminders, donation receipts, cash reports, documents and mail
 merges (there, the first letter) show the generated PDF right on the page; in the archive this applies to
@@ -452,15 +454,17 @@ task whose due date has passed and that's not yet marked "Done" triggers a one-o
 responsible (to the member's or the user's email address, whichever is on file - the check runs in the
 background, at the latest on the next page load by a logged-in user). If the person responsible is
 themselves logged in (as a member or as an administrator), their own open tasks also show up in a dedicated
-"My tasks" tile on the homepage. Each row is coloured by days remaining until due (green from 10 days,
-yellow under 10, red under 2 or overdue); the tile as a whole only switches to the more urgent colour once
-**at least two** of the user's own tasks reach the same level - a single task that's nearly due doesn't turn
-the whole tile alarming on its own.
+"My tasks" tile on the homepage. Each row is coloured by days remaining until due (yellow under 10 days, red
+under 2 or overdue, unmarked from 10 days); the tile's header stays neutral while everything is non-critical
+and only switches to yellow or red once **at least two** of the user's own tasks reach the same level - a
+single task that's nearly due doesn't turn the header colourful on its own.
 
 The task detail page lets you attach **progress notes**, like a ticketing system - each with a timestamp and
 username, and not editable afterwards - so the history stays traceable even when several people work on the
-same task. Setting the status to "Done" additionally requires a short **result** (a brief summary of what was
-achieved/decided) - without one, the task can't be closed out.
+same task. While a task isn't done yet, the page also offers a quick-complete button with its own input
+field for the result - without the detour through the edit form. Setting the status to "Done" additionally
+requires a short **result** (a brief summary of what was achieved/decided) - without one, the task can't be
+closed out.
 
 ## 10. Honours and anniversaries
 

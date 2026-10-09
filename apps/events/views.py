@@ -14,7 +14,7 @@ from django.utils.translation import gettext as _
 from apps.core.crud import abschnitt, knopf
 from apps.core.util import geld
 
-from .models import Anmeldung, Tagesordnungspunkt, Veranstaltung
+from .models import Anmeldung, Aufgabe, Tagesordnungspunkt, Veranstaltung
 
 STANDARD_TOP = [
     ("Begrüßung und Feststellung der ordnungsgemäßen Einladung und Beschlussfähigkeit", ""),
@@ -150,9 +150,28 @@ def schicht_kontext(request, s):
 
 
 def aufgabe_kontext(request, a):
-    return {"abschnitte": [abschnitt(request, "Zwischennotizen (wie ein Ticket-Verlauf)", a.notizen.all(),
-                                     ("erstellt", "erstellt_von", "text"), "aufgabenotiz_add",
-                                     {"aufgabe": a.pk, "next": request.get_full_path()})]}
+    ctx = {"abschnitte": [abschnitt(request, "Zwischennotizen (wie ein Ticket-Verlauf)", a.notizen.all(),
+                                   ("erstellt", "erstellt_von", "text"), "aufgabenotiz_add",
+                                   {"aufgabe": a.pk, "next": request.get_full_path()})]}
+    if a.status != "erledigt" and request.rechte.darf("veranstaltungen", "change"):
+        ctx["aufgabe_erledigen"] = {"url": reverse("aufgabe_erledigen", args=[a.pk]), "ergebnis": a.ergebnis}
+    return ctx
+
+
+@login_required
+@require_POST
+def aufgabe_erledigen(request, pk):
+    a = get_object_or_404(Aufgabe, pk=pk, verein=request.verein)
+    if not request.rechte.darf("veranstaltungen", "change"):
+        raise PermissionDenied
+    ergebnis = request.POST.get("ergebnis", "").strip()
+    if not ergebnis:
+        messages.error(request, _("Bitte ein Ergebnis eintragen."))
+    else:
+        a.status, a.ergebnis = "erledigt", ergebnis
+        a.save()
+        messages.success(request, _("Aufgabe als erledigt markiert."))
+    return redirect("aufgabe_detail", pk=a.pk)
 
 
 def notiz_nach_speichern(request, obj, neu):

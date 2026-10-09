@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Feuerix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-09 14:27+0200\n"
+"POT-Creation-Date: 2026-10-09 16:59+0200\n"
 "PO-Revision-Date: 2026-09-24 07:41+0200\n"
 "Last-Translator: Feuerix\n"
 "Language-Team: English\n"
@@ -446,12 +446,12 @@ msgid "Familien"
 msgstr "Families"
 
 #: .\apps\core\context.py:12 .\apps\honors\views.py:27
-#: .\templates\core\dashboard.html:31
+#: .\templates\core\dashboard.html:61
 msgid "Jubiläen"
 msgstr "Anniversaries"
 
 #: .\apps\core\context.py:13 .\apps\honors\models.py:48
-#: .\templates\core\dashboard.html:32
+#: .\templates\core\dashboard.html:62
 msgid "Ehrungen"
 msgstr "Honours"
 
@@ -1106,7 +1106,6 @@ msgid "Dashboard-Einstellung"
 msgstr "Dashboard setting"
 
 #: .\apps\core\models.py:291
-#| msgid "Systemeinstellungen"
 msgid "Dashboard-Einstellungen"
 msgstr "Dashboard settings"
 
@@ -1715,7 +1714,7 @@ msgstr "Code for public RSVP"
 msgid "In Arbeit"
 msgstr "In progress"
 
-#: .\apps\events\models.py:57
+#: .\apps\events\models.py:57 .\templates\core\detail.html:28
 msgid "Erledigt"
 msgstr "Done"
 
@@ -1920,6 +1919,15 @@ msgstr "Election results"
 #: .\apps\events\views.py:127
 msgid "Bitte Ihren Namen angeben."
 msgstr "Please enter your name."
+
+#: .\apps\events\views.py:169
+#| msgid "Bitte beim Abschließen ein Ergebnis eintragen."
+msgid "Bitte ein Ergebnis eintragen."
+msgstr "Please enter a result."
+
+#: .\apps\events\views.py:173
+msgid "Aufgabe als erledigt markiert."
+msgstr "Task marked as completed."
 
 #: .\apps\finance\models.py:29
 msgid "Fälligkeit"
@@ -3171,7 +3179,7 @@ msgstr "Expense reimbursement"
 msgid "Hinweis"
 msgstr "Note"
 
-#: .\templates\allowances\uebersicht.html:12 .\templates\core\detail.html:72
+#: .\templates\allowances\uebersicht.html:12 .\templates\core\detail.html:82
 #: .\templates\core\liste.html:41
 msgid "Keine Einträge."
 msgstr "No entries."
@@ -3255,65 +3263,65 @@ msgstr "Welcome back, %(name)s"
 msgid "Übersicht"
 msgstr "Overview"
 
-#: .\templates\core\dashboard.html:33
-msgid "Überfällige Verleihe"
-msgstr "Overdue rentals"
-
-#: .\templates\core\dashboard.html:34
-msgid "Offene Aufgaben (Veranstaltungen)"
-msgstr "Open tasks (events)"
-
-#: .\templates\core\dashboard.html:35
-msgid "Aufwandsanträge zur Genehmigung"
-msgstr "Expense requests awaiting approval"
-
-#: .\templates\core\dashboard.html:40
+#: .\templates\core\dashboard.html:25
 msgid "Kacheln anpassen"
 msgstr "Customise tiles"
 
-#: .\templates\core\dashboard.html:45 .\templates\core\dashboard.html:65
+#: .\templates\core\dashboard.html:30
+#| msgid "Anzahl"
+msgid "Kennzahlen"
+msgstr "Key figures"
+
+#: .\templates\core\dashboard.html:34 .\templates\core\dashboard.html:73
 msgid "Nächste Veranstaltungen"
 msgstr "Upcoming events"
 
-#: .\templates\core\dashboard.html:49 .\templates\core\dashboard.html:81
+#: .\templates\core\dashboard.html:38 .\templates\core\dashboard.html:89
 msgid "Meine Aufgaben"
 msgstr "My tasks"
 
-#: .\templates\core\dashboard.html:53 .\templates\core\dashboard.html:97
+#: .\templates\core\dashboard.html:42 .\templates\core\dashboard.html:105
 msgid "Anstehende Verleihe"
 msgstr "Upcoming loans"
 
-#: .\templates\core\dashboard.html:55
+#: .\templates\core\dashboard.html:44
 msgid "Reihenfolge per Ziehen am Griff-Symbol in der Kachel-Kopfzeile ändern."
 msgstr "Change the order by dragging the handle icon in the tile header."
 
-#: .\templates\core\dashboard.html:64 .\templates\core\dashboard.html:80
-#: .\templates\core\dashboard.html:96
-#| msgid "Version"
+#: .\templates\core\dashboard.html:51 .\templates\core\dashboard.html:72
+#: .\templates\core\dashboard.html:88 .\templates\core\dashboard.html:104
 msgid "Verschieben"
 msgstr "Move"
 
-#: .\templates\core\dashboard.html:72
+#: .\templates\core\dashboard.html:63
+msgid "Überfällige Verleihe"
+msgstr "Overdue rentals"
+
+#: .\templates\core\dashboard.html:64
+msgid "Offene Aufgaben (Veranstaltungen)"
+msgstr "Open tasks (events)"
+
+#: .\templates\core\dashboard.html:65
+msgid "Aufwandsanträge zur Genehmigung"
+msgstr "Expense requests awaiting approval"
+
+#: .\templates\core\dashboard.html:80
 msgid "Keine anstehenden Veranstaltungen."
 msgstr "No upcoming events."
 
-#: .\templates\core\dashboard.html:88
-#| msgid "Keine weiteren Angaben."
+#: .\templates\core\dashboard.html:96
 msgid "Keine offenen eigenen Aufgaben."
 msgstr "No open tasks of your own."
 
-#: .\templates\core\dashboard.html:102
-#| msgid "Abteilung"
+#: .\templates\core\dashboard.html:110
 msgid "Abholung"
 msgstr "Pickup"
 
-#: .\templates\core\dashboard.html:102
-#| msgid "Rückgabe buchen"
+#: .\templates\core\dashboard.html:110
 msgid "Rückgabe"
 msgstr "Return"
 
-#: .\templates\core\dashboard.html:104
-#| msgid "Keine anstehenden Veranstaltungen."
+#: .\templates\core\dashboard.html:112
 msgid "Keine anstehenden Verleihe."
 msgstr "No upcoming loans."
 
@@ -3331,34 +3339,44 @@ msgid "Vorschau"
 msgstr "Preview"
 
 #: .\templates\core\detail.html:24
+msgid "Als erledigt markieren"
+msgstr "Mark as completed"
+
+#: .\templates\core\detail.html:27
+#| msgid ""
+#| "Kurzes Fazit beim Abschließen - was wurde erreicht/entschieden."
+msgid "Ergebnis - was wurde erreicht/entschieden?"
+msgstr "Result - what was achieved/decided?"
+
+#: .\templates\core\detail.html:34
 msgid "Einer Rechnung zuordnen"
 msgstr "Assign to an invoice"
 
-#: .\templates\core\detail.html:27
+#: .\templates\core\detail.html:37
 msgid "offene Rechnung wählen"
 msgstr "select an open invoice"
 
-#: .\templates\core\detail.html:30
+#: .\templates\core\detail.html:40
 msgid "Zahlung buchen"
 msgstr "Book payment"
 
-#: .\templates\core\detail.html:36
+#: .\templates\core\detail.html:46
 msgid "Bestehende Mitglieder hinzufügen"
 msgstr "Add existing members"
 
-#: .\templates\core\detail.html:41
+#: .\templates\core\detail.html:51
 msgid "bereits in"
 msgstr "already in"
 
-#: .\templates\core\detail.html:44
+#: .\templates\core\detail.html:54
 msgid "Mehrfachauswahl möglich (Strg/Cmd gedrückt halten)."
 msgstr "Multiple selection possible (hold Ctrl/Cmd)."
 
-#: .\templates\core\detail.html:46 .\templates\core\detail.html:65
+#: .\templates\core\detail.html:56 .\templates\core\detail.html:75
 msgid "Hinzufügen"
 msgstr "Add"
 
-#: .\templates\core\detail.html:76
+#: .\templates\core\detail.html:86
 msgid "Keine weiteren Angaben."
 msgstr "No further details."
 

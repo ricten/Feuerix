@@ -774,7 +774,16 @@ class DashboardKachelnTests(TestCase):
                          data=json.dumps({"reihenfolge": [], "ausgeblendet": ["aufgaben"]}),
                          content_type="application/json")
         r = self.client.get(reverse("dashboard"))
-        self.assertContains(r, 'data-kachel="aufgaben"\n      style="order: 1; display:none;')
+        self.assertContains(r, 'data-kachel="aufgaben"\n      style="order: 2; display:none;')
+
+    def test_kennzahlen_kachel_ist_verschiebbar_und_ausblendbar(self):
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, 'data-kachel="kennzahlen"')
+        self.client.post(reverse("dashboard_kacheln_speichern"),
+                         data=json.dumps({"reihenfolge": ["aufgaben", "kennzahlen"], "ausgeblendet": ["kennzahlen"]}),
+                         content_type="application/json")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, 'data-kachel="kennzahlen"\n      style="order: 1; display:none;')
 
     def test_unbekannte_kachel_wird_ignoriert(self):
         r = self.client.post(reverse("dashboard_kacheln_speichern"),

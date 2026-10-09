@@ -365,15 +365,15 @@ class MeineAufgabenKachelfarbeTests(TestCase):
         return Aufgabe.objects.create(verein=self.v, titel=titel, zustaendig=self.m,
                                       faellig=date.today() + timedelta(days=tage))
 
-    def test_ohne_dringende_aufgaben_ist_gruen(self):
+    def test_ohne_dringende_aufgaben_ist_unauffaellig(self):
         self._aufgabe("Weit weg", 30)
         r = self.client.get(reverse("dashboard"))
-        self.assertContains(r, "border-success")
+        self.assertNotContains(r, "border-danger")
+        self.assertNotContains(r, "border-warning")
 
     def test_eine_einzelne_rote_aufgabe_eskaliert_nicht(self):
         self._aufgabe("Knapp dran", 1)
         r = self.client.get(reverse("dashboard"))
-        self.assertContains(r, "border-success")
         self.assertNotContains(r, "border-danger")
 
     def test_zwei_rote_aufgaben_eskalieren_auf_rot(self):
@@ -392,7 +392,7 @@ class MeineAufgabenKachelfarbeTests(TestCase):
         self._aufgabe("Knapp dran", 1)
         self._aufgabe("Weit weg", 30)
         r = self.client.get(reverse("dashboard"))
-        self.assertContains(r, "border-success")  # Kachel bleibt gruen (nur 1 rote Aufgabe)
+        self.assertNotContains(r, "border-danger")  # Kachel bleibt unauffaellig (nur 1 rote Aufgabe)
         self.assertContains(r, "list-group-item-danger")  # die Zeile selbst ist trotzdem rot markiert
 
 
@@ -431,6 +431,52 @@ class AufgabeErgebnisPflichtTests(TestCase):
         self.assertEqual(r.status_code, 302)
         self.a.refresh_from_db()
         self.assertEqual(self.a.status, "arbeit")
+
+
+class AufgabeErledigenKnopfTests(TestCase):
+    """Schnell-Erledigen-Knopf auf der Aufgaben-Detailseite - Eingabefeld fuer das Pflicht-Ergebnis statt
+    Umweg ueber das Bearbeiten-Formular."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.a = Aufgabe.objects.create(verein=self.v, titel="Flyer entwerfen", status="offen")
+
+    def test_formular_erscheint_nur_wenn_nicht_bereits_erledigt(self):
+        r = self.client.get(reverse("aufgabe_detail", args=[self.a.pk]))
+        self.assertContains(r, "Als erledigt markieren")
+        self.a.status, self.a.ergebnis = "erledigt", "Fertig."
+        self.a.save()
+        r = self.client.get(reverse("aufgabe_detail", args=[self.a.pk]))
+        self.assertNotContains(r, "Als erledigt markieren")
+
+    def test_ohne_ergebnis_wird_abgelehnt(self):
+        r = self.client.post(reverse("aufgabe_erledigen", args=[self.a.pk]), {"ergebnis": ""}, follow=True)
+        self.assertContains(r, "Bitte ein Ergebnis eintragen.")
+        self.a.refresh_from_db()
+        self.assertEqual(self.a.status, "offen")
+
+    def test_mit_ergebnis_wird_erledigt(self):
+        r = self.client.post(reverse("aufgabe_erledigen", args=[self.a.pk]),
+                             {"ergebnis": "Flyer ist fertig und gedruckt."})
+        self.assertRedirects(r, reverse("aufgabe_detail", args=[self.a.pk]))
+        self.a.refresh_from_db()
+        self.assertEqual(self.a.status, "erledigt")
+        self.assertEqual(self.a.ergebnis, "Flyer ist fertig und gedruckt.")
+
+    def test_ohne_schreibrecht_verweigert(self):
+        leser = get_user_model().objects.create_user("leser", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=leser,
+                              rolle=Rolle.objects.create(verein=self.v, name="Leser", rechte=["veranstaltungen.view"]))
+        self.client.login(username="leser", password="pw-Test-12345")
+        r = self.client.post(reverse("aufgabe_erledigen", args=[self.a.pk]), {"ergebnis": "Fertig."})
+        self.assertEqual(r.status_code, 403)
+        self.a.refresh_from_db()
+        self.assertEqual(self.a.status, "offen")
 
 
 class AufgabenNotizTests(TestCase):

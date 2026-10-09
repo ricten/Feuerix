@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.56.1)
+# Handbuch – Feuerix (Version 1.57.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -44,11 +44,13 @@ persönliche Begrüßung mit Datum, darunter Mitgliederzahlen, Beitragsstand des
 Jubiläen/Ehrungen, überfällige Ausleihen, nächste Termine, offene Aufgaben und Aufwandsanträge. Mitglieder, die
 nur einen Selbstdatenpflege-Zugang haben (siehe Kapitel 3), landen stattdessen direkt auf „Mein Konto“.
 
-Darunter zeigen drei Kacheln „Nächste Veranstaltungen“, „Meine Aufgaben“ (Kapitel 9) und „Anstehende Verleihe“
-(reservierte Gegenstände bezogen auf die Abholung, ausgegebene bezogen auf die geplante Rückgabe - mit
-derselben Ampelfarbe wie bei Aufgaben). Über „Kacheln anpassen“ rechts oberhalb lässt sich jede Kachel einzeln
-ein-/ausblenden; die Reihenfolge lässt sich am Griff-Symbol in der jeweiligen Kachel-Kopfzeile per Ziehen
-ändern. Beides wird pro Benutzerkonto gespeichert, unabhängig vom gerade gewählten Verein.
+Darunter zeigen die Kennzahlen-Kacheln (Mitgliederzahlen, Beitragsstand, Jubiläen/Ehrungen usw.) sowie drei
+weitere Kacheln „Nächste Veranstaltungen“, „Meine Aufgaben“ (Kapitel 9) und „Anstehende Verleihe“ (reservierte
+Gegenstände bezogen auf die Abholung, ausgegebene bezogen auf die geplante Rückgabe - mit derselben Ampelfarbe
+wie bei Aufgaben; grün wird dabei nicht extra hervorgehoben, nur gelb/rot). Über „Kacheln anpassen“ rechts
+oberhalb lässt sich jede dieser Kacheln (auch die Kennzahlen-Kacheln als Ganzes) einzeln ein-/ausblenden; die
+Reihenfolge lässt sich am Griff-Symbol in der jeweiligen Kachel-Kopfzeile per Ziehen ändern. Beides wird pro
+Benutzerkonto gespeichert, unabhängig vom gerade gewählten Verein.
 
 **Vorschau:** Die Detailseiten von Rechnungen, Mahnungen, Zuwendungsbestätigungen, Kassenberichten,
 Schriftstücken und Serienbriefen (dort der erste Brief) zeigen das erzeugte PDF direkt auf der Seite an; in der
@@ -462,15 +464,18 @@ E-Mail an die/den Zuständige(n) aus (an die Mitglieds- bzw. Benutzer-E-Mail-Adr
 Prüfung läuft im Hintergrund, spätestens beim nächsten Seitenaufruf eines angemeldeten Benutzers). Ist der
 Zuständige selbst angemeldet (als Mitglied oder als Administrator), erscheinen seine eigenen offenen Aufgaben
 zusätzlich in einer eigenen Kachel „Meine Aufgaben“ auf der Startseite. Jede Zeile ist nach Resttagen bis zur
-Fälligkeit eingefärbt (grün ab 10 Tagen, gelb unter 10, rot unter 2 bzw. überfällig); die Kachel als Ganzes
-wechselt erst auf die dringlichere Farbe, sobald **mindestens zwei** eigene Aufgaben dieselbe Stufe erreichen
-- eine einzelne knapp fällige Aufgabe allein lässt die Kachel also noch nicht grell werden.
+Fälligkeit eingefärbt (gelb unter 10 Tagen, rot unter 2 bzw. überfällig, ab 10 Tagen unmarkiert); die
+Kopfzeile der Kachel als Ganzes bleibt neutral, solange alles unkritisch ist, und wechselt erst auf Gelb bzw.
+Rot, sobald **mindestens zwei** eigene Aufgaben dieselbe Dringlichkeitsstufe erreichen - eine einzelne knapp
+fällige Aufgabe allein lässt die Kopfzeile also noch nicht farbig werden.
 
 Auf der Aufgaben-Detailseite lassen sich wie bei einem Ticketsystem **Zwischennotizen** anhängen (mit
 Zeitstempel und Benutzername, nachträglich nicht mehr änderbar) - so bleibt der Bearbeitungsverlauf
-nachvollziehbar, auch wenn mehrere Personen an derselben Aufgabe mitarbeiten. Beim Setzen des Status auf
-„Erledigt“ ist zusätzlich ein kurzes **Ergebnis** Pflicht (kurzes Fazit: was wurde erreicht/entschieden) -
-ohne Eintrag lässt sich die Aufgabe nicht abschließen.
+nachvollziehbar, auch wenn mehrere Personen an derselben Aufgabe mitarbeiten. Solange die Aufgabe noch nicht
+erledigt ist, steht dort außerdem ein Schnell-Erledigen-Knopf mit einem eigenen Eingabefeld für das Ergebnis
+bereit - ohne den Umweg über das Bearbeiten-Formular. Beim Setzen des Status auf „Erledigt“ ist zusätzlich ein
+kurzes **Ergebnis** Pflicht (kurzes Fazit: was wurde erreicht/entschieden) - ohne Eintrag lässt sich die
+Aufgabe nicht abschließen.
 
 ## 10. Ehrungen und Jubiläen
 
