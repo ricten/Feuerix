@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.57.1)
+# Handbuch – Feuerix (Version 1.57.2)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -465,9 +465,10 @@ Prüfung läuft im Hintergrund, spätestens beim nächsten Seitenaufruf eines an
 Zuständige selbst angemeldet (als Mitglied oder als Administrator), erscheinen seine eigenen offenen Aufgaben
 zusätzlich in einer eigenen Kachel „Meine Aufgaben“ auf der Startseite. Jede Zeile ist nach Resttagen bis zur
 Fälligkeit eingefärbt (gelb unter 10 Tagen, rot unter 2 bzw. überfällig, ab 10 Tagen unmarkiert); die
-Kopfzeile der Kachel als Ganzes bleibt neutral, solange alles unkritisch ist, und wechselt erst auf Gelb bzw.
-Rot, sobald **mindestens zwei** eigene Aufgaben dieselbe Dringlichkeitsstufe erreichen - eine einzelne knapp
-fällige Aufgabe allein lässt die Kopfzeile also noch nicht farbig werden.
+Kopfzeile der Kachel als Ganzes bleibt neutral, solange alles unkritisch ist, und wechselt auf Gelb, sobald
+**mindestens zwei** eigene Aufgaben mindestens gelb sind (eine rote Aufgabe zählt dabei als „mindestens
+gelb“ mit), bzw. auf Rot, sobald mindestens zwei davon rot sind - eine einzelne knapp fällige Aufgabe allein
+lässt die Kopfzeile also noch nicht farbig werden.
 
 Auf der Aufgaben-Detailseite lassen sich wie bei einem Ticketsystem **Zwischennotizen** anhängen (mit
 Zeitstempel und Benutzername, nachträglich nicht mehr änderbar) - so bleibt der Bearbeitungsverlauf

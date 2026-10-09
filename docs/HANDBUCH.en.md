@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.57.1)
+# Handbook – Feuerix (Version 1.57.2)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -456,8 +456,9 @@ background, at the latest on the next page load by a logged-in user). If the per
 themselves logged in (as a member or as an administrator), their own open tasks also show up in a dedicated
 "My tasks" tile on the homepage. Each row is coloured by days remaining until due (yellow under 10 days, red
 under 2 or overdue, unmarked from 10 days); the tile's header stays neutral while everything is non-critical
-and only switches to yellow or red once **at least two** of the user's own tasks reach the same level - a
-single task that's nearly due doesn't turn the header colourful on its own.
+and switches to yellow once **at least two** of the user's own tasks are at least yellow (a red task counts
+as "at least yellow" too), or to red once at least two of them are red - a single task that's nearly due
+doesn't turn the header colourful on its own.
 
 The task detail page lets you attach **progress notes**, like a ticketing system - each with a timestamp and
 username, and not editable afterwards - so the history stays traceable even when several people work on the

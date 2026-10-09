@@ -81,11 +81,12 @@ def dashboard(request):
                                                                          "zustaendig_benutzer").order_by("faellig"))
     meine_aufgaben = alle_meine_aufgaben[:8]
     # Die Kachel soll nicht schon wegen einer einzelnen knapp fälligen Aufgabe grell werden - erst ab zwei
-    # Aufgaben in derselben Dringlichkeitsstufe schlägt die Kachelfarbe insgesamt dorthin um.
+    # mindestens gelben Aufgaben schlägt die Kachelfarbe auf Gelb um (rot zählt dabei auch als "mindestens
+    # gelb" mit), ab zwei roten auf Rot.
     stufen = Counter(a.faelligkeits_stufe for a in alle_meine_aufgaben if a.faelligkeits_stufe)
     if stufen.get("rot", 0) >= 2:
         meine_aufgaben_farbe = "rot"
-    elif stufen.get("gelb", 0) >= 2:
+    elif stufen.get("rot", 0) + stufen.get("gelb", 0) >= 2:
         meine_aufgaben_farbe = "gelb"
     else:
         meine_aufgaben_farbe = "gruen"

@@ -346,9 +346,9 @@ class AufgabeFaelligkeitsStufeTests(TestCase):
 
 
 class MeineAufgabenKachelfarbeTests(TestCase):
-    """Die Kachel "Meine Aufgaben" eskaliert erst auf eine dringlichere Farbe, sobald mindestens zwei
-    Aufgaben dieselbe Dringlichkeitsstufe erreichen - eine einzelne knapp fällige Aufgabe allein soll die
-    ganze Kachel nicht grell machen."""
+    """Die Kachel "Meine Aufgaben" eskaliert erst auf Gelb, sobald mindestens zwei Aufgaben mindestens gelb
+    sind (rot zaehlt dabei mit), und auf Rot erst ab mindestens zwei roten Aufgaben - eine einzelne knapp
+    fällige Aufgabe allein soll die ganze Kachel nicht grell machen."""
 
     def setUp(self):
         self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
@@ -386,6 +386,13 @@ class MeineAufgabenKachelfarbeTests(TestCase):
         self._aufgabe("Bald faellig 1", 3)
         self._aufgabe("Bald faellig 2", 5)
         r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "border-warning")
+
+    def test_eine_rote_und_eine_gelbe_aufgabe_eskalieren_auf_gelb(self):
+        self._aufgabe("Knapp dran", 1)
+        self._aufgabe("Bald faellig", 5)
+        r = self.client.get(reverse("dashboard"))
+        self.assertNotContains(r, "border-danger")
         self.assertContains(r, "border-warning")
 
     def test_zeilen_sind_einzeln_eingefaerbt_auch_ohne_eskalation(self):
