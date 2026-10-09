@@ -3,6 +3,9 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.58.1
+- Interne Versionsanhebung zum Test der Update-Funktion der Portalverwaltung (keine inhaltliche Änderung).
+
 ## 1.58.0
 - Neu: Bei einer Aufgabe kann sich jede:r (unabhängig vom Schreibrecht) als Beobachter:in eintragen und
   erhält dann per E-Mail Bescheid, sobald sich etwas ändert (Status, Ergebnis, Fälligkeit, Zuständigkeit o. ä.)
