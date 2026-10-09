@@ -7,7 +7,16 @@
     {% if aktive_icon %}<i class="bi {{ aktive_icon }} fs-4 me-1" style="color: var(--bs-primary);"></i>{% endif %}
     {% include "core/_buttons.html" with buttons=aktionen %}
     {% if aufgabe_erledigen %}<button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#aufgabeErledigenModal"><i class="bi bi-check-lg"></i> {% trans "Erledigt" %}</button>{% endif %}
-    {% if can_change %}<a class="btn btn-sm btn-outline-primary" href="{% url cfg.name|add:'_edit' object.pk %}"><i class="bi bi-pencil"></i> {% trans "Bearbeiten" %}</a>{% endif %}
+    {% if aufgabe_beobachten %}
+    <form method="post" action="{{ aufgabe_beobachten.url }}" class="d-inline">{% csrf_token %}
+      <button type="submit" class="btn btn-sm btn-{% if aufgabe_beobachten.beobachtet %}secondary{% else %}outline-secondary{% endif %}" title="{% trans 'Benachrichtigung bei Änderungen an dieser Aufgabe' %}">
+        <i class="bi bi-bell{% if aufgabe_beobachten.beobachtet %}-fill{% endif %}"></i>
+        {% if aufgabe_beobachten.beobachtet %}{% trans "Benachrichtigung aktiv" %}{% else %}{% trans "Benachrichtigen" %}{% endif %}
+      </button>
+    </form>
+    {% endif %}
+    {% if can_change %}<a class="btn btn-sm btn-outline-primary" href="{% url cfg.name|add:'_edit' object.pk %}"><i class="bi bi-pencil"></i> {% trans "Bearbeiten" %}</a>
+    {% else %}<button type="button" class="btn btn-sm btn-outline-secondary disabled" title="{% trans 'Sie haben für diesen Bereich nur Leserecht.' %}"><i class="bi bi-info-circle"></i> {% trans "Info" %}</button>{% endif %}
     {% if can_delete %}<a class="btn btn-sm btn-outline-danger" href="{% url cfg.name|add:'_delete' object.pk %}"><i class="bi bi-trash"></i> {% trans "Löschen" %}</a>{% endif %}
   </div>
 </div>

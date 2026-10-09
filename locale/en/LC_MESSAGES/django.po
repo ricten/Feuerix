@@ -1,12 +1,12 @@
 # English translation of Feuerix's core UI chrome (navigation, generic CRUD screens, login, custom subpages).
 # Copyright (C) 2026 Rico Tengler
 # This file is distributed under the same license as the Feuerix package.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: Feuerix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-09 17:10+0200\n"
+"POT-Creation-Date: 2026-10-09 18:47+0200\n"
 "PO-Revision-Date: 2026-09-24 07:41+0200\n"
 "Last-Translator: Feuerix\n"
 "Language-Team: English\n"
@@ -40,8 +40,8 @@ msgstr "Bank account"
 msgid "Barkasse"
 msgstr "Cash account"
 
-#: .\apps\accounting\models.py:20 .\apps\events\models.py:143
-#: .\apps\events\models.py:216 .\apps\finance\models.py:187
+#: .\apps\accounting\models.py:20 .\apps\events\models.py:147
+#: .\apps\events\models.py:220 .\apps\finance\models.py:187
 #: .\apps\finance\models.py:362 .\apps\honors\models.py:10
 #: .\apps\inventory\models.py:44 .\apps\inventory\models.py:208
 #: .\apps\inventory\models.py:245
@@ -52,7 +52,7 @@ msgstr "Description"
 #: .\apps\accounting\models.py:67 .\apps\allowances\models.py:22
 #: .\apps\documents\models.py:123 .\apps\documents\models.py:151
 #: .\apps\donations\models.py:17 .\apps\donations\models.py:64
-#: .\apps\events\models.py:20 .\apps\events\models.py:215
+#: .\apps\events\models.py:20 .\apps\events\models.py:219
 #: .\apps\finance\models.py:75
 msgid "Art"
 msgstr "Type"
@@ -103,11 +103,11 @@ msgstr "Account"
 msgid "Konten"
 msgstr "Accounts"
 
-#: .\apps\accounting\models.py:44 .\apps\events\models.py:212
+#: .\apps\accounting\models.py:44 .\apps\events\models.py:216
 msgid "Einnahme"
 msgstr "Income"
 
-#: .\apps\accounting\models.py:44 .\apps\events\models.py:212
+#: .\apps\accounting\models.py:44 .\apps\events\models.py:216
 msgid "Ausgabe"
 msgstr "Expense"
 
@@ -127,7 +127,8 @@ msgstr "Tax sphere"
 
 #: .\apps\accounting\models.py:48
 msgid "Zuordnung bitte mit dem Steuerberater/Finanzamt abstimmen"
-msgstr "Please coordinate the classification with your tax advisor/tax office."
+msgstr ""
+"Please coordinate the classification with your tax advisor/tax office."
 
 #: .\apps\accounting\models.py:49
 msgid "Sortierung"
@@ -199,9 +200,9 @@ msgstr "Receipt (scan/photo)"
 
 #: .\apps\accounting\models.py:77 .\apps\documents\models.py:155
 #: .\apps\documents\models.py:185 .\apps\events\models.py:38
-#: .\apps\events\models.py:59 .\apps\events\models.py:142
-#: .\apps\events\models.py:186 .\apps\events\models.py:214
-#: .\apps\events\models.py:232 .\apps\events\models.py:253
+#: .\apps\events\models.py:59 .\apps\events\models.py:146
+#: .\apps\events\models.py:190 .\apps\events\models.py:218
+#: .\apps\events\models.py:236 .\apps\events\models.py:257
 msgid "Veranstaltung"
 msgstr "Event"
 
@@ -235,7 +236,8 @@ msgstr "The entry date is before the account was opened (%(datum)s)."
 msgid ""
 "Der Zeitraum gehört zu einem abgeschlossenen Kassenbericht – Buchung nicht "
 "möglich."
-msgstr "This period belongs to a closed cash book report – entry not possible."
+msgstr ""
+"This period belongs to a closed cash book report – entry not possible."
 
 #: .\apps\accounting\models.py:119 .\apps\documents\models.py:149
 #: .\apps\donations\models.py:14 .\apps\finance\models.py:71
@@ -248,7 +250,7 @@ msgid "Abgeschlossen"
 msgstr "Completed"
 
 #: .\apps\accounting\models.py:120 .\apps\documents\models.py:52
-#: .\apps\events\models.py:19 .\apps\events\models.py:234
+#: .\apps\events\models.py:19 .\apps\events\models.py:238
 #: .\apps\members\models.py:252 .\templates\paperless\sammelversand.html:11
 msgid "Titel"
 msgstr "Title"
@@ -268,7 +270,7 @@ msgstr "Period to"
 #: .\apps\accounting\models.py:123 .\apps\allowances\models.py:23
 #: .\apps\documents\models.py:161 .\apps\donations\models.py:18
 #: .\apps\events\models.py:21 .\apps\events\models.py:71
-#: .\apps\events\models.py:191 .\apps\finance\models.py:76
+#: .\apps\events\models.py:195 .\apps\finance\models.py:76
 #: .\apps\finance\models.py:247 .\apps\inventory\models.py:107
 #: .\apps\inventory\models.py:210 .\apps\members\models.py:114
 #: .\templates\inventory\vorgang.html:10
@@ -308,8 +310,8 @@ msgstr "Comments / audit result"
 
 #: .\apps\accounting\models.py:133
 msgid ""
-"Wird im Bericht abgedruckt (z. B. Ergebnis der Kassenprüfung, Empfehlung zur "
-"Entlastung)"
+"Wird im Bericht abgedruckt (z. B. Ergebnis der Kassenprüfung, Empfehlung zur"
+" Entlastung)"
 msgstr ""
 "Printed in the report (e.g. the result of the audit, a recommendation for "
 "discharge)"
@@ -392,7 +394,8 @@ msgstr "Paid out on"
 
 #: .\apps\allowances\models.py:33
 msgid ""
-"Empfänger hat erklärt, dass der Freibetrag nicht anderweitig ausgeschöpft ist"
+"Empfänger hat erklärt, dass der Freibetrag nicht anderweitig ausgeschöpft "
+"ist"
 msgstr ""
 "The recipient has declared that the tax-free allowance has not already been "
 "used elsewhere"
@@ -402,7 +405,7 @@ msgid "Beleg / Abrechnung"
 msgstr "Receipt / Statement"
 
 #: .\apps\allowances\models.py:35 .\apps\donations\models.py:74
-#: .\apps\events\models.py:168 .\apps\events\models.py:192
+#: .\apps\events\models.py:172 .\apps\events\models.py:196
 #: .\apps\finance\models.py:32 .\apps\finance\models.py:94
 #: .\apps\finance\models.py:274 .\apps\inventory\models.py:212
 #: .\templates\events\rueckmeldung.html:31
@@ -521,12 +524,12 @@ msgstr "Cash book"
 msgid "Kassenbuch (Buchungen)"
 msgstr "Cash book (entries)"
 
-#: .\apps\core\context.py:40 .\apps\core\views.py:267
+#: .\apps\core\context.py:40 .\apps\core\views.py:268
 #: .\apps\inventory\models.py:67
 msgid "Inventar"
 msgstr "Inventory"
 
-#: .\apps\core\context.py:41 .\apps\core\views.py:267
+#: .\apps\core\context.py:41 .\apps\core\views.py:268
 msgid "Gegenstände"
 msgstr "Items"
 
@@ -544,7 +547,7 @@ msgstr "Stocktakes"
 msgid "Veranstaltungen"
 msgstr "Events"
 
-#: .\apps\core\context.py:47 .\apps\events\models.py:80
+#: .\apps\core\context.py:47 .\apps\events\models.py:84
 msgid "Aufgaben"
 msgstr "Tasks"
 
@@ -552,7 +555,7 @@ msgstr "Tasks"
 msgid "Auswertung"
 msgstr "Reports"
 
-#: .\apps\core\context.py:50 .\apps\core\views.py:282
+#: .\apps\core\context.py:50 .\apps\core\views.py:283
 #: .\templates\core\auswertungen.html:4
 msgid "Auswertungen"
 msgstr "Reports"
@@ -723,8 +726,8 @@ msgid ""
 "steuerliche Beratung."
 msgstr ""
 "For non-charitable clubs or the commercial business operation: new invoice "
-"line items will then default to suggesting VAT, and invoices/e-invoices will "
-"show it accordingly. This does not replace tax advice."
+"line items will then default to suggesting VAT, and invoices/e-invoices will"
+" show it accordingly. This does not replace tax advice."
 
 #: .\apps\core\models.py:34
 msgid "USt-IdNr."
@@ -738,12 +741,12 @@ msgstr "Tax notice on invoices without VAT"
 msgid ""
 "Freitext für Rechnungen/E-Rechnungen, wenn (ein Teil) der Rechnung mit 0 % "
 "Umsatzsteuer ausgewiesen wird, z. B. „Gemäß § 19 UStG wird keine "
-"Umsatzsteuer berechnet“ oder eine passende Befreiungsvorschrift. Leer lassen "
-"für den Standardtext „Steuerbefreiung nach § 4 UStG (ideeller Bereich)“. "
+"Umsatzsteuer berechnet“ oder eine passende Befreiungsvorschrift. Leer lassen"
+" für den Standardtext „Steuerbefreiung nach § 4 UStG (ideeller Bereich)“. "
 "Bitte durch Steuerberater prüfen lassen."
 msgstr ""
-"Free text for invoices/e-invoices when (part of) the invoice shows 0% VAT, e."
-"g. \"No VAT is charged pursuant to § 19 UStG\" or another applicable "
+"Free text for invoices/e-invoices when (part of) the invoice shows 0% VAT, "
+"e.g. \"No VAT is charged pursuant to § 19 UStG\" or another applicable "
 "exemption provision. Leave blank for the default text \"Exempt from VAT "
 "under § 4 UStG (non-profit sphere)\". Please have this reviewed by a tax "
 "advisor."
@@ -799,14 +802,14 @@ msgstr "Accent colour (letters and PDFs)"
 
 #: .\apps\core\models.py:57
 msgid ""
-"Hex-Code, z. B. #AF2B1E (Feuerwehrrot) – für Überschrift/Linie im Briefkopf. "
-"Gilt auch für die Weboberfläche, solange unten keine eigene Farbe dafür "
+"Hex-Code, z. B. #AF2B1E (Feuerwehrrot) – für Überschrift/Linie im Briefkopf."
+" Gilt auch für die Weboberfläche, solange unten keine eigene Farbe dafür "
 "eingetragen ist. Unter dem Farbfeld stehen gängige Feuerwehr-Farben zur "
 "Auswahl, es kann aber jede beliebige Farbe eingetragen werden."
 msgstr ""
-"Hex code, e.g. #AF2B1E (fire brigade red) – used for the heading/rule in the "
-"letterhead. Also applies to the web interface as long as no separate colour "
-"is set for it below. Common fire brigade colours are available to choose "
+"Hex code, e.g. #AF2B1E (fire brigade red) – used for the heading/rule in the"
+" letterhead. Also applies to the web interface as long as no separate colour"
+" is set for it below. Common fire brigade colours are available to choose "
 "from below the colour field, but any colour can be entered."
 
 #: .\apps\core\models.py:62
@@ -815,11 +818,11 @@ msgstr "Second accent colour (line above the footer)"
 
 #: .\apps\core\models.py:63
 msgid ""
-"Optional, Hex-Code z. B. #005199. Leer = gleiche Farbe wie oben (für Briefe/"
-"PDFs)."
+"Optional, Hex-Code z. B. #005199. Leer = gleiche Farbe wie oben (für "
+"Briefe/PDFs)."
 msgstr ""
-"Optional, hex code e.g. #005199. Leave blank to use the same colour as above "
-"(for letters/PDFs)."
+"Optional, hex code e.g. #005199. Leave blank to use the same colour as above"
+" (for letters/PDFs)."
 
 #: .\apps\core\models.py:65
 msgid "Hauptfarbe (Weboberfläche)"
@@ -890,7 +893,7 @@ msgstr ""
 "Displayed unchecked on the publicly accessible legal notice page – please "
 "verify against your own articles of association / register of associations."
 
-#: .\apps\core\models.py:87
+#: .\apps\core\models.py:87 .\templates\core\detail.html:19
 msgid "Info"
 msgstr "Info"
 
@@ -909,13 +912,13 @@ msgstr "Notification banner (homepage)"
 #: .\apps\core\models.py:90
 msgid ""
 "Wird oben auf der Startseite allen angemeldeten Benutzern dieses Vereins "
-"angezeigt, bis entfernt oder das Bis-Datum erreicht ist - z. B. für Hinweise "
-"zur nächsten Mitgliederversammlung oder geplante Wartungsarbeiten. Leer = "
+"angezeigt, bis entfernt oder das Bis-Datum erreicht ist - z. B. für Hinweise"
+" zur nächsten Mitgliederversammlung oder geplante Wartungsarbeiten. Leer = "
 "kein Banner."
 msgstr ""
-"Shown at the top of the homepage to every logged-in user of this club, until "
-"removed or the \"visible until\" date is reached - e.g. for a heads-up about "
-"the next general meeting or planned maintenance. Empty = no banner."
+"Shown at the top of the homepage to every logged-in user of this club, until"
+" removed or the \"visible until\" date is reached - e.g. for a heads-up "
+"about the next general meeting or planned maintenance. Empty = no banner."
 
 #: .\apps\core\models.py:93
 msgid "Art des Banners"
@@ -939,10 +942,10 @@ msgstr "Label width (mm)"
 
 #: .\apps\core\models.py:101
 msgid ""
-"Für Inventar-Etiketten (QR-Code). Standard passt auf gängige A4-"
-"Etikettenbögen. Für einen Etikettendrucker mit Endlosrolle (z. B. Dymo "
-"LabelWriter 450, Standardadresse 89 × 28 mm) hier die Rollenbreite eintragen "
-"und „Etiketten je Zeile“/„Etikettenzeilen je Seite“ unten jeweils auf 1 "
+"Für Inventar-Etiketten (QR-Code). Standard passt auf gängige "
+"A4-Etikettenbögen. Für einen Etikettendrucker mit Endlosrolle (z. B. Dymo "
+"LabelWriter 450, Standardadresse 89 × 28 mm) hier die Rollenbreite eintragen"
+" und „Etiketten je Zeile“/„Etikettenzeilen je Seite“ unten jeweils auf 1 "
 "setzen – die PDF-Seite wird dann exakt auf diese Größe zugeschnitten statt "
 "auf A4."
 msgstr ""
@@ -1118,89 +1121,89 @@ msgstr "This address is not allowed (internal hostname)."
 msgid "Diese Adresse ist nicht erlaubt (privater/interner Adressbereich)."
 msgstr "This address is not allowed (private/internal address range)."
 
-#: .\apps\core\views.py:236
+#: .\apps\core\views.py:237
 msgid "Mitgliederentwicklung (Ein-/Austritte)"
 msgstr "Membership trend (joins/leaves)"
 
-#: .\apps\core\views.py:237 .\apps\core\views.py:259 .\apps\core\views.py:264
-#: .\apps\core\views.py:274 .\apps\core\views.py:280
+#: .\apps\core\views.py:238 .\apps\core\views.py:260 .\apps\core\views.py:265
+#: .\apps\core\views.py:275 .\apps\core\views.py:281
 #: .\apps\finance\models.py:28 .\apps\inventory\models.py:209
 msgid "Jahr"
 msgstr "Year"
 
-#: .\apps\core\views.py:237
+#: .\apps\core\views.py:238
 msgid "Eintritte"
 msgstr "Joins"
 
-#: .\apps\core\views.py:237
+#: .\apps\core\views.py:238
 msgid "Austritte"
 msgstr "Leaves"
 
-#: .\apps\core\views.py:237
+#: .\apps\core\views.py:238
 msgid "Bestand (kumuliert)"
 msgstr "Total (cumulative)"
 
-#: .\apps\core\views.py:238
+#: .\apps\core\views.py:239
 msgid "Bestand nur aus erfassten Ein-/Austrittsdaten berechnet."
 msgstr "Total calculated only from recorded join/leave dates."
 
-#: .\apps\core\views.py:250
+#: .\apps\core\views.py:251
 msgid "Altersstruktur"
 msgstr "Age structure"
 
-#: .\apps\core\views.py:250
+#: .\apps\core\views.py:251
 msgid "Altersgruppe"
 msgstr "Age group"
 
-#: .\apps\core\views.py:250 .\apps\core\views.py:264
+#: .\apps\core\views.py:251 .\apps\core\views.py:265
 #: .\templates\donations\quittung_sammel.html:10
 msgid "Anzahl"
 msgstr "Count"
 
-#: .\apps\core\views.py:251
+#: .\apps\core\views.py:252
 msgid "unbekannt"
 msgstr "unknown"
 
-#: .\apps\core\views.py:259
+#: .\apps\core\views.py:260
 msgid "Beitragsaufkommen"
 msgstr "Membership-fee revenue"
 
-#: .\apps\core\views.py:259
+#: .\apps\core\views.py:260
 msgid "Soll"
 msgstr "Due"
 
-#: .\apps\core\views.py:259 .\apps\finance\models.py:72
+#: .\apps\core\views.py:260 .\apps\finance\models.py:72
 msgid "Bezahlt"
 msgstr "Paid"
 
-#: .\apps\core\views.py:259 .\apps\events\models.py:57
-#: .\apps\events\models.py:184 .\apps\finance\models.py:71
+#: .\apps\core\views.py:260 .\apps\events\models.py:57
+#: .\apps\events\models.py:188 .\apps\finance\models.py:71
 #: .\apps\inventory\models.py:240
 msgid "Offen"
 msgstr "Outstanding"
 
-#: .\apps\core\views.py:264
+#: .\apps\core\views.py:265
 msgid "Rücklastschriften"
 msgstr "Returned direct debits"
 
-#: .\apps\core\views.py:267
+#: .\apps\core\views.py:268
 msgid "Aktueller Wert"
 msgstr "Current value"
 
-#: .\apps\core\views.py:267
+#: .\apps\core\views.py:268
 msgid "Anschaffungswert"
 msgstr "Purchase value"
 
-#: .\apps\core\views.py:274
+#: .\apps\core\views.py:275
 msgid "Spenden je Jahr"
 msgstr "Donations per year"
 
-#: .\apps\core\views.py:274 .\apps\core\views.py:280
+#: .\apps\core\views.py:275 .\apps\core\views.py:281
 #: .\templates\donations\quittung_sammel.html:10
 msgid "Summe"
 msgstr "Total"
 
-#: .\apps\core\views.py:280
+#: .\apps\core\views.py:281
 msgid "Aufwandsentschädigungen je Jahr"
 msgstr "Expense allowances per year"
 
@@ -1663,15 +1666,15 @@ msgstr "Planned"
 msgid "Bestätigt"
 msgstr "Confirmed"
 
-#: .\apps\events\models.py:17 .\apps\events\models.py:184
+#: .\apps\events\models.py:17 .\apps\events\models.py:188
 msgid "Abgesagt"
 msgstr "Cancelled"
 
-#: .\apps\events\models.py:22 .\apps\events\models.py:144
+#: .\apps\events\models.py:22 .\apps\events\models.py:148
 msgid "Beginn"
 msgstr "Start"
 
-#: .\apps\events\models.py:23 .\apps\events\models.py:145
+#: .\apps\events\models.py:23 .\apps\events\models.py:149
 msgid "Ende"
 msgstr "End"
 
@@ -1712,7 +1715,7 @@ msgid "In Arbeit"
 msgstr "In progress"
 
 #: .\apps\events\models.py:57 .\templates\core\detail.html:9
-#: .\templates\core\detail.html:29
+#: .\templates\core\detail.html:38
 msgid "Erledigt"
 msgstr "Done"
 
@@ -1723,8 +1726,8 @@ msgid ""
 msgstr ""
 "Optional - leave empty for a standalone task not tied to an event/meeting."
 
-#: .\apps\events\models.py:62 .\apps\events\models.py:79
-#: .\apps\events\models.py:127
+#: .\apps\events\models.py:62 .\apps\events\models.py:83
+#: .\apps\events\models.py:131
 msgid "Aufgabe"
 msgstr "Task"
 
@@ -1743,14 +1746,15 @@ msgid ""
 "befüllen."
 msgstr ""
 "For people responsible without a membership (e.g. an external auditor) - "
-"leave empty together with 'Responsible (member)', don't fill in both at once."
+"leave empty together with 'Responsible (member)', don't fill in both at "
+"once."
 
 #: .\apps\events\models.py:70
 msgid "Fällig bis"
 msgstr "Due by"
 
 #: .\apps\events\models.py:73 .\apps\inventory\models.py:250
-#: .\templates\core\detail.html:23
+#: .\templates\core\detail.html:32
 msgid "Ergebnis"
 msgstr "Result"
 
@@ -1762,69 +1766,84 @@ msgstr "Brief summary when closing out - what was achieved/decided."
 msgid "Überfälligkeits-Benachrichtigung verschickt am"
 msgstr "Overdue notification sent on"
 
-#: .\apps\events\models.py:118
+#: .\apps\events\models.py:78
+#| msgid "Rechte"
+msgid "Beobachter"
+msgstr "Watchers"
+
+#: .\apps\events\models.py:79
+msgid ""
+"Erhalten eine E-Mail, sobald sich an dieser Aufgabe etwas ändert (Status, "
+"Ergebnis, Fälligkeit o. ä.) oder eine neue Zwischennotiz hinzukommt - "
+"unabhängig von 'Zuständig'."
+msgstr ""
+"Receive an email as soon as something changes on this task (status, result, "
+"due date, etc.) or a new progress note is added - independent of "
+"'Responsible'."
+
+#: .\apps\events\models.py:122
 msgid "Bitte beim Abschließen ein Ergebnis eintragen."
 msgstr "Please enter a result when closing this out."
 
-#: .\apps\events\models.py:120
+#: .\apps\events\models.py:124
 msgid ""
-"Bitte nur 'Zuständig (Mitglied)' oder 'Zuständig (Administrator)' ausfüllen, "
-"nicht beides."
+"Bitte nur 'Zuständig (Mitglied)' oder 'Zuständig (Administrator)' ausfüllen,"
+" nicht beides."
 msgstr ""
-"Please fill in only 'Responsible (member)' or 'Responsible (administrator)', "
-"not both."
+"Please fill in only 'Responsible (member)' or 'Responsible (administrator)',"
+" not both."
 
-#: .\apps\events\models.py:128 .\apps\inventory\models.py:251
+#: .\apps\events\models.py:132 .\apps\inventory\models.py:251
 msgid "Notiz"
 msgstr "Note"
 
-#: .\apps\events\models.py:129 .\apps\inventory\models.py:108
+#: .\apps\events\models.py:133 .\apps\inventory\models.py:108
 #: .\apps\members\models.py:227 .\templates\accounting\uebernehmen.html:16
 #: .\templates\inventory\vorgang.html:10
 msgid "Von"
 msgstr "From"
 
-#: .\apps\events\models.py:132
+#: .\apps\events\models.py:136
 msgid "Zwischennotiz"
 msgstr "Progress note"
 
-#: .\apps\events\models.py:133
+#: .\apps\events\models.py:137
 msgid "Zwischennotizen"
 msgstr "Progress notes"
 
-#: .\apps\events\models.py:146
+#: .\apps\events\models.py:150
 msgid "Benötigte Helfer"
 msgstr "Helpers needed"
 
-#: .\apps\events\models.py:149 .\apps\events\models.py:166
+#: .\apps\events\models.py:153 .\apps\events\models.py:170
 msgid "Schicht"
 msgstr "Shift"
 
-#: .\apps\events\models.py:150
+#: .\apps\events\models.py:154
 msgid "Schichten"
 msgstr "Shifts"
 
-#: .\apps\events\models.py:167
+#: .\apps\events\models.py:171
 msgid "Helfer"
 msgstr "Helper"
 
-#: .\apps\events\models.py:171
+#: .\apps\events\models.py:175
 msgid "Schichteinsatz"
 msgstr "Shift assignment"
 
-#: .\apps\events\models.py:172
+#: .\apps\events\models.py:176
 msgid "Schichteinsätze"
 msgstr "Shift assignments"
 
-#: .\apps\events\models.py:180
+#: .\apps\events\models.py:184
 msgid "Diese Schicht ist bereits vollständig besetzt."
 msgstr "This shift is already fully staffed."
 
-#: .\apps\events\models.py:184
+#: .\apps\events\models.py:188
 msgid "Zugesagt"
 msgstr "Accepted"
 
-#: .\apps\events\models.py:188 .\apps\finance\models.py:78
+#: .\apps\events\models.py:192 .\apps\finance\models.py:78
 #: .\apps\finance\models.py:342 .\apps\honors\models.py:38
 #: .\apps\members\models.py:159 .\apps\members\models.py:225
 #: .\apps\members\models.py:250 .\apps\paperless\models.py:67
@@ -1834,83 +1853,83 @@ msgstr "Accepted"
 msgid "Mitglied"
 msgstr "Member"
 
-#: .\apps\events\models.py:189
+#: .\apps\events\models.py:193
 msgid "Name (Gast)"
 msgstr "Name (guest)"
 
-#: .\apps\events\models.py:190 .\templates\events\rueckmeldung.html:29
+#: .\apps\events\models.py:194 .\templates\events\rueckmeldung.html:29
 msgid "Anzahl Personen"
 msgstr "Number of people"
 
-#: .\apps\events\models.py:195 .\templates\registration\login.html:11
+#: .\apps\events\models.py:199 .\templates\registration\login.html:11
 msgid "Anmeldung"
 msgstr "Sign in"
 
-#: .\apps\events\models.py:196
+#: .\apps\events\models.py:200
 msgid "Anmeldungen"
 msgstr "Registrations"
 
-#: .\apps\events\models.py:208
+#: .\apps\events\models.py:212
 msgid "Bitte ein Mitglied oder einen Namen angeben."
 msgstr "Please provide a member or a name."
 
-#: .\apps\events\models.py:217
+#: .\apps\events\models.py:221
 msgid "Geplant (€)"
 msgstr "Planned (€)"
 
-#: .\apps\events\models.py:218
+#: .\apps\events\models.py:222
 msgid "Tatsächlich (€)"
 msgstr "Actual (€)"
 
-#: .\apps\events\models.py:219
+#: .\apps\events\models.py:223
 msgid "Beleg"
 msgstr "Receipt"
 
-#: .\apps\events\models.py:222
+#: .\apps\events\models.py:226
 msgid "Kostenposition"
 msgstr "Budget line item"
 
-#: .\apps\events\models.py:223
+#: .\apps\events\models.py:227
 msgid "Kostenpositionen"
 msgstr "Budget line items"
 
-#: .\apps\events\models.py:233
+#: .\apps\events\models.py:237
 msgid "Position"
 msgstr "Position"
 
-#: .\apps\events\models.py:235
+#: .\apps\events\models.py:239
 msgid "Beschreibung / Beschlussvorlage"
 msgstr "Description / draft resolution"
 
-#: .\apps\events\models.py:236
+#: .\apps\events\models.py:240
 msgid "OpenSlides-Themen-ID"
 msgstr "OpenSlides topic ID"
 
-#: .\apps\events\models.py:239
+#: .\apps\events\models.py:243
 msgid "Tagesordnungspunkt"
 msgstr "Agenda item"
 
-#: .\apps\events\models.py:240
+#: .\apps\events\models.py:244
 msgid "Tagesordnung"
 msgstr "Agenda"
 
-#: .\apps\events\models.py:254
+#: .\apps\events\models.py:258
 msgid "Amt / Wahl"
 msgstr "Office / election"
 
-#: .\apps\events\models.py:255
+#: .\apps\events\models.py:259
 msgid "Wahlgang"
 msgstr "Ballot"
 
-#: .\apps\events\models.py:256
+#: .\apps\events\models.py:260
 msgid "Stimmenverteilung"
 msgstr "Vote distribution"
 
-#: .\apps\events\models.py:259
+#: .\apps\events\models.py:263
 msgid "Wahlergebnis"
 msgstr "Election result"
 
-#: .\apps\events\models.py:260
+#: .\apps\events\models.py:264
 msgid "Wahlergebnisse"
 msgstr "Election results"
 
@@ -1918,13 +1937,21 @@ msgstr "Election results"
 msgid "Bitte Ihren Namen angeben."
 msgstr "Please enter your name."
 
-#: .\apps\events\views.py:169
+#: .\apps\events\views.py:171
 msgid "Bitte ein Ergebnis eintragen."
 msgstr "Please enter a result."
 
-#: .\apps\events\views.py:173
+#: .\apps\events\views.py:175
 msgid "Aufgabe als erledigt markiert."
 msgstr "Task marked as completed."
+
+#: .\apps\events\views.py:188
+msgid "Benachrichtigungen für diese Aufgabe deaktiviert."
+msgstr "Notifications for this task disabled."
+
+#: .\apps\events\views.py:191
+msgid "Sie werden ab jetzt bei Änderungen an dieser Aufgabe benachrichtigt."
+msgstr "You will now be notified of changes to this task."
 
 #: .\apps\finance\models.py:29
 msgid "Fälligkeit"
@@ -2242,11 +2269,11 @@ msgstr "Bank's FinTS address"
 
 #: .\apps\finance\models.py:368
 msgid ""
-"Von der Bank vorgegebene FinTS-Serveradresse, z. B. https://banking."
-"beispielbank.de/fints30"
+"Von der Bank vorgegebene FinTS-Serveradresse, z. B. "
+"https://banking.beispielbank.de/fints30"
 msgstr ""
-"FinTS server address specified by the bank, e.g. https://banking."
-"beispielbank.de/fints30"
+"FinTS server address specified by the bank, e.g. "
+"https://banking.beispielbank.de/fints30"
 
 #: .\apps\finance\models.py:369
 msgid "Tage rückwirkend abrufen"
@@ -2265,8 +2292,8 @@ msgid ""
 msgstr ""
 "Comma-separated. Empty = all accounts of this access are retrieved "
 "(default). An online banking access often covers several accounts - this "
-"lets retrieval be restricted to individual ones. Conveniently selectable via "
-"checkboxes under \"Retrieve account data\"."
+"lets retrieval be restricted to individual ones. Conveniently selectable via"
+" checkboxes under \"Retrieve account data\"."
 
 #: .\apps\finance\models.py:375
 msgid "Letzter erfolgreicher Abruf"
@@ -2455,7 +2482,8 @@ msgstr "Transaction"
 
 #: .\apps\inventory\models.py:100
 msgid ""
-"Gruppiert mehrere gleichzeitig an denselben Entleiher verliehene Gegenstände."
+"Gruppiert mehrere gleichzeitig an denselben Entleiher verliehene "
+"Gegenstände."
 msgstr "Groups several items loaned to the same borrower at the same time."
 
 #: .\apps\inventory\models.py:102
@@ -2520,7 +2548,8 @@ msgstr "Automatically created return task"
 
 #: .\apps\inventory\models.py:173
 msgid ""
-"Bitte ein Mitglied, einen externen Entleiher oder eine Veranstaltung angeben."
+"Bitte ein Mitglied, einen externen Entleiher oder eine Veranstaltung "
+"angeben."
 msgstr "Please specify a member, an external borrower, or an event."
 
 #: .\apps\inventory\models.py:175
@@ -2616,8 +2645,8 @@ msgstr "Paperless group"
 
 #: .\apps\members\models.py:61
 msgid ""
-"Leer = kein Paperless-Zugang über dieses Tag. Sonst wird für Träger des Tags "
-"ein Paperless-Konto angelegt und dieser Gruppe zugeordnet (Gruppe wird bei "
+"Leer = kein Paperless-Zugang über dieses Tag. Sonst wird für Träger des Tags"
+" ein Paperless-Konto angelegt und dieser Gruppe zugeordnet (Gruppe wird bei "
 "Bedarf angelegt)."
 msgstr ""
 "Empty = no Paperless access via this tag. Otherwise, a Paperless account is "
@@ -2642,8 +2671,8 @@ msgstr "Role in this software"
 
 #: .\apps\members\models.py:69
 msgid ""
-"Träger des Tags erhalten (sofern sie einen Benutzerzugang haben) automatisch "
-"diese Rolle; fällt das Tag weg, wird der Zugang deaktiviert (Rechte "
+"Träger des Tags erhalten (sofern sie einen Benutzerzugang haben) automatisch"
+" diese Rolle; fällt das Tag weg, wird der Zugang deaktiviert (Rechte "
 "entziehen nach Funktionsende)."
 msgstr ""
 "Holders of the tag automatically receive this role (provided they have a "
@@ -2762,7 +2791,8 @@ msgstr "Account holder"
 
 #: .\apps\members\models.py:137
 msgid ""
-"Bestimmen die Zugriffsrechte in Paperless und OpenSlides (Verwaltung › Tags)."
+"Bestimmen die Zugriffsrechte in Paperless und OpenSlides (Verwaltung › "
+"Tags)."
 msgstr ""
 "Determine access rights in Paperless and OpenSlides (Administration › Tags)."
 
@@ -2779,9 +2809,9 @@ msgid ""
 "Paperless-Anbindung)."
 msgstr ""
 "Maintained automatically based on tags (DSO functions or assessors) - no "
-"longer selected manually, but assigned via Administration › Functions: Tags. "
-"Automatically sets the \"Board member\" function. Only board members can be "
-"synced with Paperless (Administration › Paperless connection)."
+"longer selected manually, but assigned via Administration › Functions: Tags."
+" Automatically sets the \"Board member\" function. Only board members can be"
+" synced with Paperless (Administration › Paperless connection)."
 
 #: .\apps\members\models.py:144
 msgid "Alters- und Ehrenabteilung"
@@ -2967,8 +2997,8 @@ msgstr "Default tags"
 
 #: .\apps\paperless\models.py:20
 msgid ""
-"Kommagetrennt, z. B. Vereinsverwaltung,Ablage. Werden in Paperless angelegt, "
-"falls noch nicht vorhanden."
+"Kommagetrennt, z. B. Vereinsverwaltung,Ablage. Werden in Paperless angelegt,"
+" falls noch nicht vorhanden."
 msgstr ""
 "Comma-separated, e.g. Club administration,Archive. Created in Paperless if "
 "they don't already exist."
@@ -2982,8 +3012,8 @@ msgid ""
 "Gilt für Dokumente ohne eigene Tags (neue Dokumente bekommen Art und Jahr "
 "ohnehin als bearbeitbare Tags vorbelegt)."
 msgstr ""
-"Applies to documents without their own tags (new documents already have type "
-"and year pre-filled as editable tags anyway)."
+"Applies to documents without their own tags (new documents already have type"
+" and year pre-filled as editable tags anyway)."
 
 #: .\apps\paperless\models.py:27
 msgid "Fertiggestellte Dokumente automatisch übergeben"
@@ -3010,10 +3040,10 @@ msgid ""
 "wird bei Bedarf mit Leserechten für Dokumente angelegt; weitere Rechte "
 "lassen sich in Paperless vergeben."
 msgstr ""
-"Board members (checkbox on the member record) are created as Paperless users "
-"via \"Sync board\" and assigned to this group. The group is created with "
-"read permissions for documents if needed; further permissions can be granted "
-"in Paperless."
+"Board members (checkbox on the member record) are created as Paperless users"
+" via \"Sync board\" and assigned to this group. The group is created with "
+"read permissions for documents if needed; further permissions can be granted"
+" in Paperless."
 
 #: .\apps\paperless\models.py:36
 msgid "Letzter Vorstands-Abgleich"
@@ -3066,12 +3096,9 @@ msgstr "Import e-invoice"
 
 #: .\templates\accounting\erechnung_importieren.html:7
 msgid ""
-"Liest eine empfangene E-Rechnung ein (<strong>XRechnung</strong> als .xml "
-"oder <strong>ZUGFeRD/Faktur-X</strong>\n"
-"    als .pdf mit eingebetteter XML) und legt daraus eine vorausgefüllte "
-"Ausgabe im Kassenbuch an - die Datei selbst\n"
-"    wird als Beleg angehängt. Erkannte Angaben (Rechnungsnummer, Datum, "
-"Betrag, Aussteller) werden übernommen;\n"
+"Liest eine empfangene E-Rechnung ein (<strong>XRechnung</strong> als .xml oder <strong>ZUGFeRD/Faktur-X</strong>\n"
+"    als .pdf mit eingebetteter XML) und legt daraus eine vorausgefüllte Ausgabe im Kassenbuch an - die Datei selbst\n"
+"    wird als Beleg angehängt. Erkannte Angaben (Rechnungsnummer, Datum, Betrag, Aussteller) werden übernommen;\n"
 "    Konto und Kategorie danach bitte prüfen und ggf. anpassen."
 msgstr ""
 "Reads a received e-invoice (<strong>XRechnung</strong> as .xml or "
@@ -3086,7 +3113,7 @@ msgid "Einlesen"
 msgstr "Import"
 
 #: .\templates\accounting\erechnung_importieren.html:14
-#: .\templates\accounting\uebernehmen.html:18 .\templates\core\detail.html:28
+#: .\templates\accounting\uebernehmen.html:18 .\templates\core\detail.html:37
 #: .\templates\core\formular.html:33 .\templates\core\loeschen.html:10
 #: .\templates\finance\bank_import.html:15
 #: .\templates\inventory\rueckgabe.html:36
@@ -3106,8 +3133,8 @@ msgid ""
 "<strong>Zahlungen</strong> auf Rechnungen (Rücklastschriften als Ausgabe, "
 "Barzahlungen auf die Barkasse)"
 msgstr ""
-"<strong>Payments</strong> on invoices (returned direct debits as an expense, "
-"cash payments to the cash box)"
+"<strong>Payments</strong> on invoices (returned direct debits as an expense,"
+" cash payments to the cash box)"
 
 #: .\templates\accounting\uebernehmen.html:10
 msgid "<strong>Geldspenden</strong>"
@@ -3156,8 +3183,9 @@ msgid ""
 msgstr ""
 "Tax-free allowances per club settings: honorary %(ehrenamt)s, coaching "
 "%(uebungsleiter)s per person and year. Approved and paid-out amounts are "
-"taken into account. The system cannot know whether the allowance has already "
-"been used up with other principals (obtain a declaration from the recipient)."
+"taken into account. The system cannot know whether the allowance has already"
+" been used up with other principals (obtain a declaration from the "
+"recipient)."
 
 #: .\templates\allowances\uebersicht.html:10
 msgid "Ehrenamtspauschale"
@@ -3175,7 +3203,7 @@ msgstr "Expense reimbursement"
 msgid "Hinweis"
 msgstr "Note"
 
-#: .\templates\allowances\uebersicht.html:12 .\templates\core\detail.html:94
+#: .\templates\allowances\uebersicht.html:12 .\templates\core\detail.html:103
 #: .\templates\core\liste.html:41
 msgid "Keine Einträge."
 msgstr "No entries."
@@ -3320,56 +3348,74 @@ msgstr "Return"
 msgid "Keine anstehenden Verleihe."
 msgstr "No upcoming loans."
 
-#: .\templates\core\detail.html:10
+#: .\templates\core\detail.html:12
+msgid "Benachrichtigung bei Änderungen an dieser Aufgabe"
+msgstr "Notify me of changes to this task"
+
+#: .\templates\core\detail.html:14
+#| msgid "Benachrichtigungsbanner (Startseite)"
+msgid "Benachrichtigung aktiv"
+msgstr "Notifications on"
+
+#: .\templates\core\detail.html:14
+#| msgid "Schichten"
+msgid "Benachrichtigen"
+msgstr "Notify me"
+
+#: .\templates\core\detail.html:18
 msgid "Bearbeiten"
 msgstr "Edit"
 
-#: .\templates\core\detail.html:11
+#: .\templates\core\detail.html:19
+msgid "Sie haben für diesen Bereich nur Leserecht."
+msgstr "You only have read access to this area."
+
+#: .\templates\core\detail.html:20
 msgid "Löschen"
 msgstr "Delete"
 
-#: .\templates\core\detail.html:19
+#: .\templates\core\detail.html:28
 msgid "Als erledigt markieren"
 msgstr "Mark as completed"
 
-#: .\templates\core\detail.html:25
+#: .\templates\core\detail.html:34
 msgid "Ergebnis - was wurde erreicht/entschieden?"
 msgstr "Result - what was achieved/decided?"
 
-#: .\templates\core\detail.html:37 .\templates\core\detail.html:39
-#: .\templates\core\detail.html:40
+#: .\templates\core\detail.html:46 .\templates\core\detail.html:48
+#: .\templates\core\detail.html:49
 msgid "Vorschau"
 msgstr "Preview"
 
-#: .\templates\core\detail.html:46
+#: .\templates\core\detail.html:55
 msgid "Einer Rechnung zuordnen"
 msgstr "Assign to an invoice"
 
-#: .\templates\core\detail.html:49
+#: .\templates\core\detail.html:58
 msgid "offene Rechnung wählen"
 msgstr "select an open invoice"
 
-#: .\templates\core\detail.html:52
+#: .\templates\core\detail.html:61
 msgid "Zahlung buchen"
 msgstr "Book payment"
 
-#: .\templates\core\detail.html:58
+#: .\templates\core\detail.html:67
 msgid "Bestehende Mitglieder hinzufügen"
 msgstr "Add existing members"
 
-#: .\templates\core\detail.html:63
+#: .\templates\core\detail.html:72
 msgid "bereits in"
 msgstr "already in"
 
-#: .\templates\core\detail.html:66
+#: .\templates\core\detail.html:75
 msgid "Mehrfachauswahl möglich (Strg/Cmd gedrückt halten)."
 msgstr "Multiple selection possible (hold Ctrl/Cmd)."
 
-#: .\templates\core\detail.html:68 .\templates\core\detail.html:87
+#: .\templates\core\detail.html:77 .\templates\core\detail.html:96
 msgid "Hinzufügen"
 msgstr "Add"
 
-#: .\templates\core\detail.html:98
+#: .\templates\core\detail.html:107
 msgid "Keine weiteren Angaben."
 msgstr "No further details."
 
@@ -3419,19 +3465,13 @@ msgstr "Delete permanently"
 
 #: .\templates\core\matrix.html:5
 msgid ""
-"Zugriff auf personenbezogene Daten nach der Datenschutzordnung: je "
-"Datenbereich (Zeile) und Rolle (Spalte) wird eine Stufe gewählt.\n"
-"  <strong>V</strong> = Vollzugriff, <strong>B</strong> = Bearbeiten, "
-"<strong>L</strong> = Lesen, <strong>–</strong> = kein Zugriff.\n"
-"  Das Löschen personenbezogener Daten wird nur über die Zeile „Löschung "
-"personenbezogener Daten“ vergeben."
+"Zugriff auf personenbezogene Daten nach der Datenschutzordnung: je Datenbereich (Zeile) und Rolle (Spalte) wird eine Stufe gewählt.\n"
+"  <strong>V</strong> = Vollzugriff, <strong>B</strong> = Bearbeiten, <strong>L</strong> = Lesen, <strong>–</strong> = kein Zugriff.\n"
+"  Das Löschen personenbezogener Daten wird nur über die Zeile „Löschung personenbezogener Daten“ vergeben."
 msgstr ""
-"Access to personal data under the data protection policy: a level is chosen "
-"per data area (row) and role (column).\n"
-"  <strong>V</strong> = full access, <strong>B</strong> = edit, <strong>L</"
-"strong> = read, <strong>–</strong> = no access.\n"
-"  Deleting personal data is only granted via the \"Deletion of personal "
-"data\" row."
+"Access to personal data under the data protection policy: a level is chosen per data area (row) and role (column).\n"
+"  <strong>V</strong> = full access, <strong>B</strong> = edit, <strong>L</strong> = read, <strong>–</strong> = no access.\n"
+"  Deleting personal data is only granted via the \"Deletion of personal data\" row."
 
 #: .\templates\core\matrix.html:11
 msgid "Rollen und Tags der Datenschutzordnung anlegen"
@@ -3455,15 +3495,11 @@ msgstr "Select level"
 
 #: .\templates\core\matrix.html:56
 msgid ""
-"Änderungen wirken sofort auf alle Benutzer mit der jeweiligen Rolle. Die "
-"Rechte werden im Änderungsprotokoll erfasst.\n"
-"  Ein Benutzer erhält die Rolle seiner Funktion automatisch über das Tag "
-"(Verwaltung › Tags); fällt das Tag weg, wird der Zugang deaktiviert."
+"Änderungen wirken sofort auf alle Benutzer mit der jeweiligen Rolle. Die Rechte werden im Änderungsprotokoll erfasst.\n"
+"  Ein Benutzer erhält die Rolle seiner Funktion automatisch über das Tag (Verwaltung › Tags); fällt das Tag weg, wird der Zugang deaktiviert."
 msgstr ""
-"Changes take effect immediately for all users with the respective role. "
-"Rights changes are recorded in the change log.\n"
-"  A user automatically receives the role of their function via the tag "
-"(Administration › Tags); if the tag is removed, access is deactivated."
+"Changes take effect immediately for all users with the respective role. Rights changes are recorded in the change log.\n"
+"  A user automatically receives the role of their function via the tag (Administration › Tags); if the tag is removed, access is deactivated."
 
 #: .\templates\core\verein_waehlen.html:8
 msgid "Verein wählen"
@@ -3485,15 +3521,15 @@ msgstr "Placeholders for templates, letters and mail merges"
 #, python-brace-format
 msgid ""
 "Platzhalter werden in geschweifte Klammern geschrieben, z. B. "
-"<code>{briefanrede}</code>. Beim Erzeugen des Dokuments werden sie durch die "
-"Daten des Mitglieds, der Veranstaltung und des Vereins ersetzt. Ist für "
+"<code>{briefanrede}</code>. Beim Erzeugen des Dokuments werden sie durch die"
+" Daten des Mitglieds, der Veranstaltung und des Vereins ersetzt. Ist für "
 "einen Platzhalter kein Bezug vorhanden (z. B. <code>{vorname}</code> in "
 "einem Brief ohne Empfänger), bleibt er sichtbar stehen – die Detailseite "
 "weist darauf hin."
 msgstr ""
 "Placeholders are written in curly braces, e.g. <code>{briefanrede}</code>. "
-"When the document is generated, they are replaced with data from the member, "
-"the event and the club. If no data is available for a placeholder (e.g. "
+"When the document is generated, they are replaced with data from the member,"
+" the event and the club. If no data is available for a placeholder (e.g. "
 "<code>{vorname}</code> in a letter without a recipient), it remains visible "
 "as-is - the detail page points this out."
 
@@ -3505,8 +3541,8 @@ msgid ""
 "Mahnungen, Spendenquittungen) und im Word-Export."
 msgstr ""
 "You maintain the club logo and signature lines under <strong>Administration "
-"› Club / settings / logo</strong>. The logo automatically appears at the top "
-"right of all PDFs (letters, invoices, reminders, donation receipts) and in "
+"› Club / settings / logo</strong>. The logo automatically appears at the top"
+" right of all PDFs (letters, invoices, reminders, donation receipts) and in "
 "the Word export."
 
 #: .\templates\donations\quittung_sammel.html:5
@@ -3515,9 +3551,9 @@ msgstr "Collective receipts"
 
 #: .\templates\donations\quittung_sammel.html:8
 msgid ""
-"Es werden alle noch nicht bestätigten Geld-Zuwendungen des Jahres je Spender "
-"zusammengefasst. Es entstehen <strong>Entwürfe</strong>, die Sie prüfen und "
-"einzeln ausstellen."
+"Es werden alle noch nicht bestätigten Geld-Zuwendungen des Jahres je Spender"
+" zusammengefasst. Es entstehen <strong>Entwürfe</strong>, die Sie prüfen und"
+" einzeln ausstellen."
 msgstr ""
 "All not-yet-confirmed cash donations for the year are grouped per donor. "
 "This creates <strong>drafts</strong>, which you review and issue "
@@ -3579,26 +3615,21 @@ msgstr "Import bank statement"
 
 #: .\templates\finance\bank_import.html:7
 msgid ""
-"Unterstützt werden drei Formate, die die meisten Banken zum Download "
-"anbieten: <strong>CSV</strong>\n"
-"    (Semikolon-getrennt, Kopfzeile mit z. B. <em>Buchungstag</em>, "
-"<em>Betrag</em>, <em>Name</em>, <em>IBAN</em>,\n"
-"    <em>Verwendungszweck</em>), <strong>MT940</strong> (SWIFT-Kontoauszug, "
-"meist Dateiendung <code>.sta</code>) und\n"
-"    <strong>CAMT.053</strong> (ISO-20022-XML). Das Format wird automatisch "
-"erkannt. Doppelte Umsätze werden erkannt\n"
-"    und übersprungen. Anschließend wird automatisch versucht, Zahlungen "
-"offenen Rechnungen zuzuordnen\n"
+"Unterstützt werden drei Formate, die die meisten Banken zum Download anbieten: <strong>CSV</strong>\n"
+"    (Semikolon-getrennt, Kopfzeile mit z. B. <em>Buchungstag</em>, <em>Betrag</em>, <em>Name</em>, <em>IBAN</em>,\n"
+"    <em>Verwendungszweck</em>), <strong>MT940</strong> (SWIFT-Kontoauszug, meist Dateiendung <code>.sta</code>) und\n"
+"    <strong>CAMT.053</strong> (ISO-20022-XML). Das Format wird automatisch erkannt. Doppelte Umsätze werden erkannt\n"
+"    und übersprungen. Anschließend wird automatisch versucht, Zahlungen offenen Rechnungen zuzuordnen\n"
 "    (Rechnungsnummer, Mitgliedsnummer oder IBAN)."
 msgstr ""
 "Three formats are supported, which most banks offer for download: "
 "<strong>CSV</strong> (semicolon-separated, header row with e.g. <em>booking "
-"date</em>, <em>amount</em>, <em>name</em>, <em>IBAN</em>, <em>reference</"
-"em>), <strong>MT940</strong> (SWIFT statement, usually file extension <code>."
-"sta</code>) and <strong>CAMT.053</strong> (ISO 20022 XML). The format is "
-"detected automatically. Duplicate transactions are detected and skipped. The "
-"system then automatically tries to match payments to open invoices (invoice "
-"number, member number or IBAN)."
+"date</em>, <em>amount</em>, <em>name</em>, <em>IBAN</em>, "
+"<em>reference</em>), <strong>MT940</strong> (SWIFT statement, usually file "
+"extension <code>.sta</code>) and <strong>CAMT.053</strong> (ISO 20022 XML). "
+"The format is detected automatically. Duplicate transactions are detected "
+"and skipped. The system then automatically tries to match payments to open "
+"invoices (invoice number, member number or IBAN)."
 
 #: .\templates\finance\bank_import.html:15
 msgid "Importieren"
@@ -3640,7 +3671,8 @@ msgstr "Retrieve account data"
 #: .\templates\finance\fints_kontodaten.html:8
 #, python-format
 msgid "Prüft die Verbindung und zeigt die Konten hinter Bankleitzahl %(blz)s."
-msgstr "Checks the connection and shows the accounts behind bank code %(blz)s."
+msgstr ""
+"Checks the connection and shows the accounts behind bank code %(blz)s."
 
 #: .\templates\finance\fints_kontodaten.html:40
 msgid "Kontodaten"
@@ -3648,12 +3680,10 @@ msgstr "Account data"
 
 #: .\templates\finance\fints_kontodaten.html:42
 msgid ""
-"Dieser Online-Banking-Zugang deckt möglicherweise mehrere Konten ab. Hier "
-"lässt sich festlegen,\n"
+"Dieser Online-Banking-Zugang deckt möglicherweise mehrere Konten ab. Hier lässt sich festlegen,\n"
 "  welche davon künftig beim „FinTS-Abruf“ (Umsätze) berücksichtigt werden."
 msgstr ""
-"This online banking access may cover several accounts. Here you can set "
-"which of them\n"
+"This online banking access may cover several accounts. Here you can set which of them\n"
 "  will be included in future \"FinTS retrieval\" (transactions)."
 
 #: .\templates\finance\fints_kontodaten.html:46
@@ -3682,10 +3712,8 @@ msgstr "Create new SEPA direct debit"
 
 #: .\templates\finance\sepa_einzug_neu.html:5
 msgid ""
-"Erzeugt eine SEPA-Lastschrift-Sammeldatei (pain.008) zum Hochladen ins "
-"Online-Banking. Die\n"
-"  tatsächliche Gutschrift wird weiterhin über den Kontoauszug-Import "
-"verbucht."
+"Erzeugt eine SEPA-Lastschrift-Sammeldatei (pain.008) zum Hochladen ins Online-Banking. Die\n"
+"  tatsächliche Gutschrift wird weiterhin über den Kontoauszug-Import verbucht."
 msgstr ""
 "Creates a SEPA direct-debit collection file (pain.008) to upload to your "
 "online banking. The actual credit is still booked via the bank-statement "
@@ -3702,8 +3730,7 @@ msgstr ""
 
 #: .\templates\finance\sepa_einzug_neu.html:17
 msgid ""
-"Hinweis: Für Erstlastschriften (FRST) i. d. R. mindestens 5, für "
-"Folgelastschriften\n"
+"Hinweis: Für Erstlastschriften (FRST) i. d. R. mindestens 5, für Folgelastschriften\n"
 "        (RCUR) mindestens 2 Bankarbeitstage vor dem Einzugstermin einreichen."
 msgstr ""
 "Note: submit at least 5 bank business days before the collection date for "
@@ -3912,10 +3939,8 @@ msgstr "Clear basket"
 
 #: .\templates\inventory\warenkorb.html:31
 msgid ""
-"Noch keine Gegenstände gescannt. Etikett am Gegenstand mit dem Handy "
-"scannen, um ihn\n"
-"    hier hinzuzufügen - danach lässt sich der nächste Aufkleber scannen, "
-"bevor der Verleih für alle gescannten\n"
+"Noch keine Gegenstände gescannt. Etikett am Gegenstand mit dem Handy scannen, um ihn\n"
+"    hier hinzuzufügen - danach lässt sich der nächste Aufkleber scannen, bevor der Verleih für alle gescannten\n"
 "    Gegenstände auf einmal gestartet wird."
 msgstr ""
 "No items scanned yet. Scan the label on the item with your phone to add it "
@@ -3929,9 +3954,9 @@ msgstr "Import members"
 #: .\templates\members\import.html:8
 msgid ""
 "Excel-Datei (<code>.xlsx</code>) oder CSV. Die erste Zeile enthält die "
-"Spaltenüberschriften (Pflicht: <strong>Vorname</strong>, <strong>Nachname</"
-"strong>). Übliche Überschriften wie „Geburtstag“, „E-Mail“, „Straße“ werden "
-"erkannt."
+"Spaltenüberschriften (Pflicht: <strong>Vorname</strong>, "
+"<strong>Nachname</strong>). Übliche Überschriften wie „Geburtstag“, "
+"„E-Mail“, „Straße“ werden erkannt."
 msgstr ""
 "Excel file (<code>.xlsx</code>) or CSV. The first row contains the column "
 "headers (required: <strong>Vorname</strong>, <strong>Nachname</strong>). "
@@ -3939,8 +3964,8 @@ msgstr ""
 
 #: .\templates\members\import.html:13
 msgid ""
-"Bestehende Mitglieder aktualisieren (Abgleich über Mitgliedsnummer bzw. Name "
-"+ Geburtsdatum)"
+"Bestehende Mitglieder aktualisieren (Abgleich über Mitgliedsnummer bzw. Name"
+" + Geburtsdatum)"
 msgstr ""
 "Update existing members (matched by member number or name + date of birth)"
 
@@ -4017,8 +4042,8 @@ msgid ""
 "Zugangsdaten per Serienbrief (Vorlage „Zugangsdaten OpenSlides“) verteilen, "
 "danach Startpasswörter hier löschen."
 msgstr ""
-"Distribute credentials via mail merge (template \"OpenSlides credentials\"), "
-"then delete the initial passwords here."
+"Distribute credentials via mail merge (template \"OpenSlides credentials\"),"
+" then delete the initial passwords here."
 
 #: .\templates\openslides\einstellungen.html:44
 msgid ""
@@ -4030,8 +4055,8 @@ msgstr ""
 
 #: .\templates\openslides\einstellungen.html:45
 msgid ""
-"Teilnehmer in OpenSlides der Versammlung hinzufügen (dort unter Teilnehmer › "
-"vorhandene Konten)."
+"Teilnehmer in OpenSlides der Versammlung hinzufügen (dort unter Teilnehmer ›"
+" vorhandene Konten)."
 msgstr ""
 "Add participants to the meeting in OpenSlides (there, under Participants › "
 "existing accounts)."
@@ -4043,8 +4068,8 @@ msgstr "Board members in Paperless"
 #: .\templates\paperless\einstellungen.html:35
 msgid ""
 "Mitglieder mit dem Häkchen „Vorstandsmitglied“ erhalten ein Paperless-Konto "
-"(Gruppe siehe Einstellungen). Ausgeschiedene werden aus der Gruppe entfernt. "
-"Benötigt den Token eines Paperless-Administrators."
+"(Gruppe siehe Einstellungen). Ausgeschiedene werden aus der Gruppe entfernt."
+" Benötigt den Token eines Paperless-Administrators."
 msgstr ""
 "Members with the \"Board member\" checkbox get a Paperless account (group "
 "see settings). Those who have left are removed from the group. Requires the "
@@ -4081,8 +4106,7 @@ msgstr ""
 
 #: .\templates\paperless\einstellungen.html:54
 msgid ""
-"Optional Standard-Korrespondent/-Dokumenttyp/-Tags festlegen – werden in "
-"Paperless automatisch angelegt,\n"
+"Optional Standard-Korrespondent/-Dokumenttyp/-Tags festlegen – werden in Paperless automatisch angelegt,\n"
 "          falls sie dort noch nicht existieren."
 msgstr ""
 "Optionally set a default correspondent/document type/tags – these are "
@@ -4090,8 +4114,7 @@ msgstr ""
 
 #: .\templates\paperless\einstellungen.html:56
 msgid ""
-"Anbindung aktivieren – danach erscheint bei jedem Dokument in der Ablage der "
-"Knopf „An Paperless senden“\n"
+"Anbindung aktivieren – danach erscheint bei jedem Dokument in der Ablage der Knopf „An Paperless senden“\n"
 "          sowie ein Sammelversand für mehrere Dokumente gleichzeitig."
 msgstr ""
 "Activate the connection – after that, every document in the archive gets a "
@@ -4112,8 +4135,7 @@ msgstr "Bulk send to Paperless"
 
 #: .\templates\paperless\sammelversand.html:5
 msgid ""
-"Dokumente auswählen und gesammelt an Paperless senden. Der Versand läuft im "
-"Hintergrund; das\n"
+"Dokumente auswählen und gesammelt an Paperless senden. Der Versand läuft im Hintergrund; das\n"
 "  Ergebnis erscheint am jeweiligen Dokument in der Ablage."
 msgstr ""
 "Select documents and send them to Paperless in bulk. Sending runs in the "
@@ -4137,7 +4159,8 @@ msgstr "No documents with a file available."
 
 #: .\templates\paperless\sammelversand.html:37
 msgid ""
-"Auch bereits übergebene Dateien erneut senden (sonst werden sie übersprungen)"
+"Auch bereits übergebene Dateien erneut senden (sonst werden sie "
+"übersprungen)"
 msgstr ""
 "Also resend files that were already transferred (otherwise they are skipped)"
 
@@ -4169,22 +4192,22 @@ msgstr "Sign in"
 #~ msgstr "Invitations"
 
 #~ msgid ""
-#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank "
-#~ "getestet. Die Bank-PIN wird nie gespeichert."
+#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
+#~ "Die Bank-PIN wird nie gespeichert."
 #~ msgstr ""
-#~ "Experimental: this method has not yet been tested against a real bank. "
-#~ "The bank PIN is never stored."
+#~ "Experimental: this method has not yet been tested against a real bank. The "
+#~ "bank PIN is never stored."
 
 #~ msgid ""
 #~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
 #~ "eintragen und speichern."
 #~ msgstr ""
-#~ "Enter and save the connection details here (bank code, user ID, the "
-#~ "bank's FinTS address)."
+#~ "Enter and save the connection details here (bank code, user ID, the bank's "
+#~ "FinTS address)."
 
 #~ msgid ""
-#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig "
-#~ "abgefragt, nie gespeichert."
+#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
+#~ "nie gespeichert."
 #~ msgstr ""
 #~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
 #~ "stored."
@@ -4192,12 +4215,11 @@ msgstr "Sign in"
 #~ msgid ""
 #~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
 #~ "abgefragt."
-#~ msgstr ""
-#~ "If the bank requires a TAN (usual), it is requested on the next page."
+#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
 
 #~ msgid ""
-#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate "
-#~ "automatisch übersprungen."
+#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
+#~ "übersprungen."
 #~ msgstr ""
 #~ "New transactions are created as bank transactions, duplicates are skipped "
 #~ "automatically."

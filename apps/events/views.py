@@ -152,7 +152,9 @@ def schicht_kontext(request, s):
 def aufgabe_kontext(request, a):
     ctx = {"abschnitte": [abschnitt(request, "Zwischennotizen (wie ein Ticket-Verlauf)", a.notizen.all(),
                                    ("erstellt", "erstellt_von", "text"), "aufgabenotiz_add",
-                                   {"aufgabe": a.pk, "next": request.get_full_path()})]}
+                                   {"aufgabe": a.pk, "next": request.get_full_path()})],
+          "aufgabe_beobachten": {"url": reverse("aufgabe_beobachten", args=[a.pk]),
+                                 "beobachtet": a.beobachter.filter(pk=request.user.pk).exists()}}
     if a.status != "erledigt" and request.rechte.darf("veranstaltungen", "change"):
         ctx["aufgabe_erledigen"] = {"url": reverse("aufgabe_erledigen", args=[a.pk]), "ergebnis": a.ergebnis}
     return ctx
@@ -174,10 +176,29 @@ def aufgabe_erledigen(request, pk):
     return redirect("aufgabe_detail", pk=a.pk)
 
 
+@login_required
+@require_POST
+def aufgabe_beobachten(request, pk):
+    """Schaltet die eigene Benachrichtigung bei Änderungen an dieser Aufgabe um - unabhängig vom
+    Schreibrecht, da reines Beobachten (nur Lesen + E-Mail-Benachrichtigung) kein 'change' auf die Aufgabe
+    selbst ist."""
+    a = get_object_or_404(Aufgabe, pk=pk, verein=request.verein)
+    if a.beobachter.filter(pk=request.user.pk).exists():
+        a.beobachter.remove(request.user)
+        messages.success(request, _("Benachrichtigungen für diese Aufgabe deaktiviert."))
+    else:
+        a.beobachter.add(request.user)
+        messages.success(request, _("Sie werden ab jetzt bei Änderungen an dieser Aufgabe benachrichtigt."))
+    return redirect("aufgabe_detail", pk=a.pk)
+
+
 def notiz_nach_speichern(request, obj, neu):
     if neu:
         obj.erstellt_von = request.user.get_username()
         obj.save(update_fields=["erstellt_von"])
+        if obj.aufgabe.beobachter.exists():
+            from .services import aufgabe_beobachter_notiz_benachrichtigen
+            aufgabe_beobachter_notiz_benachrichtigen(obj)
 
 
 @login_required

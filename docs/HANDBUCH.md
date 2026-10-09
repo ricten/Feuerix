@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.57.2)
+# Handbuch – Feuerix (Version 1.58.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -119,6 +119,10 @@ angelegt (Rechte siehe Berechtigungsmatrix, dort auch änderbar):
 Alle Rollen werden außerdem automatisch als gleichnamiges **Tag** angelegt (siehe unten „Zugriff über Tags“) – auch
 die Zusatzrollen; wer ein Tag mit Rolle trägt, erhält beim Einrichten eines Verwaltungszugangs automatisch diese
 Rolle. Nachträglich fehlende Rollen/Tags lassen sich über *Verwaltung › Berechtigungsmatrix* per Knopf ergänzen.
+
+Auf Detailseiten erscheint oben statt des Bearbeiten-Knopfs ein nicht anklickbarer **Info-Knopf**, wenn die
+Rolle für diesen Datenbereich nur Lesen erlaubt - so ist auf einen Blick erkennbar, dass keine
+Bearbeitungsmöglichkeit besteht, statt dass die Schaltfläche einfach fehlt.
 
 Die sechs DSO-Rollen bekommen laut Datenschutzordnung alle **volle Rechte auf „Vereinssoftware / Verwaltung“**
 (Benutzer, Rollen, Vereinseinstellungen, OpenSlides-/Paperless-Anbindung, „Verwaltungszugang einrichten“) – in
@@ -478,6 +482,14 @@ Dialogfenster mit einem Eingabefeld für das Ergebnis öffnet - ohne den Umweg �
 Beim Setzen des Status auf „Erledigt“ ist zusätzlich ein
 kurzes **Ergebnis** Pflicht (kurzes Fazit: was wurde erreicht/entschieden) - ohne Eintrag lässt sich die
 Aufgabe nicht abschließen.
+
+Über den Knopf „Benachrichtigen“ auf der Detailseite kann sich jede angemeldete Person - unabhängig vom
+Schreibrecht, auch mit nur Leserecht - als **Beobachter:in** einer Aufgabe eintragen (erkennbar am Knopf
+„Benachrichtigung aktiv“, erneutes Klicken trägt wieder aus). Beobachter:innen erhalten per E-Mail Bescheid,
+sobald sich etwas an der Aufgabe ändert (Status, Ergebnis, Fälligkeit, Beschreibung, Zuständigkeit,
+Veranstaltungsbezug) oder eine neue Zwischennotiz hinzukommt - außer wenn sie die Änderung selbst
+vorgenommen haben. Das ist unabhängig von „Zuständig“ gedacht, z. B. um sich über eine Aufgabe auf dem
+Laufenden zu halten, für die man nicht selbst verantwortlich ist.
 
 ## 10. Ehrungen und Jubiläen
 

@@ -486,6 +486,67 @@ class AufgabeErledigenKnopfTests(TestCase):
         self.assertEqual(self.a.status, "offen")
 
 
+class AufgabenBeobachterTests(TestCase):
+    """Beliebige Benutzer:innen (nicht nur 'Zuständig') können sich bei einer Aufgabe als Beobachter
+    eintragen und werden dann per E-Mail über Änderungen (Status, Ergebnis, Fälligkeit, ...) sowie neue
+    Zwischennotizen informiert - unabhängig vom Schreibrecht, auch Leser dürfen beobachten."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345", email="admin@test.de")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.beobachter = User.objects.create_user("beo", password="pw-Test-12345", email="beo@test.de")
+        Zugang.objects.create(verein=self.v, user=self.beobachter,
+                              rolle=Rolle.objects.create(verein=self.v, name="Leser", rechte=["veranstaltungen.view"]))
+        self.a = Aufgabe.objects.create(verein=self.v, titel="Flyer entwerfen", status="offen")
+
+    def test_beobachten_umschalten(self):
+        self.client.login(username="beo", password="pw-Test-12345")
+        r = self.client.get(reverse("aufgabe_detail", args=[self.a.pk]))
+        self.assertContains(r, "Benachrichtigen")
+        self.client.post(reverse("aufgabe_beobachten", args=[self.a.pk]))
+        self.assertIn(self.beobachter, self.a.beobachter.all())
+        r = self.client.get(reverse("aufgabe_detail", args=[self.a.pk]))
+        self.assertContains(r, "Benachrichtigung aktiv")
+        self.client.post(reverse("aufgabe_beobachten", args=[self.a.pk]))
+        self.assertNotIn(self.beobachter, self.a.beobachter.all())
+
+    def test_mail_bei_statusaenderung_ausser_an_aendernde_person(self):
+        self.a.beobachter.add(self.beobachter, self.admin)
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.client.post(reverse("aufgabe_erledigen", args=[self.a.pk]), {"ergebnis": "Fertig."})
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["beo@test.de"])
+        self.assertIn("Flyer entwerfen", mail.outbox[0].subject)
+
+    def test_keine_mail_ohne_aenderung(self):
+        self.a.beobachter.add(self.beobachter)
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.a.titel = self.a.titel  # unveraendert speichern
+        self.a.save()
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_mail_bei_neuer_notiz_ausser_an_verfasser(self):
+        self.a.beobachter.add(self.beobachter)
+        Zugang.objects.filter(user=self.beobachter).update(
+            rolle=Rolle.objects.create(verein=self.v, name="Mitarbeiter", rechte=["veranstaltungen.view",
+                                                                                 "veranstaltungen.add"]))
+        self.client.login(username="beo", password="pw-Test-12345")
+        self.client.post(reverse("aufgabenotiz_add"), {"aufgabe": self.a.pk, "text": "Entwurf verschickt."})
+        self.assertEqual(len(mail.outbox), 0)  # Verfasser selbst beobachtet, bekommt aber keine Mail zu sich selbst
+        self.a.beobachter.add(self.admin)
+        self.client.post(reverse("aufgabenotiz_add"), {"aufgabe": self.a.pk, "text": "Noch eine Notiz."})
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["admin@test.de"])
+
+    def test_ohne_beobachter_keine_mail(self):
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.client.post(reverse("aufgabe_erledigen", args=[self.a.pk]), {"ergebnis": "Fertig."})
+        self.assertEqual(len(mail.outbox), 0)
+
+
 class AufgabenNotizTests(TestCase):
     """Zwischennotizen zu einer Aufgabe - wie ein Ticket-Verlauf, mit Zeitpunkt und Benutzer."""
 

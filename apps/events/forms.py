@@ -8,7 +8,7 @@ from .models import Aufgabe
 class AufgabeForm(TenantModelForm):
     class Meta:
         model = Aufgabe
-        exclude = ("verein", "benachrichtigt_am")
+        exclude = ("verein", "benachrichtigt_am", "beobachter")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -74,6 +74,10 @@ class Aufgabe(TenantModel):
                                 help_text=_("Kurzes Fazit beim Abschließen - was wurde erreicht/entschieden."))
     benachrichtigt_am = models.DateTimeField(_("Überfälligkeits-Benachrichtigung verschickt am"), null=True,
                                              blank=True, editable=False)
+    beobachter = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="beobachtete_aufgaben", verbose_name=_("Beobachter"),
+        help_text=_("Erhalten eine E-Mail, sobald sich an dieser Aufgabe etwas ändert (Status, Ergebnis, "
+                  "Fälligkeit o. ä.) oder eine neue Zwischennotiz hinzukommt - unabhängig von 'Zuständig'."))
 
     class Meta:
         verbose_name = _("Aufgabe")

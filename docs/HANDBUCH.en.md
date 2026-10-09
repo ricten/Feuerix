@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.57.2)
+# Handbook – Feuerix (Version 1.58.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -120,6 +120,10 @@ All roles are also automatically created as a same-named **tag** (see "Access vi
 the additional roles; whoever carries a tag with a role automatically receives that role when an
 administration account is set up. Missing roles/tags can be added later via a button under
 *Administration › Permission matrix*.
+
+Detail pages show a non-clickable **Info button** at the top instead of the Edit button when the role only
+allows viewing this data area - making it obvious at a glance that editing isn't possible, instead of the
+button simply being absent.
 
 Under the data protection bylaws, all six DSO roles get **full rights on "Club software / Administration"**
 (users, roles, club settings, OpenSlides/Paperless integration, "set up administration account") – in a
@@ -466,6 +470,13 @@ same task. While a task isn't done yet, a "Done" button next to "Edit"/"Delete" 
 with an input field for the result - without the detour through the edit form. Setting the status to "Done"
 additionally requires a short **result** (a brief summary of what was achieved/decided) - without one, the
 task can't be closed out.
+
+The "Notify me" button on the detail page lets any logged-in person - regardless of write access, even with
+read-only rights - sign up as a **watcher** of a task (shown as "Notifications on"; clicking again removes
+them). Watchers get an email as soon as something about the task changes (status, result, due date,
+description, responsibility, linked event) or a new progress note is added - except when they made the
+change themselves. This is independent of "Responsible", e.g. for keeping track of a task you're not
+yourself in charge of.
 
 ## 10. Honours and anniversaries
 

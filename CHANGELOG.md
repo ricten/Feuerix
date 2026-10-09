@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.58.0
+- Neu: Bei einer Aufgabe kann sich jede:r (unabhängig vom Schreibrecht) als Beobachter:in eintragen und
+  erhält dann per E-Mail Bescheid, sobald sich etwas ändert (Status, Ergebnis, Fälligkeit, Zuständigkeit o. ä.)
+  oder eine neue Zwischennotiz dazukommt - außer man hat die Änderung selbst vorgenommen.
+- Auf Detailseiten erscheint statt des Bearbeiten-Knopfs ein Info-Knopf, wenn die Person für diesen Bereich
+  nur Leserecht hat.
+
 ## 1.57.2
 - Fix: Die Kachel „Meine Aufgaben“ wird jetzt auch gelb, wenn eine rote und eine gelbe Aufgabe zusammen
   vorliegen (rot zählt für die Gelb-Schwelle mit), nicht erst bei zwei Aufgaben derselben Stufe.
