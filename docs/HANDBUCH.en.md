@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.51.0)
+# Handbook – Feuerix (Version 1.52.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -425,6 +425,14 @@ email or newsletter) - an unguessable, public link, no login required. Through i
 their name, state the number of people, and respond with "Accept" or "Decline"; a repeat response from the same
 person (e.g. after a change in headcount) updates the existing registration instead of creating a second one.
 Once a registration deadline has passed, the page becomes read-only and no further response is possible.
+
+**Tasks** (*Events › Tasks*) don't have to belong to an event - the "Event" field is optional, for general
+board tasks without a specific date (e.g. coming out of a board meeting, which is set up like any other event
+with the type "Meeting") just leave it empty. A task whose due date has passed and that's not yet marked
+"Done" triggers a one-off email to whoever is responsible (provided they have an email address on file - the
+check runs in the background, at the latest on the next page load by a logged-in user). If the person
+responsible is themselves logged in via a member account, their own open tasks also show up on the homepage,
+with overdue ones visually highlighted.
 
 ## 10. Honours and anniversaries
 

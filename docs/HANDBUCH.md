@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.51.0)
+# Handbuch – Feuerix (Version 1.52.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -432,6 +432,15 @@ Darüber kann jede eingeladene Person ihren Namen eintragen, die Anzahl Personen
 „Absagen“ reagieren; eine erneute Rückmeldung derselben Person (z. B. bei geänderter Personenzahl) aktualisiert die
 bestehende Anmeldung statt eine zweite anzulegen. Nach einem gesetzten Anmeldeschluss ist die Seite nur noch
 lesbar, eine Rückmeldung ist dann nicht mehr möglich.
+
+**Aufgaben** (*Veranstaltungen › Aufgaben*) müssen nicht zwingend zu einer Veranstaltung gehören - das Feld
+„Veranstaltung“ ist optional, für allgemeine Vorstandsaufgaben ohne konkreten Termin (z. B. aus einer
+Vorstandssitzung heraus, die wie jede andere Veranstaltung mit der Art „Sitzung“ angelegt wird) einfach leer
+lassen. Eine Aufgabe mit überschrittener Fälligkeit, die noch nicht „Erledigt“ ist, löst einmalig eine E-Mail
+an die/den Zuständige(n) aus (sofern eine E-Mail-Adresse hinterlegt ist - die Prüfung läuft im Hintergrund,
+spätestens beim nächsten Seitenaufruf eines angemeldeten Benutzers). Ist der Zuständige selbst über ein
+Mitglieder-Konto angemeldet, erscheinen seine eigenen offenen Aufgaben zusätzlich auf der Startseite,
+überfällige davon optisch hervorgehoben.
 
 ## 10. Ehrungen und Jubiläen
 

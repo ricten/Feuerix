@@ -33,7 +33,7 @@
   {% if aufwand_offen %}<div class="col-6 col-lg-3 col-xxl-2"><div class="card card-kennzahl border-warning"><div class="card-body"><div class="text-muted small"><i class="bi bi-cash-coin"></i> {% trans "Aufwandsanträge zur Genehmigung" %}</div><div class="zahl">{{ aufwand_offen }}</div></div></div></div>{% endif %}
 </div>
 <div class="row g-3">
-  <div class="col-xl-8">
+  <div class="{% if meine_aufgaben %}col-xl-8{% else %}col-xl-12{% endif %}">
     <div class="card">
       <div class="card-header d-flex align-items-center gap-2"><i class="bi bi-calendar-event" style="color: var(--bs-primary);"></i> <strong>{% trans "Nächste Veranstaltungen" %}</strong></div>
       <ul class="list-group list-group-flush">
@@ -45,5 +45,19 @@
       </ul>
     </div>
   </div>
+  {% if meine_aufgaben %}
+  <div class="col-xl-4">
+    <div class="card">
+      <div class="card-header d-flex align-items-center gap-2"><i class="bi bi-list-check" style="color: var(--bs-primary);"></i> <strong>{% trans "Meine Aufgaben" %}</strong></div>
+      <ul class="list-group list-group-flush">
+      {% for a in meine_aufgaben %}<li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2 py-3{% if a.ueberfaellig %} list-group-item-danger{% endif %}">
+        <a href="{% url 'aufgabe_detail' a.pk %}" class="text-decoration-none d-flex align-items-center gap-2"><span class="dash-dot"></span>{{ a.titel }}{% if a.veranstaltung %} <span class="text-muted small">({{ a.veranstaltung.titel }})</span>{% endif %}</a>
+        {% if a.faellig %}<span class="text-muted small">{% if a.ueberfaellig %}<i class="bi bi-exclamation-triangle text-danger"></i>{% endif %} {{ a.faellig|date:"d.m.Y" }}</span>{% endif %}
+      </li>
+      {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

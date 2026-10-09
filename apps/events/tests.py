@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
@@ -7,8 +8,9 @@ from datetime import date, timedelta
 
 from apps.core.models import Rolle, Verein, Zugang
 from apps.documents.platzhalter import kontext
+from apps.members.models import Mitglied, Mitgliedsart
 
-from .models import Anmeldung, Veranstaltung, Wahlergebnis
+from .models import Anmeldung, Aufgabe, Veranstaltung, Wahlergebnis
 
 
 class WahlergebnisModelTests(TestCase):
@@ -179,3 +181,129 @@ class RueckmeldungTests(TestCase):
         self.ver.save(update_fields=["anmeldung_erforderlich"])
         r = self.client.get(reverse("veranstaltung_rueckmeldung", args=[self.ver.rueckmeldung_code]))
         self.assertEqual(r.status_code, 404)
+
+
+class AufgabeOhneVeranstaltungTests(TestCase):
+    """Aufgaben lassen sich auch unabhaengig von einer Veranstaltung/Sitzung anlegen - z. B. fuer
+    allgemeine Vorstandsaufgaben ohne konkreten Termin."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+
+    def test_aufgabe_ohne_veranstaltung_anlegbar(self):
+        r = self.client.post(reverse("aufgabe_add"), {"titel": "Vereinsheim-Schlüssel nachmachen lassen",
+                                                       "status": "offen"})
+        self.assertEqual(r.status_code, 302)
+        a = Aufgabe.objects.get(verein=self.v, titel="Vereinsheim-Schlüssel nachmachen lassen")
+        self.assertIsNone(a.veranstaltung_id)
+
+    def test_aufgaben_liste_im_menue_verlinkt(self):
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, reverse("aufgabe_list"))
+
+
+class AufgabenBenachrichtigungTests(TestCase):
+    """Ueberfaellige Aufgaben (Faelligkeit in der Vergangenheit, nicht erledigt) loesen einmalig eine
+    E-Mail an die/den Zustaendige(n) aus - kein taeglicher Spam bei wiederholtem Aufruf."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        art = Mitgliedsart.objects.get(verein=self.v, name="Aktiv")
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster", mitgliedsart=art,
+                                         eintrittsdatum=date(2015, 1, 1), email="max@example.org")
+
+    def test_ueberfaellige_aufgabe_wird_einmalig_gemailt(self):
+        from .services import aufgaben_faellig_benachrichtigen
+        a = Aufgabe.objects.create(verein=self.v, titel="Kassenbericht vorbereiten", zustaendig=self.m,
+                                   faellig=date.today() - timedelta(days=1))
+        n = aufgaben_faellig_benachrichtigen(self.v)
+        self.assertEqual(n, 1)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("Kassenbericht vorbereiten", mail.outbox[0].body)
+        self.assertEqual(mail.outbox[0].to, ["max@example.org"])
+        a.refresh_from_db()
+        self.assertIsNotNone(a.benachrichtigt_am)
+        # Zweiter Aufruf darf dieselbe Aufgabe nicht nochmal verschicken.
+        n2 = aufgaben_faellig_benachrichtigen(self.v)
+        self.assertEqual(n2, 0)
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_nicht_ueberfaellige_aufgabe_wird_nicht_gemailt(self):
+        from .services import aufgaben_faellig_benachrichtigen
+        Aufgabe.objects.create(verein=self.v, titel="Noch Zeit", zustaendig=self.m,
+                               faellig=date.today() + timedelta(days=5))
+        self.assertEqual(aufgaben_faellig_benachrichtigen(self.v), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_erledigte_aufgabe_wird_nicht_gemailt(self):
+        from .services import aufgaben_faellig_benachrichtigen
+        Aufgabe.objects.create(verein=self.v, titel="Erledigt", zustaendig=self.m, status="erledigt",
+                               faellig=date.today() - timedelta(days=1))
+        self.assertEqual(aufgaben_faellig_benachrichtigen(self.v), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_aufgabe_ohne_email_wird_uebersprungen(self):
+        from .services import aufgaben_faellig_benachrichtigen
+        self.m.email = ""
+        self.m.save()
+        Aufgabe.objects.create(verein=self.v, titel="Keine Mailadresse", zustaendig=self.m,
+                               faellig=date.today() - timedelta(days=1))
+        self.assertEqual(aufgaben_faellig_benachrichtigen(self.v), 0)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_dashboard_stoesst_pruefung_an(self):
+        User = get_user_model()
+        admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        Aufgabe.objects.create(verein=self.v, titel="Kassenbericht vorbereiten", zustaendig=self.m,
+                               faellig=date.today() - timedelta(days=1))
+        self.v.refresh_from_db()
+        self.assertIsNone(self.v.aufgaben_geprueft_am)
+        self.client.get(reverse("dashboard"))
+        self.assertEqual(len(mail.outbox), 1)
+        self.v.refresh_from_db()
+        self.assertIsNotNone(self.v.aufgaben_geprueft_am)
+        # Zweiter Seitenaufruf direkt danach loest die Pruefung nicht nochmal aus (zu kurzes Intervall).
+        self.client.get(reverse("dashboard"))
+        self.assertEqual(len(mail.outbox), 1)
+
+
+class MeineAufgabenDashboardTests(TestCase):
+    """Dem angemeldeten Benutzer (ueber sein verknuepftes Mitglied) werden die eigenen offenen Aufgaben auf
+    der Startseite angezeigt - ueberfaellige optisch hervorgehoben."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        art = Mitgliedsart.objects.get(verein=self.v, name="Aktiv")
+        User = get_user_model()
+        self.user = User.objects.create_user("max", password="pw-Test-12345")
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster", mitgliedsart=art,
+                                         eintrittsdatum=date(2015, 1, 1), benutzer=self.user)
+        Zugang.objects.create(verein=self.v, user=self.user,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="max", password="pw-Test-12345")
+
+    def test_eigene_offene_aufgabe_wird_angezeigt(self):
+        Aufgabe.objects.create(verein=self.v, titel="Meine Aufgabe", zustaendig=self.m, status="offen")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "Meine Aufgabe")
+
+    def test_erledigte_aufgabe_wird_nicht_angezeigt(self):
+        Aufgabe.objects.create(verein=self.v, titel="Erledigte Aufgabe", zustaendig=self.m, status="erledigt")
+        r = self.client.get(reverse("dashboard"))
+        self.assertNotContains(r, "Erledigte Aufgabe")
+
+    def test_fremde_aufgabe_wird_nicht_angezeigt(self):
+        anderer = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Musterfrau",
+                                          mitgliedsart=Mitgliedsart.objects.get(verein=self.v, name="Aktiv"),
+                                          eintrittsdatum=date(2015, 1, 1))
+        Aufgabe.objects.create(verein=self.v, titel="Fremde Aufgabe", zustaendig=anderer, status="offen")
+        r = self.client.get(reverse("dashboard"))
+        self.assertNotContains(r, "Fremde Aufgabe")

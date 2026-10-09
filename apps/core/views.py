@@ -9,6 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Sum
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
@@ -59,6 +60,17 @@ def dashboard(request):
 
     v, heute = request.verein, date.today()
     jahr = heute.year
+    # Höchstens alle 6 Stunden im Hintergrund prüfen, ob Aufgaben überfällig geworden sind und dafür
+    # benachrichtigen - wie der Update-Check (apps.core.context.version) bewusst beim nächsten Seitenaufruf
+    # statt über einen eigenen Cron/Celery-Beat, um keine zusätzliche Infrastruktur zu brauchen.
+    if v.aufgaben_geprueft_am is None or timezone.now() - v.aufgaben_geprueft_am > timedelta(hours=6):
+        from apps.events.tasks import aufgaben_faellig_benachrichtigen_task
+        aufgaben_faellig_benachrichtigen_task.delay(v.pk)
+        v.aufgaben_geprueft_am = timezone.now()
+        v.save(update_fields=["aufgaben_geprueft_am"])
+    mitglied = getattr(request.user, "mitglied_zugang", None)
+    meine_aufgaben = (Aufgabe.objects.filter(verein=v, zustaendig=mitglied).exclude(status="erledigt")
+                      .select_related("veranstaltung").order_by("faellig")[:8] if mitglied else [])
     mitglieder = Mitglied.objects.filter(verein=v)
     aktive = mitglieder.filter(status="aktiv")
     grenze18 = date(heute.year - 18, heute.month, heute.day) if not (heute.month == 2 and heute.day == 29) \
@@ -85,6 +97,7 @@ def dashboard(request):
         .order_by("beginn")[:5],
         "offene_aufgaben": Aufgabe.objects.filter(verein=v).exclude(status="erledigt").count(),
         "aufwand_offen": Aufwandsentschaedigung.objects.filter(verein=v, status="beantragt").count(),
+        "meine_aufgaben": meine_aufgaben,
         "jahr": jahr,
     }
     return render(request, "core/dashboard.html", ctx)

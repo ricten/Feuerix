@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.52.0
+- Neu: Aufgaben lassen sich jetzt auch unabhängig von einer Veranstaltung/Sitzung anlegen, der
+  Menüpunkt „Aufgaben“ ist jetzt direkt in der Navigation verlinkt. Überschrittene Fälligkeiten lösen
+  einmalig eine E-Mail an die/den Zuständige(n) aus, eigene offene Aufgaben erscheinen zusätzlich auf
+  der Startseite (sofern über ein Mitglieder-Konto angemeldet).
+
 ## 1.51.0
 - Neu: Konfigurierbares Benachrichtigungsbanner auf der Startseite (Verein/Einstellungen) - Text, Art
   (Info/Warnung/Wichtig) und optionales „sichtbar bis“-Datum, für alle angemeldeten Benutzer des Vereins.

@@ -94,6 +94,8 @@ class Verein(models.Model):
                                              default="info")
     startseite_banner_bis = models.DateField(_("Banner sichtbar bis"), null=True, blank=True,
                                              help_text=_("Leer = dauerhaft sichtbar, bis der Text hier entfernt wird."))
+    aufgaben_geprueft_am = models.DateTimeField(_("Zuletzt auf überfällige Aufgaben geprüft"), null=True,
+                                               blank=True, editable=False)
     etikett_breite_mm = models.PositiveIntegerField(
         _("Etikettenbreite (mm)"), default=58, validators=[MinValueValidator(10)],
         help_text=_("Für Inventar-Etiketten (QR-Code). Standard passt auf gängige A4-Etikettenbögen. Für einen "

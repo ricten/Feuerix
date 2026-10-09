@@ -44,6 +44,7 @@ NAV = [
     ]),
     (_("Veranstaltungen"), "bi-calendar-event", [
         (_("Veranstaltungen"), "veranstaltung_list", "veranstaltungen"),
+        (_("Aufgaben"), "aufgabe_list", "veranstaltungen"),
     ]),
     (_("Auswertung"), "bi-bar-chart-line", [
         (_("Auswertungen"), "auswertungen", "auswertungen"),

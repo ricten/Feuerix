@@ -55,13 +55,17 @@ class Veranstaltung(TenantModel):
 class Aufgabe(TenantModel):
     STATUS = [("offen", _("Offen")), ("arbeit", _("In Arbeit")), ("erledigt", _("Erledigt"))]
     veranstaltung = models.ForeignKey(Veranstaltung, on_delete=models.CASCADE, related_name="aufgaben",
-                                      verbose_name=_("Veranstaltung"))
+                                      null=True, blank=True, verbose_name=_("Veranstaltung"),
+                                      help_text=_("Optional - leer lassen für eine eigenständige Aufgabe ohne "
+                                                "Bezug zu einer Veranstaltung/Sitzung."))
     titel = models.CharField(_("Aufgabe"), max_length=200)
     zustaendig = models.ForeignKey("members.Mitglied", on_delete=models.SET_NULL, null=True, blank=True,
                                    related_name="+", verbose_name=_("Zuständig"))
     faellig = models.DateField(_("Fällig bis"), null=True, blank=True)
     status = models.CharField(_("Status"), max_length=10, choices=STATUS, default="offen")
     beschreibung = models.TextField(_("Beschreibung"), blank=True)
+    benachrichtigt_am = models.DateTimeField(_("Überfälligkeits-Benachrichtigung verschickt am"), null=True,
+                                             blank=True, editable=False)
 
     class Meta:
         verbose_name = _("Aufgabe")
@@ -70,6 +74,11 @@ class Aufgabe(TenantModel):
 
     def __str__(self):
         return self.titel
+
+    @property
+    def ueberfaellig(self):
+        from datetime import date
+        return bool(self.faellig and self.faellig < date.today() and self.status != "erledigt")
 
 
 class Schicht(TenantModel):
