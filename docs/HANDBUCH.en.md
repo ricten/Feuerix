@@ -25,7 +25,7 @@ This handbook and the detailed documents are also available directly in the web 
 6. [Inventory and lending](#6-inventory-and-lending)
 7. [Donations and donation receipts](#7-donations-and-donation-receipts)
 8. [Expense allowances](#8-expense-allowances)
-9. [Events](#9-events)
+9. [Events and tasks](#9-events-and-tasks)
 10. [Honours and anniversaries](#10-honours-and-anniversaries)
 11. [Correspondence, templates, document archive and corporate design](#11-correspondence-templates-document-archive-and-corporate-design)
 12. [OpenSlides integration](#12-openslides-integration)
@@ -408,7 +408,7 @@ allowances" shows, per recipient and year, the totals against the tax-free allow
 on file that the flat rate hasn't already been used up elsewhere. An approved expense reimbursement can be
 converted into a donation via "Waive → donate the expense".
 
-## 9. Events
+## 9. Events and tasks
 
 The event detail page is a hub: agenda (including a "standard agenda" for general meetings with ten common
 items), tasks, a shift schedule with staffing status, registrations (members or guests, with a headcount),
@@ -426,7 +426,9 @@ their name, state the number of people, and respond with "Accept" or "Decline"; 
 person (e.g. after a change in headcount) updates the existing registration instead of creating a second one.
 Once a registration deadline has passed, the page becomes read-only and no further response is possible.
 
-**Tasks** (*Events › Tasks*) don't have to belong to an event - the "Event" field is optional, for general
+### Tasks
+
+Tasks (*Events › Tasks*) don't have to belong to an event - the "Event" field is optional, for general
 board tasks without a specific date (e.g. coming out of a board meeting, which is set up like any other event
 with the type "Meeting") just leave it empty. The list is sorted by the task's name by default (not by the
 often-empty event) and highlights rows with a soon-expiring or already-overdue due date in colour

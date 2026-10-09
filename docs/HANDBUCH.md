@@ -25,7 +25,7 @@ Navigation, für alle angemeldeten Benutzer sichtbar) abrufbar – keine separat
 6. [Inventar und Verleih](#6-inventar-und-verleih)
 7. [Spenden und Spendenquittungen](#7-spenden-und-spendenquittungen)
 8. [Aufwandsentschädigungen](#8-aufwandsentschädigungen)
-9. [Veranstaltungen](#9-veranstaltungen)
+9. [Veranstaltungen und Aufgaben](#9-veranstaltungen-und-aufgaben)
 10. [Ehrungen und Jubiläen](#10-ehrungen-und-jubiläen)
 11. [Schriftverkehr, Vorlagen, Ablage und Corporate Design](#11-schriftverkehr-vorlagen-ablage-und-corporate-design)
 12. [OpenSlides-Anbindung](#12-openslides-anbindung)
@@ -412,7 +412,7 @@ hinterlegten Freibeträge (Ehrenamts-/Übungsleiterpauschale) und warnt, wenn ei
 noch keine Erklärung vorliegt, dass die Pauschale nicht anderweitig ausgeschöpft ist. Ein genehmigter
 Aufwandsersatz kann per „Verzicht → Aufwandsspende“ in eine Spende umgewandelt werden.
 
-## 9. Veranstaltungen
+## 9. Veranstaltungen und Aufgaben
 
 Die Veranstaltungs-Detailseite ist eine Zentrale: Tagesordnung (inkl. „Standard-Tagesordnung“ für
 Mitgliederversammlungen mit zehn üblichen Punkten), Aufgaben, Schichtplan mit Besetzungsstand, Anmeldungen
@@ -433,7 +433,9 @@ Darüber kann jede eingeladene Person ihren Namen eintragen, die Anzahl Personen
 bestehende Anmeldung statt eine zweite anzulegen. Nach einem gesetzten Anmeldeschluss ist die Seite nur noch
 lesbar, eine Rückmeldung ist dann nicht mehr möglich.
 
-**Aufgaben** (*Veranstaltungen › Aufgaben*) müssen nicht zwingend zu einer Veranstaltung gehören - das Feld
+### Aufgaben
+
+Aufgaben (*Veranstaltungen › Aufgaben*) müssen nicht zwingend zu einer Veranstaltung gehören - das Feld
 „Veranstaltung“ ist optional, für allgemeine Vorstandsaufgaben ohne konkreten Termin (z. B. aus einer
 Vorstandssitzung heraus, die wie jede andere Veranstaltung mit der Art „Sitzung“ angelegt wird) einfach leer
 lassen. Die Liste ist standardmäßig nach der Aufgabenbezeichnung sortiert (nicht nach der oft leeren
