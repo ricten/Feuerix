@@ -572,6 +572,14 @@ class VerleihAutomatischeAufgabeTests(TestCase):
         self.assertIn("Beamer", a.titel)
         self.assertIn("Max Muster", a.titel)
 
+    def test_aufgabe_wird_der_ausgebenden_person_zugewiesen(self):
+        """Wer die Ausgabe bucht, ist zunaechst fuer die Ruecknahme zustaendig - laesst sich auf der
+        Aufgabe selbst jederzeit an jemand anderen umhaengen."""
+        self.client.post(reverse("verleih_ausgeben", args=[self.verleih.pk]))
+        self.verleih.refresh_from_db()
+        self.assertEqual(self.verleih.aufgabe.zustaendig_benutzer_id, self.verwalter.pk)
+        self.assertIsNone(self.verleih.aufgabe.zustaendig_id)
+
     def test_rueckgabe_schliesst_aufgabe_automatisch_ab(self):
         self.client.post(reverse("verleih_ausgeben", args=[self.verleih.pk]))
         self.verleih.refresh_from_db()
@@ -598,6 +606,55 @@ class VerleihAutomatischeAufgabeTests(TestCase):
                          {f"zustand_{self.verleih.pk}": "gut", f"zustand_{v2.pk}": "gut"})
         self.assertEqual(Aufgabe.objects.get(pk=self.verleih.aufgabe_id).status, "erledigt")
         self.assertEqual(Aufgabe.objects.get(pk=v2.aufgabe_id).status, "erledigt")
+
+
+class VerantwortlichenInformierenTests(TestCase):
+    """Der am Gegenstand hinterlegte Verantwortliche wird beim Ausgeben per E-Mail informiert - unabhaengig
+    davon, wer die Ausgabe selbst gebucht hat."""
+
+    def setUp(self):
+        User = get_user_model()
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.verwalter = User.objects.create_user("verwalter", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.verwalter,
+                              rolle=Rolle.objects.get(verein=self.v, name="Inventarverwalter"))
+        self.client.login(username="verwalter", password="pw-Test-12345")
+        self.entleiher = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster")
+        self.verantwortlicher = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Pruefer",
+                                                        email="erika@example.org")
+
+    def test_verantwortlicher_wird_per_mail_informiert(self):
+        from django.core import mail
+        g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", verleihbar=True,
+                                      verantwortlicher=self.verantwortlicher)
+        verleih = Verleih.objects.create(verein=self.v, gegenstand=g, entleiher=self.entleiher,
+                                         von=date.today(), bis=date.today() + timedelta(days=5),
+                                         status="reserviert")
+        self.client.post(reverse("verleih_ausgeben", args=[verleih.pk]))
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ["erika@example.org"])
+        self.assertIn("Beamer", mail.outbox[0].body)
+        self.assertIn("Max Muster", mail.outbox[0].body)
+
+    def test_ohne_verantwortlichen_keine_mail(self):
+        from django.core import mail
+        g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", verleihbar=True)
+        verleih = Verleih.objects.create(verein=self.v, gegenstand=g, entleiher=self.entleiher,
+                                         von=date.today(), bis=date.today() + timedelta(days=5),
+                                         status="reserviert")
+        self.client.post(reverse("verleih_ausgeben", args=[verleih.pk]))
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_verantwortlicher_ohne_email_keine_mail(self):
+        from django.core import mail
+        verantwortlicher_ohne_mail = Mitglied.objects.create(verein=self.v, vorname="Ohne", nachname="Mail")
+        g = Gegenstand.objects.create(verein=self.v, bezeichnung="Beamer", verleihbar=True,
+                                      verantwortlicher=verantwortlicher_ohne_mail)
+        verleih = Verleih.objects.create(verein=self.v, gegenstand=g, entleiher=self.entleiher,
+                                         von=date.today(), bis=date.today() + timedelta(days=5),
+                                         status="reserviert")
+        self.client.post(reverse("verleih_ausgeben", args=[verleih.pk]))
+        self.assertEqual(len(mail.outbox), 0)
 
 
 class InventurTests(TestCase):

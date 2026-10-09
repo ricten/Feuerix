@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.56.0)
+# Handbook – Feuerix (Version 1.56.1)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -378,8 +378,10 @@ independent decision and is not automatically derived from "defective". If the d
 hasn't been paid out yet, a "Deposit refunded" button appears to tick off.
 
 **Issuing** an item automatically creates a "Check return: …" task (due on the planned return date, see
-chapter 9) - it shows up in the task list and on the homepage like any other task. **Returning** the item
-automatically marks that task as done, no manual upkeep needed.
+chapter 9) - initially assigned to whoever recorded the handout (can be reassigned on the task itself at any
+time); it shows up in the task list and on the homepage like any other task. If the item has a "Responsible
+person" on file, they also get an immediate email that the material was issued (regardless of who recorded
+the handout). **Returning** the item automatically marks the task as done, no manual upkeep needed.
 
 **Billing**: if a returned item has a lending fee, an invoice to the borrower (member or external person) is
 created automatically on return. Deposits that are kept are added as an extra line item on the same invoice.

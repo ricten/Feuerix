@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.56.1
+- Neu: Die beim Ausgeben automatisch angelegte Rückgabe-Aufgabe wird zunächst der ausgebenden Person
+  zugewiesen (statt unzugeordnet zu bleiben). Ist am Gegenstand ein „Verantwortlicher“ hinterlegt, bekommt
+  er zusätzlich sofort eine E-Mail, dass das Material ausgegeben wurde.
+
 ## 1.56.0
 - Neu: Startseite lässt sich personalisieren - Kacheln („Nächste Veranstaltungen“, „Meine Aufgaben“,
   „Anstehende Verleihe“) einzeln ein-/ausblenden und per Ziehen am Griff-Symbol neu anordnen, pro

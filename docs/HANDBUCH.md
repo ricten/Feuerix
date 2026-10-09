@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.56.0)
+# Handbuch – Feuerix (Version 1.56.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -382,9 +382,11 @@ Entscheidung und wird nicht automatisch aus „defekt“ abgeleitet. Ist die Kau
 ausgezahlt, erscheint der Button „Kaution zurückgezahlt“ zum Abhaken.
 
 Beim **Ausgeben** wird automatisch eine Aufgabe „Rückgabe prüfen: … “ angelegt (fällig zum geplanten
-Rückgabedatum, siehe Kapitel 9) - sie erscheint wie jede andere Aufgabe in der Aufgabenliste und auf der
-Startseite. Bei der **Rückgabe** wird diese Aufgabe automatisch als erledigt markiert, keine manuelle Pflege
-nötig.
+Rückgabedatum, siehe Kapitel 9) - zunächst der Person zugewiesen, die die Ausgabe gebucht hat (auf der
+Aufgabe selbst jederzeit umhängbar); sie erscheint wie jede andere Aufgabe in der Aufgabenliste und auf der
+Startseite. Ist am Gegenstand ein „Verantwortlicher“ hinterlegt, bekommt er zusätzlich sofort eine E-Mail,
+dass das Material ausgegeben wurde (unabhängig davon, wer die Ausgabe gebucht hat). Bei der **Rückgabe** wird
+die Aufgabe automatisch als erledigt markiert, keine manuelle Pflege nötig.
 
 **Abrechnung**: Hat ein zurückgegebener Gegenstand eine Leihgebühr, wird beim Zurücknehmen automatisch eine
 Rechnung an den Entleiher erstellt (Mitglied oder externe Person). Einbehaltene Kautionen landen als zusätzliche

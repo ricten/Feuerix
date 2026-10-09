@@ -1,9 +1,11 @@
 import uuid
 from datetime import date
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.core.mail import EmailMessage
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -77,30 +79,51 @@ def _verleih(request, pk):
     return get_object_or_404(Verleih, pk=pk, verein=request.verein)
 
 
-def _ausgeben(v, username):
-    """-> True wenn ausgegeben, False wenn nicht möglich (falscher Status oder Gegenstand defekt/ausgesondert)."""
+def _ausgeben(v, user):
+    """-> True wenn ausgegeben, False wenn nicht möglich (falscher Status oder Gegenstand defekt/ausgesondert).
+    `user` ist der tatsächliche Benutzer (nicht nur der Name), damit die automatisch angelegte Rückgabe-
+    Aufgabe ihm direkt zugewiesen werden kann."""
     if v.status != "reserviert" or v.gegenstand.zustand in ("defekt", "ausgesondert"):
         return False
     v.status, v.ausgegeben_am = "ausgegeben", timezone.now()
-    v.ausgegeben_von = username
+    v.ausgegeben_von = user.get_username()
     v.zustand_bei_ausgabe = v.gegenstand.zustand
     v.save()
-    _rueckgabe_aufgabe_anlegen(v)
+    _rueckgabe_aufgabe_anlegen(v, user)
+    _verantwortlichen_informieren(v)
     return True
 
 
-def _rueckgabe_aufgabe_anlegen(v):
+def _rueckgabe_aufgabe_anlegen(v, user):
     """Legt beim Ausgeben automatisch eine Aufgabe zur Rückgabe-Kontrolle an (fällig zum geplanten
     Rückgabedatum) - erscheint damit in der normalen Aufgabenliste/-Startseiten-Kachel wie jede andere
-    Aufgabe. Ohne festen Zuständigen (kein naheliegender Standardwert), daher auch keine Fälligkeits-E-Mail
-    dafür - rein als Erinnerung in der Liste gedacht."""
+    Aufgabe. Zunächst der Person zugewiesen, die die Ausgabe gebucht hat (kann auf der Aufgabe selbst
+    jederzeit an jemand anderen umgehängt werden)."""
     from apps.events.models import Aufgabe
     aufgabe = Aufgabe.objects.create(
         verein=v.verein, titel=f"Rückgabe prüfen: {v.gegenstand.bezeichnung} ({v.wer})", faellig=v.bis,
+        zustaendig_benutzer=user,
         beschreibung=f"Automatisch angelegt beim Ausgeben des Gegenstands \"{v.gegenstand.bezeichnung}\" "
                     f"an {v.wer}.")
     v.aufgabe = aufgabe
     v.save(update_fields=["aufgabe", "geaendert"])
+
+
+def _verantwortlichen_informieren(v):
+    """Informiert den am Gegenstand hinterlegten Verantwortlichen per E-Mail, sobald das Material
+    herausgegeben wurde - unabhängig davon, wer die Ausgabe selbst gebucht hat. Ohne hinterlegten
+    Verantwortlichen bzw. ohne dessen E-Mail-Adresse passiert nichts."""
+    g = v.gegenstand
+    if not (g.verantwortlicher_id and g.verantwortlicher.email):
+        return
+    text = (f"Guten Tag {g.verantwortlicher.name},\n\nder Gegenstand \"{g.bezeichnung}\", für den Sie als "
+           f"Verantwortlicher hinterlegt sind, wurde soeben an {v.wer} ausgegeben (geplante Rückgabe: "
+           f"{v.bis:%d.%m.%Y}).\n\nMit freundlichen Grüßen\n{v.verein.name}")
+    try:
+        EmailMessage(subject=f"{v.verein.name}: {g.bezeichnung} ausgegeben", body=text,
+                    from_email=settings.DEFAULT_FROM_EMAIL, to=[g.verantwortlicher.email]).send()
+    except Exception:
+        pass
 
 
 def _rueckgabe_aufgabe_abschliessen(v):
@@ -179,7 +202,7 @@ def verleih_ausgeben(request, pk):
         messages.error(request, "Nur Reservierungen können ausgegeben werden.")
     elif v.gegenstand.zustand in ("defekt", "ausgesondert"):
         messages.error(request, "Gegenstand ist defekt bzw. ausgesondert.")
-    elif _ausgeben(v, request.user.get_username()):
+    elif _ausgeben(v, request.user):
         messages.success(request, "Ausgegeben.")
     return redirect("verleih_detail", pk=v.pk)
 
@@ -311,7 +334,7 @@ def verleih_vorgang_detail(request, vorgang):
 def verleih_vorgang_ausgeben(request, vorgang):
     _pruefen(request, "verleih", "change")
     positionen = _vorgang_positionen(request, vorgang)
-    n = sum(_ausgeben(v, request.user.get_username()) for v in positionen)
+    n = sum(_ausgeben(v, request.user) for v in positionen)
     messages.success(request, f"{n} von {len(positionen)} Gegenständen ausgegeben.")
     return redirect("verleih_vorgang_detail", vorgang=vorgang)
 
