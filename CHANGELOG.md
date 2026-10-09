@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.50.6
+- Fix: Mahngebühr, Spenden-/Zuwendungsbestätigungs-Betrag und Aufwandsentschädigungs-Betrag hatten keine
+  Untergrenze - negative Werte über das Formular ergänzt (Mahngebühr darf weiterhin 0 sein, die anderen
+  mindestens 0,01 €). Konsistenz-Nachzug zum Sicherheits-Code-Review, geringes Risiko.
+
 ## 1.50.5
 - Fix: Bankumsatz-Zuordnung über die Rechnungsnummer im Verwendungszweck prüfte den Betrag nicht gegen den
   offenen Rechnungsbetrag - fortlaufende, damit erratbare Rechnungsnummern hätten so einem unpassenden

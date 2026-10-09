@@ -400,7 +400,8 @@ class Mahnung(TenantModel):
     stufe = models.PositiveSmallIntegerField(_("Stufe"), choices=STUFE, default=1)
     datum = models.DateField(_("Datum"), default=date.today)
     frist = models.DateField(_("Neue Zahlungsfrist"))
-    gebuehr = models.DecimalField(_("Mahngebühr (€)"), max_digits=8, decimal_places=2, default=0)
+    gebuehr = models.DecimalField(_("Mahngebühr (€)"), max_digits=8, decimal_places=2, default=0,
+                                  validators=[MinValueValidator(Decimal("0"))])
 
     class Meta:
         verbose_name = _("Mahnung")

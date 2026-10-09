@@ -265,6 +265,18 @@ class NegativeWerteValidierungTests(TestCase):
             "rechnung": self.r.pk, "datum": date.today(), "betrag": "-60", "art": "ueberweisung"})
         self.assertEqual(Zahlung.objects.filter(rechnung=self.r).count(), 0)
 
+    def test_negative_mahngebuehr_wird_abgelehnt(self):
+        from django.core.exceptions import ValidationError
+        from apps.finance.models import Mahnung
+        m = Mahnung(verein=self.v, rechnung=self.r, stufe=1, frist=date.today(), gebuehr=Decimal("-5"))
+        with self.assertRaises(ValidationError):
+            m.full_clean()
+
+    def test_mahngebuehr_null_bleibt_weiterhin_erlaubt(self):
+        from apps.finance.models import Mahnung
+        m = Mahnung(verein=self.v, rechnung=self.r, stufe=1, frist=date.today(), gebuehr=Decimal("0"))
+        m.full_clean()
+
 
 class SepaExportTests(TestCase):
     def setUp(self):

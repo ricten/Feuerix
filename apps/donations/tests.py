@@ -45,3 +45,18 @@ class SpendeSperreNachQuittungTests(TestCase):
         self.assertEqual(r.status_code, 403)
         s.refresh_from_db()
         self.assertEqual(s.betrag, Decimal("50.00"))
+
+
+class NegativerBetragValidierungTests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+
+    def test_negativer_spendenbetrag_wird_abgelehnt(self):
+        self.client.post(reverse("spende_add"), {"spender_name": "Max Muster", "datum": date.today(),
+                                                  "betrag": "-50.00", "art": "geld"})
+        self.assertEqual(Spende.objects.filter(spender_name="Max Muster").count(), 0)

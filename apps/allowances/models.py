@@ -1,5 +1,7 @@
 from datetime import date
+from decimal import Decimal
 
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -20,7 +22,8 @@ class Aufwandsentschaedigung(TenantModel):
     art = models.CharField(_("Art"), max_length=25, choices=ART)
     status = models.CharField(_("Status"), max_length=12, choices=STATUS, default="beantragt")
     datum = models.DateField(_("Datum"), default=date.today)
-    betrag = models.DecimalField(_("Betrag (€)"), max_digits=10, decimal_places=2)
+    betrag = models.DecimalField(_("Betrag (€)"), max_digits=10, decimal_places=2,
+                                 validators=[MinValueValidator(Decimal("0.01"))])
     taetigkeit = models.CharField(_("Tätigkeit / Anlass"), max_length=250)
     zeitraum_von = models.DateField(_("Zeitraum von"), null=True, blank=True)
     zeitraum_bis = models.DateField(_("Zeitraum bis"), null=True, blank=True)

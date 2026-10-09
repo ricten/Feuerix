@@ -1,5 +1,7 @@
 from datetime import date
+from decimal import Decimal
 
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -16,7 +18,8 @@ class Zuwendungsbestaetigung(TenantModel):
     status = models.CharField(_("Status"), max_length=12, choices=STATUS, default="entwurf", editable=False)
     spender_name = models.CharField(_("Zuwendender"), max_length=200)
     spender_anschrift = models.CharField(_("Anschrift des Zuwendenden"), max_length=300)
-    betrag = models.DecimalField(_("Betrag (€)"), max_digits=10, decimal_places=2)
+    betrag = models.DecimalField(_("Betrag (€)"), max_digits=10, decimal_places=2,
+                                 validators=[MinValueValidator(Decimal("0.01"))])
     datum_von = models.DateField(_("Zuwendung von"))
     datum_bis = models.DateField(_("Zuwendung bis"))
     ist_mitgliedsbeitrag = models.BooleanField(_("Es handelt sich um einen Mitgliedsbeitrag"), default=False)
@@ -56,7 +59,8 @@ class Spende(TenantModel):
     spender_name = models.CharField(_("Spender (Name, falls kein Mitglied)"), max_length=200, blank=True)
     spender_anschrift = models.CharField(_("Anschrift (falls kein Mitglied)"), max_length=300, blank=True)
     datum = models.DateField(_("Datum der Zuwendung"), default=date.today)
-    betrag = models.DecimalField(_("Betrag / Wert (€)"), max_digits=10, decimal_places=2)
+    betrag = models.DecimalField(_("Betrag / Wert (€)"), max_digits=10, decimal_places=2,
+                                 validators=[MinValueValidator(Decimal("0.01"))])
     art = models.CharField(_("Art"), max_length=20, choices=ART, default="geld")
     zweck = models.CharField(_("Verwendungszweck"), max_length=200, blank=True)
     sach_beschreibung = models.TextField(_("Bezeichnung der Sachspende"), blank=True)
