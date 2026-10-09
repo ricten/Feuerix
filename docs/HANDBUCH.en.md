@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.57.0)
+# Handbook – Feuerix (Version 1.57.1)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -461,10 +461,10 @@ single task that's nearly due doesn't turn the header colourful on its own.
 
 The task detail page lets you attach **progress notes**, like a ticketing system - each with a timestamp and
 username, and not editable afterwards - so the history stays traceable even when several people work on the
-same task. While a task isn't done yet, the page also offers a quick-complete button with its own input
-field for the result - without the detour through the edit form. Setting the status to "Done" additionally
-requires a short **result** (a brief summary of what was achieved/decided) - without one, the task can't be
-closed out.
+same task. While a task isn't done yet, a "Done" button next to "Edit"/"Delete" at the top opens a dialog
+with an input field for the result - without the detour through the edit form. Setting the status to "Done"
+additionally requires a short **result** (a brief summary of what was achieved/decided) - without one, the
+task can't be closed out.
 
 ## 10. Honours and anniversaries
 

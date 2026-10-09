@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.57.1
+- Der Erledigt-Knopf einer Aufgabe steht jetzt oben in der Kopfzeile neben „Bearbeiten“/„Löschen“ und öffnet
+  das Ergebnis-Eingabefeld in einem Dialogfenster statt als sperrige Extra-Karte auf der Seite.
+
 ## 1.57.0
 - Neu: Aufgaben lassen sich direkt auf der Detailseite per Knopf mit Ergebnis-Eingabefeld erledigen, ohne
   den Umweg über das Bearbeiten-Formular.

@@ -6,10 +6,32 @@
   <div class="d-flex gap-2 flex-wrap align-items-center kopf-aktionen">
     {% if aktive_icon %}<i class="bi {{ aktive_icon }} fs-4 me-1" style="color: var(--bs-primary);"></i>{% endif %}
     {% include "core/_buttons.html" with buttons=aktionen %}
+    {% if aufgabe_erledigen %}<button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#aufgabeErledigenModal"><i class="bi bi-check-lg"></i> {% trans "Erledigt" %}</button>{% endif %}
     {% if can_change %}<a class="btn btn-sm btn-outline-primary" href="{% url cfg.name|add:'_edit' object.pk %}"><i class="bi bi-pencil"></i> {% trans "Bearbeiten" %}</a>{% endif %}
     {% if can_delete %}<a class="btn btn-sm btn-outline-danger" href="{% url cfg.name|add:'_delete' object.pk %}"><i class="bi bi-trash"></i> {% trans "Löschen" %}</a>{% endif %}
   </div>
 </div>
+{% if aufgabe_erledigen %}
+<div class="modal fade" id="aufgabeErledigenModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="post" action="{{ aufgabe_erledigen.url }}" class="modal-content">{% csrf_token %}
+      <div class="modal-header">
+        <h5 class="modal-title">{% trans "Als erledigt markieren" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label" for="aufgabeErledigenErgebnis">{% trans "Ergebnis" %}</label>
+        <textarea id="aufgabeErledigenErgebnis" name="ergebnis" class="form-control" rows="3"
+            placeholder="{% trans 'Ergebnis - was wurde erreicht/entschieden?' %}" required>{{ aufgabe_erledigen.ergebnis }}</textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Abbrechen" %}</button>
+        <button type="submit" class="btn btn-success"><i class="bi bi-check-lg"></i> {% trans "Erledigt" %}</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
 {% if live_status_url %}<div hx-get="{{ live_status_url }}" hx-trigger="load" hx-swap="outerHTML"></div>{% endif %}
 {% if vorschau %}
 <div class="card shadow-sm mb-3"><div class="card-header py-2"><i class="bi bi-eye"></i> {% trans "Vorschau" %}</div>
@@ -19,16 +41,6 @@
   </div></div>
 {% endif %}
 {% for h in hinweise %}<div class="alert alert-info py-2">{{ h }}</div>{% endfor %}
-{% if aufgabe_erledigen %}
-<div class="card mb-3"><div class="card-body">
-  <h6>{% trans "Als erledigt markieren" %}</h6>
-  <form method="post" action="{{ aufgabe_erledigen.url }}" class="row g-2">{% csrf_token %}
-    <div class="col-md-8"><textarea name="ergebnis" class="form-control form-control-sm" rows="2"
-        placeholder="{% trans 'Ergebnis - was wurde erreicht/entschieden?' %}" required>{{ aufgabe_erledigen.ergebnis }}</textarea></div>
-    <div class="col-auto"><button class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> {% trans "Erledigt" %}</button></div>
-  </form>
-</div></div>
-{% endif %}
 {% if zuweisen %}
 <div class="card mb-3"><div class="card-body">
   <h6>{% trans "Einer Rechnung zuordnen" %}</h6>

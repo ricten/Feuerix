@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.57.0)
+# Handbuch – Feuerix (Version 1.57.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -472,8 +472,9 @@ fällige Aufgabe allein lässt die Kopfzeile also noch nicht farbig werden.
 Auf der Aufgaben-Detailseite lassen sich wie bei einem Ticketsystem **Zwischennotizen** anhängen (mit
 Zeitstempel und Benutzername, nachträglich nicht mehr änderbar) - so bleibt der Bearbeitungsverlauf
 nachvollziehbar, auch wenn mehrere Personen an derselben Aufgabe mitarbeiten. Solange die Aufgabe noch nicht
-erledigt ist, steht dort außerdem ein Schnell-Erledigen-Knopf mit einem eigenen Eingabefeld für das Ergebnis
-bereit - ohne den Umweg über das Bearbeiten-Formular. Beim Setzen des Status auf „Erledigt“ ist zusätzlich ein
+erledigt ist, steht oben neben „Bearbeiten“/„Löschen“ außerdem ein Erledigt-Knopf bereit, der ein
+Dialogfenster mit einem Eingabefeld für das Ergebnis öffnet - ohne den Umweg über das Bearbeiten-Formular.
+Beim Setzen des Status auf „Erledigt“ ist zusätzlich ein
 kurzes **Ergebnis** Pflicht (kurzes Fazit: was wurde erreicht/entschieden) - ohne Eintrag lässt sich die
 Aufgabe nicht abschließen.
 
