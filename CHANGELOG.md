@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.55.1
+- Fix: Abgerundete Kartenecken zeigten bei farbiger Kopfzeile/erster Listenzeile eine kleine eckige Kerbe
+  (fehlendes `overflow: hidden`). Dabei auch behoben: die Kopfzeile der „Meine Aufgaben“-Kachel übernahm die
+  Ampelfarbe bisher gar nicht sichtbar (von einer allgemeinen Kartenkopf-Regel überschrieben).
+
 ## 1.55.0
 - Neu: „Zuständig“ bei Aufgaben kann jetzt auch ein Administrator (Benutzer mit Zugang, ohne eigene
   Mitgliedschaft) statt nur ein Mitglied sein - erhält dann ebenfalls die Fälligkeits-E-Mail und sieht die

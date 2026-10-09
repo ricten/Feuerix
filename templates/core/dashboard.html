@@ -48,7 +48,7 @@
   {% if meine_aufgaben %}
   <div class="col-xl-4">
     <div class="card border-{% if meine_aufgaben_farbe == 'rot' %}danger{% elif meine_aufgaben_farbe == 'gelb' %}warning{% else %}success{% endif %}">
-      <div class="card-header d-flex align-items-center gap-2 bg-{% if meine_aufgaben_farbe == 'rot' %}danger-subtle{% elif meine_aufgaben_farbe == 'gelb' %}warning-subtle{% else %}success-subtle{% endif %}">
+      <div class="card-header d-flex align-items-center gap-2" style="background: var(--bs-{% if meine_aufgaben_farbe == 'rot' %}danger{% elif meine_aufgaben_farbe == 'gelb' %}warning{% else %}success{% endif %}-bg-subtle);">
         <i class="bi bi-list-check"></i> <strong>{% trans "Meine Aufgaben" %}</strong>
       </div>
       <ul class="list-group list-group-flush">

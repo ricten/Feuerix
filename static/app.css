@@ -57,6 +57,9 @@ body {
   border-radius: .9rem;
   box-shadow: 0 4px 18px rgba(20, 20, 40, .08), 0 1px 3px rgba(20, 20, 40, .05);
   transition: transform .15s ease, box-shadow .15s ease;
+  /* Ohne das "blutet" eine eckige Kopf-/Fusszeile (oder ein farbiger list-group-item ganz oben/unten) an
+     der abgerundeten Kartenecke minimal ueber den Rand hinaus - sichtbar als kleine eckige Kerbe. */
+  overflow: hidden;
 }
 /* Kartenkopf/Icon-Badge/Tabelle nutzen einheitlich die Hauptfarbe (ueber diese CSS-Variable) - bewusst keine
    pro Karte wechselnde Farbe mehr, damit mehrere Karten/Tabellen untereinander einheitlich aussehen. */
