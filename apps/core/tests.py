@@ -118,7 +118,8 @@ class MandantenTests(TestCase):
         self.assertTrue(self.v1.logo)
         daten = {"name": self.v1.name, "zahlungsziel_tage": 14, "uebungsleiter_freibetrag": "3300",
                 "ehrenamts_freibetrag": "960", "akzentfarbe": "#1F4E79", "bescheid_art": "freistellung",
-                "etikett_breite_mm": 58, "etikett_hoehe_mm": 40, "etikett_spalten": 3, "etikett_zeilen": 6}
+                "startseite_banner_art": "info", "etikett_breite_mm": 58, "etikett_hoehe_mm": 40,
+                "etikett_spalten": 3, "etikett_zeilen": 6}
         r = self.client.post(reverse("verein_einstellungen"), daten)
         self.assertEqual(r.status_code, 302)
         self.v1.refresh_from_db()
@@ -221,8 +222,8 @@ class OeffentlicheSeitenTests(TestCase):
         r = self.client.post(reverse("verein_einstellungen"), {
             "name": self.v.name, "impressum_text": "Neuer Impressumstext", "zahlungsziel_tage": 14,
             "uebungsleiter_freibetrag": "3300", "ehrenamts_freibetrag": "960", "akzentfarbe": "#1F4E79",
-            "bescheid_art": "freistellung", "etikett_breite_mm": 58, "etikett_hoehe_mm": 40,
-            "etikett_spalten": 3, "etikett_zeilen": 6})
+            "bescheid_art": "freistellung", "startseite_banner_art": "info", "etikett_breite_mm": 58,
+            "etikett_hoehe_mm": 40, "etikett_spalten": 3, "etikett_zeilen": 6})
         self.assertEqual(r.status_code, 302)
         self.v.refresh_from_db()
         self.assertEqual(self.v.impressum_text, "Neuer Impressumstext")
@@ -684,3 +685,53 @@ class SsrfSchutzTests(TestCase):
     def test_leere_adresse_wird_abgelehnt(self):
         with self.assertRaises(ValidationError):
             pruefe_oeffentliche_adresse("nicht-mal-eine-url")
+
+
+class StartseiteBannerTests(TestCase):
+    """Benachrichtigungsbanner auf der Startseite - je Verein frei konfigurierbar (Text, Art, optionales
+    Bis-Datum), nur dort sichtbar, nicht auf anderen Seiten."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+
+    def test_kein_banner_ohne_text(self):
+        r = self.client.get(reverse("dashboard"))
+        self.assertNotContains(r, "alert-dismissible fade show mb-4")
+
+    def test_banner_wird_angezeigt(self):
+        self.v.startseite_banner = "Nächste Mitgliederversammlung am 12.12."
+        self.v.save()
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "Nächste Mitgliederversammlung am 12.12.")
+        self.assertContains(r, "alert-info")
+
+    def test_banner_art_wichtig_wird_als_danger_dargestellt(self):
+        self.v.startseite_banner = "Server-Wartung am Sonntag."
+        self.v.startseite_banner_art = "wichtig"
+        self.v.save()
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "alert-danger")
+
+    def test_banner_nach_bis_datum_ausgeblendet(self):
+        from datetime import date, timedelta
+        self.v.startseite_banner = "Veraltete Ankündigung"
+        self.v.startseite_banner_bis = date.today() - timedelta(days=1)
+        self.v.save()
+        r = self.client.get(reverse("dashboard"))
+        self.assertNotContains(r, "Veraltete Ankündigung")
+
+    def test_banner_ueber_einstellungen_speicherbar(self):
+        r = self.client.post(reverse("verein_einstellungen"), {
+            "name": self.v.name, "bescheid_art": "freistellung", "akzentfarbe": "#AF2B1E",
+            "zahlungsziel_tage": 14, "uebungsleiter_freibetrag": "3300", "ehrenamts_freibetrag": "960",
+            "etikett_breite_mm": 58, "etikett_hoehe_mm": 40, "etikett_spalten": 3, "etikett_zeilen": 6,
+            "startseite_banner": "Bitte Beiträge bis 31.01. überweisen.", "startseite_banner_art": "warnung"},
+            follow=True)
+        self.v.refresh_from_db()
+        self.assertEqual(self.v.startseite_banner, "Bitte Beiträge bis 31.01. überweisen.")
+        self.assertEqual(self.v.startseite_banner_art, "warnung")

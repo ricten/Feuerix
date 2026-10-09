@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.50.6)
+# Handbuch – Feuerix (Version 1.51.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -622,6 +622,13 @@ mit der Satzung/dem Vereinsregister abgleichen – die Software übernimmt keine
 angebotenen (auch veränderten) Version Zugriff auf den passenden Quellcode zu geben (§ 13 AGPL) - bei eigenen
 Änderungen am Code muss der Betreiber die Adresse (`PRODUCT_SOURCE_URL` in der `.env`) auf seine eigene,
 tatsächlich passende Quellcode-Ablage umstellen, siehe README.
+
+**Benachrichtigungsbanner**: Unter „Benachrichtigungsbanner (Startseite)“ lässt sich ein Text hinterlegen, der
+allen angemeldeten Benutzern dieses Vereins oben auf der Startseite angezeigt wird (z. B. Hinweis auf die
+nächste Mitgliederversammlung oder geplante Wartungsarbeiten) - mit wählbarer Art (Info/Warnung/Wichtig, steuert
+nur die Farbe) und optionalem „sichtbar bis“-Datum. Leeres Textfeld = kein Banner. Jeder Benutzer kann das
+Banner für sich wegklicken, es erscheint aber bei jedem neuen Seitenaufruf wieder, bis es hier entfernt oder
+das Datum erreicht ist.
 
 ## 16. Datenschutz und Sicherheit
 

@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.51.0
+- Neu: Konfigurierbares Benachrichtigungsbanner auf der Startseite (Verein/Einstellungen) - Text, Art
+  (Info/Warnung/Wichtig) und optionales „sichtbar bis“-Datum, für alle angemeldeten Benutzer des Vereins.
+
 ## 1.50.6
 - Fix: Mahngebühr, Spenden-/Zuwendungsbestätigungs-Betrag und Aufwandsentschädigungs-Betrag hatten keine
   Untergrenze - negative Werte über das Formular ergänzt (Mahngebühr darf weiterhin 0 sein, die anderen

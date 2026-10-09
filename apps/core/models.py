@@ -84,6 +84,16 @@ class Verein(models.Model):
         help_text=_("Vollständiger Text nach § 5 TMG / § 18 MStV (verantwortliche Person, Anschrift, Kontakt, "
                   "Vertretungsberechtigte, ggf. USt-IdNr.). Wird ungeprüft auf der öffentlich erreichbaren "
                   "Impressum-Seite angezeigt – bitte gegen die eigene Satzung/das Vereinsregister prüfen."))
+    STARTSEITE_BANNER_ART = [("info", _("Info")), ("warnung", _("Warnung")), ("wichtig", _("Wichtig"))]
+    startseite_banner = models.TextField(
+        _("Benachrichtigungsbanner (Startseite)"), blank=True,
+        help_text=_("Wird oben auf der Startseite allen angemeldeten Benutzern dieses Vereins angezeigt, bis "
+                  "entfernt oder das Bis-Datum erreicht ist - z. B. für Hinweise zur nächsten "
+                  "Mitgliederversammlung oder geplante Wartungsarbeiten. Leer = kein Banner."))
+    startseite_banner_art = models.CharField(_("Art des Banners"), max_length=8, choices=STARTSEITE_BANNER_ART,
+                                             default="info")
+    startseite_banner_bis = models.DateField(_("Banner sichtbar bis"), null=True, blank=True,
+                                             help_text=_("Leer = dauerhaft sichtbar, bis der Text hier entfernt wird."))
     etikett_breite_mm = models.PositiveIntegerField(
         _("Etikettenbreite (mm)"), default=58, validators=[MinValueValidator(10)],
         help_text=_("Für Inventar-Etiketten (QR-Code). Standard passt auf gängige A4-Etikettenbögen. Für einen "
@@ -111,6 +121,12 @@ class Verein(models.Model):
     @property
     def adresszeile(self):
         return ", ".join(x for x in (self.anschrift, f"{self.plz} {self.ort}".strip()) if x)
+
+    @property
+    def startseite_banner_aktiv(self):
+        from datetime import date
+        return bool(self.startseite_banner) and (not self.startseite_banner_bis
+                                                  or self.startseite_banner_bis >= date.today())
 
 
 class Rolle(models.Model):

@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.50.6)
+# Handbook – Feuerix (Version 1.51.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -613,6 +613,12 @@ with a link to the source code. This fulfils the AGPL's obligation to give users
 offered over a network access to the matching source code (§ 13 AGPL) – if you modify the code yourself, the
 operator must change the address (`PRODUCT_SOURCE_URL` in `.env`) to their own, actually matching source
 code location; see the README.
+
+**Notification banner:** the "Notification banner (homepage)" field lets you set a text shown at the top of
+the homepage to every logged-in user of this club (e.g. a heads-up about the next general meeting or planned
+maintenance) - with a selectable type (Info/Warning/Important, which only controls the colour) and an
+optional "visible until" date. An empty text field means no banner. Each user can dismiss the banner for
+themselves, but it reappears on the next page load until it is removed here or the date is reached.
 
 ## 16. Data protection and security
 

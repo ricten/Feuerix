@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% load verein_tags i18n %}
 {% block content %}
+{% if verein.startseite_banner_aktiv %}
+<div class="alert alert-{% if verein.startseite_banner_art == 'wichtig' %}danger{% elif verein.startseite_banner_art == 'warnung' %}warning{% else %}info{% endif %} alert-dismissible fade show mb-4" style="white-space: pre-line;">
+  {{ verein.startseite_banner }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
 <div class="dash-hero position-relative overflow-hidden rounded-4 p-4 p-md-5 mb-4"
     style="color: {{ web_akzenttextfarbe|default:'#fff' }};">
   <div class="dash-hero-glow"></div>
