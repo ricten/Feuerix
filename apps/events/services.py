@@ -10,15 +10,21 @@ from .models import Aufgabe
 def aufgaben_faellig_benachrichtigen(verein):
     """Verschickt eine E-Mail an die/den Zuständige(n) einer Aufgabe, sobald ihre Fälligkeit überschritten ist
     (noch nicht erledigt) - je Aufgabe nur einmal (benachrichtigt_am), kein täglicher Spam bei wiederholtem
-    Aufruf. Aufgaben ohne Zuständigen oder ohne hinterlegte E-Mail-Adresse werden übersprungen (keine
-    Benachrichtigungsmöglichkeit). Netzwerk-/Mailfehler werden pro Aufgabe abgefangen, damit ein Fehler nicht
-    die Benachrichtigung der übrigen überfälligen Aufgaben verhindert. -> Anzahl verschickter Mails."""
+    Aufruf. Zuständig kann ein Mitglied oder ein Administrator (Benutzer mit Zugang, z. B. ohne eigene
+    Mitgliedschaft) sein - Aufgaben ganz ohne Zuständigen oder ohne hinterlegte E-Mail-Adresse werden
+    übersprungen (keine Benachrichtigungsmöglichkeit). Netzwerk-/Mailfehler werden pro Aufgabe abgefangen,
+    damit ein Fehler nicht die Benachrichtigung der übrigen überfälligen Aufgaben verhindert.
+    -> Anzahl verschickter Mails."""
     ueberfaellig = (Aufgabe.objects.filter(verein=verein, faellig__lt=date.today(), benachrichtigt_am__isnull=True)
-                    .exclude(status="erledigt").exclude(zustaendig__isnull=True).exclude(zustaendig__email="")
-                    .select_related("zustaendig", "veranstaltung"))
+                    .exclude(status="erledigt")
+                    .exclude(zustaendig__isnull=True, zustaendig_benutzer__isnull=True)
+                    .select_related("zustaendig", "zustaendig_benutzer", "veranstaltung"))
     n = 0
     for a in ueberfaellig:
-        text = (f"Guten Tag {a.zustaendig.name},\n\ndie Aufgabe \"{a.titel}\" war fällig bis "
+        email = a.zustaendig_email
+        if not email:
+            continue
+        text = (f"Guten Tag {a.wer_zustaendig},\n\ndie Aufgabe \"{a.titel}\" war fällig bis "
                f"{a.faellig:%d.%m.%Y} und ist noch nicht erledigt.")
         if a.veranstaltung_id:
             text += f"\nVeranstaltung: {a.veranstaltung.titel}"
@@ -27,7 +33,7 @@ def aufgaben_faellig_benachrichtigen(verein):
         text += f"\n\nMit freundlichen Grüßen\n{verein.name}"
         try:
             EmailMessage(subject=f"{verein.name}: Aufgabe überfällig – {a.titel}", body=text,
-                        from_email=settings.DEFAULT_FROM_EMAIL, to=[a.zustaendig.email]).send()
+                        from_email=settings.DEFAULT_FROM_EMAIL, to=[email]).send()
         except Exception:
             continue
         a.benachrichtigt_am = timezone.now()

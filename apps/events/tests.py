@@ -466,3 +466,109 @@ class AufgabenNotizTests(TestCase):
         notiz = self.a.notizen.create(verein=self.v, text="Erste Notiz", erstellt_von="admin")
         with self.assertRaises(NoReverseMatch):
             reverse("aufgabenotiz_edit", args=[notiz.pk])
+
+
+class AufgabeZustaendigAdministratorTests(TestCase):
+    """'Zuständig' kann neben einem Mitglied auch ein Administrator (Benutzer mit Zugang, z. B. ohne eigene
+    Mitgliedschaft - externe Kassenprüfung o. ä.) sein."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.pruefer = User.objects.create_user("pruefer", password="pw-Test-12345", first_name="Erika",
+                                                last_name="Pruefer", email="pruefer@example.org")
+        Zugang.objects.create(verein=self.v, user=self.pruefer,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+
+    def test_administrator_erscheint_in_der_auswahl(self):
+        r = self.client.get(reverse("aufgabe_add"))
+        self.assertContains(r, "pruefer")
+
+    def test_aufgabe_administrator_zuweisbar(self):
+        r = self.client.post(reverse("aufgabe_add"), {"titel": "Kassenprüfung", "status": "offen",
+                                                       "zustaendig_benutzer": self.pruefer.pk})
+        self.assertEqual(r.status_code, 302)
+        a = Aufgabe.objects.get(titel="Kassenprüfung")
+        self.assertEqual(a.zustaendig_benutzer_id, self.pruefer.pk)
+        self.assertIsNone(a.zustaendig_id)
+        self.assertEqual(a.wer_zustaendig, "Erika Pruefer")
+
+    def test_nicht_mitglied_und_administrator_gleichzeitig(self):
+        art = Mitgliedsart.objects.get(verein=self.v, name="Aktiv")
+        m = Mitglied.objects.create(verein=self.v, vorname="Max", nachname="Muster", mitgliedsart=art,
+                                    eintrittsdatum=date(2015, 1, 1))
+        r = self.client.post(reverse("aufgabe_add"), {"titel": "Doppelt", "status": "offen",
+                                                       "zustaendig": m.pk, "zustaendig_benutzer": self.pruefer.pk})
+        self.assertEqual(r.status_code, 200)
+        self.assertFalse(Aufgabe.objects.filter(titel="Doppelt").exists())
+
+    def test_benutzer_ohne_zugang_zu_diesem_verein_nicht_waehlbar(self):
+        User = get_user_model()
+        anderer_verein = Verein.objects.create(name="Anderer e.V.", kuerzel="anderer")
+        fremder = User.objects.create_user("fremder", password="pw-Test-12345")
+        Zugang.objects.create(verein=anderer_verein, user=fremder,
+                              rolle=Rolle.objects.get(verein=anderer_verein, name="Superadministrator"))
+        self.client.post(reverse("verein_waehlen"), {"verein": self.v.pk})  # Kontext explizit auf self.v fixieren
+        r = self.client.get(reverse("aufgabe_add"))
+        self.assertNotContains(r, "fremder")
+
+    def test_ueberfaellige_aufgabe_fuer_administrator_wird_gemailt(self):
+        from django.core import mail
+        from .services import aufgaben_faellig_benachrichtigen
+        Aufgabe.objects.create(verein=self.v, titel="Kassenprüfung", zustaendig_benutzer=self.pruefer,
+                               faellig=date.today() - timedelta(days=1))
+        n = aufgaben_faellig_benachrichtigen(self.v)
+        self.assertEqual(n, 1)
+        self.assertEqual(mail.outbox[0].to, ["pruefer@example.org"])
+
+    def test_meine_aufgaben_zeigt_aufgaben_des_administrators_ohne_mitgliedschaft(self):
+        Aufgabe.objects.create(verein=self.v, titel="Kassenprüfung", zustaendig_benutzer=self.pruefer,
+                               status="offen")
+        self.client.logout()
+        self.client.login(username="pruefer", password="pw-Test-12345")
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, "Kassenprüfung")
+
+
+class AufgabenListeTests(TestCase):
+    """Die Aufgaben-Liste sortiert standardmaessig nach der Aufgabe selbst (nicht nach der oft leeren
+    Veranstaltung) und markiert bald faellige/ueberfaellige Zeilen farblich - ohne Gruen fuer unkritische."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+
+    def test_liste_standardmaessig_alphabetisch_nach_aufgabe_sortiert(self):
+        Aufgabe.objects.create(verein=self.v, titel="Zebra-Aufgabe")
+        Aufgabe.objects.create(verein=self.v, titel="Apfel-Aufgabe")
+        Aufgabe.objects.create(verein=self.v, titel="Mango-Aufgabe")
+        r = self.client.get(reverse("aufgabe_list"))
+        inhalt = r.content.decode()
+        self.assertLess(inhalt.index("Apfel-Aufgabe"), inhalt.index("Mango-Aufgabe"))
+        self.assertLess(inhalt.index("Mango-Aufgabe"), inhalt.index("Zebra-Aufgabe"))
+
+    def test_ueberfaellige_zeile_ist_rot(self):
+        Aufgabe.objects.create(verein=self.v, titel="Zu spaet", faellig=date.today() - timedelta(days=1))
+        r = self.client.get(reverse("aufgabe_list"))
+        self.assertContains(r, "table-danger")
+        self.assertNotContains(r, "table-warning")
+
+    def test_bald_faellige_zeile_ist_gelb(self):
+        Aufgabe.objects.create(verein=self.v, titel="Bald faellig", faellig=date.today() + timedelta(days=5))
+        r = self.client.get(reverse("aufgabe_list"))
+        self.assertContains(r, "table-warning")
+        self.assertNotContains(r, "table-danger")
+
+    def test_weit_entfernte_faelligkeit_ohne_markierung(self):
+        Aufgabe.objects.create(verein=self.v, titel="Viel Zeit", faellig=date.today() + timedelta(days=30))
+        r = self.client.get(reverse("aufgabe_list"))
+        self.assertNotContains(r, "table-danger")
+        self.assertNotContains(r, "table-warning")

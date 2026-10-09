@@ -3,8 +3,14 @@ from django.urls import path
 from apps.core.crud import crud
 
 from . import views
+from .forms import AufgabeForm
 from .models import (Anmeldung, Aufgabe, AufgabeNotiz, Kostenposition, Schicht, Schichteinsatz, Tagesordnungspunkt,
                      Veranstaltung, Wahlergebnis)
+
+
+def _aufgabe_zeile_klasse(a):
+    stufe = a.faelligkeits_stufe
+    return "table-danger" if stufe == "rot" else ("table-warning" if stufe == "gelb" else "")
 
 urlpatterns = [
     path("veranstaltungen/kalender.ics", views.veranstaltungen_ics, name="veranstaltungen_ics"),
@@ -15,9 +21,11 @@ urlpatterns += crud("veranstaltungen", Veranstaltung, "veranstaltungen",
                     list_display=("beginn", "titel", "art", "ort", "status", ("verantwortlich", "Verantwortlich")),
                     suche=("titel", "ort"), filter=("status", "art"), select_related=("verantwortlich",),
                     kontext=views.veranstaltung_kontext, listen_aktionen=views.listen_aktionen, ordering=("-beginn",))
-urlpatterns += crud("aufgaben", Aufgabe, "veranstaltungen", list_display=("veranstaltung", "titel", "zustaendig",
-                    "faellig", "status"), select_related=("veranstaltung", "zustaendig"),
-                    filter=("veranstaltung", "status", "zustaendig"), kontext=views.aufgabe_kontext)
+urlpatterns += crud("aufgaben", Aufgabe, "veranstaltungen", form=AufgabeForm, list_display=("titel", "veranstaltung",
+                    ("wer_zustaendig", "Zuständig"), "faellig", "status"),
+                    select_related=("veranstaltung", "zustaendig", "zustaendig_benutzer"),
+                    filter=("veranstaltung", "status", "zustaendig"), kontext=views.aufgabe_kontext,
+                    ordering=("titel",), zeile_klasse=_aufgabe_zeile_klasse)
 urlpatterns += crud("aufgabenotizen", AufgabeNotiz, "veranstaltungen", list_display=("aufgabe", "erstellt",
                     "erstellt_von", "text"), select_related=("aufgabe",), filter=("aufgabe",), edit=False,
                     nach_speichern=views.notiz_nach_speichern)

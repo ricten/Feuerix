@@ -6,7 +6,7 @@ from django.apps import apps as django_apps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -68,9 +68,14 @@ def dashboard(request):
         aufgaben_faellig_benachrichtigen_task.delay(v.pk)
         v.aufgaben_geprueft_am = timezone.now()
         v.save(update_fields=["aufgaben_geprueft_am"])
+    # Zuständig kann ein Mitglied oder ein Administrator (Benutzer mit Zugang, z. B. ohne eigene
+    # Mitgliedschaft) sein - beide Faelle hier beruecksichtigen.
     mitglied = getattr(request.user, "mitglied_zugang", None)
-    alle_meine_aufgaben = (list(Aufgabe.objects.filter(verein=v, zustaendig=mitglied).exclude(status="erledigt")
-                               .select_related("veranstaltung").order_by("faellig")) if mitglied else [])
+    zustaendigkeit = Q(zustaendig_benutzer=request.user) | Q(zustaendig=mitglied) if mitglied else \
+        Q(zustaendig_benutzer=request.user)
+    alle_meine_aufgaben = list(Aufgabe.objects.filter(verein=v).filter(zustaendigkeit)
+                              .exclude(status="erledigt").select_related("veranstaltung", "zustaendig",
+                                                                         "zustaendig_benutzer").order_by("faellig"))
     meine_aufgaben = alle_meine_aufgaben[:8]
     # Die Kachel soll nicht schon wegen einer einzelnen knapp fälligen Aufgabe grell werden - erst ab zwei
     # Aufgaben in derselben Dringlichkeitsstufe schlägt die Kachelfarbe insgesamt dorthin um.

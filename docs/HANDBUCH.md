@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.54.0)
+# Handbuch – Feuerix (Version 1.55.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -436,14 +436,20 @@ lesbar, eine Rückmeldung ist dann nicht mehr möglich.
 **Aufgaben** (*Veranstaltungen › Aufgaben*) müssen nicht zwingend zu einer Veranstaltung gehören - das Feld
 „Veranstaltung“ ist optional, für allgemeine Vorstandsaufgaben ohne konkreten Termin (z. B. aus einer
 Vorstandssitzung heraus, die wie jede andere Veranstaltung mit der Art „Sitzung“ angelegt wird) einfach leer
-lassen. Eine Aufgabe mit überschrittener Fälligkeit, die noch nicht „Erledigt“ ist, löst einmalig eine E-Mail
-an die/den Zuständige(n) aus (sofern eine E-Mail-Adresse hinterlegt ist - die Prüfung läuft im Hintergrund,
-spätestens beim nächsten Seitenaufruf eines angemeldeten Benutzers). Ist der Zuständige selbst über ein
-Mitglieder-Konto angemeldet, erscheinen seine eigenen offenen Aufgaben zusätzlich in einer eigenen Kachel
-„Meine Aufgaben“ auf der Startseite. Jede Zeile ist nach Resttagen bis zur Fälligkeit eingefärbt (grün ab 10
-Tagen, gelb unter 10, rot unter 2 bzw. überfällig); die Kachel als Ganzes wechselt erst auf die dringlichere
-Farbe, sobald **mindestens zwei** eigene Aufgaben dieselbe Stufe erreichen - eine einzelne knapp fällige
-Aufgabe allein lässt die Kachel also noch nicht grell werden.
+lassen. Die Liste ist standardmäßig nach der Aufgabenbezeichnung sortiert (nicht nach der oft leeren
+Veranstaltung) und markiert Zeilen mit bald ablaufender bzw. bereits überschrittener Fälligkeit farblich
+(gelb/rot, analog zur Kachel unten, unkritische Zeilen bleiben unmarkiert).
+
+„Zuständig“ ist entweder ein **Mitglied** oder - für Zuständige ohne eigene Mitgliedschaft, z. B. eine externe
+Kassenprüfung - ein **Administrator** (jeder Benutzer mit Zugang zu diesem Verein); nur eines von beiden
+ausfüllen. Eine Aufgabe mit überschrittener Fälligkeit, die noch nicht „Erledigt“ ist, löst einmalig eine
+E-Mail an die/den Zuständige(n) aus (an die Mitglieds- bzw. Benutzer-E-Mail-Adresse, sofern hinterlegt - die
+Prüfung läuft im Hintergrund, spätestens beim nächsten Seitenaufruf eines angemeldeten Benutzers). Ist der
+Zuständige selbst angemeldet (als Mitglied oder als Administrator), erscheinen seine eigenen offenen Aufgaben
+zusätzlich in einer eigenen Kachel „Meine Aufgaben“ auf der Startseite. Jede Zeile ist nach Resttagen bis zur
+Fälligkeit eingefärbt (grün ab 10 Tagen, gelb unter 10, rot unter 2 bzw. überfällig); die Kachel als Ganzes
+wechselt erst auf die dringlichere Farbe, sobald **mindestens zwei** eigene Aufgaben dieselbe Stufe erreichen
+- eine einzelne knapp fällige Aufgabe allein lässt die Kachel also noch nicht grell werden.
 
 Auf der Aufgaben-Detailseite lassen sich wie bei einem Ticketsystem **Zwischennotizen** anhängen (mit
 Zeitstempel und Benutzername, nachträglich nicht mehr änderbar) - so bleibt der Bearbeitungsverlauf

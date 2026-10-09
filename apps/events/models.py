@@ -1,6 +1,7 @@
 import uuid
 from decimal import Decimal
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
@@ -60,7 +61,12 @@ class Aufgabe(TenantModel):
                                                 "Bezug zu einer Veranstaltung/Sitzung."))
     titel = models.CharField(_("Aufgabe"), max_length=200)
     zustaendig = models.ForeignKey("members.Mitglied", on_delete=models.SET_NULL, null=True, blank=True,
-                                   related_name="+", verbose_name=_("Zuständig"))
+                                   related_name="+", verbose_name=_("Zuständig (Mitglied)"))
+    zustaendig_benutzer = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
+        verbose_name=_("Zuständig (Administrator)"),
+        help_text=_("Für Zuständige ohne Mitgliedschaft (z. B. externe Kassenprüfung) - nur zusammen mit "
+                  "'Zuständig (Mitglied)' leer lassen, nicht beides gleichzeitig befüllen."))
     faellig = models.DateField(_("Fällig bis"), null=True, blank=True)
     status = models.CharField(_("Status"), max_length=10, choices=STATUS, default="offen")
     beschreibung = models.TextField(_("Beschreibung"), blank=True)
@@ -76,6 +82,22 @@ class Aufgabe(TenantModel):
 
     def __str__(self):
         return self.titel
+
+    @property
+    def wer_zustaendig(self):
+        if self.zustaendig_id:
+            return self.zustaendig.name
+        if self.zustaendig_benutzer_id:
+            return self.zustaendig_benutzer.get_full_name() or self.zustaendig_benutzer.get_username()
+        return "–"
+
+    @property
+    def zustaendig_email(self):
+        if self.zustaendig_id:
+            return self.zustaendig.email
+        if self.zustaendig_benutzer_id:
+            return self.zustaendig_benutzer.email
+        return ""
 
     @property
     def ueberfaellig(self):
@@ -100,6 +122,9 @@ class Aufgabe(TenantModel):
     def clean(self):
         if self.status == "erledigt" and not self.ergebnis:
             raise ValidationError(_("Bitte beim Abschließen ein Ergebnis eintragen."))
+        if self.zustaendig_id and self.zustaendig_benutzer_id:
+            raise ValidationError(_("Bitte nur 'Zuständig (Mitglied)' oder 'Zuständig (Administrator)' "
+                                    "ausfüllen, nicht beides."))
 
 
 class AufgabeNotiz(TenantModel):

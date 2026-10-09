@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.55.0
+- Neu: „Zuständig“ bei Aufgaben kann jetzt auch ein Administrator (Benutzer mit Zugang, ohne eigene
+  Mitgliedschaft) statt nur ein Mitglied sein - erhält dann ebenfalls die Fälligkeits-E-Mail und sieht die
+  Aufgabe auf der eigenen Startseite.
+- Neu: Aufgaben-Liste sortiert jetzt standardmäßig nach der Aufgabenbezeichnung statt nach der oft leeren
+  Veranstaltung, und markiert bald fällige/überfällige Zeilen farblich (gelb/rot, wie die Kachel).
+
 ## 1.54.0
 - Neu: Die Kachel „Meine Aufgaben“ auf der Startseite färbt jede Zeile nach Resttagen bis zur Fälligkeit
   (grün/gelb/rot) und wechselt als Ganzes erst zur dringlicheren Farbe, sobald mindestens zwei eigene

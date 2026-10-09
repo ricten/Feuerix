@@ -252,6 +252,7 @@ class ListeView(MandantMixin, ListView):
         zeilen = [{
             "url": reverse(f"{cfg.name}_detail", args=[o.pk]) if cfg.detail else None,
             "zellen": [wert(o, c) for c, _ in cols],
+            "klasse": cfg.zeile_klasse(o) if cfg.zeile_klasse else "",
         } for o in ctx["object_list"]]
         filterfelder = []
         for f in cfg.filter:
@@ -419,10 +420,12 @@ class LoeschenView(MandantMixin, DeleteView):
 def crud(prefix, model, modul, *, form=None, list_display=None, suche=(), filter=(), ordering=None,
          select_related=(), add=True, edit=True, delete=True, detail=True, kontext=None, nach_speichern=None,
          bearbeitbar=None, loeschbar=None, label=None, detail_ausblenden=(), paginate=50, listen_aktionen=None,
-         hinweis=None):
+         hinweis=None, zeile_klasse=None):
     """Erzeugt die URL-Patterns fuer ein Modell. URL-Namen: <modell>_list/_add/_detail/_edit/_delete.
     `hinweis`: optionaler kurzer Infotext, der oben auf der Listenseite angezeigt wird (z. B. um auf eine
-    einfachere Alternative fuer Fortgeschrittenen-Funktionen hinzuweisen)."""
+    einfachere Alternative fuer Fortgeschrittenen-Funktionen hinzuweisen).
+    `zeile_klasse`: optionales callable(objekt) -> CSS-Klasse (z. B. "table-danger") fuer die Tabellenzeile
+    in der Listenansicht, z. B. um Faelligkeiten farblich hervorzuheben."""
     name = model._meta.model_name
     REGISTRY[model] = modul
     if form is None and (add or edit):
@@ -432,7 +435,7 @@ def crud(prefix, model, modul, *, form=None, list_display=None, suche=(), filter
               delete=delete, detail=detail, kontext=kontext, nach_speichern=nach_speichern, bearbeitbar=bearbeitbar,
               loeschbar=loeschbar, label=label or str(model._meta.verbose_name),
               label_plural=str(model._meta.verbose_name_plural), detail_ausblenden=detail_ausblenden,
-              paginate=paginate, listen_aktionen=listen_aktionen, hinweis=hinweis)
+              paginate=paginate, listen_aktionen=listen_aktionen, hinweis=hinweis, zeile_klasse=zeile_klasse)
     if cfg.list_display == ("__str__",):
         cfg.list_display = (("__str__", cfg.label),)
     urls = [path(f"{prefix}/", ListeView.as_view(cfg=cfg), name=f"{name}_list")]

@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.54.0)
+# Handbook – Feuerix (Version 1.55.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -428,10 +428,16 @@ Once a registration deadline has passed, the page becomes read-only and no furth
 
 **Tasks** (*Events › Tasks*) don't have to belong to an event - the "Event" field is optional, for general
 board tasks without a specific date (e.g. coming out of a board meeting, which is set up like any other event
-with the type "Meeting") just leave it empty. A task whose due date has passed and that's not yet marked
-"Done" triggers a one-off email to whoever is responsible (provided they have an email address on file - the
-check runs in the background, at the latest on the next page load by a logged-in user). If the person
-responsible is themselves logged in via a member account, their own open tasks also show up in a dedicated
+with the type "Meeting") just leave it empty. The list is sorted by the task's name by default (not by the
+often-empty event) and highlights rows with a soon-expiring or already-overdue due date in colour
+(yellow/red, matching the tile below - unproblematic rows stay unmarked).
+
+"Responsible" is either a **member** or - for someone responsible without their own membership, e.g. an
+external auditor - an **administrator** (any user with access to this club); fill in only one of the two. A
+task whose due date has passed and that's not yet marked "Done" triggers a one-off email to whoever is
+responsible (to the member's or the user's email address, whichever is on file - the check runs in the
+background, at the latest on the next page load by a logged-in user). If the person responsible is
+themselves logged in (as a member or as an administrator), their own open tasks also show up in a dedicated
 "My tasks" tile on the homepage. Each row is coloured by days remaining until due (green from 10 days,
 yellow under 10, red under 2 or overdue); the tile as a whole only switches to the more urgent colour once
 **at least two** of the user's own tasks reach the same level - a single task that's nearly due doesn't turn
