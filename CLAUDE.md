@@ -57,6 +57,11 @@ verlinken.)
 * Sensible Daten (IBAN) nur über `VerschluesseltesTextField`; nicht in Logs/Exports ohne Berechtigung.
 * Steuerlich/rechtlich Relevantes (Spendenquittung, Freibeträge, Sphären) nur als Vorschlag kennzeichnen; Texte gegen amtliche Muster prüfen lassen.
 * Neue Funktionen mit Tests in der jeweiligen `tests.py` absichern.
+* Bei jeder Änderung an einem `_()`/`gettext_lazy`-Text (neu, geändert, entfernt) den englischen
+  Übersetzungskatalog mitziehen - nicht erst am Ende der Session gesammelt: `python manage.py makemessages
+  -l en`, alle neuen/leeren `msgstr` auf Englisch nachtragen (siehe `## Befehle` zur bekannten `#:`-Eigenart),
+  dann `compilemessages`. Ein Commit mit unübersetzten Strings gilt als unvollständig, genau wie einer ohne
+  Tests.
 * `gettext_lazy`-Werte (Übersetzungen) sind in Django-Templates/Formular-Choices unproblematisch, aber
   Bibliotheken außerhalb von Django (z. B. `openpyxl`, `factur-x`) akzeptieren den Lazy-Proxy oft nicht und
   brechen mit einer kryptischen Typ-Fehlermeldung ab - an solchen Stellen `str(...)` davorsetzen statt das
