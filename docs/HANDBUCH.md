@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.52.0)
+# Handbuch – Feuerix (Version 1.53.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -441,6 +441,12 @@ an die/den Zuständige(n) aus (sofern eine E-Mail-Adresse hinterlegt ist - die P
 spätestens beim nächsten Seitenaufruf eines angemeldeten Benutzers). Ist der Zuständige selbst über ein
 Mitglieder-Konto angemeldet, erscheinen seine eigenen offenen Aufgaben zusätzlich auf der Startseite,
 überfällige davon optisch hervorgehoben.
+
+Auf der Aufgaben-Detailseite lassen sich wie bei einem Ticketsystem **Zwischennotizen** anhängen (mit
+Zeitstempel und Benutzername, nachträglich nicht mehr änderbar) - so bleibt der Bearbeitungsverlauf
+nachvollziehbar, auch wenn mehrere Personen an derselben Aufgabe mitarbeiten. Beim Setzen des Status auf
+„Erledigt“ ist zusätzlich ein kurzes **Ergebnis** Pflicht (kurzes Fazit: was wurde erreicht/entschieden) -
+ohne Eintrag lässt sich die Aufgabe nicht abschließen.
 
 ## 10. Ehrungen und Jubiläen
 

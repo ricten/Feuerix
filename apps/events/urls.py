@@ -3,8 +3,8 @@ from django.urls import path
 from apps.core.crud import crud
 
 from . import views
-from .models import (Anmeldung, Aufgabe, Kostenposition, Schicht, Schichteinsatz, Tagesordnungspunkt, Veranstaltung,
-                     Wahlergebnis)
+from .models import (Anmeldung, Aufgabe, AufgabeNotiz, Kostenposition, Schicht, Schichteinsatz, Tagesordnungspunkt,
+                     Veranstaltung, Wahlergebnis)
 
 urlpatterns = [
     path("veranstaltungen/kalender.ics", views.veranstaltungen_ics, name="veranstaltungen_ics"),
@@ -17,7 +17,10 @@ urlpatterns += crud("veranstaltungen", Veranstaltung, "veranstaltungen",
                     kontext=views.veranstaltung_kontext, listen_aktionen=views.listen_aktionen, ordering=("-beginn",))
 urlpatterns += crud("aufgaben", Aufgabe, "veranstaltungen", list_display=("veranstaltung", "titel", "zustaendig",
                     "faellig", "status"), select_related=("veranstaltung", "zustaendig"),
-                    filter=("veranstaltung", "status", "zustaendig"))
+                    filter=("veranstaltung", "status", "zustaendig"), kontext=views.aufgabe_kontext)
+urlpatterns += crud("aufgabenotizen", AufgabeNotiz, "veranstaltungen", list_display=("aufgabe", "erstellt",
+                    "erstellt_von", "text"), select_related=("aufgabe",), filter=("aufgabe",), edit=False,
+                    nach_speichern=views.notiz_nach_speichern)
 urlpatterns += crud("schichten", Schicht, "veranstaltungen", list_display=("veranstaltung", "bezeichnung", "beginn",
                     "ende", ("besetzung", "Besetzung")), select_related=("veranstaltung",), filter=("veranstaltung",),
                     kontext=views.schicht_kontext)

@@ -149,6 +149,18 @@ def schicht_kontext(request, s):
                                      "schichteinsatz_add", {"schicht": s.pk, "next": request.get_full_path()})]}
 
 
+def aufgabe_kontext(request, a):
+    return {"abschnitte": [abschnitt(request, "Zwischennotizen (wie ein Ticket-Verlauf)", a.notizen.all(),
+                                     ("erstellt", "erstellt_von", "text"), "aufgabenotiz_add",
+                                     {"aufgabe": a.pk, "next": request.get_full_path()})]}
+
+
+def notiz_nach_speichern(request, obj, neu):
+    if neu:
+        obj.erstellt_von = request.user.get_username()
+        obj.save(update_fields=["erstellt_von"])
+
+
 @login_required
 def veranstaltungen_ics(request):
     """Kalenderexport (iCalendar) aller nicht abgesagten Veranstaltungen."""

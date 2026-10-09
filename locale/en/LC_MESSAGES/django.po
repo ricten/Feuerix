@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Feuerix\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-09 10:58+0200\n"
+"POT-Creation-Date: 2026-10-09 11:10+0200\n"
 "PO-Revision-Date: 2026-09-24 07:41+0200\n"
 "Last-Translator: Feuerix\n"
 "Language-Team: English\n"
@@ -40,8 +40,8 @@ msgstr "Bank account"
 msgid "Barkasse"
 msgstr "Cash account"
 
-#: .\apps\accounting\models.py:20 .\apps\events\models.py:87
-#: .\apps\events\models.py:160 .\apps\finance\models.py:187
+#: .\apps\accounting\models.py:20 .\apps\events\models.py:109
+#: .\apps\events\models.py:182 .\apps\finance\models.py:187
 #: .\apps\finance\models.py:362 .\apps\honors\models.py:10
 #: .\apps\inventory\models.py:44 .\apps\inventory\models.py:188
 #: .\apps\inventory\models.py:225
@@ -52,7 +52,7 @@ msgstr "Description"
 #: .\apps\accounting\models.py:67 .\apps\allowances\models.py:22
 #: .\apps\documents\models.py:123 .\apps\documents\models.py:151
 #: .\apps\donations\models.py:17 .\apps\donations\models.py:64
-#: .\apps\events\models.py:19 .\apps\events\models.py:159
+#: .\apps\events\models.py:19 .\apps\events\models.py:181
 #: .\apps\finance\models.py:75
 msgid "Art"
 msgstr "Type"
@@ -103,11 +103,11 @@ msgstr "Account"
 msgid "Konten"
 msgstr "Accounts"
 
-#: .\apps\accounting\models.py:44 .\apps\events\models.py:156
+#: .\apps\accounting\models.py:44 .\apps\events\models.py:178
 msgid "Einnahme"
 msgstr "Income"
 
-#: .\apps\accounting\models.py:44 .\apps\events\models.py:156
+#: .\apps\accounting\models.py:44 .\apps\events\models.py:178
 msgid "Ausgabe"
 msgstr "Expense"
 
@@ -200,9 +200,9 @@ msgstr "Receipt (scan/photo)"
 
 #: .\apps\accounting\models.py:77 .\apps\documents\models.py:155
 #: .\apps\documents\models.py:185 .\apps\events\models.py:37
-#: .\apps\events\models.py:58 .\apps\events\models.py:86
-#: .\apps\events\models.py:130 .\apps\events\models.py:158
-#: .\apps\events\models.py:176 .\apps\events\models.py:197
+#: .\apps\events\models.py:58 .\apps\events\models.py:108
+#: .\apps\events\models.py:152 .\apps\events\models.py:180
+#: .\apps\events\models.py:198 .\apps\events\models.py:219
 msgid "Veranstaltung"
 msgstr "Event"
 
@@ -250,7 +250,7 @@ msgid "Abgeschlossen"
 msgstr "Completed"
 
 #: .\apps\accounting\models.py:120 .\apps\documents\models.py:52
-#: .\apps\events\models.py:18 .\apps\events\models.py:178
+#: .\apps\events\models.py:18 .\apps\events\models.py:200
 #: .\apps\members\models.py:252 .\templates\paperless\sammelversand.html:11
 msgid "Titel"
 msgstr "Title"
@@ -270,7 +270,7 @@ msgstr "Period to"
 #: .\apps\accounting\models.py:123 .\apps\allowances\models.py:23
 #: .\apps\documents\models.py:161 .\apps\donations\models.py:18
 #: .\apps\events\models.py:20 .\apps\events\models.py:65
-#: .\apps\events\models.py:135 .\apps\finance\models.py:76
+#: .\apps\events\models.py:157 .\apps\finance\models.py:76
 #: .\apps\finance\models.py:247 .\apps\inventory\models.py:107
 #: .\apps\inventory\models.py:190 .\apps\members\models.py:114
 #: .\templates\inventory\vorgang.html:10
@@ -405,7 +405,7 @@ msgid "Beleg / Abrechnung"
 msgstr "Receipt / Statement"
 
 #: .\apps\allowances\models.py:35 .\apps\donations\models.py:74
-#: .\apps\events\models.py:112 .\apps\events\models.py:136
+#: .\apps\events\models.py:134 .\apps\events\models.py:158
 #: .\apps\finance\models.py:32 .\apps\finance\models.py:94
 #: .\apps\finance\models.py:274 .\apps\inventory\models.py:192
 #: .\templates\events\rueckmeldung.html:31
@@ -547,7 +547,7 @@ msgstr "Stocktakes"
 msgid "Veranstaltungen"
 msgstr "Events"
 
-#: .\apps\core\context.py:47 .\apps\events\models.py:72
+#: .\apps\core\context.py:47 .\apps\events\models.py:74
 msgid "Aufgaben"
 msgstr "Tasks"
 
@@ -933,7 +933,6 @@ msgid "Leer = dauerhaft sichtbar, bis der Text hier entfernt wird."
 msgstr "Empty = shown indefinitely, until the text here is removed."
 
 #: .\apps\core\models.py:97
-#| msgid "Zuletzt auf Updates geprüft"
 msgid "Zuletzt auf überfällige Aufgaben geprüft"
 msgstr "Last checked for overdue tasks"
 
@@ -1162,7 +1161,7 @@ msgid "Bezahlt"
 msgstr "Paid"
 
 #: .\apps\core\views.py:210 .\apps\events\models.py:56
-#: .\apps\events\models.py:128 .\apps\finance\models.py:71
+#: .\apps\events\models.py:150 .\apps\finance\models.py:71
 #: .\apps\inventory\models.py:220
 msgid "Offen"
 msgstr "Outstanding"
@@ -1651,15 +1650,15 @@ msgstr "Planned"
 msgid "Bestätigt"
 msgstr "Confirmed"
 
-#: .\apps\events\models.py:16 .\apps\events\models.py:128
+#: .\apps\events\models.py:16 .\apps\events\models.py:150
 msgid "Abgesagt"
 msgstr "Cancelled"
 
-#: .\apps\events\models.py:21 .\apps\events\models.py:88
+#: .\apps\events\models.py:21 .\apps\events\models.py:110
 msgid "Beginn"
 msgstr "Start"
 
-#: .\apps\events\models.py:22 .\apps\events\models.py:89
+#: .\apps\events\models.py:22 .\apps\events\models.py:111
 msgid "Ende"
 msgstr "End"
 
@@ -1710,7 +1709,8 @@ msgid ""
 msgstr ""
 "Optional - leave empty for a standalone task not tied to an event/meeting."
 
-#: .\apps\events\models.py:61 .\apps\events\models.py:71
+#: .\apps\events\models.py:61 .\apps\events\models.py:73
+#: .\apps\events\models.py:93
 msgid "Aufgabe"
 msgstr "Task"
 
@@ -1722,43 +1722,73 @@ msgstr "Assigned to"
 msgid "Fällig bis"
 msgstr "Due by"
 
-#: .\apps\events\models.py:67
+#: .\apps\events\models.py:67 .\apps\inventory\models.py:230
+msgid "Ergebnis"
+msgstr "Result"
+
+#: .\apps\events\models.py:68
+msgid "Kurzes Fazit beim Abschließen - was wurde erreicht/entschieden."
+msgstr "Brief summary when closing out - what was achieved/decided."
+
+#: .\apps\events\models.py:69
 msgid "Überfälligkeits-Benachrichtigung verschickt am"
 msgstr "Overdue notification sent on"
 
-#: .\apps\events\models.py:90
+#: .\apps\events\models.py:87
+msgid "Bitte beim Abschließen ein Ergebnis eintragen."
+msgstr "Please enter a result when closing this out."
+
+#: .\apps\events\models.py:94 .\apps\inventory\models.py:231
+msgid "Notiz"
+msgstr "Note"
+
+#: .\apps\events\models.py:95 .\apps\inventory\models.py:108
+#: .\apps\members\models.py:227 .\templates\accounting\uebernehmen.html:16
+#: .\templates\inventory\vorgang.html:10
+msgid "Von"
+msgstr "From"
+
+#: .\apps\events\models.py:98
+msgid "Zwischennotiz"
+msgstr "Progress note"
+
+#: .\apps\events\models.py:99
+msgid "Zwischennotizen"
+msgstr "Progress notes"
+
+#: .\apps\events\models.py:112
 msgid "Benötigte Helfer"
 msgstr "Helpers needed"
 
-#: .\apps\events\models.py:93 .\apps\events\models.py:110
+#: .\apps\events\models.py:115 .\apps\events\models.py:132
 msgid "Schicht"
 msgstr "Shift"
 
-#: .\apps\events\models.py:94
+#: .\apps\events\models.py:116
 msgid "Schichten"
 msgstr "Shifts"
 
-#: .\apps\events\models.py:111
+#: .\apps\events\models.py:133
 msgid "Helfer"
 msgstr "Helper"
 
-#: .\apps\events\models.py:115
+#: .\apps\events\models.py:137
 msgid "Schichteinsatz"
 msgstr "Shift assignment"
 
-#: .\apps\events\models.py:116
+#: .\apps\events\models.py:138
 msgid "Schichteinsätze"
 msgstr "Shift assignments"
 
-#: .\apps\events\models.py:124
+#: .\apps\events\models.py:146
 msgid "Diese Schicht ist bereits vollständig besetzt."
 msgstr "This shift is already fully staffed."
 
-#: .\apps\events\models.py:128
+#: .\apps\events\models.py:150
 msgid "Zugesagt"
 msgstr "Accepted"
 
-#: .\apps\events\models.py:132 .\apps\finance\models.py:78
+#: .\apps\events\models.py:154 .\apps\finance\models.py:78
 #: .\apps\finance\models.py:342 .\apps\honors\models.py:38
 #: .\apps\members\models.py:159 .\apps\members\models.py:225
 #: .\apps\members\models.py:250 .\apps\paperless\models.py:67
@@ -1768,83 +1798,83 @@ msgstr "Accepted"
 msgid "Mitglied"
 msgstr "Member"
 
-#: .\apps\events\models.py:133
+#: .\apps\events\models.py:155
 msgid "Name (Gast)"
 msgstr "Name (guest)"
 
-#: .\apps\events\models.py:134 .\templates\events\rueckmeldung.html:29
+#: .\apps\events\models.py:156 .\templates\events\rueckmeldung.html:29
 msgid "Anzahl Personen"
 msgstr "Number of people"
 
-#: .\apps\events\models.py:139 .\templates\registration\login.html:11
+#: .\apps\events\models.py:161 .\templates\registration\login.html:11
 msgid "Anmeldung"
 msgstr "Sign in"
 
-#: .\apps\events\models.py:140
+#: .\apps\events\models.py:162
 msgid "Anmeldungen"
 msgstr "Registrations"
 
-#: .\apps\events\models.py:152
+#: .\apps\events\models.py:174
 msgid "Bitte ein Mitglied oder einen Namen angeben."
 msgstr "Please provide a member or a name."
 
-#: .\apps\events\models.py:161
+#: .\apps\events\models.py:183
 msgid "Geplant (€)"
 msgstr "Planned (€)"
 
-#: .\apps\events\models.py:162
+#: .\apps\events\models.py:184
 msgid "Tatsächlich (€)"
 msgstr "Actual (€)"
 
-#: .\apps\events\models.py:163
+#: .\apps\events\models.py:185
 msgid "Beleg"
 msgstr "Receipt"
 
-#: .\apps\events\models.py:166
+#: .\apps\events\models.py:188
 msgid "Kostenposition"
 msgstr "Budget line item"
 
-#: .\apps\events\models.py:167
+#: .\apps\events\models.py:189
 msgid "Kostenpositionen"
 msgstr "Budget line items"
 
-#: .\apps\events\models.py:177
+#: .\apps\events\models.py:199
 msgid "Position"
 msgstr "Position"
 
-#: .\apps\events\models.py:179
+#: .\apps\events\models.py:201
 msgid "Beschreibung / Beschlussvorlage"
 msgstr "Description / draft resolution"
 
-#: .\apps\events\models.py:180
+#: .\apps\events\models.py:202
 msgid "OpenSlides-Themen-ID"
 msgstr "OpenSlides topic ID"
 
-#: .\apps\events\models.py:183
+#: .\apps\events\models.py:205
 msgid "Tagesordnungspunkt"
 msgstr "Agenda item"
 
-#: .\apps\events\models.py:184
+#: .\apps\events\models.py:206
 msgid "Tagesordnung"
 msgstr "Agenda"
 
-#: .\apps\events\models.py:198
+#: .\apps\events\models.py:220
 msgid "Amt / Wahl"
 msgstr "Office / election"
 
-#: .\apps\events\models.py:199
+#: .\apps\events\models.py:221
 msgid "Wahlgang"
 msgstr "Ballot"
 
-#: .\apps\events\models.py:200
+#: .\apps\events\models.py:222
 msgid "Stimmenverteilung"
 msgstr "Vote distribution"
 
-#: .\apps\events\models.py:203
+#: .\apps\events\models.py:225
 msgid "Wahlergebnis"
 msgstr "Election result"
 
-#: .\apps\events\models.py:204
+#: .\apps\events\models.py:226
 msgid "Wahlergebnisse"
 msgstr "Election results"
 
@@ -2401,12 +2431,6 @@ msgstr "Contact details (external)"
 msgid "Für Veranstaltung"
 msgstr "For event"
 
-#: .\apps\inventory\models.py:108 .\apps\members\models.py:227
-#: .\templates\accounting\uebernehmen.html:16
-#: .\templates\inventory\vorgang.html:10
-msgid "Von"
-msgstr "From"
-
 #: .\apps\inventory\models.py:109
 msgid "Bis (geplante Rückgabe)"
 msgstr "Until (planned return)"
@@ -2507,14 +2531,6 @@ msgstr "Storage location (actual)"
 #: .\apps\inventory\models.py:229
 msgid "Bei der Zählung tatsächlich vorgefundener Lagerort, falls abweichend."
 msgstr "Storage location actually found during the count, if different."
-
-#: .\apps\inventory\models.py:230
-msgid "Ergebnis"
-msgstr "Result"
-
-#: .\apps\inventory\models.py:231
-msgid "Notiz"
-msgstr "Note"
 
 #: .\apps\inventory\models.py:236
 msgid "Inventurposition"
@@ -3217,7 +3233,6 @@ msgid "Keine anstehenden Veranstaltungen."
 msgstr "No upcoming events."
 
 #: .\templates\core\dashboard.html:51
-#| msgid "keine Angabe"
 msgid "Meine Aufgaben"
 msgstr "My tasks"
 

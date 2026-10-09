@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.53.0
+- Neu: Aufgaben bekommen wie bei einem Ticketsystem anhängbare Zwischennotizen (Zeitstempel, Benutzer,
+  nachträglich nicht änderbar) sowie ein beim Abschließen (Status „Erledigt“) verpflichtendes Ergebnisfeld.
+
 ## 1.52.0
 - Neu: Aufgaben lassen sich jetzt auch unabhängig von einer Veranstaltung/Sitzung anlegen, der
   Menüpunkt „Aufgaben“ ist jetzt direkt in der Navigation verlinkt. Überschrittene Fälligkeiten lösen

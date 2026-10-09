@@ -64,6 +64,8 @@ class Aufgabe(TenantModel):
     faellig = models.DateField(_("Fällig bis"), null=True, blank=True)
     status = models.CharField(_("Status"), max_length=10, choices=STATUS, default="offen")
     beschreibung = models.TextField(_("Beschreibung"), blank=True)
+    ergebnis = models.TextField(_("Ergebnis"), blank=True,
+                                help_text=_("Kurzes Fazit beim Abschließen - was wurde erreicht/entschieden."))
     benachrichtigt_am = models.DateTimeField(_("Überfälligkeits-Benachrichtigung verschickt am"), null=True,
                                              blank=True, editable=False)
 
@@ -79,6 +81,26 @@ class Aufgabe(TenantModel):
     def ueberfaellig(self):
         from datetime import date
         return bool(self.faellig and self.faellig < date.today() and self.status != "erledigt")
+
+    def clean(self):
+        if self.status == "erledigt" and not self.ergebnis:
+            raise ValidationError(_("Bitte beim Abschließen ein Ergebnis eintragen."))
+
+
+class AufgabeNotiz(TenantModel):
+    """Zwischennotiz zu einer Aufgabe (wie ein Ticket-Verlauf) - append-only, nicht nachtraeglich aenderbar,
+    damit der Verlauf nachvollziehbar bleibt. Zeitpunkt kommt aus dem geerbten TenantModel-Feld 'erstellt'."""
+    aufgabe = models.ForeignKey(Aufgabe, on_delete=models.CASCADE, related_name="notizen", verbose_name=_("Aufgabe"))
+    text = models.TextField(_("Notiz"))
+    erstellt_von = models.CharField(_("Von"), max_length=150, blank=True, editable=False)
+
+    class Meta:
+        verbose_name = _("Zwischennotiz")
+        verbose_name_plural = _("Zwischennotizen")
+        ordering = ["erstellt", "id"]
+
+    def __str__(self):
+        return f"{self.aufgabe.titel}: {self.text[:40]}"
 
 
 class Schicht(TenantModel):

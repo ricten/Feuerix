@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.52.0)
+# Handbook – Feuerix (Version 1.53.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -433,6 +433,11 @@ with the type "Meeting") just leave it empty. A task whose due date has passed a
 check runs in the background, at the latest on the next page load by a logged-in user). If the person
 responsible is themselves logged in via a member account, their own open tasks also show up on the homepage,
 with overdue ones visually highlighted.
+
+The task detail page lets you attach **progress notes**, like a ticketing system - each with a timestamp and
+username, and not editable afterwards - so the history stays traceable even when several people work on the
+same task. Setting the status to "Done" additionally requires a short **result** (a brief summary of what was
+achieved/decided) - without one, the task can't be closed out.
 
 ## 10. Honours and anniversaries
 

@@ -307,3 +307,75 @@ class MeineAufgabenDashboardTests(TestCase):
         Aufgabe.objects.create(verein=self.v, titel="Fremde Aufgabe", zustaendig=anderer, status="offen")
         r = self.client.get(reverse("dashboard"))
         self.assertNotContains(r, "Fremde Aufgabe")
+
+
+class AufgabeErgebnisPflichtTests(TestCase):
+    """Beim Abschliessen (Status 'Erledigt') muss ein Ergebnis eingetragen sein - wie bei einem Ticketsystem
+    ein Abschlusskommentar."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.a = Aufgabe.objects.create(verein=self.v, titel="Flyer entwerfen", status="offen")
+
+    def test_erledigt_ohne_ergebnis_wird_abgelehnt(self):
+        r = self.client.post(reverse("aufgabe_edit", args=[self.a.pk]), {"titel": self.a.titel,
+                                                                         "status": "erledigt"})
+        self.assertEqual(r.status_code, 200)
+        self.a.refresh_from_db()
+        self.assertEqual(self.a.status, "offen")
+
+    def test_erledigt_mit_ergebnis_wird_gespeichert(self):
+        r = self.client.post(reverse("aufgabe_edit", args=[self.a.pk]), {"titel": self.a.titel,
+                                                                         "status": "erledigt",
+                                                                         "ergebnis": "Flyer ist fertig und gedruckt."})
+        self.assertEqual(r.status_code, 302)
+        self.a.refresh_from_db()
+        self.assertEqual(self.a.status, "erledigt")
+        self.assertEqual(self.a.ergebnis, "Flyer ist fertig und gedruckt.")
+
+    def test_status_offen_braucht_kein_ergebnis(self):
+        r = self.client.post(reverse("aufgabe_edit", args=[self.a.pk]), {"titel": self.a.titel,
+                                                                         "status": "arbeit"})
+        self.assertEqual(r.status_code, 302)
+        self.a.refresh_from_db()
+        self.assertEqual(self.a.status, "arbeit")
+
+
+class AufgabenNotizTests(TestCase):
+    """Zwischennotizen zu einer Aufgabe - wie ein Ticket-Verlauf, mit Zeitpunkt und Benutzer."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin,
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.a = Aufgabe.objects.create(verein=self.v, titel="Flyer entwerfen", status="offen")
+
+    def test_notiz_hinzufuegen_und_auf_der_aufgabenseite_sichtbar(self):
+        r = self.client.post(reverse("aufgabenotiz_add"), {"aufgabe": self.a.pk,
+                                                             "text": "Entwurf an die Druckerei geschickt."})
+        self.assertEqual(r.status_code, 302)
+        notiz = self.a.notizen.get()
+        self.assertEqual(notiz.text, "Entwurf an die Druckerei geschickt.")
+        self.assertEqual(notiz.erstellt_von, "admin")
+        r = self.client.get(reverse("aufgabe_detail", args=[self.a.pk]))
+        self.assertContains(r, "Entwurf an die Druckerei geschickt.")
+        self.assertContains(r, "admin")
+
+    def test_mehrere_notizen_in_zeitlicher_reihenfolge(self):
+        self.client.post(reverse("aufgabenotiz_add"), {"aufgabe": self.a.pk, "text": "Erste Notiz"})
+        self.client.post(reverse("aufgabenotiz_add"), {"aufgabe": self.a.pk, "text": "Zweite Notiz"})
+        texte = list(self.a.notizen.values_list("text", flat=True))
+        self.assertEqual(texte, ["Erste Notiz", "Zweite Notiz"])
+
+    def test_notiz_nicht_nachtraeglich_bearbeitbar(self):
+        notiz = self.a.notizen.create(verein=self.v, text="Erste Notiz", erstellt_von="admin")
+        with self.assertRaises(NoReverseMatch):
+            reverse("aufgabenotiz_edit", args=[notiz.pk])
