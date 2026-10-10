@@ -10,6 +10,20 @@ class OpenSlidesFehler(Exception):
     pass
 
 
+def http_hinweis(status):
+    """Verstaendlicher Hinweis zu haeufigen HTTP-Fehlern der OpenSlides-Adresse - die Antwort selbst ist bei einem
+    Proxy-Fehler (502/503/504) meist leer und sagt nichts."""
+    if status in (502, 503, 504):
+        return (" Der Proxy vor OpenSlides erreicht dessen Dienste nicht: Läuft der OpenSlides-Stack und ist er "
+                "fertig gestartet (im Ordner openslides/: docker compose ps, docker compose logs --tail=50 auth "
+                "proxy)? Stimmt die Adresse/Domain und der Proxy-Eintrag (Caddyfile) auf Port 9000?")
+    if status == 404:
+        return " Die Adresse scheint nicht die OpenSlides-Startseite zu sein (Adresse ohne Pfad und ohne / am Ende)."
+    if status in (401, 403):
+        return " Benutzername/Passwort des technischen Benutzers prüfen."
+    return ""
+
+
 class OSClient:
     def __init__(self, verbindung, timeout=30):
         self.v = verbindung
@@ -26,7 +40,9 @@ class OSClient:
         except requests.RequestException as e:
             raise OpenSlidesFehler(f"Server nicht erreichbar: {e}")
         if r.status_code != 200:
-            raise OpenSlidesFehler(f"Anmeldung fehlgeschlagen (HTTP {r.status_code}): {r.text[:200]}")
+            antwort = r.text[:200].strip()
+            raise OpenSlidesFehler(f"Anmeldung fehlgeschlagen (HTTP {r.status_code})"
+                                   f"{': ' + antwort if antwort else '.'}{http_hinweis(r.status_code)}")
         token = r.headers.get("authentication")
         if not token:
             try:

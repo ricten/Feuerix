@@ -464,3 +464,31 @@ class ProtokollAnwesenheitViewTests(ProtokollAbstimmungenViewTests):
         r = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
         self.assertContains(r, "Anwesenheit (aus OpenSlides)")
         self.assertContains(r, "Gast Besucher")
+
+
+class LoginFehlerHinweisTests(TestCase):
+    """Fehlermeldung beim Anmelden: bei Proxy-Fehlern (leere Antwort) ein konkreter Suchhinweis."""
+
+    def _login(self, status, text=""):
+        from types import SimpleNamespace
+        from .client import OSClient
+        v = SimpleNamespace(url="https://os.example.org", tls_pruefen=True, benutzername="u", passwort="p")
+        c = OSClient(v)
+        antwort = SimpleNamespace(status_code=status, text=text, headers={}, json=lambda: {})
+        with patch.object(c.s, "post", return_value=antwort):
+            with self.assertRaises(OpenSlidesFehler) as ctx:
+                c.login()
+        return str(ctx.exception)
+
+    def test_502_nennt_ursache_und_befehle_statt_leerer_antwort(self):
+        meldung = self._login(502)
+        self.assertIn("HTTP 502).", meldung)
+        self.assertIn("docker compose ps", meldung)
+        self.assertNotIn("): ", meldung)   # keine leere Antwort hinter dem Doppelpunkt
+
+    def test_antworttext_wird_weiter_angezeigt(self):
+        self.assertIn("HTTP 400): kaputt", self._login(400, "kaputt"))
+
+    def test_zugangsdaten_und_adresse_hinweise(self):
+        self.assertIn("technischen Benutzers", self._login(403, "verboten"))
+        self.assertIn("OpenSlides-Startseite", self._login(404, "nicht da"))

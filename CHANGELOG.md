@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.64.1
+- OpenSlides-Verbindungstest: Bei Proxy-Fehlern (HTTP 502/503/504) und weiteren häufigen Fehlern zeigt die Meldung jetzt
+  einen konkreten Hinweis (Stack läuft? Adresse/Proxy prüfen) statt einer leeren Antwort.
+
 ## 1.64.0
 - OpenSlides- und Paperless-Funktionen sind jetzt nur sichtbar, wenn die jeweilige Instanz angebunden und aktiv ist:
   Knöpfe, Listenspalten, Formular- und Detailfelder (z. B. OpenSlides-Konto am Mitglied, Paperless-Felder in der Ablage,
