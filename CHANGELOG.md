@@ -3,6 +3,9 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.61.1
+- Die Fußzeile (Version, Impressum, Lizenzhinweis) ist jetzt am unteren Bildschirmrand fixiert und verdeckt keinen Inhalt.
+
 ## 1.61.0
 - Neu: Datenbank- und Dateien-Sicherung lassen sich in der Weboberfläche wiederherstellen (Verwaltung ›
   Datensicherung): Passwort + Bestätigungswort, automatische Sicherung des Ist-Stands vorher, Wartungsmodus,

@@ -190,3 +190,12 @@ dl.felder dt { font-weight: 500; color: #555; }
   border: 1px solid rgba(0, 0, 0, .25); cursor: pointer;
 }
 .farbpaletten-swatch:hover, .farbpaletten-swatch:focus-visible { transform: scale(1.15); outline: none; }
+
+/* Fusszeile fix am unteren Bildschirmrand (Hoehe haelt ein kleines Skript in base.html als Seitenabstand frei) */
+#seitenfuss {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1020;
+  background: rgba(255, 255, 255, .92); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  border-top: 1px solid rgba(20, 20, 40, .12); line-height: 1.35;
+}
+body { padding-bottom: 4.5rem; }   /* Rueckfall ohne JavaScript */
+@media print { #seitenfuss { position: static; } body { padding-bottom: 0 !important; } }

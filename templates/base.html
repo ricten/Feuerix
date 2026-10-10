@@ -125,7 +125,7 @@
   {% endfor %}
   {% block content %}{% endblock %}
 </main>
-<footer class="text-center text-muted small py-3">
+<footer id="seitenfuss" class="text-center text-muted small py-2">
   © {% now "Y" %} {{ verein.name|default:product_name|default:"Feuerix" }}{% if app_version %} · {% trans "Version" %} {{ app_version }}{% endif %}
   {% if einzelverein %}
     · <a href="{% url 'impressum' einzelverein.kuerzel %}">{% trans "Impressum" %}</a>
@@ -142,6 +142,15 @@
   <button type="button" id="cookie-hinweis-ok" class="btn btn-sm btn-light flex-shrink-0">{% trans "Verstanden" %}</button>
 </div>
 <script>
+// Fusszeile ist am unteren Bildschirmrand fixiert: Seitenende um ihre (je nach Zeilenumbruch wechselnde) Hoehe
+// freihalten, damit sie nie Inhalt verdeckt.
+(function () {
+  var fuss = document.getElementById("seitenfuss");
+  function anpassen() { document.body.style.paddingBottom = fuss.offsetHeight + "px"; }
+  anpassen();
+  window.addEventListener("resize", anpassen);
+  window.addEventListener("load", anpassen);
+})();
 (function () {
   var KEY = "cookie_hinweis_ok";
   if (!document.cookie.split("; ").some(function (c) { return c.indexOf(KEY + "=") === 0; })) {
