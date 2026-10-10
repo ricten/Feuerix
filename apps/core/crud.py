@@ -318,6 +318,8 @@ class DetailAnsicht(MandantMixin, DetailView):
             eintrag = {"label": str(f.verbose_name), "wert": wert(o, f.name), "url": None}
             if f.get_internal_type() in ("FileField", "ImageField") and getattr(o, f.name):
                 eintrag["url"] = reverse("datei", args=[o._meta.app_label, o._meta.model_name, o.pk, f.name])
+            if eintrag["wert"] == "–" and not eintrag["url"]:
+                continue   # leere Angaben gar nicht erst anzeigen (kein Feld mit "–")
             felder.append(eintrag)
         extra = cfg.kontext(req, o) if cfg.kontext else {}
         ctx.update(

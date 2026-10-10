@@ -80,6 +80,7 @@
 {% endif %}
 <div class="row g-3">
   <div class="col-xl-4">
+    {% if felder %}
     <div class="card mb-4 mb-xl-0"><div class="card-body">
       <dl class="felder-sidebar mb-0">
         {% for f in felder %}
@@ -88,9 +89,11 @@
         {% endfor %}
       </dl>
     </div></div>
+    {% endif %}
   </div>
   <div class="col-xl-8">
     {% for a in abschnitte %}
+    {% if a.zeilen or a.add_url %}
     <div class="card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center"><strong>{{ a.titel }}</strong>
         {% if a.add_url %}<a class="btn btn-sm btn-outline-primary" href="{{ a.add_url }}"><i class="bi bi-plus-lg"></i> {% trans "Hinzufügen" %}</a>{% endif %}</div>
@@ -103,8 +106,7 @@
         {% empty %}<tr><td colspan="{{ a.spalten|length }}" class="text-muted">{% trans "Keine Einträge." %}</td></tr>{% endfor %}
         </tbody></table></div>
     </div>
-    {% empty %}
-    <div class="card"><div class="card-body text-muted">{% trans "Keine weiteren Angaben." %}</div></div>
+    {% endif %}
     {% endfor %}
   </div>
 </div>

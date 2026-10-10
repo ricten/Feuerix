@@ -511,11 +511,28 @@ class DetailSeitenLayoutTests(TestCase):
         self.assertContains(r, "col-xl-4")
         self.assertNotContains(r, "Keine weiteren Angaben.")
 
-    def test_seite_ohne_abschnitte_zeigt_platzhalter(self):
+    def test_seite_ohne_abschnitte_zeigt_keinen_platzhalter(self):
         from apps.members.models import Abteilung
         abt = Abteilung.objects.create(verein=self.v, name="Testabteilung")
         r = self.client.get(reverse("abteilung_detail", args=[abt.pk]))
-        self.assertContains(r, "Keine weiteren Angaben.")
+        self.assertNotContains(r, "Keine weiteren Angaben.")
+        self.assertContains(r, "Testabteilung")
+
+    def test_leere_felder_werden_nicht_angezeigt(self):
+        m = Mitglied.objects.create(verein=self.v, vorname="Anton", nachname="Eins")
+        r = self.client.get(reverse("mitglied_detail", args=[m.pk]))
+        self.assertContains(r, "Anton")
+        self.assertNotContains(r, "<dd>–</dd>")
+        m.ort = "Musterstadt"
+        m.save()
+        r = self.client.get(reverse("mitglied_detail", args=[m.pk]))
+        self.assertContains(r, "Musterstadt")
+
+    def test_leerer_abschnitt_ohne_hinzufuegen_knopf_wird_ausgeblendet(self):
+        m = Mitglied.objects.create(verein=self.v, vorname="Anton", nachname="Eins")
+        r = self.client.get(reverse("mitglied_detail", args=[m.pk]))
+        self.assertNotContains(r, "Beiträge &amp; Zahlungen")   # leer und ohne "Hinzufuegen" -> kein leerer Kasten
+        self.assertContains(r, "Funktionen")   # leer, aber mit "Hinzufuegen" -> bleibt
 
 
 class SystemeinstellungTests(TestCase):

@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.66.1
+- Detailseiten zeigen leere Angaben nicht mehr: Felder ohne Wert (früher „–“), die Karte „Keine weiteren Angaben.“ und leere
+  Abschnitte ohne „Hinzufügen“-Knopf entfallen. Abschnitte mit „Hinzufügen“-Knopf bleiben auch leer sichtbar.
+
 ## 1.66.0
 - Neu: Im Protokoll werden **Teilnehmerliste, Abstimmungen und Wahlergebnisse als Anlagen auf eigenen Seiten** an PDF und Word
   angehängt – alle Wahlen zusammengefasst auf einer Anlage, alle sonstigen Abstimmungen auf einer, die Teilnehmerliste eigens

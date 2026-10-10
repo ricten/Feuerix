@@ -132,7 +132,7 @@ class PaperlessSichtbarkeitTests(AnbindungenBasis):
         super().setUp()
         self.d = Ablagedokument.objects.create(verein=self.v, titel="Satzung", kategorie="sonstiges",
                                                datei="x/y.pdf", tags="Satzung, 2026",
-                                               paperless_status="uebergeben")
+                                               paperless_status="uebergeben", paperless_info="Hinweis-Text")
 
     def test_ablage_liste_ohne_anbindung_ohne_paperless_spalten(self):
         r = self.client.get(reverse("ablagedokument_list"))
