@@ -42,3 +42,10 @@ def datensicherung_faellig_task():
     se = Systemeinstellung.laden()
     if faellig(se):
         sicherung_ausfuehren(se)
+
+
+@shared_task
+def wiederherstellung_task(db_name, media_name="", benutzer=""):
+    """Spielt eine Datenbank-Sicherung (und optional ein Medienarchiv) ein - siehe datensicherung.wiederherstellen."""
+    from .datensicherung import wiederherstellen
+    wiederherstellen(db_name, media_name, benutzer)

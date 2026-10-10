@@ -46,12 +46,49 @@
       </tbody></table>
       {% else %}<p class="text-muted mb-0">{% trans "Noch keine Sicherungsdateien vorhanden." %}</p>{% endif %}
     </div></div>
+    {% if wiederherstellung %}
+    <div class="alert alert-{% if wiederherstellung.ok %}success{% else %}danger{% endif %} small">
+      <strong>{% trans "Letzte Wiederherstellung:" %}</strong> {{ wiederherstellung.zeit|slice:":16"|cut:"T" }} ({{ wiederherstellung.benutzer }})<br>{{ wiederherstellung.meldung }}
+    </div>
+    {% endif %}
+    <div class="card shadow-sm mb-3 border-danger"><div class="card-body">
+      <h6 class="text-danger"><i class="bi bi-exclamation-triangle"></i> {% trans "Sicherung wiederherstellen" %}</h6>
+      <p class="small text-muted">{% trans "Ersetzt den gesamten aktuellen Datenbestand (alle Vereine) durch den Stand der gewählten Sicherung. Vorher wird der jetzige Stand automatisch gesichert; bei einem Fehler bleibt alles unverändert. Währenddessen ist die Anwendung im Wartungsmodus." %}</p>
+      {% if db_dateien %}
+      <form method="post" action="{% url 'datensicherung_wiederherstellen' %}">{% csrf_token %}
+        <div class="mb-2"><label class="form-label small mb-1" for="wh-db">{% trans "Datenbank-Sicherung" %}</label>
+          <select class="form-select form-select-sm" name="db" id="wh-db" required>
+            {% for name, groesse, zeit in db_dateien %}<option value="{{ name }}">{{ name }} ({{ zeit|date:"d.m.Y H:i" }})</option>{% endfor %}
+          </select></div>
+        <div class="mb-2"><label class="form-label small mb-1" for="wh-media">{% trans "Hochgeladene Dateien (optional)" %}</label>
+          <select class="form-select form-select-sm" name="media" id="wh-media">
+            <option value="">{% trans "– nicht wiederherstellen –" %}</option>
+            {% for name, groesse, zeit in media_dateien %}<option value="{{ name }}">{{ name }} ({{ zeit|date:"d.m.Y H:i" }})</option>{% endfor %}
+          </select>
+          <div class="form-text">{% trans "Sollte zur Datenbank-Sicherung passen (gleicher Zeitstempel). Vorhandene Dateien werden überschrieben." %}</div></div>
+        <div class="mb-2"><label class="form-label small mb-1" for="wh-pw">{% trans "Ihr Passwort" %}</label>
+          <input type="password" class="form-control form-control-sm" name="passwort" id="wh-pw" autocomplete="current-password" required></div>
+        <div class="mb-2"><label class="form-label small mb-1" for="wh-ok">{% trans "Zur Bestätigung WIEDERHERSTELLEN eintippen" %}</label>
+          <input type="text" class="form-control form-control-sm" name="bestaetigung" id="wh-ok" autocomplete="off" required></div>
+        <button class="btn btn-sm btn-danger"><i class="bi bi-arrow-counterclockwise"></i> {% trans "Jetzt wiederherstellen" %}</button>
+      </form>
+      {% else %}<p class="mb-0">{% trans "Keine Datenbank-Sicherung vorhanden - unten eine Sicherungsdatei hochladen." %}</p>{% endif %}
+      <hr>
+      <form method="post" action="{% url 'datensicherung_hochladen' %}" enctype="multipart/form-data">{% csrf_token %}
+        <label class="form-label small mb-1" for="wh-up">{% trans "Sicherungsdateien hochladen (z. B. vom NAS)" %}</label>
+        <div class="input-group input-group-sm">
+          <input type="file" class="form-control" name="dateien" id="wh-up" multiple accept=".gz" required>
+          <button class="btn btn-outline-secondary"><i class="bi bi-upload"></i> {% trans "Hochladen" %}</button>
+        </div>
+        <div class="form-text">{% trans "Dateinamen müssen unverändert bleiben (db-….sql.gz bzw. media-….tar.gz)." %}</div>
+      </form>
+    </div></div>
     <div class="alert alert-secondary small">
       <strong>{% trans "Hinweise" %}</strong>
       <ul class="mb-0 ps-3">
         <li>{% trans "Eine Sicherung besteht aus dem Datenbank-Dump (db-…) und dem Archiv der hochgeladenen Dateien (media-…). Sie enthält die Daten aller Vereine - Dateien und Zugangsdaten des Ziels entsprechend schützen." %}</li>
         <li>{% trans "Der Schlüssel FIELD_ENCRYPTION_KEY aus der .env ist nicht Teil der Sicherung und muss separat aufbewahrt werden - ohne ihn sind verschlüsselte Felder (z. B. IBAN) nach einer Wiederherstellung nicht lesbar." %}</li>
-        <li>{% trans "Wiederherstellung: scripts/restore.sh (siehe Installationsanleitung, Abschnitt Datensicherung)." %}</li>
+        <li>{% trans "Wiederherstellung auch per Skript möglich: scripts/restore.sh (siehe Installationsanleitung, Abschnitt Datensicherung). Paperless- und OpenSlides-Sicherungen lassen sich nicht hier einspielen." %}</li>
         <li>{% trans "OpenSlides und Paperless-ngx laufen in eigenen Docker-Stacks: Ihre Sicherung (paperless-…, openslides-…) legt das Skript scripts/backup-zusatz.sh auf dem Server ins Sicherungs-Volume (siehe Installationsanleitung, Abschnitt Datensicherung). Die Dateien erscheinen dann hier und werden mit der nächsten Sicherung auf das externe Ziel kopiert." %}</li>
       </ul>
     </div>

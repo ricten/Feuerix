@@ -305,6 +305,18 @@ postgres`, then `psql < dump.sql`); similarly for Paperless-ngx (`docker compose
 
 ### Restoring Feuerix
 
+**Easiest way - in the web interface:** *Administration › Data backup › Restore backup* (superadministrator).
+Choose the database backup (`db-…`) and optionally the matching files backup (`media-…`, same timestamp), enter
+your own password and type `WIEDERHERSTELLEN`. On a freshly installed server, first put the backup files (from the
+NAS or from the download) there via "Upload backup files" - the file names must not be changed. Sequence: the
+current state is backed up automatically first (if that fails, nothing happens), the application goes into
+maintenance mode, the database is replaced in a single transaction (on an error the existing one stays unchanged),
+the files are unpacked (existing ones overwritten) and missing migrations are applied. Afterwards you may have to
+log in again; the result is shown on the same page. The `worker` service must be running for this. Paperless and
+OpenSlides can only be restored by hand (below).
+
+**On the command line** (e.g. if the application itself no longer starts):
+
 A backup consists of two files with the same timestamp: `db-YYYYMMDD-HHMMSS.sql.gz` (database) and
 `media-YYYYMMDD-HHMMSS.tar.gz` (uploaded files). You need **both** to restore.
 The dump contains `--clean --if-exists` and therefore replaces the existing tables (backups made before version

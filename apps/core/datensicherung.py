@@ -9,12 +9,14 @@ import base64
 import gzip
 import hashlib
 import io
+import json
 import os
 import posixpath
 import re
 import shutil
 import subprocess
 import tarfile
+import tempfile
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -329,3 +331,163 @@ def faellig(se, jetzt=None):
     geplant = jetzt.replace(hour=se.sicherung_uhrzeit.hour, minute=se.sicherung_uhrzeit.minute, second=0,
                             microsecond=0)
     return jetzt >= geplant and (se.sicherung_letzter_lauf is None or se.sicherung_letzter_lauf < geplant)
+
+
+# --- Wiederherstellung ------------------------------------------------------------------------------------------
+# Laeuft im Celery-Worker (nicht im Webprozess). Waehrenddessen steht eine Sperrdatei im Sicherungsordner, und die
+# WartungMiddleware beantwortet alle Seitenaufrufe mit "Wartung" - sonst wuerden Anfragen mitten in den Austausch
+# der Datenbank geraten. Das Ergebnis steht in einer JSON-Datei neben den Sicherungen, nicht in der Datenbank, da
+# die ja gerade ersetzt wird.
+SPERRDATEI = "wiederherstellung.lock"
+ERGEBNISDATEI = "wiederherstellung.json"
+SPERRE_MAX_SEKUNDEN = 2 * 60 * 60   # eine liegengebliebene Sperre (Absturz) hebt sich nach 2 Stunden selbst auf
+_SCHEMA_ZEILEN = {b"CREATE SCHEMA public;", b"DROP SCHEMA IF EXISTS public;", b"DROP SCHEMA public;"}
+
+
+def wartung_aktiv():
+    sperre = Path(settings.BACKUP_DIR) / SPERRDATEI
+    try:
+        return timezone.now().timestamp() - sperre.stat().st_mtime < SPERRE_MAX_SEKUNDEN
+    except OSError:
+        return False
+
+
+def letzte_wiederherstellung():
+    try:
+        return json.loads((Path(settings.BACKUP_DIR) / ERGEBNISDATEI).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def ist_gzip(pfad):
+    with open(pfad, "rb") as f:
+        return f.read(2) == b"\x1f\x8b"
+
+
+def sicherung_speichern(upload):
+    """Legt eine hochgeladene Sicherungsdatei im Sicherungsordner ab (nur gueltige Namen, keine Ueberschreibung,
+    nur gzip-Inhalt). Gibt den Dateinamen zurueck oder wirft ValidationError."""
+    name = Path(upload.name).name
+    if not DATEINAME.match(name):
+        raise ValidationError(_("Ungültiger Dateiname - erwartet z. B. db-20261010-030000.sql.gz oder "
+                                "media-20261010-030000.tar.gz."))
+    ziel = sicherungsordner() / name
+    if ziel.exists():
+        raise ValidationError(_("Eine Sicherung mit diesem Namen existiert bereits."))
+    hilfe = ziel.with_name(name + ".part")
+    try:
+        with open(hilfe, "wb") as out:
+            for chunk in upload.chunks():
+                out.write(chunk)
+        if not ist_gzip(hilfe):
+            raise ValidationError(_("Die Datei ist keine gültige Sicherung (kein gzip-Archiv)."))
+        hilfe.replace(ziel)
+    finally:
+        hilfe.unlink(missing_ok=True)
+    return name
+
+
+def db_einspielen(pfad):
+    """Spielt einen Datenbank-Dump ein: das Schema `public` wird verworfen und neu angelegt, danach der Dump in
+    EINER Transaktion (psql -1, ON_ERROR_STOP) - bei jedem Fehler bleibt die bisherige Datenbank unveraendert.
+    Funktioniert auch mit Dumps ohne --clean (aeltere Sicherungen)."""
+    db = settings.DATABASES["default"]
+    env = {**os.environ, "PGPASSWORD": db.get("PASSWORD") or ""}
+    befehl = ["psql", "-q", "-1", "-v", "ON_ERROR_STOP=1", "-h", str(db.get("HOST") or ""),
+              "-p", str(db.get("PORT") or "5432"), "-U", str(db.get("USER") or ""), "-d", str(db["NAME"]),
+              "-f", "-"]
+    with tempfile.TemporaryFile() as fehlerdatei:
+        try:
+            prozess = subprocess.Popen(befehl, env=env, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                                       stderr=fehlerdatei)
+        except FileNotFoundError:
+            raise SicherungFehler(_("psql ist nicht installiert."))
+        try:
+            prozess.stdin.write(b"DROP SCHEMA public CASCADE;\nCREATE SCHEMA public;\n")
+            with gzip.open(pfad, "rb") as quelle:
+                for zeile in quelle:
+                    if zeile.strip() not in _SCHEMA_ZEILEN:   # das Schema legt die Wiederherstellung selbst an
+                        prozess.stdin.write(zeile)
+        except BrokenPipeError:
+            pass   # psql ist wegen eines Fehlers vorzeitig beendet - Meldung unten
+        finally:
+            try:
+                prozess.stdin.close()
+            except BrokenPipeError:
+                pass
+        rc = prozess.wait()
+        fehlerdatei.seek(0)
+        fehler = fehlerdatei.read().decode(errors="replace").strip()
+    if rc != 0:
+        raise SicherungFehler(_("Einspielen der Datenbank fehlgeschlagen (die bisherige Datenbank blieb "
+                                "unverändert): %(fehler)s") % {"fehler": fehler[-400:]})
+
+
+def medien_einspielen(pfad):
+    """Entpackt ein Medienarchiv (Wurzel `media/`) nach MEDIA_ROOT; vorhandene Dateien werden ueberschrieben,
+    nicht im Archiv enthaltene bleiben liegen. Gibt die Zahl der Dateien zurueck."""
+    ziel = Path(settings.MEDIA_ROOT)
+    ziel.mkdir(parents=True, exist_ok=True)
+    anzahl = 0
+    with tarfile.open(pfad, "r:gz") as tar:
+        for eintrag in tar.getmembers():
+            name = eintrag.name.removeprefix("./").rstrip("/")
+            if name == "media":
+                continue
+            if not name.startswith("media/"):
+                raise SicherungFehler(_("Unerwarteter Aufbau des Medienarchivs: %(name)s") % {"name": eintrag.name})
+            eintrag.name = name[len("media/"):]
+            tar.extract(eintrag, ziel, filter="data")   # "data": blockt absolute Pfade, .. und Geraetedateien
+            anzahl += eintrag.isfile()
+    return anzahl
+
+
+def _wiederherstellung_vermerken(ok, meldung, db_name, media_name, benutzer):
+    ergebnis = {"zeit": timezone.now().isoformat(), "ok": ok, "meldung": str(meldung), "db": db_name,
+                "media": media_name or "", "benutzer": benutzer}
+    (sicherungsordner() / ERGEBNISDATEI).write_text(json.dumps(ergebnis, ensure_ascii=False), encoding="utf-8")
+
+
+def wiederherstellen(db_name="", media_name="", benutzer=""):
+    """Spielt Datenbank-Sicherung (und optional Medienarchiv) ein. Vorher wird automatisch eine Sicherung des
+    aktuellen Stands angelegt; schlaegt die fehl, wird NICHTS veraendert. Gibt (ok, meldung) zurueck."""
+    from django.core.cache import cache
+    from django.core.management import call_command
+    from django.db import connections
+    db_pfad = datei_pfad(db_name) if db_name.startswith("db-") else None
+    media_pfad = datei_pfad(media_name) if media_name.startswith("media-") else None
+    if db_pfad is None:
+        return False, _("Die Datenbank-Sicherung wurde nicht gefunden.")
+    if media_name and media_pfad is None:
+        return False, _("Die Medien-Sicherung wurde nicht gefunden.")
+    if wartung_aktiv():
+        return False, _("Es läuft bereits eine Wiederherstellung.")
+    sperre = sicherungsordner() / SPERRDATEI
+    sperre.write_text(benutzer or "-", encoding="utf-8")
+    try:
+        try:
+            vorher = lokal_sichern()
+        except Exception as e:
+            ok, meldung = False, _("Abgebrochen, nichts wurde verändert - die Sicherung des aktuellen Stands "
+                                   "schlug fehl: %(fehler)s") % {"fehler": e}
+        else:
+            namen = ", ".join(p.name for p in vorher)
+            try:
+                db_einspielen(db_pfad)
+                teile = [_("Datenbank aus %(name)s wiederhergestellt.") % {"name": db_name}]
+                if media_pfad:
+                    teile.append(_("%(n)d Dateien aus %(name)s wiederhergestellt.")
+                                 % {"n": medien_einspielen(media_pfad), "name": media_name})
+                connections.close_all()
+                call_command("migrate", interactive=False, verbosity=0)   # Sicherung aus aelterer Version
+                cache.clear()
+                teile.append(_("Der Stand vor der Wiederherstellung wurde gesichert (%(namen)s).")
+                             % {"namen": namen})
+                ok, meldung = True, " ".join(str(t) for t in teile)
+            except Exception as e:
+                ok, meldung = False, _("Wiederherstellung fehlgeschlagen: %(fehler)s Der Stand davor liegt als "
+                                       "%(namen)s vor.") % {"fehler": e, "namen": namen}
+    finally:
+        sperre.unlink(missing_ok=True)
+    _wiederherstellung_vermerken(ok, meldung, db_name, media_name, benutzer)
+    return ok, str(meldung)

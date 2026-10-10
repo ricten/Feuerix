@@ -4459,3 +4459,154 @@ msgstr ""
 "by the script scripts/backup-zusatz.sh (see the installation guide, section "
 "Data backup). The files then appear here and are copied to the external "
 "target with the next backup."
+
+# Wiederherstellung
+
+msgid ""
+"Ungültiger Dateiname - erwartet z. B. db-20261010-030000.sql.gz oder "
+"media-20261010-030000.tar.gz."
+msgstr ""
+"Invalid file name - expected e.g. db-20261010-030000.sql.gz or "
+"media-20261010-030000.tar.gz."
+
+msgid "Eine Sicherung mit diesem Namen existiert bereits."
+msgstr "A backup with this name already exists."
+
+msgid "Die Datenbank-Sicherung wurde nicht gefunden."
+msgstr "The database backup was not found."
+
+msgid "Die Medien-Sicherung wurde nicht gefunden."
+msgstr "The media backup was not found."
+
+msgid "Es läuft bereits eine Wiederherstellung."
+msgstr "A restore is already running."
+
+msgid "Die Datei ist keine gültige Sicherung (kein gzip-Archiv)."
+msgstr "The file is not a valid backup (not a gzip archive)."
+
+msgid ""
+"Einspielen der Datenbank fehlgeschlagen (die bisherige Datenbank blieb "
+"unverändert): %(fehler)s"
+msgstr ""
+"Restoring the database failed (the existing database was left unchanged): "
+"%(fehler)s"
+
+msgid "psql ist nicht installiert."
+msgstr "psql is not installed."
+
+msgid "Unerwarteter Aufbau des Medienarchivs: %(name)s"
+msgstr "Unexpected structure of the media archive: %(name)s"
+
+msgid ""
+"Abgebrochen, nichts wurde verändert - die Sicherung des aktuellen Stands "
+"schlug fehl: %(fehler)s"
+msgstr ""
+"Aborted, nothing was changed - backing up the current state failed: "
+"%(fehler)s"
+
+msgid "Datenbank aus %(name)s wiederhergestellt."
+msgstr "Database restored from %(name)s."
+
+msgid "Der Stand vor der Wiederherstellung wurde gesichert (%(namen)s)."
+msgstr "The state before the restore was backed up (%(namen)s)."
+
+msgid "%(n)d Dateien aus %(name)s wiederhergestellt."
+msgstr "%(n)d files restored from %(name)s."
+
+msgid ""
+"Wiederherstellung fehlgeschlagen: %(fehler)s Der Stand davor liegt als "
+"%(namen)s vor."
+msgstr ""
+"Restore failed: %(fehler)s The state before it is available as %(namen)s."
+
+msgid "Bitte mindestens eine Datei auswählen."
+msgstr "Please select at least one file."
+
+msgid "Bitte zur Bestätigung %(wort)s eintippen."
+msgstr "Please type %(wort)s to confirm."
+
+msgid "Das Passwort stimmt nicht."
+msgstr "The password is incorrect."
+
+msgid "Bitte eine vorhandene Datenbank-Sicherung auswählen."
+msgstr "Please select an existing database backup."
+
+msgid "Hochgeladen: %(name)s"
+msgstr "Uploaded: %(name)s"
+
+msgid "Die gewählte Medien-Sicherung gibt es nicht."
+msgstr "The selected media backup does not exist."
+
+msgid ""
+"Die Wiederherstellung wurde gestartet. Die Anwendung ist in den nächsten "
+"Minuten im Wartungsmodus und lädt sich danach neu; evtl. ist eine neue "
+"Anmeldung nötig. Das Ergebnis steht danach unter „Datensicherung“."
+msgstr ""
+"The restore has been started. The application will be in maintenance mode "
+"for the next few minutes and then reload; you may need to log in again. The "
+"result is shown afterwards under “Data backup”."
+
+msgid "Letzte Wiederherstellung:"
+msgstr "Last restore:"
+
+msgid "Sicherung wiederherstellen"
+msgstr "Restore backup"
+
+msgid ""
+"Ersetzt den gesamten aktuellen Datenbestand (alle Vereine) durch den Stand "
+"der gewählten Sicherung. Vorher wird der jetzige Stand automatisch "
+"gesichert; bei einem Fehler bleibt alles unverändert. Währenddessen ist die "
+"Anwendung im Wartungsmodus."
+msgstr ""
+"Replaces the entire current data (all clubs) with the state of the selected "
+"backup. The current state is backed up automatically first; on an error "
+"everything stays unchanged. The application is in maintenance mode "
+"meanwhile."
+
+msgid "Datenbank-Sicherung"
+msgstr "Database backup"
+
+msgid "Hochgeladene Dateien (optional)"
+msgstr "Uploaded files (optional)"
+
+msgid "– nicht wiederherstellen –"
+msgstr "– do not restore –"
+
+msgid ""
+"Sollte zur Datenbank-Sicherung passen (gleicher Zeitstempel). Vorhandene "
+"Dateien werden überschrieben."
+msgstr ""
+"Should match the database backup (same timestamp). Existing files are "
+"overwritten."
+
+msgid "Ihr Passwort"
+msgstr "Your password"
+
+msgid "Zur Bestätigung WIEDERHERSTELLEN eintippen"
+msgstr "Type WIEDERHERSTELLEN to confirm"
+
+msgid "Jetzt wiederherstellen"
+msgstr "Restore now"
+
+msgid ""
+"Keine Datenbank-Sicherung vorhanden - unten eine Sicherungsdatei hochladen."
+msgstr "No database backup available - upload a backup file below."
+
+msgid "Sicherungsdateien hochladen (z. B. vom NAS)"
+msgstr "Upload backup files (e.g. from the NAS)"
+
+msgid "Hochladen"
+msgstr "Upload"
+
+msgid ""
+"Dateinamen müssen unverändert bleiben (db-….sql.gz bzw. media-….tar.gz)."
+msgstr "File names must stay unchanged (db-….sql.gz or media-….tar.gz)."
+
+msgid ""
+"Wiederherstellung auch per Skript möglich: scripts/restore.sh (siehe "
+"Installationsanleitung, Abschnitt Datensicherung). Paperless- und "
+"OpenSlides-Sicherungen lassen sich nicht hier einspielen."
+msgstr ""
+"Restoring is also possible by script: scripts/restore.sh (see the "
+"installation guide, section Data backup). Paperless and OpenSlides backups "
+"cannot be restored here."

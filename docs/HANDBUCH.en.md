@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.60.0)
+# Handbook – Feuerix (Version 1.61.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -680,7 +680,12 @@ stored encrypted. "Test connection" checks the target; with SFTP the server's ho
 at that point (please compare it with your NAS's fingerprint) and checked on every connection afterwards. "Back up
 now" starts a backup immediately; the local files can be **downloaded** on the same page. If a backup fails (e.g.
 NAS unreachable), superadministrators see a red notice at the top of every page; the local backup is kept
-regardless. This requires the worker service to be running (it starts the schedule). **Important:** the
+regardless. This requires the worker service to be running (it starts the schedule). **Restoring:** On the same page a backup can be restored ("Restore backup"): choose the database backup and
+optionally the matching files backup, enter your own password and type `WIEDERHERSTELLEN`. The current state is
+backed up automatically first, the application is in maintenance mode meanwhile, and on an error the existing
+database stays unchanged. Backups from the NAS or from a download can be provided via "Upload backup files" (keep the
+file names unchanged). Restoring replaces the data of **all** clubs; Paperless/OpenSlides are not affected.
+**Important:** the
 `FIELD_ENCRYPTION_KEY` from the `.env` is not part of the backup and must be stored separately; OpenSlides and
 Paperless-ngx run in their own stacks: their backup is placed into the same volume by the host script
 `scripts/backup-zusatz.sh`, then appears in the list and is copied to the external target as well (INSTALL.en.md,

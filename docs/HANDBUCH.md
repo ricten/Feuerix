@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.60.0)
+# Handbuch – Feuerix (Version 1.61.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -698,7 +698,13 @@ Fingerabdruck des NAS vergleichen) und danach bei jeder Verbindung geprüft. „
 Sicherung; die lokalen Dateien lassen sich auf derselben Seite **herunterladen**. Scheitert die Sicherung (z. B.
 NAS nicht erreichbar), erscheint für Superadministratoren ein roter Hinweis oben auf jeder Seite; die lokale
 Sicherung bleibt dann trotzdem erhalten. Voraussetzung ist, dass der Worker-Dienst läuft (er startet den
-Zeitplan). **Wichtig:** Der Schlüssel `FIELD_ENCRYPTION_KEY` aus der `.env` ist nicht Teil der Sicherung und muss
+Zeitplan). **Wiederherstellen:** Auf derselben Seite lässt sich eine Sicherung wieder einspielen („Sicherung wiederherstellen“):
+Datenbank-Sicherung und optional die passende Dateien-Sicherung wählen, eigenes Passwort eingeben und
+`WIEDERHERSTELLEN` eintippen. Der aktuelle Stand wird vorher automatisch gesichert, die Anwendung ist
+währenddessen im Wartungsmodus, und bei einem Fehler bleibt die bisherige Datenbank unverändert. Sicherungen vom NAS
+oder aus einem Download lassen sich über „Sicherungsdateien hochladen“ bereitstellen (Dateinamen unverändert lassen).
+Beim Wiederherstellen werden die Daten **aller** Vereine ersetzt; Paperless/OpenSlides sind davon ausgenommen.
+**Wichtig:** Der Schlüssel `FIELD_ENCRYPTION_KEY` aus der `.env` ist nicht Teil der Sicherung und muss
 separat aufbewahrt werden; OpenSlides und Paperless-ngx laufen in eigenen Stacks: ihre Sicherung legt das Host-Skript
 `scripts/backup-zusatz.sh` ins gleiche Volume, danach erscheint sie in der Liste und wird mit auf das externe Ziel
 kopiert (INSTALL.md, Abschnitt 12, dort auch die Wiederherstellung).

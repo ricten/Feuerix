@@ -300,6 +300,19 @@ Wiederherstellung: `scripts/restore.sh` (Feuerix) bzw. laut OpenSlides-Anleitung
 
 ### Feuerix wiederherstellen (Restore)
 
+**Einfachster Weg - in der Weboberfläche:** *Verwaltung › Datensicherung › Sicherung wiederherstellen*
+(Superadministrator). Dort die Datenbank-Sicherung (`db-…`) und optional die dazu passende Dateien-Sicherung
+(`media-…`, gleicher Zeitstempel) wählen, das eigene Passwort eingeben und `WIEDERHERSTELLEN` eintippen. Auf einem
+frisch installierten Server vorher die Sicherungsdateien (vom NAS oder aus dem Download) über „Sicherungsdateien
+hochladen“ ablegen - die Dateinamen dürfen dabei nicht geändert werden. Ablauf: Der aktuelle Stand wird zuerst
+automatisch gesichert (schlägt das fehl, passiert nichts), die Anwendung geht in den Wartungsmodus, die Datenbank
+wird in einer einzigen Transaktion ersetzt (bei einem Fehler bleibt die bisherige unverändert), die Dateien werden
+entpackt (vorhandene überschrieben) und fehlende Migrationen angewendet. Danach ist ggf. eine neue Anmeldung nötig;
+das Ergebnis steht auf derselben Seite. Dafür muss der `worker`-Dienst laufen. Paperless und OpenSlides gehen nur
+per Hand (unten).
+
+**Per Kommandozeile** (z. B. wenn die Anwendung selbst nicht mehr startet):
+
 Eine Sicherung besteht aus zwei Dateien mit gleichem Zeitstempel: `db-JJJJMMTT-HHMMSS.sql.gz` (Datenbank) und
 `media-JJJJMMTT-HHMMSS.tar.gz` (hochgeladene Dateien). Zum Wiederherstellen werden **beide** gebraucht.
 Der Dump enthält `--clean --if-exists` und ersetzt dadurch die vorhandenen Tabellen (Sicherungen, die vor

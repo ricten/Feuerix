@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.61.0
+- Neu: Datenbank- und Dateien-Sicherung lassen sich in der Weboberfläche wiederherstellen (Verwaltung ›
+  Datensicherung): Passwort + Bestätigungswort, automatische Sicherung des Ist-Stands vorher, Wartungsmodus,
+  Einspielen in einer Transaktion; Sicherungsdateien (z. B. vom NAS) lassen sich dafür hochladen.
+
 ## 1.60.0
 - Neu: Paperless-ngx- und OpenSlides-Daten werden mitgesichert - das Host-Skript `scripts/backup-zusatz.sh` legt
   deren Dumps/Dateien ins Sicherungs-Volume; Feuerix kopiert jetzt alle lokalen Sicherungsdateien (auch

@@ -1,8 +1,30 @@
 from django.conf import settings
+from django.http import HttpResponse
 
 from . import audit
 from .models import Verein
 from .rechte import RechteKontext
+
+
+class WartungMiddleware:
+    """Waehrend einer Wiederherstellung (Sperrdatei im Sicherungsordner, siehe datensicherung.py) beantwortet sie
+    jede Anfrage mit einer Wartungsseite - sonst liefen Seitenaufrufe mitten in den Austausch der Datenbank. Greift
+    vor Sitzung und Datenbankzugriff, nutzt also selbst keine Datenbank."""
+
+    SEITE = ("<!doctype html><html lang=\"de\"><head><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"15\">"
+             "<title>Wartung</title></head><body style=\"font-family:sans-serif;max-width:32em;margin:4em auto;"
+             "padding:0 1em\"><h2>Wartung</h2><p>Eine Datensicherung wird gerade wiederhergestellt. Die Seite "
+             "ist in wenigen Minuten wieder erreichbar und lädt sich selbst neu.</p><p><small>A backup is "
+             "being restored. This page will reload automatically.</small></p></body></html>")
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from .datensicherung import wartung_aktiv
+        if wartung_aktiv() and not request.path.startswith(settings.STATIC_URL):
+            return HttpResponse(self.SEITE, status=503, headers={"Retry-After": "30"})
+        return self.get_response(request)
 
 
 class MandantMiddleware:
