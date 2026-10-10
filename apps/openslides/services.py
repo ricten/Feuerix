@@ -245,9 +245,12 @@ def _wahlergebnisse_anfrage(meeting_id):
                                    "fields": {"first_name": None, "last_name": None, "username": None}}},
         },
     }
+    # Eine Option einer Wahl verweist je nach Version/Art der Wahl auf eine Kandidatenliste (poll_candidate_list) oder
+    # direkt auf einen Benutzer (user) - beide Faelle abfragen (nicht passende Felder liefert der Dienst einfach nicht).
     option_felder = {
         "yes": None, "no": None, "abstain": None,
-        "content_object_id": {"type": "generic-relation", "fields": kandidat_felder},
+        "content_object_id": {"type": "generic-relation", "fields": {
+            **kandidat_felder, "first_name": None, "last_name": None, "username": None}},
     }
     poll_felder = {
         "title": None, "state": None, "pollmethod": None,
@@ -277,10 +280,19 @@ def _zahl(wert):
     return text.replace(".", ",")
 
 
-def _stimmen_zeile(daten, option_id):
+def _stimmen_wert(daten, option_id):
+    try:
+        return Decimal(str(daten.get(f"option/{option_id}/yes") or 0))
+    except InvalidOperation:
+        return Decimal(0)
+
+
+def _stimmen_zeile(daten, option_id, ja_label="Ja"):
     name = None
     coid = daten.get(f"option/{option_id}/content_object_id")
-    if coid and coid.startswith("poll_candidate_list/"):
+    if coid and coid.startswith("user/"):
+        name = _kandidat_name(daten, coid.split("/", 1)[1])
+    elif coid and coid.startswith("poll_candidate_list/"):
         pcl_id = coid.split("/", 1)[1]
         for pc_id in daten.get(f"poll_candidate_list/{pcl_id}/poll_candidate_ids") or []:
             uid = daten.get(f"poll_candidate/{pc_id}/user_id")
@@ -288,7 +300,7 @@ def _stimmen_zeile(daten, option_id):
                 name = _kandidat_name(daten, uid)
                 break
     teile = []
-    for feld, label in (("yes", "Ja"), ("no", "Nein"), ("abstain", "Enthaltung")):
+    for feld, label in (("yes", ja_label), ("no", "Nein"), ("abstain", "Enthaltung")):
         wert = daten.get(f"option/{option_id}/{feld}")
         if wert is not None:
             teile.append(f"{_zahl(wert)} {label}")
@@ -400,8 +412,11 @@ def wahlergebnisse_abrufen(v, veranstaltung):
         for poll_id in daten.get(f"assignment/{assignment_id}/poll_ids") or []:
             if daten.get(f"poll/{poll_id}/state") not in POLL_ABGESCHLOSSEN:
                 continue
-            zeilen = [z for z in (_stimmen_zeile(daten, oid)
-                                  for oid in daten.get(f"poll/{poll_id}/option_ids") or []) if z]
+            # Wahlmethode "Y" = jede Person erhaelt nur Stimmen (kein Ja/Nein/Enthaltung je Person)
+            ja_label = "Stimmen" if daten.get(f"poll/{poll_id}/pollmethod") == "Y" else "Ja"
+            optionen = sorted(daten.get(f"poll/{poll_id}/option_ids") or [],
+                              key=lambda oid: _stimmen_wert(daten, oid), reverse=True)   # meiste Stimmen zuerst
+            zeilen = [z for z in (_stimmen_zeile(daten, oid, ja_label) for oid in optionen) if z]
             if not zeilen:
                 continue
             Wahlergebnis.objects.create(verein=veranstaltung.verein, veranstaltung=veranstaltung, amt=amt,

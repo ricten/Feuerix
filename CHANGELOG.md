@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.64.4
+- Fix: Wahlergebnisse aus OpenSlides 4.3 zeigten im Protokoll „Option 13: 10 Ja“ statt der Namen. Optionen einer Wahl verweisen
+  dort direkt auf Benutzer; die Namen werden jetzt aufgelöst. Bei der Wahlmethode „nur Stimmen“ steht „10 Stimmen“ statt „10 Ja“,
+  und die Kandidaten sind nach Stimmenzahl absteigend sortiert.
+
 ## 1.64.3
 - Fix: Die Tagesordnung nummeriert sich jetzt automatisch lückenlos durch. Nach dem Anlegen eines weiteren TOPs konnte eine
   Nummer doppelt vorkommen (der Vorschlag war „Anzahl + 1“ und bei Lücken schon vergeben). Neue Punkte werden mit

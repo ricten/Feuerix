@@ -492,3 +492,74 @@ class LoginFehlerHinweisTests(TestCase):
     def test_zugangsdaten_und_adresse_hinweise(self):
         self.assertIn("technischen Benutzers", self._login(403, "verboten"))
         self.assertIn("OpenSlides-Startseite", self._login(404, "nicht da"))
+
+
+def _wahl_antwort_mit_benutzern():
+    """Echte Form einer OpenSlides-4.3-Wahl: die Optionen verweisen direkt auf Benutzer (user/ID, keine
+    Kandidatenliste) und die Wahlmethode ist "Y" (nur Stimmen) - Optionen absichtlich NICHT nach Stimmen sortiert."""
+    return {
+        "meeting/5/assignment_ids": [1],
+        "assignment/1/title": "wahl vorsitzender",
+        "assignment/1/poll_ids": [3],
+        "poll/3/title": "Wahlgang", "poll/3/state": "published", "poll/3/pollmethod": "Y",
+        "poll/3/option_ids": [14, 13, 15],
+        "option/13/yes": "10.000000", "option/13/content_object_id": "user/21",
+        "option/14/yes": "5.000000", "option/14/content_object_id": "user/22",
+        "option/15/yes": "2.000000", "option/15/content_object_id": "user/23",
+        "user/21/first_name": "Andreas", "user/21/last_name": "Hoffmann",
+        "user/22/first_name": "Karin", "user/22/last_name": "Hofmann",
+        "user/23/first_name": "Patrick", "user/23/last_name": "Meier",
+    }
+
+
+class WahlMitBenutzerOptionenTests(TestCase):
+    """Regression: im Protokoll stand "Option 13: 10 Ja" statt "Andreas Hoffmann: 10 Stimmen"."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.verbindung = OpenSlidesVerbindung.objects.create(
+            verein=self.v, url="https://os.example.org", benutzername="sync", passwort="geheim")
+        self.ver = Veranstaltung.objects.create(verein=self.v, titel="Mitgliederversammlung 2026",
+                                                beginn=timezone.now(), openslides_meeting_id=5)
+
+    def _abrufen(self, antwort):
+        with patch("apps.openslides.services.OSClient") as MockClient:
+            MockClient.return_value.abfragen.return_value = antwort
+            return services.wahlergebnisse_abrufen(self.verbindung, self.ver)
+
+    def test_namen_und_stimmen_statt_option_nummern(self):
+        self.assertEqual(self._abrufen(_wahl_antwort_mit_benutzern()), 1)
+        w = Wahlergebnis.objects.get(veranstaltung=self.ver)
+        self.assertEqual(w.amt, "wahl vorsitzender")
+        self.assertEqual(w.wahlgang, "Wahlgang")
+        self.assertEqual(w.ergebnis.splitlines(), ["Andreas Hoffmann: 10 Stimmen", "Karin Hofmann: 5 Stimmen",
+                                                   "Patrick Meier: 2 Stimmen"])
+        self.assertNotIn("Option", w.ergebnis)
+        self.assertNotIn("Ja", w.ergebnis)
+
+    def test_anfrage_holt_benutzernamen_der_optionen(self):
+        felder = services._wahlergebnisse_anfrage(5)[0]["fields"]["assignment_ids"]["fields"]["poll_ids"]["fields"][
+            "option_ids"]["fields"]["content_object_id"]["fields"]
+        for feld in ("first_name", "last_name", "username", "poll_candidate_ids"):
+            self.assertIn(feld, felder)
+
+    def test_ja_nein_enthaltung_bleibt_bei_anderen_wahlmethoden(self):
+        antwort = _wahl_antwort_mit_benutzern()
+        antwort["poll/3/pollmethod"] = "YN"
+        antwort["option/13/no"] = "1.000000"
+        self._abrufen(antwort)
+        ergebnis = Wahlergebnis.objects.get(veranstaltung=self.ver).ergebnis
+        self.assertIn("Andreas Hoffmann: 10 Ja, 1 Nein", ergebnis)
+
+    def test_ohne_aufloesbaren_namen_bleibt_der_notnamen(self):
+        antwort = _wahl_antwort_mit_benutzern()
+        for k in [k for k in antwort if k.startswith("user/21")]:
+            del antwort[k]
+        self._abrufen(antwort)
+        self.assertIn("Nutzer 21: 10 Stimmen", Wahlergebnis.objects.get(veranstaltung=self.ver).ergebnis)
+
+    def test_protokolltext_zeigt_die_wahl_lesbar(self):
+        from apps.documents.platzhalter import kontext
+        self._abrufen(_wahl_antwort_mit_benutzern())
+        text = kontext(self.v, veranstaltung=self.ver)["wahlergebnisse"]
+        self.assertIn("wahl vorsitzender – Wahlgang:\nAndreas Hoffmann: 10 Stimmen", text)
