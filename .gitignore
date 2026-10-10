@@ -7,6 +7,7 @@ openslides/secrets/
 openslides/osmanage
 openslides/docker-compose.yml
 openslides/docker-compose.yml.tmpl
+openslides/docker-compose.override.yml
 openslides/*.crt
 openslides/*.key
 deploy/certs/*

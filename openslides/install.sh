@@ -11,6 +11,7 @@ if [ ! -f docker-compose.yml ]; then
   ./osmanage setup -c config.yml -t docker-compose.yml.tmpl .
 fi
 
+./autostart.sh   # alle Dienste nach einem Neustart von Docker/Server wieder automatisch starten
 docker compose pull
 docker compose up --detach
 

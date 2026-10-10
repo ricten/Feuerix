@@ -120,6 +120,10 @@ docker compose pull && docker compose up --detach
 ```
 
 `config.yml` bindet OpenSlides an `127.0.0.1:9000` und schaltet das eigene HTTPS aus (das übernimmt Caddy).
+**Autostart:** Die generierte `docker-compose.yml` startet nach einem Neustart von Docker/Server nur einzelne Dienste
+wieder – der Rest bliebe aus (Verbindungstest in Feuerix: „HTTP 502“). `install.sh` ruft deshalb `./autostart.sh` auf,
+das `docker-compose.override.yml` mit `restart: unless-stopped` für alle Dienste erzeugt. Bei einer bereits
+bestehenden Installation einmalig nachholen: `cd openslides && ./autostart.sh && docker compose up --detach`.
 **Version festlegen:** In `config.yml` steht `defaults.tag`; setzen Sie dort die aktuelle Version von
 <https://github.com/OpenSlides/OpenSlides/releases>.
 

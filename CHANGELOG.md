@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.64.2
+- OpenSlides: `openslides/autostart.sh` (von `install.sh` aufgerufen) erzeugt eine `docker-compose.override.yml`, damit alle
+  Dienste nach einem Neustart von Docker/Server wieder starten - die generierte Compose-Datei tat das nur für `search` und
+  `projector`, sonst blieb OpenSlides danach aus (HTTP 502 beim Verbindungstest).
+
 ## 1.64.1
 - OpenSlides-Verbindungstest: Bei Proxy-Fehlern (HTTP 502/503/504) und weiteren häufigen Fehlern zeigt die Meldung jetzt
   einen konkreten Hinweis (Stack läuft? Adresse/Proxy prüfen) statt einer leeren Antwort.
