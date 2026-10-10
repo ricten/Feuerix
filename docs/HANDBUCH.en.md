@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.62.0)
+# Handbook – Feuerix (Version 1.63.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -545,8 +545,8 @@ been distributed).
 Under the data protection bylaws, all six DSO roles (row "Club software / Administration" of the permission
 matrix) as well as the Superadministrator and Administrator may set up the OpenSlides integration.
 
-**Retrieving elections and votes:** if an event is linked to an OpenSlides meeting, its page additionally shows
-"Import elections and votes from OpenSlides". This fetches the vote distribution of every personnel election
+**Retrieving attendance, elections and votes:** if an event is linked to an OpenSlides meeting, its page
+additionally shows "Import attendance, elections and votes from OpenSlides". This fetches the vote distribution of every personnel election
 **and of all votes on motions and topics** already completed in OpenSlides (status "finished" or "published" –
 ones still in progress naturally yield no result) and stores it per ballot/vote on the event (sections
 "Election results (from OpenSlides)" and "Votes (from OpenSlides)"). For motions this contains the
@@ -555,14 +555,22 @@ in OpenSlides (e.g. "adopted"). Who was actually elected, or whether a motion is
 entered based on the bylaws (majority requirements, handling ties) yourselves; the software deliberately does
 not decide this automatically.
 
+**Attendance:** All persons marked as "present" in OpenSlides are imported as well (section "Attendance (from
+OpenSlides)", visible with the "participant lists" right). Members are matched via their linked OpenSlides account
+(sync, see above) and shown with their current name; everyone else appears as a guest with the name from
+OpenSlides. The state at the time of the import is taken – so import attendance preferably before closing the
+meeting, before people are set to absent. Whether a present person was entitled to vote is not decided by the
+software; the minute-taker checks that (as well as the quorum). Placeholders: `{anwesenheit}` (alphabetical list
+of names) and `{anwesenheit_anzahl}`.
+
 **Adding them to the minutes:** on the minutes (Correspondence › Documents, kind "Minutes" of a linked event)
-there is the button "Insert votes and elections from OpenSlides": it fetches the current state and – if not
-already present – appends the sections "Votes" and "Election results" with the placeholders `{abstimmungen}`
-and `{wahlergebnisse}` to the end of the minutes. The placeholders are always filled with the current state in
+there is the button "Insert attendance, votes and elections from OpenSlides": it fetches the current state and –
+if not already present – appends the sections "Attendance list", "Votes" and "Election results" with the
+placeholders `{anwesenheit}`, `{abstimmungen}` and `{wahlergebnisse}` to the end of the minutes. The placeholders are always filled with the current state in
 PDF and Word, so clicking again updates the data without duplicating the text or overwriting your own additions.
 The supplied "Minutes of General Meeting" template already contains both placeholders (for older templates that
 were already created, use the button or add the placeholders by hand). Fetching again fully replaces previously
-imported results for that event. **Not** included is a feed of attendance.
+imported results and the attendance for that event.
 
 ## 13. Paperless-ngx integration
 
@@ -718,8 +726,7 @@ section 12, which also covers restoring).
 
 ## 17. Known limitations
 
-Currently **not** included: a feed of attendance from OpenSlides (elections and votes do flow back, see
-chapter 12), a REST API, and pro-rata fee calculation for joining/leaving mid-year (restoring a database backup
+Currently **not** included: a REST API, and pro-rata fee calculation for joining/leaving mid-year (restoring a database backup
 is possible in the web interface, see chapter 15). The SEPA direct debit feature (chapter 4) only generates the collection
 file; there is no return channel that automatically detects whether a direct debit actually arrived or was
 reversed – that still runs via the normal bank-statement import. The OpenSlides integration follows the

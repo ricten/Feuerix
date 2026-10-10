@@ -27,6 +27,8 @@ PLATZHALTER = [
         ("tagesordnung", "Nummerierte Tagesordnung (aus den Tagesordnungspunkten der Veranstaltung)"),
         ("wahlergebnisse", "Stimmenverteilung der aus OpenSlides übernommenen Wahlen (wer gewählt ist, bitte "
                            "selbst eintragen)"),
+        ("anwesenheit", "Namen der in OpenSlides als anwesend markierten Personen (Liste, alphabetisch)"),
+        ("anwesenheit_anzahl", "Anzahl der in OpenSlides als anwesend markierten Personen"),
         ("abstimmungen", "Ergebnisse aller aus OpenSlides übernommenen Abstimmungen (Anträge/Themen) mit Ja/Nein/"
                          "Enthaltung; ob ein Antrag angenommen ist, bitte selbst festhalten"),
     ]),
@@ -96,6 +98,9 @@ def kontext(verein, mitglied=None, veranstaltung=None, datum=None):
                                for w in v.wahlergebnisse.filter(art=art))
         k["wahlergebnisse"] = _block("wahl") or "(keine Wahlergebnisse aus OpenSlides übernommen)"
         k["abstimmungen"] = _block("abstimmung") or "(keine Abstimmungen aus OpenSlides übernommen)"
+        anwesende = sorted((a.wer for a in v.anwesenheiten.select_related("mitglied")), key=str.casefold)
+        k["anwesenheit"] = "\n".join(f"- {n}" for n in anwesende) or "(keine Anwesenheit aus OpenSlides übernommen)"
+        k["anwesenheit_anzahl"] = str(len(anwesende)) if anwesende else "[Anzahl]"
     return k
 
 

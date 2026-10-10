@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from apps.core.util import ascii_kennung
-from apps.events.models import Wahlergebnis
+from apps.events.models import Anwesenheit, Wahlergebnis
 from apps.members.models import Mitglied
 
 from .client import OpenSlidesFehler, OSClient
@@ -412,6 +412,32 @@ def wahlergebnisse_abrufen(v, veranstaltung):
                                            ("topic", _themen_anfrage, _thema_bezeichnung)):
         n += _abstimmungen_speichern(c.abfragen(anfrage(mid)), mid, veranstaltung, sammlung, bezeichnung)
     return n
+
+
+def anwesenheit_abrufen(v, veranstaltung):
+    """Holt die in OpenSlides als "anwesend" markierten Personen der verknuepften Versammlung und speichert sie als
+    Anwesenheit der Veranstaltung (ersetzt den zuvor abgerufenen Stand vollstaendig). Mitglieder werden ueber ihr
+    verknuepftes OpenSlides-Konto (Abgleich) zugeordnet, alle anderen als Gast mit dem Namen aus OpenSlides.
+    Gibt die Zahl der Anwesenden zurueck."""
+    if not veranstaltung.openslides_meeting_id:
+        raise OpenSlidesFehler("Die Veranstaltung ist noch keiner OpenSlides-Versammlung zugeordnet.")
+    c = OSClient(v)
+    c.login()
+    mid = veranstaltung.openslides_meeting_id
+    daten = c.abfragen([{"ids": [mid], "collection": "meeting", "fields": {
+        "present_user_ids": {"type": "relation-list", "collection": "user",
+                             "fields": {"first_name": None, "last_name": None, "username": None}}}}])
+    if not isinstance(daten, dict) or daten.get("success") is False or daten.get("message"):
+        raise OpenSlidesFehler(f"Anwesenheit konnte nicht abgerufen werden: {str(daten)[:200]}")
+    user_ids = daten.get(f"meeting/{mid}/present_user_ids") or []
+    mitglieder = {m.openslides_user_id: m for m in
+                  Mitglied.objects.filter(verein=veranstaltung.verein, openslides_user_id__in=user_ids)}
+    Anwesenheit.objects.filter(verein=veranstaltung.verein, veranstaltung=veranstaltung).delete()
+    for uid in user_ids:
+        m = mitglieder.get(uid)
+        Anwesenheit.objects.create(verein=veranstaltung.verein, veranstaltung=veranstaltung, mitglied=m,
+                                   name="" if m else _kandidat_name(daten, uid)[:200], openslides_user_id=uid)
+    return len(user_ids)
 
 
 def _versammlungsgruppen(c, meeting_id):

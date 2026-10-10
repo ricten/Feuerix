@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.63.0
+- Neu: Die **Anwesenheit** wird aus OpenSlides zurückgeführt (als „anwesend“ markierte Personen; Mitglieder über ihr
+  OpenSlides-Konto zugeordnet, andere als Gast). Der Abruf an der Veranstaltung und der Knopf am Protokoll
+  („Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen“) holen sie mit; neue Platzhalter `{anwesenheit}` und
+  `{anwesenheit_anzahl}`, die Standardvorlage „Protokoll Mitgliederversammlung“ nutzt sie.
+
 ## 1.62.0
 - Neu: OpenSlides-Anbindung übernimmt jetzt **alle Abstimmungen** (zu Anträgen und Themen, nicht nur Personenwahlen)
   mit Ja/Nein/Enthaltung, gültigen/ungültigen Stimmen und dem in OpenSlides gesetzten Antragsstatus. Am Protokoll

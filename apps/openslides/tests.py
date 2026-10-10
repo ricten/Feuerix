@@ -165,19 +165,19 @@ class VeranstaltungWahlergebnisseViewTests(TestCase):
 
     def test_knopf_erscheint_wenn_meeting_verknuepft(self):
         r = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
-        self.assertContains(r, "Wahlen und Abstimmungen aus OpenSlides übernehmen")
+        self.assertContains(r, "Anwesenheit, Wahlen und Abstimmungen aus OpenSlides übernehmen")
 
     def test_ohne_meeting_verknuepfung_kein_knopf(self):
         self.ver.openslides_meeting_id = None
         self.ver.save()
         r = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
-        self.assertNotContains(r, "Wahlen und Abstimmungen aus OpenSlides übernehmen")
+        self.assertNotContains(r, "Anwesenheit, Wahlen und Abstimmungen aus OpenSlides übernehmen")
 
     def test_post_uebernimmt_ergebnisse_und_zeigt_abschnitt(self):
         with patch("apps.openslides.services.OSClient") as MockClient:
             MockClient.return_value.abfragen.return_value = _wahl_antwort()
             r = self.client.post(reverse("veranstaltung_wahlergebnisse", args=[self.ver.pk]), follow=True)
-        self.assertContains(r, "1 Wahlergebnis(se) und 0 Abstimmung(en) aus OpenSlides übernommen.")
+        self.assertContains(r, "1 Wahlergebnis(se), 0 Abstimmung(en) und 0 Anwesende aus OpenSlides übernommen.")
         r2 = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
         self.assertContains(r2, "Wahlergebnisse (aus OpenSlides)")
         self.assertContains(r2, "1. Vorsitzender")
@@ -298,20 +298,21 @@ class ProtokollAbstimmungenViewTests(TestCase):
         with patch("apps.openslides.services.OSClient") as MockClient:
             MockClient.return_value.abfragen.side_effect = [antworten.get("wahlen", {}),
                                                             antworten.get("antraege", {}),
-                                                            antworten.get("themen", {})]
+                                                            antworten.get("themen", {}),
+                                                            antworten.get("anwesenheit", {})]
             return self.client.post(self.url, follow=True)
 
     def test_knopf_nur_bei_protokoll_mit_verknuepfter_versammlung(self):
         self.assertContains(self.client.get(reverse("schriftstueck_detail", args=[self.s.pk])),
-                            "Abstimmungen und Wahlen aus OpenSlides einfügen")
+                            "Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen")
         self.ver.openslides_meeting_id = None
         self.ver.save()
         self.assertNotContains(self.client.get(reverse("schriftstueck_detail", args=[self.s.pk])),
-                               "Abstimmungen und Wahlen aus OpenSlides einfügen")
+                               "Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen")
 
     def test_fuegt_abschnitte_ein_und_platzhalter_zeigen_ergebnis(self):
         r = self._post(antraege=_antrag_antwort(), wahlen=_wahl_antwort())
-        self.assertContains(r, "1 Wahlergebnis(se) und 1 Abstimmung(en) aus OpenSlides übernommen.")
+        self.assertContains(r, "1 Wahlergebnis(se), 1 Abstimmung(en) und 0 Anwesende aus OpenSlides übernommen.")
         self.s.refresh_from_db()
         self.assertIn("{abstimmungen}", self.s.text)
         self.assertIn("{wahlergebnisse}", self.s.text)
@@ -337,7 +338,7 @@ class ProtokollAbstimmungenViewTests(TestCase):
 
     def test_ohne_ergebnisse_warnung_und_text_unveraendert(self):
         r = self._post()
-        self.assertContains(r, "Keine abgeschlossenen Wahlen oder Abstimmungen")
+        self.assertContains(r, "Keine abgeschlossenen Wahlen oder Abstimmungen und keine Anwesenden")
         self.s.refresh_from_db()
         self.assertEqual(self.s.text, "Beginn der Sitzung.")
 
@@ -354,3 +355,110 @@ class ProtokollAbstimmungenViewTests(TestCase):
         self.assertIn(self.client.post(self.url).status_code, (302, 403))
         self.s.refresh_from_db()
         self.assertEqual(self.s.text, "Beginn der Sitzung.")
+
+
+def _anwesenheit_antwort():
+    """Simulierte Autoupdate-Antwort: zwei als anwesend markierte Personen - ein Mitglied (OpenSlides-Konto 42) und
+    ein Gast ohne Mitgliedskonto."""
+    return {
+        "meeting/5/present_user_ids": [42, 99],
+        "user/42/first_name": "Erika", "user/42/last_name": "OS-Name-wird-nicht-gebraucht",
+        "user/99/first_name": "Gast", "user/99/last_name": "Besucher",
+    }
+
+
+class AnwesenheitAbrufenTests(TestCase):
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.verbindung = OpenSlidesVerbindung.objects.create(
+            verein=self.v, url="https://os.example.org", benutzername="sync", passwort="geheim")
+        self.ver = Veranstaltung.objects.create(verein=self.v, titel="Mitgliederversammlung 2026",
+                                                beginn=timezone.now(), openslides_meeting_id=5)
+        self.m = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Muster", mitgliedsnummer=7,
+                                         openslides_user_id=42, openslides_username="erika.muster")
+
+    def _abrufen(self, antwort):
+        with patch("apps.openslides.services.OSClient") as MockClient:
+            MockClient.return_value.abfragen.return_value = antwort
+            return services.anwesenheit_abrufen(self.verbindung, self.ver)
+
+    def test_mitglied_wird_zugeordnet_gast_behaelt_namen(self):
+        from apps.events.models import Anwesenheit
+        self.assertEqual(self._abrufen(_anwesenheit_antwort()), 2)
+        mitglied = Anwesenheit.objects.get(openslides_user_id=42)
+        self.assertEqual(mitglied.mitglied, self.m)
+        self.assertEqual(mitglied.name, "")   # Name wird nicht kopiert (DSGVO-Anonymisierung wirkt)
+        self.assertEqual(mitglied.wer, "Erika Muster")
+        gast = Anwesenheit.objects.get(openslides_user_id=99)
+        self.assertIsNone(gast.mitglied)
+        self.assertEqual(gast.wer, "Gast Besucher")
+
+    def test_mitglied_eines_anderen_vereins_wird_nicht_zugeordnet(self):
+        from apps.events.models import Anwesenheit
+        anderer = Verein.objects.create(name="Anderer e.V.", kuerzel="anderer")
+        Mitglied.objects.create(verein=anderer, vorname="Fremd", nachname="Person", mitgliedsnummer=1,
+                                openslides_user_id=99)
+        self._abrufen(_anwesenheit_antwort())
+        self.assertIsNone(Anwesenheit.objects.get(openslides_user_id=99).mitglied)
+
+    def test_erneuter_abruf_ersetzt_den_stand(self):
+        from apps.events.models import Anwesenheit
+        self._abrufen(_anwesenheit_antwort())
+        self._abrufen({"meeting/5/present_user_ids": [42], "user/42/first_name": "Erika"})
+        self.assertEqual(Anwesenheit.objects.filter(veranstaltung=self.ver).count(), 1)
+
+    def test_niemand_anwesend_ist_kein_fehler(self):
+        from apps.events.models import Anwesenheit
+        self._abrufen(_anwesenheit_antwort())
+        self.assertEqual(self._abrufen({"meeting/5/present_user_ids": []}), 0)
+        self.assertFalse(Anwesenheit.objects.exists())
+
+    def test_fehlerantwort_loescht_nichts_und_wird_gemeldet(self):
+        from apps.events.models import Anwesenheit
+        self._abrufen(_anwesenheit_antwort())
+        with self.assertRaises(OpenSlidesFehler):
+            self._abrufen({"success": False, "message": "Kein Zugriff"})
+        self.assertEqual(Anwesenheit.objects.count(), 2)
+
+    def test_ohne_meeting_wird_abgelehnt(self):
+        self.ver.openslides_meeting_id = None
+        self.ver.save()
+        with self.assertRaises(OpenSlidesFehler):
+            services.anwesenheit_abrufen(self.verbindung, self.ver)
+
+    def test_platzhalter_anwesenheit_und_anzahl(self):
+        from apps.documents.platzhalter import kontext
+        ctx = kontext(self.v, veranstaltung=self.ver)
+        self.assertEqual(ctx["anwesenheit_anzahl"], "[Anzahl]")
+        self.assertIn("keine Anwesenheit", ctx["anwesenheit"])
+        self._abrufen(_anwesenheit_antwort())
+        ctx = kontext(self.v, veranstaltung=self.ver)
+        self.assertEqual(ctx["anwesenheit_anzahl"], "2")
+        self.assertEqual(ctx["anwesenheit"], "- Erika Muster\n- Gast Besucher")
+
+    def test_anonymisiertes_mitglied_erscheint_anonymisiert(self):
+        from apps.documents.platzhalter import kontext
+        self._abrufen(_anwesenheit_antwort())
+        self.m.vorname, self.m.nachname = "Anonymisiert", "#7"
+        self.m.save()
+        self.assertIn("Anonymisiert #7", kontext(self.v, veranstaltung=self.ver)["anwesenheit"])
+        self.assertNotIn("Erika", kontext(self.v, veranstaltung=self.ver)["anwesenheit"])
+
+
+class ProtokollAnwesenheitViewTests(ProtokollAbstimmungenViewTests):
+    """Der Knopf am Protokoll fuegt zusaetzlich die Anwesenheitsliste ein (erbt Einrichtung und Hilfsmethode)."""
+
+    def test_anwesenheit_wird_abgerufen_und_abschnitt_eingefuegt(self):
+        r = self._post(anwesenheit=_anwesenheit_antwort(), antraege=_antrag_antwort())
+        self.assertContains(r, "1 Abstimmung(en) und 2 Anwesende aus OpenSlides übernommen.")
+        self.s.refresh_from_db()
+        self.assertIn("{anwesenheit}", self.s.text)
+        from apps.documents.platzhalter import ersetzen
+        text = ersetzen(self.s.text, self.s.kontext())
+        self.assertIn("- Gast Besucher", text)
+
+    def test_veranstaltung_zeigt_abschnitt_anwesenheit(self):
+        self._post(anwesenheit=_anwesenheit_antwort())
+        r = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
+        self.assertContains(r, "Anwesenheit (aus OpenSlides)")
+        self.assertContains(r, "Gast Besucher")

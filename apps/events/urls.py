@@ -4,7 +4,7 @@ from apps.core.crud import crud
 
 from . import views
 from .forms import AufgabeForm
-from .models import (Anmeldung, Aufgabe, AufgabeNotiz, Kostenposition, Schicht, Schichteinsatz, Tagesordnungspunkt,
+from .models import (Anmeldung, Anwesenheit, Aufgabe, AufgabeNotiz, Kostenposition, Schicht, Schichteinsatz, Tagesordnungspunkt,
                      Veranstaltung, Wahlergebnis)
 
 
@@ -47,3 +47,5 @@ urlpatterns += crud("tagesordnung", Tagesordnungspunkt, "veranstaltungen", list_
                     ordering=("veranstaltung", "position"))
 urlpatterns += crud("wahlergebnisse", Wahlergebnis, "veranstaltungen", list_display=("veranstaltung", "amt", "wahlgang"),
                     select_related=("veranstaltung",), filter=("veranstaltung",), add=False, edit=False)
+urlpatterns += crud("anwesenheit", Anwesenheit, "teilnehmer", list_display=("veranstaltung", ("wer", "Name")),
+                    select_related=("veranstaltung", "mitglied"), filter=("veranstaltung",), add=False, edit=False)

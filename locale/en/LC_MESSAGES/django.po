@@ -4633,3 +4633,11 @@ msgstr "Election / vote result"
 
 msgid "Wahl- und Abstimmungsergebnisse"
 msgstr "Election and vote results"
+
+# Anwesenheit
+
+msgid "Anwesenheit"
+msgstr "Attendance"
+
+msgid "Anwesenheiten"
+msgstr "Attendances"

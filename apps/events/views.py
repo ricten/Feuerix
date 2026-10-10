@@ -55,10 +55,10 @@ def veranstaltung_kontext(request, v):
                                   else "In OpenSlides anlegen", reverse("veranstaltung_openslides", args=[v.pk]), post=True,
                                   stil="outline-success"))
             if v.openslides_meeting_id:
-                aktionen.append(knopf("Wahlen und Abstimmungen aus OpenSlides übernehmen",
+                aktionen.append(knopf("Anwesenheit, Wahlen und Abstimmungen aus OpenSlides übernehmen",
                                       reverse("veranstaltung_wahlergebnisse", args=[v.pk]), post=True,
                                       stil="outline-success",
-                                      bestaetigung="Wahlen und Abstimmungen aus OpenSlides abrufen? Zuvor übernommene "
+                                      bestaetigung="Anwesenheit, Wahlen und Abstimmungen aus OpenSlides abrufen? Zuvor übernommene "
                                                    "Ergebnisse dieser Veranstaltung werden dabei ersetzt."))
     s = v.summen()
     hinweise = [f"Plan: Einnahmen {geld(s['plan_ein'])} · Ausgaben {geld(s['plan_aus'])} · "
@@ -86,6 +86,9 @@ def veranstaltung_kontext(request, v):
     if r.darf("teilnehmer", "view"):
         ab.insert(2, abschnitt(request, "Anmeldungen", v.anmeldungen.all(), (("wer", "Name"), "personen", "status"),
                                "anmeldung_add", {"veranstaltung": v.pk}))
+    if r.darf("teilnehmer", "view") and v.anwesenheiten.exists():
+        ab.append(abschnitt(request, "Anwesenheit (aus OpenSlides)", v.anwesenheiten.select_related("mitglied"),
+                            (("wer", "Name"),)))
     if v.wahlergebnisse.filter(art="abstimmung").exists():
         ab.append(abschnitt(request, "Abstimmungen (aus OpenSlides)", v.wahlergebnisse.filter(art="abstimmung"),
                             ("amt", "wahlgang")))

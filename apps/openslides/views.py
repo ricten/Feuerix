@@ -128,11 +128,11 @@ def veranstaltung_wahlergebnisse(request, pk):
     ver = get_object_or_404(Veranstaltung, pk=pk, verein=request.verein)
     try:
         v = _verbindung(request)
-        n = services.wahlergebnisse_abrufen(v, ver)
+        n = services.wahlergebnisse_abrufen(v, ver) + services.anwesenheit_abrufen(v, ver)
         if n:
             messages.success(request, _ergebnis_meldung(ver))
         else:
-            messages.warning(request, "Keine abgeschlossenen Wahlen oder Abstimmungen mit Ergebnis gefunden.")
+            messages.warning(request, "Keine abgeschlossenen Wahlen oder Abstimmungen und keine Anwesenden gefunden.")
     except OpenSlidesFehler as e:
         messages.error(request, f"OpenSlides: {e}")
     return redirect("veranstaltung_detail", pk=ver.pk)
@@ -141,18 +141,25 @@ def veranstaltung_wahlergebnisse(request, pk):
 def _ergebnis_meldung(ver):
     wahlen = ver.wahlergebnisse.filter(art="wahl").count()
     abstimmungen = ver.wahlergebnisse.filter(art="abstimmung").count()
-    return f"{wahlen} Wahlergebnis(se) und {abstimmungen} Abstimmung(en) aus OpenSlides übernommen."
+    return (f"{wahlen} Wahlergebnis(se), {abstimmungen} Abstimmung(en) und {ver.anwesenheiten.count()} Anwesende "
+            f"aus OpenSlides übernommen.")
 
 
-ABSCHNITTE = (("abstimmung", "{abstimmungen}", "Abstimmungen (aus OpenSlides übernommen; ob angenommen, bitte ergänzen)"),
-              ("wahl", "{wahlergebnisse}", "Wahlergebnisse (aus OpenSlides übernommen; gewählte Person bitte ergänzen)"))
+def _abschnitte(ver):
+    """(Platzhalter, Ueberschrift, Daten vorhanden) der Abschnitte, die der Knopf am Protokoll bei Bedarf anhaengt."""
+    return (("{anwesenheit}", "Anwesenheitsliste (aus OpenSlides übernommen; Stimmberechtigung bitte prüfen)",
+             ver.anwesenheiten.exists()),
+            ("{abstimmungen}", "Abstimmungen (aus OpenSlides übernommen; ob angenommen, bitte ergänzen)",
+             ver.wahlergebnisse.filter(art="abstimmung").exists()),
+            ("{wahlergebnisse}", "Wahlergebnisse (aus OpenSlides übernommen; gewählte Person bitte ergänzen)",
+             ver.wahlergebnisse.filter(art="wahl").exists()))
 
 
 @login_required
 @require_POST
 def schriftstueck_abstimmungen(request, pk):
-    """Am Protokoll: Wahlen und Abstimmungen frisch aus OpenSlides abrufen und - falls noch nicht im Text - als
-    Abschnitte mit den Platzhaltern {abstimmungen}/{wahlergebnisse} einfuegen. Die Platzhalter werden beim Erzeugen
+    """Am Protokoll: Anwesenheit, Wahlen und Abstimmungen frisch aus OpenSlides abrufen und - falls noch nicht im
+    Text - als Abschnitte mit den Platzhaltern {anwesenheit}/{abstimmungen}/{wahlergebnisse} einfuegen. Die Platzhalter werden beim Erzeugen
     von PDF/Word jeweils mit dem aktuellen Stand gefuellt; ein erneuter Klick aktualisiert also die Daten, ohne
     den Text zu verdoppeln oder eigene Ergaenzungen zu ueberschreiben."""
     from apps.documents.models import Schriftstueck
@@ -167,15 +174,15 @@ def schriftstueck_abstimmungen(request, pk):
         return redirect("schriftstueck_detail", pk=s.pk)
     try:
         v = _verbindung(request)
-        n = services.wahlergebnisse_abrufen(v, ver)
+        n = services.wahlergebnisse_abrufen(v, ver) + services.anwesenheit_abrufen(v, ver)
     except OpenSlidesFehler as e:
         messages.error(request, f"OpenSlides: {e}")
         return redirect("schriftstueck_detail", pk=s.pk)
     if not n:
-        messages.warning(request, "Keine abgeschlossenen Wahlen oder Abstimmungen mit Ergebnis gefunden.")
+        messages.warning(request, "Keine abgeschlossenen Wahlen oder Abstimmungen und keine Anwesenden gefunden.")
         return redirect("schriftstueck_detail", pk=s.pk)
-    neu = [f"{titel}:\n{platzhalter}" for art, platzhalter, titel in ABSCHNITTE
-           if platzhalter not in s.text and ver.wahlergebnisse.filter(art=art).exists()]
+    neu = [f"{titel}:\n{platzhalter}" for platzhalter, titel, vorhanden in _abschnitte(ver)
+           if vorhanden and platzhalter not in s.text]
     if neu:
         s.text = s.text.rstrip() + "\n\n" + "\n\n".join(neu) + "\n"
         s.save(update_fields=["text", "geaendert"])

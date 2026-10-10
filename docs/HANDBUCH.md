@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.62.0)
+# Handbuch – Feuerix (Version 1.63.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -561,9 +561,9 @@ gespeicherten OpenSlides-Anfangspasswörter (z. B. nachdem alle Zugangsdaten ver
 Die OpenSlides-Anbindung einrichten können laut Datenschutzordnung alle sechs DSO-Rollen (Zeile „Vereinssoftware /
 Verwaltung“ der Berechtigungsmatrix) sowie der Superadministrator und Administrator.
 
-**Wahlen und Abstimmungen zurückholen**: Ist eine Veranstaltung mit einer OpenSlides-Versammlung verknüpft, erscheint
-auf ihrer Seite zusätzlich „Wahlen und Abstimmungen aus OpenSlides übernehmen“. Das holt die Stimmenverteilung
-aller in OpenSlides bereits abgeschlossenen Personenwahlen **und aller Abstimmungen zu Anträgen (Motions) und
+**Anwesenheit, Wahlen und Abstimmungen zurückholen**: Ist eine Veranstaltung mit einer OpenSlides-Versammlung
+verknüpft, erscheint auf ihrer Seite zusätzlich „Anwesenheit, Wahlen und Abstimmungen aus OpenSlides übernehmen“.
+Das holt die Stimmenverteilung aller in OpenSlides bereits abgeschlossenen Personenwahlen **und aller Abstimmungen zu Anträgen (Motions) und
 Themen** (Status „finished“ oder „published“ – noch laufende liefern naturgemäß kein Ergebnis) und legt sie je
 Wahlgang bzw. Abstimmung auf der Veranstaltung ab (Abschnitte „Wahlergebnisse (aus OpenSlides)“ und „Abstimmungen
 (aus OpenSlides)“). Bei Anträgen steht darin die Ja-/Nein-/Enthaltung-Verteilung, die Zahl der gültigen/ungültigen
@@ -571,15 +571,22 @@ Stimmen und – nur zur Information – der in OpenSlides gesetzte Antragsstatus
 gewählt ist bzw. ob ein Antrag angenommen ist, muss anhand der Satzung (Mehrheitserfordernis, Umgang mit
 Gleichstand) selbst festgestellt und eingetragen werden, das entscheidet die Software bewusst nicht automatisch.
 
+**Anwesenheit**: Außerdem werden alle Personen übernommen, die in OpenSlides als „anwesend“ markiert sind
+(Abschnitt „Anwesenheit (aus OpenSlides)“, sichtbar mit dem Recht „Teilnehmerlisten“). Mitglieder werden über ihr
+verknüpftes OpenSlides-Konto (Abgleich, siehe oben) zugeordnet und mit ihrem aktuellen Namen geführt; alle anderen
+erscheinen als Gast mit dem Namen aus OpenSlides. Übernommen wird der Stand zum Zeitpunkt des Abrufs – die
+Anwesenheit also am besten vor Schließen der Versammlung abrufen, bevor Personen als abwesend gesetzt werden. Ob
+eine anwesende Person stimmberechtigt war, entscheidet die Software nicht; das prüft der Protokollführer (die
+Beschlussfähigkeit ebenso). Platzhalter: `{anwesenheit}` (alphabetische Namensliste) und `{anwesenheit_anzahl}`.
+
 **Ins Protokoll übernehmen**: Am Protokoll (Schriftverkehr › Schriftstücke, Art „Protokoll“ einer verknüpften
-Veranstaltung) gibt es den Knopf „Abstimmungen und Wahlen aus OpenSlides einfügen“: Er ruft den aktuellen Stand ab
-und fügt – falls noch nicht vorhanden – die Abschnitte „Abstimmungen“ und „Wahlergebnisse“ mit den Platzhaltern
-`{abstimmungen}` und `{wahlergebnisse}` ans Ende des Protokolls an. Die Platzhalter werden bei PDF und Word immer mit
+Veranstaltung) gibt es den Knopf „Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen“: Er ruft den aktuellen Stand ab
+und fügt – falls noch nicht vorhanden – die Abschnitte „Anwesenheitsliste“, „Abstimmungen“ und „Wahlergebnisse“
+mit den Platzhaltern `{anwesenheit}`, `{abstimmungen}` und `{wahlergebnisse}` ans Ende des Protokolls an. Die Platzhalter werden bei PDF und Word immer mit
 dem aktuellen Stand gefüllt; ein erneuter Klick aktualisiert also die Daten, ohne den Text zu verdoppeln oder eigene
 Ergänzungen zu überschreiben. Die mitgelieferte Vorlage „Protokoll Mitgliederversammlung“ enthält beide Platzhalter
 bereits (bei älteren, bereits angelegten Vorlagen den Knopf oder die Platzhalter von Hand nutzen). Ein erneuter
-Abruf ersetzt zuvor übernommene Ergebnisse dieser Veranstaltung vollständig. **Nicht** enthalten ist ein Rückfluss
-der Anwesenheit.
+Abruf ersetzt zuvor übernommene Ergebnisse und die Anwesenheit dieser Veranstaltung vollständig.
 
 ## 13. Paperless-ngx-Anbindung
 
@@ -737,8 +744,7 @@ kopiert (INSTALL.md, Abschnitt 12, dort auch die Wiederherstellung).
 
 ## 17. Bekannte Grenzen
 
-Aktuell **nicht** enthalten: ein Rückfluss der Anwesenheit aus OpenSlides (Wahlen und Abstimmungen fließen
-zurück, siehe Kapitel 12), eine REST-API sowie eine anteilige Beitragsberechnung bei unterjährigem Ein-/Austritt
+Aktuell **nicht** enthalten: eine REST-API sowie eine anteilige Beitragsberechnung bei unterjährigem Ein-/Austritt
 (die Datenbank-Wiederherstellung ist in der Weboberfläche möglich, siehe Kapitel 15). Der SEPA-Einzug
 (Kapitel 4) erzeugt nur die Einzugsdatei; ein Rückkanal, der eine tatsächlich eingegangene oder zurückgebuchte
 Lastschrift automatisch erkennt, existiert nicht – das läuft weiterhin über den normalen Kontoauszug-Import. Die

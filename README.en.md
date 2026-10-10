@@ -100,7 +100,7 @@ login, CSRF protection, language – no tracking cookies).
 | Events | Planning, tasks, shift schedule with staffing, registrations, budget (planned/actual), inventory reservation, iCal export |
 | Correspondence | Club logo (on every PDF), editable templates (invitation, minutes, mail merge …) with placeholders, individual documents with PDF and Word export, mail merges with a recipient filter (a single PDF or email with a PDF attachment) – see [docs/SCHRIFTVERKEHR.en.md](docs/SCHRIFTVERKEHR.en.md) |
 | Archive | Folder structure (category/year), versioned documents, linked to events, protected file access; generated PDFs are filed automatically; optional submission to **Paperless-ngx** (individually or in bulk); individual documents can be marked **public** (privacy policy, intake form, etc.) – they then appear without login on a public downloads page |
-| OpenSlides | Integration with OpenSlides 4: creating/syncing member accounts, creating a meeting + agenda from an event, **retrieving elections and votes** (vote distribution of completed personnel elections and of all votes on motions/topics flows back into the event, also directly into the minutes via a button or the `{abstimmungen}`/`{wahlergebnisse}` placeholders) (implemented following the documentation, untested) |
+| OpenSlides | Integration with OpenSlides 4: creating/syncing member accounts, creating a meeting + agenda from an event, **retrieving attendance, elections and votes** (attendance, vote distribution of completed personnel elections and of all votes on motions/topics flows back into the event, also directly into the minutes via a button or the `{anwesenheit}`/`{abstimmungen}`/`{wahlergebnisse}` placeholders) (implemented following the documentation, untested) |
 | Paperless-ngx | A connection per club (address, API token stored encrypted, connection test); send archive documents to an existing Paperless instance via a button or in bulk (correspondent/document type/tags are created there automatically if needed) |
 | Audit trail | Every change: who, when, IP, field old → new, an optional reason; sensitive fields masked |
 
@@ -143,8 +143,9 @@ login, CSRF protection, language – no tracking cookies).
   topics** (status "finished"/"published"). The software deliberately does not decide itself who is elected or
   whether a motion is carried (majority requirements/tie-break rules live in the bylaws) – the plain
   yes/no/abstain distribution is shown (for motions plus the status set in OpenSlides, for information). On the
-  minutes, the button "Insert votes and elections from OpenSlides" inserts the `{abstimmungen}` and
-  `{wahlergebnisse}` placeholders with the current state. Implemented technically via a single, nested query to the OpenSlides
+  minutes, the button "Insert attendance, votes and elections from OpenSlides" inserts the `{anwesenheit}`,
+  `{abstimmungen}` and `{wahlergebnisse}` placeholders with the current state. Attendance (persons marked
+  "present"; members matched via their OpenSlides account) is imported as well. Implemented technically via a single, nested query to the OpenSlides
   autoupdate service (following its documentation, likewise not tested against a real instance). Fetching
   again fully replaces previously imported results for the same event.
 * **Paperless-ngx:** either use an already-running, separate instance (just enter the address and API token
@@ -188,7 +189,7 @@ production use.
 
 ## Not yet included
 
-A feed of attendance from OpenSlides (elections and votes flow back, see above), a REST API (DRF), pro-rata
+A REST API (DRF), pro-rata
 fees, an update interface (restoring a backup is possible in the web interface).
 SEPA direct debit only generates the collection file (pain.008) – the return channel (arrived/reversed) still
 runs via the normal bank-statement import.

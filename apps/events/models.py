@@ -212,6 +212,32 @@ class Anmeldung(TenantModel):
             raise ValidationError(_("Bitte ein Mitglied oder einen Namen angeben."))
 
 
+class Anwesenheit(TenantModel):
+    """Aus OpenSlides zurückgeholte Anwesenheit einer Versammlung (Rückfluss ins Protokoll) - je anwesender Person
+    ein Datensatz. Mitglieder werden über ihr verknüpftes OpenSlides-Konto zugeordnet und dann mit ihrem aktuellen
+    Namen geführt (der Name wird bewusst nicht kopiert, damit eine DSGVO-Anonymisierung auch hier wirkt); nur
+    Personen ohne Mitgliedskonto (Gäste) behalten den Namen aus OpenSlides. Der Stand entspricht der "anwesend"-
+    Markierung in OpenSlides zum Zeitpunkt des Abrufs - ob jemand stimmberechtigt war, prüft der Protokollführer."""
+    veranstaltung = models.ForeignKey(Veranstaltung, on_delete=models.CASCADE, related_name="anwesenheiten",
+                                      verbose_name=_("Veranstaltung"))
+    mitglied = models.ForeignKey("members.Mitglied", on_delete=models.SET_NULL, null=True, blank=True,
+                                 related_name="+", verbose_name=_("Mitglied"))
+    name = models.CharField(_("Name (Gast)"), max_length=200, blank=True)
+    openslides_user_id = models.PositiveIntegerField(_("OpenSlides-Konto-ID"), null=True, blank=True, editable=False)
+
+    class Meta:
+        verbose_name = _("Anwesenheit")
+        verbose_name_plural = _("Anwesenheiten")
+        ordering = ["id"]
+
+    def __str__(self):
+        return self.wer
+
+    @property
+    def wer(self):
+        return self.mitglied.name if self.mitglied_id else (self.name or "?")
+
+
 class Kostenposition(TenantModel):
     ART = [("einnahme", _("Einnahme")), ("ausgabe", _("Ausgabe"))]
     veranstaltung = models.ForeignKey(Veranstaltung, on_delete=models.CASCADE, related_name="kosten",

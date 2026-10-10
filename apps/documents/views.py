@@ -80,7 +80,7 @@ def schriftstueck_kontext(request, s):
                 and rt.darf("openslides", "change")):
             from apps.openslides.models import OpenSlidesVerbindung
             if OpenSlidesVerbindung.objects.filter(verein=request.verein, aktiv=True).exists():
-                aktionen.append(knopf("Abstimmungen und Wahlen aus OpenSlides einfügen",
+                aktionen.append(knopf("Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen",
                                       reverse("schriftstueck_abstimmungen", args=[s.pk]), post=True,
                                       stil="outline-success"))
     hinweise = []
