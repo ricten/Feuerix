@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.66.2
+- Fix: Das Protokoll einer späteren Sitzung wurde in der Ablage als „Version 2“ des Protokolls einer früheren Sitzung mit gleichem
+  Titel abgelegt. Jetzt beginnt ein erstmals abgelegtes Schriftstück immer bei Version 1; eine neue Version entsteht nur beim
+  erneuten Ablegen desselben Schriftstücks bzw. bei gleichem Titel/Ordner/Veranstaltung (manueller Upload). Bereits falsch
+  gezählte Dokumente werden per Migration je Veranstaltung neu nummeriert (die Dateien selbst waren nie überschrieben).
+
 ## 1.66.1
 - Detailseiten zeigen leere Angaben nicht mehr: Felder ohne Wert (früher „–“), die Karte „Keine weiteren Angaben.“ und leere
   Abschnitte ohne „Hinzufügen“-Knopf entfallen. Abschnitte mit „Hinzufügen“-Knopf bleiben auch leer sichtbar.

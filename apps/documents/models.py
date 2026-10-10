@@ -106,13 +106,20 @@ class Ablagedokument(TenantModel):
         return os.path.basename(self.datei.name) if self.datei else ""
 
     def save(self, *args, **kwargs):
-        # Versionierung: gleicher Titel im gleichen Ordner -> neue Version; alte Dateien bleiben erhalten
+        # Versionierung: gleicher Titel im gleichen Ordner UND zur gleichen Veranstaltung -> neue Version; alte Dateien
+        # bleiben erhalten. (Ohne die Veranstaltung wurde das Protokoll einer spaeteren Sitzung mit gleichem Titel als
+        # "Version 2" des frueheren Protokolls abgelegt.) Mit `_erste_version` (siehe services.ablegen) beginnt ein
+        # Dokument bewusst bei Version 1, auch wenn schon ein anderes mit gleichem Titel existiert.
         if self._state.adding and not self.tags:
             self.tags = ", ".join(self.standard_tags)
         if self._state.adding:
-            h = Ablagedokument.objects.filter(verein_id=self.verein_id, ordner_id=self.ordner_id,
-                                              titel=self.titel).aggregate(m=Max("version"))["m"]
-            self.version = (h or 0) + 1
+            if getattr(self, "_erste_version", False):
+                self.version = 1
+            else:
+                h = Ablagedokument.objects.filter(verein_id=self.verein_id, ordner_id=self.ordner_id,
+                                                  titel=self.titel, veranstaltung_id=self.veranstaltung_id
+                                                  ).aggregate(m=Max("version"))["m"]
+                self.version = (h or 0) + 1
         super().save(*args, **kwargs)
 
 

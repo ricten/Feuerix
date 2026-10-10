@@ -14,7 +14,8 @@ def ablage_kontext(request, d):
         a.append(knopf("Herunterladen", reverse("datei", args=["documents", "ablagedokument", d.pk, "datei"]), stil="primary"))
     if request.rechte.darf("ablage", "add"):
         a.append(knopf("Neue Version hochladen", reverse("ablagedokument_add") + f"?titel={d.titel}&kategorie={d.kategorie}"
-                       + (f"&ordner={d.ordner_id}" if d.ordner_id else "")))
+                       + (f"&ordner={d.ordner_id}" if d.ordner_id else "")
+                       + (f"&veranstaltung={d.veranstaltung_id}" if d.veranstaltung_id else "")))
     verbindung = PaperlessVerbindung.objects.filter(verein=request.verein, aktiv=True).first()
     if d.datei and verbindung and request.rechte.darf("ablage", "change"):
         if d.paperless_status in ("wartet", "sendet", "uebergeben"):

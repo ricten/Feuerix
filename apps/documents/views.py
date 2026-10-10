@@ -116,8 +116,10 @@ def schriftstueck_ablegen(request, pk):
     _pruefen(request, "ablage", "add")
     s = get_object_or_404(Schriftstueck, pk=pk, verein=request.verein)
     kat = {"protokoll": "protokoll", "einladung": "einladung", "serienbrief": "serienbrief"}.get(s.art, "sonstiges")
+    # Erst-Ablage = eigenes Dokument (Version 1), auch wenn z. B. das Protokoll einer fruehreren Sitzung genauso heisst;
+    # nur erneutes Ablegen DESSELBEN Schriftstuecks ergibt eine neue Version.
     d = services.ablegen(request.verein, s.titel, kat, f"{s.titel[:60]}.pdf", schriftstueck_pdf(s), datum=s.datum,
-                         veranstaltung=s.veranstaltung)
+                         veranstaltung=s.veranstaltung, erste_version=s.ablage_id is None)
     s.ablage = d
     s.save(update_fields=["ablage", "geaendert"])
     if s.status == "final":

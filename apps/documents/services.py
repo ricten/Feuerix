@@ -33,11 +33,14 @@ def ordner_fuer(verein, kategorie, jahr):
     return sub
 
 
-def ablegen(verein, titel, kategorie, dateiname, inhalt, datum=None, veranstaltung=None, beschreibung=""):
-    """Legt eine Datei versioniert in der Ablage ab (Ordner: Kategorie/Jahr)."""
+def ablegen(verein, titel, kategorie, dateiname, inhalt, datum=None, veranstaltung=None, beschreibung="",
+            erste_version=False):
+    """Legt eine Datei versioniert in der Ablage ab (Ordner: Kategorie/Jahr). `erste_version=True`: das Dokument wird
+    zum ersten Mal abgelegt und beginnt bei Version 1, auch wenn es schon ein anderes mit gleichem Titel gibt."""
     datum = datum or date.today()
     d = Ablagedokument(verein=verein, titel=titel, kategorie=kategorie, ordner=ordner_fuer(verein, kategorie, datum.year),
                        datum=datum, veranstaltung=veranstaltung, beschreibung=beschreibung)
+    d._erste_version = erste_version
     d.datei.save(dateiname, ContentFile(inhalt), save=False)
     d.save()
     return d
