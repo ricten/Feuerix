@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.64.4)
+# Handbuch – Feuerix (Version 1.65.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -573,8 +573,9 @@ verknüpft, erscheint auf ihrer Seite zusätzlich „Anwesenheit, Wahlen und Abs
 Das holt die Stimmenverteilung aller in OpenSlides bereits abgeschlossenen Personenwahlen **und aller Abstimmungen zu Anträgen (Motions) und
 Themen** (Status „finished“ oder „published“ – noch laufende liefern naturgemäß kein Ergebnis) und legt sie je
 Wahlgang bzw. Abstimmung auf der Veranstaltung ab (Abschnitte „Wahlergebnisse (aus OpenSlides)“ und „Abstimmungen
-(aus OpenSlides)“). Bei Anträgen steht darin die Ja-/Nein-/Enthaltung-Verteilung, die Zahl der gültigen/ungültigen
-Stimmen und – nur zur Information – der in OpenSlides gesetzte Antragsstatus (z. B. „beschlossen“). Wer tatsächlich
+(aus OpenSlides)“). Bei Anträgen steht darin Antragsteller*in, Antragstext und Begründung, die Ja-/Nein-/Enthaltung-Verteilung, die Zahl
+der gültigen/ungültigen Stimmen (sofern in OpenSlides erfasst) und – nur zur Information – der in OpenSlides gesetzte
+Antragsstatus (z. B. „angenommen“; also den Status in OpenSlides vor dem Abruf setzen). Wer tatsächlich
 gewählt ist bzw. ob ein Antrag angenommen ist, muss anhand der Satzung (Mehrheitserfordernis, Umgang mit
 Gleichstand) selbst festgestellt und eingetragen werden, das entscheidet die Software bewusst nicht automatisch.
 

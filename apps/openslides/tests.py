@@ -563,3 +563,101 @@ class WahlMitBenutzerOptionenTests(TestCase):
         self._abrufen(_wahl_antwort_mit_benutzern())
         text = kontext(self.v, veranstaltung=self.ver)["wahlergebnisse"]
         self.assertIn("wahl vorsitzender – Wahlgang:\nAndreas Hoffmann: 10 Stimmen", text)
+
+
+def _antrag_mit_details():
+    """Antrag wie in OpenSlides 4.3 (Antragsteller ueber meeting_user, HTML-Text/Begruendung, Zaehlwerte -2 =
+    "nicht erfasst")."""
+    return {
+        "meeting/5/motion_ids": [2],
+        "motion/2/title": "beitragserhöhung", "motion/2/state_id": 4, "motion_state/4/name": "angenommen",
+        "motion/2/text": "<p>erhöhung beitrag</p>", "motion/2/reason": "<p>kein geld in der <strong>kasse</strong></p>",
+        "motion/2/submitter_ids": [8], "motion_submitter/8/meeting_user_id": 31,
+        "meeting_user/31/user_id": 55, "user/55/first_name": "Christina", "user/55/last_name": "Peters",
+        "motion/2/poll_ids": [9],
+        "poll/9/title": "Antrag Abstimmung", "poll/9/state": "published", "poll/9/option_ids": [500],
+        "poll/9/votesvalid": "-2.000000", "poll/9/votesinvalid": "-2.000000", "poll/9/votescast": "-2.000000",
+        "option/500/yes": "10.000000", "option/500/no": "5.000000", "option/500/abstain": "2.000000",
+    }
+
+
+class AntragDetailsTests(TestCase):
+    """Regression: im Protokoll fehlten Antragsteller, Antragstext und Begruendung, und -2 wurde als Stimmenzahl
+    ausgegeben."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.verbindung = OpenSlidesVerbindung.objects.create(
+            verein=self.v, url="https://os.example.org", benutzername="sync", passwort="geheim")
+        self.ver = Veranstaltung.objects.create(verein=self.v, titel="Mitgliederversammlung 2026",
+                                                beginn=timezone.now(), openslides_meeting_id=5)
+
+    def _abrufen(self, antraege):
+        with patch("apps.openslides.services.OSClient") as MockClient:
+            MockClient.return_value.abfragen.side_effect = [{}, antraege, {}]
+            return services.wahlergebnisse_abrufen(self.verbindung, self.ver)
+
+    def test_antragsteller_text_begruendung_ergebnis_und_status(self):
+        self.assertEqual(self._abrufen(_antrag_mit_details()), 1)
+        a = Wahlergebnis.objects.get(veranstaltung=self.ver)
+        self.assertEqual(a.amt, "Antrag: beitragserhöhung")
+        self.assertEqual(a.ergebnis.splitlines(), [
+            "Antragsteller*in: Christina Peters", "Antragstext: erhöhung beitrag", "Begründung: kein geld in der kasse",
+            "Ergebnis: 10 Ja, 5 Nein, 2 Enthaltung", "Status in OpenSlides: angenommen"])
+
+    def test_nicht_erfasste_zaehlwerte_minus_zwei_werden_ausgeblendet(self):
+        self._abrufen(_antrag_mit_details())
+        ergebnis = Wahlergebnis.objects.get(veranstaltung=self.ver).ergebnis
+        self.assertNotIn("-2", ergebnis)
+        self.assertNotIn("Gültige", ergebnis)
+
+    def test_erfasste_zaehlwerte_werden_gezeigt(self):
+        antwort = _antrag_mit_details()
+        antwort.update({"poll/9/votesvalid": "17.000000", "poll/9/votesinvalid": "0.000000",
+                        "poll/9/votescast": "17.000000"})
+        self._abrufen(antwort)
+        self.assertIn("Gültige Stimmen: 17, Ungültige Stimmen: 0, Abgegebene Stimmen: 17",
+                      Wahlergebnis.objects.get(veranstaltung=self.ver).ergebnis)
+
+    def test_antragsteller_direkt_ueber_user_aeltere_version_und_mehrere(self):
+        antwort = _antrag_mit_details()
+        antwort["motion/2/submitter_ids"] = [8, 9]
+        del antwort["motion_submitter/8/meeting_user_id"]
+        antwort["motion_submitter/8/user_id"] = 55
+        antwort["motion_submitter/9/user_id"] = 56
+        antwort["user/56/first_name"], antwort["user/56/last_name"] = "Karin", "Hofmann"
+        self._abrufen(antwort)
+        self.assertIn("Antragsteller*in: Christina Peters, Karin Hofmann",
+                      Wahlergebnis.objects.get(veranstaltung=self.ver).ergebnis)
+
+    def test_ohne_antragsteller_text_und_begruendung_keine_leeren_zeilen(self):
+        antwort = {k: v for k, v in _antrag_mit_details().items()
+                   if not k.startswith(("motion/2/text", "motion/2/reason", "motion/2/submitter"))}
+        self._abrufen(antwort)
+        ergebnis = Wahlergebnis.objects.get(veranstaltung=self.ver).ergebnis
+        self.assertNotIn("Antragsteller", ergebnis)
+        self.assertNotIn("Antragstext", ergebnis)
+        self.assertTrue(ergebnis.startswith("Ergebnis: 10 Ja"))
+
+    def test_anfrage_holt_text_begruendung_und_antragsteller(self):
+        felder = services._antraege_anfrage(5)[0]["fields"]["motion_ids"]["fields"]
+        for feld in ("text", "reason", "submitter_ids", "number", "state_id"):
+            self.assertIn(feld, felder)
+        self.assertIn("meeting_user_id", felder["submitter_ids"]["fields"])
+        self.assertIn("user_id", felder["submitter_ids"]["fields"])
+
+    def test_klartext_aus_html(self):
+        self.assertEqual(services._klartext("<p>Zeile 1</p><p>Zeile&nbsp;2 &amp; mehr</p>"), "Zeile 1\nZeile\xa02 & mehr")
+        self.assertEqual(services._klartext("a<br>b<br/>c"), "a\nb\nc")
+        self.assertEqual(services._klartext(None), "")
+        self.assertTrue(services._klartext("x" * 6000).endswith("[...]"))
+
+    def test_thema_text_wird_uebernommen(self):
+        thema = {"meeting/5/topic_ids": [9], "topic/9/title": "Entlastung", "topic/9/text": "<p>Der Vorstand wird entlastet.</p>",
+                 "topic/9/poll_ids": [70], "poll/70/title": "Abstimmung", "poll/70/state": "finished",
+                 "poll/70/option_ids": [400], "option/400/yes": "10", "option/400/no": "0", "option/400/abstain": "2"}
+        with patch("apps.openslides.services.OSClient") as MockClient:
+            MockClient.return_value.abfragen.side_effect = [{}, {}, thema]
+            services.wahlergebnisse_abrufen(self.verbindung, self.ver)
+        self.assertTrue(Wahlergebnis.objects.get(veranstaltung=self.ver).ergebnis.startswith(
+            "Text: Der Vorstand wird entlastet."))

@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.65.0
+- OpenSlides-Abstimmungen im Protokoll enthalten jetzt die Antragsdetails: Antragsteller*in, Antragstext und Begründung
+  (bei Themen der Text). Nicht erfasste Zählwerte („-2“ für gültige/ungültige/abgegebene Stimmen) werden nicht mehr
+  ausgegeben; die Stimmverteilung steht als „Ergebnis: …“. Den Antragsstatus (z. B. „angenommen“) in OpenSlides vor dem
+  Abruf setzen.
+
 ## 1.64.4
 - Fix: Wahlergebnisse aus OpenSlides 4.3 zeigten im Protokoll „Option 13: 10 Ja“ statt der Namen. Optionen einer Wahl verweisen
   dort direkt auf Benutzer; die Namen werden jetzt aufgelöst. Bei der Wahlmethode „nur Stimmen“ steht „10 Stimmen“ statt „10 Ja“,

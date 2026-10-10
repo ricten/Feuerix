@@ -1,5 +1,7 @@
+import re
 import secrets
 from datetime import date
+from html import unescape
 from decimal import Decimal, InvalidOperation
 
 from django.db.models import Q
@@ -319,8 +321,14 @@ def _poll_felder():
 
 def _antraege_anfrage(meeting_id):
     """Alle Antraege (motion) der Versammlung samt Abstimmungen und dem in OpenSlides gesetzten Status."""
+    nutzer = {"first_name": None, "last_name": None, "username": None}
     antrag_felder = {
-        "number": None, "title": None,
+        "number": None, "title": None, "text": None, "reason": None,
+        # Antragsteller: ab OpenSlides 4.2 ueber meeting_user, davor direkt ueber user - beide abfragen
+        "submitter_ids": {"type": "relation-list", "collection": "motion_submitter", "fields": {
+            "user_id": {"type": "relation", "collection": "user", "fields": nutzer},
+            "meeting_user_id": {"type": "relation", "collection": "meeting_user", "fields": {
+                "user_id": {"type": "relation", "collection": "user", "fields": nutzer}}}}},
         "state_id": {"type": "relation", "collection": "motion_state", "fields": {"name": None}},
         "poll_ids": {"type": "relation-list", "collection": "poll", "fields": _poll_felder()},
     }
@@ -332,19 +340,56 @@ def _themen_anfrage(meeting_id):
     """Alle Themen (topic) der Versammlung samt ihrer Abstimmungen."""
     return [{"ids": [meeting_id], "collection": "meeting",
             "fields": {"topic_ids": {"type": "relation-list", "collection": "topic", "fields": {
-                "title": None, "poll_ids": {"type": "relation-list", "collection": "poll",
+                "title": None, "text": None, "poll_ids": {"type": "relation-list", "collection": "poll",
                                             "fields": _poll_felder()}}}}}]
+
+
+def _klartext(html, maximal=5000):
+    """HTML-Text aus OpenSlides (Antragstext, Begruendung) als schlichter Text fuers Protokoll."""
+    text = re.sub(r"(?i)<br\s*/?>|</p>|</li>|</h[1-6]>|</div>", "\n", html or "")
+    text = unescape(re.sub(r"<[^>]+>", "", text))
+    text = re.sub(r"[ \t]+\n", "\n", re.sub(r"\n{3,}", "\n\n", text)).strip()
+    return text if len(text) <= maximal else text[:maximal].rstrip() + " [...]"
+
+
+def _antragsteller(daten, antrag_id):
+    namen = []
+    for sid in daten.get(f"motion/{antrag_id}/submitter_ids") or []:
+        uid = daten.get(f"motion_submitter/{sid}/user_id")
+        if not uid:
+            meeting_user = daten.get(f"motion_submitter/{sid}/meeting_user_id")
+            uid = daten.get(f"meeting_user/{meeting_user}/user_id") if meeting_user else None
+        if uid and (name := _kandidat_name(daten, uid)) not in namen:
+            namen.append(name)
+    return ", ".join(namen)
 
 
 def _antrag_bezeichnung(daten, antrag_id):
     nummer, titel = daten.get(f"motion/{antrag_id}/number"), daten.get(f"motion/{antrag_id}/title") or ""
     bez = f"Antrag {nummer}: {titel}" if nummer else f"Antrag: {titel or antrag_id}"
     status_id = daten.get(f"motion/{antrag_id}/state_id")
-    return bez, daten.get(f"motion_state/{status_id}/name") if status_id else None
+    kopf = []
+    for label, wert in (("Antragsteller*in", _antragsteller(daten, antrag_id)),
+                        ("Antragstext", _klartext(daten.get(f"motion/{antrag_id}/text"))),
+                        ("Begründung", _klartext(daten.get(f"motion/{antrag_id}/reason")))):
+        if wert:
+            kopf.append(f"{label}: {wert}")
+    return bez, daten.get(f"motion_state/{status_id}/name") if status_id else None, kopf
 
 
 def _thema_bezeichnung(daten, thema_id):
-    return f"Thema: {daten.get(f'topic/{thema_id}/title') or thema_id}", None
+    text = _klartext(daten.get(f"topic/{thema_id}/text"))
+    return f"Thema: {daten.get(f'topic/{thema_id}/title') or thema_id}", None, [f"Text: {text}"] if text else []
+
+
+def _erfasst(wert):
+    """OpenSlides markiert nicht erfasste Zahlen mit negativen Werten (z. B. -2) - die gehoeren nicht ins Protokoll."""
+    if wert in (None, ""):
+        return False
+    try:
+        return Decimal(str(wert)) >= 0
+    except InvalidOperation:
+        return False
 
 
 def _abstimmung_zeilen(daten, poll_id):
@@ -354,15 +399,15 @@ def _abstimmung_zeilen(daten, poll_id):
     for option_id in daten.get(f"poll/{poll_id}/option_ids") or []:
         teile = [f"{_zahl(daten[f'option/{option_id}/{feld}'])} {label}"
                  for feld, label in (("yes", "Ja"), ("no", "Nein"), ("abstain", "Enthaltung"))
-                 if daten.get(f"option/{option_id}/{feld}") is not None]
+                 if _erfasst(daten.get(f"option/{option_id}/{feld}"))]
         if not teile:
             continue
         text = daten.get(f"option/{option_id}/text")
-        zeilen.append(f"{text}: {', '.join(teile)}" if text else ", ".join(teile))
+        zeilen.append(f"{text}: {', '.join(teile)}" if text else "Ergebnis: " + ", ".join(teile))
     gesamt = [f"{label}: {_zahl(daten[f'poll/{poll_id}/{feld}'])}"
               for feld, label in (("votesvalid", "Gültige Stimmen"), ("votesinvalid", "Ungültige Stimmen"),
                                   ("votescast", "Abgegebene Stimmen"))
-              if daten.get(f"poll/{poll_id}/{feld}") not in (None, "")]
+              if _erfasst(daten.get(f"poll/{poll_id}/{feld}"))]
     if zeilen and gesamt:
         zeilen.append(", ".join(gesamt))
     return zeilen
@@ -376,13 +421,14 @@ def _abstimmungen_speichern(daten, mid, veranstaltung, sammlung, bezeichnung):
         return 0
     n = 0
     for objekt_id in daten.get(f"meeting/{mid}/{sammlung}_ids") or []:
-        bez, status = bezeichnung(daten, objekt_id)
+        bez, status, kopfzeilen = bezeichnung(daten, objekt_id)
         for poll_id in daten.get(f"{sammlung}/{objekt_id}/poll_ids") or []:
             if daten.get(f"poll/{poll_id}/state") not in POLL_ABGESCHLOSSEN:
                 continue
             zeilen = _abstimmung_zeilen(daten, poll_id)
             if not zeilen:
                 continue
+            zeilen = kopfzeilen + zeilen
             if status:
                 zeilen.append(f"Status in OpenSlides: {status}")
             Wahlergebnis.objects.create(verein=veranstaltung.verein, veranstaltung=veranstaltung, art="abstimmung",

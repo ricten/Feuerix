@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.64.4)
+# Handbook – Feuerix (Version 1.65.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -557,8 +557,9 @@ additionally shows "Import attendance, elections and votes from OpenSlides". Thi
 **and of all votes on motions and topics** already completed in OpenSlides (status "finished" or "published" –
 ones still in progress naturally yield no result) and stores it per ballot/vote on the event (sections
 "Election results (from OpenSlides)" and "Votes (from OpenSlides)"). For motions this contains the
-yes/no/abstain distribution, the number of valid/invalid votes and – for information only – the motion status set
-in OpenSlides (e.g. "adopted"). Who was actually elected, or whether a motion is carried, must be determined and
+submitter, motion text and reason, the yes/no/abstain distribution, the number of valid/invalid votes (if recorded in
+OpenSlides) and – for information only – the motion status set in OpenSlides (e.g. "adopted"; so set the status in
+OpenSlides before importing). Who was actually elected, or whether a motion is carried, must be determined and
 entered based on the bylaws (majority requirements, handling ties) yourselves; the software deliberately does
 not decide this automatically.
 
