@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.62.0
+- Neu: OpenSlides-Anbindung übernimmt jetzt **alle Abstimmungen** (zu Anträgen und Themen, nicht nur Personenwahlen)
+  mit Ja/Nein/Enthaltung, gültigen/ungültigen Stimmen und dem in OpenSlides gesetzten Antragsstatus. Am Protokoll
+  fügt der Knopf „Abstimmungen und Wahlen aus OpenSlides einfügen“ die Platzhalter `{abstimmungen}` und
+  `{wahlergebnisse}` mit dem aktuellen Stand ein; die Standardvorlage „Protokoll Mitgliederversammlung“ enthält
+  `{abstimmungen}` jetzt ebenfalls. Stimmzahlen werden lesbar ausgegeben („8“ statt „8.000000“).
+
 ## 1.61.1
 - Die Fußzeile (Version, Impressum, Lizenzhinweis) ist jetzt am unteren Bildschirmrand fixiert und verdeckt keinen Inhalt.
 

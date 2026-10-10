@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.61.1)
+# Handbuch – Feuerix (Version 1.62.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -561,17 +561,25 @@ gespeicherten OpenSlides-Anfangspasswörter (z. B. nachdem alle Zugangsdaten ver
 Die OpenSlides-Anbindung einrichten können laut Datenschutzordnung alle sechs DSO-Rollen (Zeile „Vereinssoftware /
 Verwaltung“ der Berechtigungsmatrix) sowie der Superadministrator und Administrator.
 
-**Wahlergebnisse zurückholen**: Ist eine Veranstaltung mit einer OpenSlides-Versammlung verknüpft, erscheint auf
-ihrer Seite zusätzlich „Wahlergebnisse aus OpenSlides übernehmen“. Das holt die Stimmenverteilung aller in
-OpenSlides bereits abgeschlossenen Personenwahlen (Wahlgang-Status „finished“ oder „published“ – noch laufende
-Wahlen liefern naturgemäß kein Ergebnis) und legt sie je Amt/Wahlgang als „Wahlergebnis“ auf der Veranstaltung ab
-(Abschnitt „Wahlergebnisse (aus OpenSlides)“). Angezeigt wird ausschließlich die reine Ja-/Nein-/Enthaltung-Verteilung
-je Kandidat:in – wer tatsächlich gewählt ist, muss anhand der Satzung (Mehrheitserfordernis, Umgang mit Gleichstand)
-selbst festgestellt und eingetragen werden, das entscheidet die Software bewusst nicht automatisch. Über den
-Platzhalter `{wahlergebnisse}` lässt sich die Stimmenverteilung auch direkt in ein Protokoll übernehmen (die
-mitgelieferte Vorlage „Protokoll Mitgliederversammlung“ nutzt ihn bereits). Ein erneuter Abruf ersetzt zuvor
-übernommene Ergebnisse dieser Veranstaltung vollständig. **Nicht** enthalten sind Ergebnisse von Abstimmungen über
-Anträge (Motions) sowie ein Rückfluss der Anwesenheit.
+**Wahlen und Abstimmungen zurückholen**: Ist eine Veranstaltung mit einer OpenSlides-Versammlung verknüpft, erscheint
+auf ihrer Seite zusätzlich „Wahlen und Abstimmungen aus OpenSlides übernehmen“. Das holt die Stimmenverteilung
+aller in OpenSlides bereits abgeschlossenen Personenwahlen **und aller Abstimmungen zu Anträgen (Motions) und
+Themen** (Status „finished“ oder „published“ – noch laufende liefern naturgemäß kein Ergebnis) und legt sie je
+Wahlgang bzw. Abstimmung auf der Veranstaltung ab (Abschnitte „Wahlergebnisse (aus OpenSlides)“ und „Abstimmungen
+(aus OpenSlides)“). Bei Anträgen steht darin die Ja-/Nein-/Enthaltung-Verteilung, die Zahl der gültigen/ungültigen
+Stimmen und – nur zur Information – der in OpenSlides gesetzte Antragsstatus (z. B. „beschlossen“). Wer tatsächlich
+gewählt ist bzw. ob ein Antrag angenommen ist, muss anhand der Satzung (Mehrheitserfordernis, Umgang mit
+Gleichstand) selbst festgestellt und eingetragen werden, das entscheidet die Software bewusst nicht automatisch.
+
+**Ins Protokoll übernehmen**: Am Protokoll (Schriftverkehr › Schriftstücke, Art „Protokoll“ einer verknüpften
+Veranstaltung) gibt es den Knopf „Abstimmungen und Wahlen aus OpenSlides einfügen“: Er ruft den aktuellen Stand ab
+und fügt – falls noch nicht vorhanden – die Abschnitte „Abstimmungen“ und „Wahlergebnisse“ mit den Platzhaltern
+`{abstimmungen}` und `{wahlergebnisse}` ans Ende des Protokolls an. Die Platzhalter werden bei PDF und Word immer mit
+dem aktuellen Stand gefüllt; ein erneuter Klick aktualisiert also die Daten, ohne den Text zu verdoppeln oder eigene
+Ergänzungen zu überschreiben. Die mitgelieferte Vorlage „Protokoll Mitgliederversammlung“ enthält beide Platzhalter
+bereits (bei älteren, bereits angelegten Vorlagen den Knopf oder die Platzhalter von Hand nutzen). Ein erneuter
+Abruf ersetzt zuvor übernommene Ergebnisse dieser Veranstaltung vollständig. **Nicht** enthalten ist ein Rückfluss
+der Anwesenheit.
 
 ## 13. Paperless-ngx-Anbindung
 
@@ -729,10 +737,9 @@ kopiert (INSTALL.md, Abschnitt 12, dort auch die Wiederherstellung).
 
 ## 17. Bekannte Grenzen
 
-Aktuell **nicht** enthalten: automatischer Rückfluss von Abstimmungsergebnissen zu Anträgen (Motions) aus
-OpenSlides ins Protokoll (Wahlergebnisse von Personenwahlen fließen bereits zurück, siehe Kapitel 12), eine
-REST-API, anteilige Beitragsberechnung bei unterjährigem Ein-/Austritt, sowie eine Oberfläche für
-Datenbank-Wiederherstellung (Restore geschieht über die Kommandozeile, siehe INSTALL.md). Der SEPA-Einzug
+Aktuell **nicht** enthalten: ein Rückfluss der Anwesenheit aus OpenSlides (Wahlen und Abstimmungen fließen
+zurück, siehe Kapitel 12), eine REST-API sowie eine anteilige Beitragsberechnung bei unterjährigem Ein-/Austritt
+(die Datenbank-Wiederherstellung ist in der Weboberfläche möglich, siehe Kapitel 15). Der SEPA-Einzug
 (Kapitel 4) erzeugt nur die Einzugsdatei; ein Rückkanal, der eine tatsächlich eingegangene oder zurückgebuchte
 Lastschrift automatisch erkennt, existiert nicht – das läuft weiterhin über den normalen Kontoauszug-Import. Die
 OpenSlides-Anbindung folgt der offiziellen Dokumentation, wurde aber nicht gegen eine produktive Instanz

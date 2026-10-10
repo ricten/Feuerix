@@ -98,7 +98,7 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 | Veranstaltungen | Planung, Aufgaben, Schichtplan mit Besetzung, Anmeldungen, Budget (Plan/Ist), Inventarreservierung, iCal-Export |
 | Schriftverkehr | Vereinslogo (auf allen PDFs), bearbeitbare Vorlagen (Einladung, Protokoll, Serienbrief …) mit Platzhaltern, Einzelschriftstücke mit PDF- und Word-Export, Serienbriefe mit Empfängerfilter (PDF-Sammeldatei oder E-Mail mit PDF-Anhang) – siehe [docs/SCHRIFTVERKEHR.md](docs/SCHRIFTVERKEHR.md) |
 | Ablage | Ordnerstruktur (Kategorie/Jahr), versionierte Dokumente, Zuordnung zu Veranstaltungen, geschützter Dateizugriff; erzeugte PDFs werden automatisch abgelegt; optionaler Versand an **Paperless-ngx** (einzeln oder gesammelt); einzelne Dokumente als **öffentlich** markierbar (Datenschutzerklärung, Aufnahmeformular u. Ä.) – erscheinen dann ohne Anmeldung auf einer öffentlichen Downloads-Seite |
-| OpenSlides | Anbindung an OpenSlides 4: Konten der Mitglieder anlegen/abgleichen, Versammlung + Tagesordnung aus der Veranstaltung anlegen, **Wahlergebnisse zurückholen** (Rückfluss der Stimmenverteilung abgeschlossener Personenwahlen in die Veranstaltung, per Platzhalter `{wahlergebnisse}` auch direkt im Protokoll) (nach Dokumentation umgesetzt, ungetestet) |
+| OpenSlides | Anbindung an OpenSlides 4: Konten der Mitglieder anlegen/abgleichen, Versammlung + Tagesordnung aus der Veranstaltung anlegen, **Wahlen und Abstimmungen zurückholen** (Rückfluss der Stimmenverteilung abgeschlossener Personenwahlen sowie aller Abstimmungen zu Anträgen/Themen in die Veranstaltung, per Knopf oder Platzhalter `{abstimmungen}`/`{wahlergebnisse}` direkt im Protokoll) (nach Dokumentation umgesetzt, ungetestet) |
 | Paperless-ngx | Verbindung je Verein (Adresse, API-Token verschlüsselt gespeichert, Verbindungstest); Ablage-Dokumente per Knopf oder gesammelt an eine bestehende Paperless-Instanz senden (Korrespondent/Dokumenttyp/Tags werden dort bei Bedarf automatisch angelegt) |
 | Protokoll | Jede Änderung: wer, wann, IP, Feld alt → neu, optionaler Grund; sensible Felder maskiert |
 
@@ -133,12 +133,14 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
   (lassen) und die erzeugte Datei gegen ein offizielles Prüfwerkzeug (z. B. den KoSIT-Validator) laufen lassen.
   Für die üblichen Mitgliedsrechnungen ohnehin meist irrelevant, da Mitglieder keine Unternehmer sind und damit
   keine B2B-E-Rechnungspflicht besteht.
-* **OpenSlides-Wahlergebnisse:** „Wahlergebnisse aus OpenSlides übernehmen“ (auf der Veranstaltung, sobald eine
-  Versammlung verknüpft ist) holt die Stimmenverteilung aller **abgeschlossenen Personenwahlen** (Status
-  „finished“/„published“) – nicht die Ergebnisse von Abstimmungen über Anträge (Motions). Wer gewählt ist,
-  entscheidet die Software bewusst nicht selbst (Mehrheitserfordernisse/Stichwahlregeln stehen in der Satzung) –
-  angezeigt wird nur die reine Ja/Nein/Enthaltung-Verteilung je Kandidat:in, die per Platzhalter `{wahlergebnisse}`
-  auch direkt ins Protokoll übernommen werden kann. Technisch über eine einzelne, verschachtelte Abfrage an den
+* **OpenSlides-Wahlen und -Abstimmungen:** „Wahlen und Abstimmungen aus OpenSlides übernehmen“ (auf der
+  Veranstaltung, sobald eine Versammlung verknüpft ist) holt die Stimmenverteilung aller **abgeschlossenen
+  Personenwahlen sowie aller Abstimmungen zu Anträgen (Motions) und Themen** (Status „finished“/„published“). Wer
+  gewählt ist bzw. ob ein Antrag angenommen ist, entscheidet die Software bewusst nicht selbst
+  (Mehrheitserfordernisse/Stichwahlregeln stehen in der Satzung) – angezeigt wird die reine
+  Ja/Nein/Enthaltung-Verteilung (bei Anträgen zusätzlich der in OpenSlides gesetzte Status als Information). Am
+  Protokoll fügt der Knopf „Abstimmungen und Wahlen aus OpenSlides einfügen“ die Platzhalter `{abstimmungen}` und
+  `{wahlergebnisse}` samt aktuellem Stand ein. Technisch über eine einzelne, verschachtelte Abfrage an den
   OpenSlides-Autoupdate-Dienst umgesetzt (nach dessen Dokumentation, ebenfalls nicht gegen eine echte Instanz
   getestet). Ein erneuter Abruf ersetzt zuvor übernommene Ergebnisse derselben Veranstaltung vollständig.
 * **Paperless-ngx:** Entweder eine bereits laufende, separate Instanz verwenden (nur Adresse und API-Token unter
@@ -180,8 +182,8 @@ Produktivbetrieb gedacht.
 
 ## Noch nicht enthalten
 
-Abstimmungsergebnisse zu Anträgen (Motions) aus OpenSlides zurück ins Protokoll – **Wahlergebnisse** (Personenwahlen)
-fließen bereits zurück, siehe unten –, REST-API (DRF), anteilige Beiträge, Update-/Restore-Oberfläche.
+Rückfluss der Anwesenheit aus OpenSlides (Wahlen und Abstimmungen fließen zurück, siehe oben), REST-API (DRF),
+anteilige Beiträge, Update-Oberfläche (die Wiederherstellung einer Sicherung ist in der Weboberfläche möglich).
 Der SEPA-Einzug erzeugt nur die Einzugsdatei (pain.008) – der Rückkanal (eingegangen/zurückgebucht) läuft weiterhin
 über den normalen Kontoauszug-Import.
 

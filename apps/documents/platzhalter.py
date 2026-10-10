@@ -27,6 +27,8 @@ PLATZHALTER = [
         ("tagesordnung", "Nummerierte Tagesordnung (aus den Tagesordnungspunkten der Veranstaltung)"),
         ("wahlergebnisse", "Stimmenverteilung der aus OpenSlides übernommenen Wahlen (wer gewählt ist, bitte "
                            "selbst eintragen)"),
+        ("abstimmungen", "Ergebnisse aller aus OpenSlides übernommenen Abstimmungen (Anträge/Themen) mit Ja/Nein/"
+                         "Enthaltung; ob ein Antrag angenommen ist, bitte selbst festhalten"),
     ]),
     ("OpenSlides (Zugangsdaten)", [
         ("openslides_url", "Adresse der OpenSlides-Instanz"),
@@ -89,8 +91,11 @@ def kontext(verein, mitglied=None, veranstaltung=None, datum=None):
             "anmeldeschluss": _d(v.anmeldeschluss),
             "tagesordnung": "\n".join(top) if top else "(noch keine Tagesordnungspunkte erfasst)",
         })
-        wahlen = [f"{w.amt}{' – ' + w.wahlgang if w.wahlgang else ''}:\n{w.ergebnis}" for w in v.wahlergebnisse.all()]
-        k["wahlergebnisse"] = "\n\n".join(wahlen) if wahlen else "(keine Wahlergebnisse aus OpenSlides übernommen)"
+        def _block(art):
+            return "\n\n".join(f"{w.amt}{' – ' + w.wahlgang if w.wahlgang else ''}:\n{w.ergebnis}"
+                               for w in v.wahlergebnisse.filter(art=art))
+        k["wahlergebnisse"] = _block("wahl") or "(keine Wahlergebnisse aus OpenSlides übernommen)"
+        k["abstimmungen"] = _block("abstimmung") or "(keine Abstimmungen aus OpenSlides übernommen)"
     return k
 
 

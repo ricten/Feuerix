@@ -4610,3 +4610,26 @@ msgstr ""
 "Restoring is also possible by script: scripts/restore.sh (see the "
 "installation guide, section Data backup). Paperless and OpenSlides backups "
 "cannot be restored here."
+
+# Abstimmungen
+
+msgid "Wahl"
+msgstr "Election"
+
+msgid "Abstimmung"
+msgstr "Vote"
+
+msgid "OpenSlides-Abstimmungs-ID"
+msgstr "OpenSlides vote ID"
+
+msgid "Amt / Wahl bzw. Antrag / Thema"
+msgstr "Office / election or motion / topic"
+
+msgid "Wahlgang / Abstimmung"
+msgstr "Ballot / vote"
+
+msgid "Wahl-/Abstimmungsergebnis"
+msgstr "Election / vote result"
+
+msgid "Wahl- und Abstimmungsergebnisse"
+msgstr "Election and vote results"

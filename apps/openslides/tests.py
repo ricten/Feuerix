@@ -125,8 +125,10 @@ class WahlergebnisseAbrufenTests(TestCase):
         w = Wahlergebnis.objects.get(verein=self.v, veranstaltung=self.ver)
         self.assertEqual(w.amt, "1. Vorsitzender")
         self.assertEqual(w.wahlgang, "Wahlgang 1")
-        self.assertIn("Max Muster: 8.000000 Ja, 1.000000 Nein, 1.000000 Enthaltung", w.ergebnis)
-        self.assertIn("Erika Musterfrau: 3.000000 Ja, 5.000000 Nein, 2.000000 Enthaltung", w.ergebnis)
+        self.assertIn("Max Muster: 8 Ja, 1 Nein, 1 Enthaltung", w.ergebnis)
+        self.assertIn("Erika Musterfrau: 3 Ja, 5 Nein, 2 Enthaltung", w.ergebnis)
+        self.assertEqual(w.art, "wahl")
+        self.assertEqual(w.openslides_poll_id, 45)
 
     def test_nicht_abgeschlossene_wahl_wird_uebersprungen(self):
         antwort = _wahl_antwort()
@@ -163,19 +165,19 @@ class VeranstaltungWahlergebnisseViewTests(TestCase):
 
     def test_knopf_erscheint_wenn_meeting_verknuepft(self):
         r = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
-        self.assertContains(r, "Wahlergebnisse aus OpenSlides übernehmen")
+        self.assertContains(r, "Wahlen und Abstimmungen aus OpenSlides übernehmen")
 
     def test_ohne_meeting_verknuepfung_kein_knopf(self):
         self.ver.openslides_meeting_id = None
         self.ver.save()
         r = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
-        self.assertNotContains(r, "Wahlergebnisse aus OpenSlides übernehmen")
+        self.assertNotContains(r, "Wahlen und Abstimmungen aus OpenSlides übernehmen")
 
     def test_post_uebernimmt_ergebnisse_und_zeigt_abschnitt(self):
         with patch("apps.openslides.services.OSClient") as MockClient:
             MockClient.return_value.abfragen.return_value = _wahl_antwort()
             r = self.client.post(reverse("veranstaltung_wahlergebnisse", args=[self.ver.pk]), follow=True)
-        self.assertContains(r, "1 Wahlergebnis(se) aus OpenSlides übernommen.")
+        self.assertContains(r, "1 Wahlergebnis(se) und 0 Abstimmung(en) aus OpenSlides übernommen.")
         r2 = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
         self.assertContains(r2, "Wahlergebnisse (aus OpenSlides)")
         self.assertContains(r2, "1. Vorsitzender")
@@ -191,3 +193,164 @@ class SsrfSchutzTests(TestCase):
         verbindung = OpenSlidesVerbindung(verein=v, url="http://169.254.169.254/", benutzername="bot")
         with self.assertRaises(ValidationError):
             verbindung.clean()
+
+
+def _antrag_antwort():
+    """Simulierte Autoupdate-Antwort fuer Antraege: Antrag A1 mit einer abgeschlossenen Abstimmung (Ja/Nein/
+    Enthaltung auf EINER Option ohne Text), Status "beschlossen", dazu eine noch laufende Abstimmung."""
+    return {
+        "meeting/5/motion_ids": [7],
+        "motion/7/number": "A1", "motion/7/title": "Beitragserhöhung", "motion/7/state_id": 3,
+        "motion_state/3/name": "beschlossen",
+        "motion/7/poll_ids": [60, 61],
+        "poll/60/title": "Abstimmung", "poll/60/state": "published", "poll/60/option_ids": [300],
+        "poll/60/votesvalid": "12.000000", "poll/60/votesinvalid": "0.000000", "poll/60/votescast": "12.000000",
+        "option/300/yes": "9.000000", "option/300/no": "2.000000", "option/300/abstain": "1.000000",
+        "poll/61/title": "Läuft noch", "poll/61/state": "started", "poll/61/option_ids": [301],
+        "option/301/yes": "1.000000", "option/301/no": "0.000000", "option/301/abstain": "0.000000",
+    }
+
+
+def _thema_antwort():
+    return {
+        "meeting/5/topic_ids": [9],
+        "topic/9/title": "Entlastung des Vorstands",
+        "topic/9/poll_ids": [70],
+        "poll/70/title": "Abstimmung Entlastung", "poll/70/state": "finished", "poll/70/option_ids": [400],
+        "option/400/yes": "10", "option/400/no": "0", "option/400/abstain": "2",
+    }
+
+
+class AbstimmungenAbrufenTests(TestCase):
+    """Alle Abstimmungen (Antraege, Themen) einer OpenSlides-Versammlung ins Protokoll uebernehmen. Die HTTP-
+    Abfragen (Wahlen, Antraege, Themen - in dieser Reihenfolge) werden ueber OSClient.abfragen gemockt."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.verbindung = OpenSlidesVerbindung.objects.create(
+            verein=self.v, url="https://os.example.org", benutzername="sync", passwort="geheim")
+        self.ver = Veranstaltung.objects.create(verein=self.v, titel="Mitgliederversammlung 2026",
+                                                beginn=timezone.now(), openslides_meeting_id=5)
+
+    def _abrufen(self, wahlen=None, antraege=None, themen=None):
+        with patch("apps.openslides.services.OSClient") as MockClient:
+            MockClient.return_value.abfragen.side_effect = [wahlen or {}, antraege or {}, themen or {}]
+            return services.wahlergebnisse_abrufen(self.verbindung, self.ver)
+
+    def test_antrag_wird_mit_stimmen_gesamtzahlen_und_status_gespeichert(self):
+        self.assertEqual(self._abrufen(antraege=_antrag_antwort()), 1)
+        a = Wahlergebnis.objects.get(veranstaltung=self.ver)
+        self.assertEqual(a.art, "abstimmung")
+        self.assertEqual(a.amt, "Antrag A1: Beitragserhöhung")
+        self.assertEqual(a.wahlgang, "Abstimmung")
+        self.assertEqual(a.openslides_poll_id, 60)
+        self.assertIn("9 Ja, 2 Nein, 1 Enthaltung", a.ergebnis)
+        self.assertIn("Gültige Stimmen: 12", a.ergebnis)
+        self.assertIn("Status in OpenSlides: beschlossen", a.ergebnis)
+        self.assertNotIn("Option", a.ergebnis)
+
+    def test_laufende_abstimmung_wird_uebersprungen(self):
+        self._abrufen(antraege=_antrag_antwort())
+        self.assertFalse(Wahlergebnis.objects.filter(openslides_poll_id=61).exists())
+
+    def test_thema_wird_uebernommen(self):
+        self.assertEqual(self._abrufen(themen=_thema_antwort()), 1)
+        t = Wahlergebnis.objects.get(veranstaltung=self.ver)
+        self.assertEqual((t.art, t.amt), ("abstimmung", "Thema: Entlastung des Vorstands"))
+        self.assertIn("10 Ja, 0 Nein, 2 Enthaltung", t.ergebnis)
+
+    def test_wahlen_und_abstimmungen_zusammen_und_idempotent(self):
+        n = self._abrufen(wahlen=_wahl_antwort(), antraege=_antrag_antwort(), themen=_thema_antwort())
+        self.assertEqual(n, 3)
+        self.assertEqual(Wahlergebnis.objects.filter(art="wahl").count(), 1)
+        self.assertEqual(Wahlergebnis.objects.filter(art="abstimmung").count(), 2)
+        self._abrufen(antraege=_antrag_antwort())   # erneuter Abruf ersetzt alles
+        self.assertEqual(Wahlergebnis.objects.count(), 1)
+
+    def test_fehlerantwort_ohne_daten_ergibt_nichts(self):
+        self.assertEqual(self._abrufen(antraege={"message": "kaputt"}, themen={"message": "kaputt"}), 0)
+
+    def test_zahlen_lesbar(self):
+        self.assertEqual(services._zahl("8.000000"), "8")
+        self.assertEqual(services._zahl("0.500000"), "0,5")
+        self.assertEqual(services._zahl("10"), "10")
+        self.assertEqual(services._zahl("keine"), "keine")
+
+
+class ProtokollAbstimmungenViewTests(TestCase):
+    def setUp(self):
+        from apps.documents.models import Schriftstueck
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        OpenSlidesVerbindung.objects.create(verein=self.v, url="https://os.example.org", benutzername="sync",
+                                            passwort="geheim", aktiv=True)
+        self.ver = Veranstaltung.objects.create(verein=self.v, titel="Mitgliederversammlung 2026",
+                                                beginn=timezone.now(), openslides_meeting_id=5)
+        self.s = Schriftstueck.objects.create(verein=self.v, titel="Protokoll MV", art="protokoll",
+                                              veranstaltung=self.ver, text="Beginn der Sitzung.")
+        User = get_user_model()
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=self.admin, rolle=Rolle.objects.get(verein=self.v,
+                                                                                       name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.url = reverse("schriftstueck_abstimmungen", args=[self.s.pk])
+
+    def _post(self, **antworten):
+        with patch("apps.openslides.services.OSClient") as MockClient:
+            MockClient.return_value.abfragen.side_effect = [antworten.get("wahlen", {}),
+                                                            antworten.get("antraege", {}),
+                                                            antworten.get("themen", {})]
+            return self.client.post(self.url, follow=True)
+
+    def test_knopf_nur_bei_protokoll_mit_verknuepfter_versammlung(self):
+        self.assertContains(self.client.get(reverse("schriftstueck_detail", args=[self.s.pk])),
+                            "Abstimmungen und Wahlen aus OpenSlides einfügen")
+        self.ver.openslides_meeting_id = None
+        self.ver.save()
+        self.assertNotContains(self.client.get(reverse("schriftstueck_detail", args=[self.s.pk])),
+                               "Abstimmungen und Wahlen aus OpenSlides einfügen")
+
+    def test_fuegt_abschnitte_ein_und_platzhalter_zeigen_ergebnis(self):
+        r = self._post(antraege=_antrag_antwort(), wahlen=_wahl_antwort())
+        self.assertContains(r, "1 Wahlergebnis(se) und 1 Abstimmung(en) aus OpenSlides übernommen.")
+        self.s.refresh_from_db()
+        self.assertIn("{abstimmungen}", self.s.text)
+        self.assertIn("{wahlergebnisse}", self.s.text)
+        self.assertTrue(self.s.text.startswith("Beginn der Sitzung."))
+        ctx = self.s.kontext()
+        from apps.documents.platzhalter import ersetzen
+        ausgefuellt = ersetzen(self.s.text, ctx)
+        self.assertIn("Antrag A1: Beitragserhöhung", ausgefuellt)
+        self.assertIn("9 Ja, 2 Nein, 1 Enthaltung", ausgefuellt)
+        self.assertIn("1. Vorsitzender", ausgefuellt)
+
+    def test_erneuter_klick_verdoppelt_nichts_und_behaelt_eigene_ergaenzungen(self):
+        self._post(antraege=_antrag_antwort())
+        self.s.refresh_from_db()
+        self.s.text += "\nEigene Ergänzung."
+        self.s.save()
+        text_vorher = self.s.text
+        r = self._post(antraege=_antrag_antwort())
+        self.assertContains(r, "Platzhalter bereits")
+        self.s.refresh_from_db()
+        self.assertEqual(self.s.text, text_vorher)
+        self.assertEqual(self.s.text.count("{abstimmungen}"), 1)
+
+    def test_ohne_ergebnisse_warnung_und_text_unveraendert(self):
+        r = self._post()
+        self.assertContains(r, "Keine abgeschlossenen Wahlen oder Abstimmungen")
+        self.s.refresh_from_db()
+        self.assertEqual(self.s.text, "Beginn der Sitzung.")
+
+    def test_abgelehnt_ohne_verknuepfung_oder_fremdes_protokoll(self):
+        self.ver.openslides_meeting_id = None
+        self.ver.save()
+        r = self.client.post(self.url, follow=True)
+        self.assertContains(r, "Nur für Protokolle")
+
+    def test_nur_mit_rechten(self):
+        User = get_user_model()
+        User.objects.create_user("anna", password="pw-Test-12345")
+        self.client.login(username="anna", password="pw-Test-12345")
+        self.assertIn(self.client.post(self.url).status_code, (302, 403))
+        self.s.refresh_from_db()
+        self.assertEqual(self.s.text, "Beginn der Sitzung.")

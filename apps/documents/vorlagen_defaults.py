@@ -38,7 +38,7 @@ STANDARDVORLAGEN = [
     {
         "name": "Protokoll Mitgliederversammlung", "art": "protokoll", "standard": True,
         "betreff": "Protokoll der Mitgliederversammlung vom {veranstaltung_datum}",
-        "hinweis": "Beschlüsse mit Abstimmungsergebnis (Ja/Nein/Enthaltung) festhalten; vom Versammlungsleiter und Protokollführer unterschreiben lassen. Bei Wahlen über OpenSlides zuerst „Wahlergebnisse aus OpenSlides übernehmen“ in der Veranstaltung nutzen, dann füllt {wahlergebnisse} die Stimmenverteilung; wer gewählt ist, bitte selbst eintragen.",
+        "hinweis": "Beschlüsse mit Abstimmungsergebnis (Ja/Nein/Enthaltung) festhalten; vom Versammlungsleiter und Protokollführer unterschreiben lassen. Bei Abstimmungen und Wahlen über OpenSlides zuerst „Wahlen und Abstimmungen aus OpenSlides übernehmen“ (in der Veranstaltung oder am Protokoll) nutzen, dann füllen {abstimmungen} und {wahlergebnisse} die Stimmenverteilung; ob ein Antrag angenommen ist bzw. wer gewählt ist, bitte selbst eintragen.",
         "text": (
             "Verein: {verein}\nDatum: {veranstaltung_datum}\nOrt: {veranstaltung_ort}\n"
             "Beginn: {veranstaltung_uhrzeit} Uhr    Ende: [Uhrzeit] Uhr\n\n"
@@ -50,6 +50,7 @@ STANDARDVORLAGEN = [
             "TOP 1: [Ergebnis / Beschluss]\nAbstimmung: Ja [ ]  Nein [ ]  Enthaltung [ ]\n\n"
             "TOP 2: [Ergebnis / Beschluss]\nAbstimmung: Ja [ ]  Nein [ ]  Enthaltung [ ]\n\n"
             "[weitere Tagesordnungspunkte]\n\n"
+            "Abstimmungen (aus OpenSlides übernommen; ob angenommen, bitte ergänzen):\n{abstimmungen}\n\n"
             "Wahlergebnisse (Stimmenverteilung aus OpenSlides, gewählte Person bitte ergänzen):\n{wahlergebnisse}\n\n"
             "Die Versammlungsleitung schloss die Versammlung um [Uhrzeit] Uhr.\n\n\n"
             "______________________________          ______________________________\n"

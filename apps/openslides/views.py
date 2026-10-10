@@ -130,9 +130,56 @@ def veranstaltung_wahlergebnisse(request, pk):
         v = _verbindung(request)
         n = services.wahlergebnisse_abrufen(v, ver)
         if n:
-            messages.success(request, f"{n} Wahlergebnis(se) aus OpenSlides übernommen.")
+            messages.success(request, _ergebnis_meldung(ver))
         else:
-            messages.warning(request, "Keine abgeschlossenen Wahlen mit Ergebnis gefunden.")
+            messages.warning(request, "Keine abgeschlossenen Wahlen oder Abstimmungen mit Ergebnis gefunden.")
     except OpenSlidesFehler as e:
         messages.error(request, f"OpenSlides: {e}")
     return redirect("veranstaltung_detail", pk=ver.pk)
+
+
+def _ergebnis_meldung(ver):
+    wahlen = ver.wahlergebnisse.filter(art="wahl").count()
+    abstimmungen = ver.wahlergebnisse.filter(art="abstimmung").count()
+    return f"{wahlen} Wahlergebnis(se) und {abstimmungen} Abstimmung(en) aus OpenSlides übernommen."
+
+
+ABSCHNITTE = (("abstimmung", "{abstimmungen}", "Abstimmungen (aus OpenSlides übernommen; ob angenommen, bitte ergänzen)"),
+              ("wahl", "{wahlergebnisse}", "Wahlergebnisse (aus OpenSlides übernommen; gewählte Person bitte ergänzen)"))
+
+
+@login_required
+@require_POST
+def schriftstueck_abstimmungen(request, pk):
+    """Am Protokoll: Wahlen und Abstimmungen frisch aus OpenSlides abrufen und - falls noch nicht im Text - als
+    Abschnitte mit den Platzhaltern {abstimmungen}/{wahlergebnisse} einfuegen. Die Platzhalter werden beim Erzeugen
+    von PDF/Word jeweils mit dem aktuellen Stand gefuellt; ein erneuter Klick aktualisiert also die Daten, ohne
+    den Text zu verdoppeln oder eigene Ergaenzungen zu ueberschreiben."""
+    from apps.documents.models import Schriftstueck
+    _pruefen(request, "change")
+    if not request.rechte.darf("schriftverkehr", "change"):
+        raise PermissionDenied
+    s = get_object_or_404(Schriftstueck, pk=pk, verein=request.verein)
+    ver = s.veranstaltung
+    if s.art != "protokoll" or ver is None or not ver.openslides_meeting_id:
+        messages.error(request, "Nur für Protokolle einer Veranstaltung, die mit einer OpenSlides-Versammlung "
+                                "verknüpft ist.")
+        return redirect("schriftstueck_detail", pk=s.pk)
+    try:
+        v = _verbindung(request)
+        n = services.wahlergebnisse_abrufen(v, ver)
+    except OpenSlidesFehler as e:
+        messages.error(request, f"OpenSlides: {e}")
+        return redirect("schriftstueck_detail", pk=s.pk)
+    if not n:
+        messages.warning(request, "Keine abgeschlossenen Wahlen oder Abstimmungen mit Ergebnis gefunden.")
+        return redirect("schriftstueck_detail", pk=s.pk)
+    neu = [f"{titel}:\n{platzhalter}" for art, platzhalter, titel in ABSCHNITTE
+           if platzhalter not in s.text and ver.wahlergebnisse.filter(art=art).exists()]
+    if neu:
+        s.text = s.text.rstrip() + "\n\n" + "\n\n".join(neu) + "\n"
+        s.save(update_fields=["text", "geaendert"])
+    messages.success(request, _ergebnis_meldung(ver) + (" Abschnitte ins Protokoll eingefügt." if neu else
+                                                         " Das Protokoll enthält die Platzhalter bereits und zeigt "
+                                                         "jetzt den aktuellen Stand."))
+    return redirect("schriftstueck_detail", pk=s.pk)

@@ -49,6 +49,19 @@ class WahlergebnisPlatzhalterTests(TestCase):
         self.assertIn("1. Vorsitzender – Wahlgang 1", ctx["wahlergebnisse"])
         self.assertIn("Max Muster: 8 Ja, 1 Nein, 1 Enthaltung", ctx["wahlergebnisse"])
 
+    def test_abstimmungen_haben_eigenen_platzhalter_und_vermischen_sich_nicht_mit_wahlen(self):
+        Wahlergebnis.objects.create(verein=self.v, veranstaltung=self.ver, amt="Kassenwart", ergebnis="X: 1 Ja")
+        ctx = kontext(self.v, veranstaltung=self.ver)
+        self.assertIn("keine Abstimmungen", ctx["abstimmungen"])
+        Wahlergebnis.objects.create(verein=self.v, veranstaltung=self.ver, art="abstimmung",
+                                    amt="Antrag A1: Beitragserhöhung", wahlgang="Abstimmung",
+                                    ergebnis="9 Ja, 2 Nein, 1 Enthaltung")
+        ctx = kontext(self.v, veranstaltung=self.ver)
+        self.assertIn("Antrag A1: Beitragserhöhung – Abstimmung", ctx["abstimmungen"])
+        self.assertIn("9 Ja, 2 Nein, 1 Enthaltung", ctx["abstimmungen"])
+        self.assertNotIn("Beitragserhöhung", ctx["wahlergebnisse"])
+        self.assertNotIn("Kassenwart", ctx["abstimmungen"])
+
 
 class WahlergebnisCrudTests(TestCase):
     """Wahlergebnisse werden ausschließlich über den OpenSlides-Rückfluss angelegt - keine manuelle Erfassung."""

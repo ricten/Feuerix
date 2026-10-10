@@ -76,6 +76,13 @@ def schriftstueck_kontext(request, s):
                               stil="success"))
     if s.veranstaltung_id:
         aktionen.append(knopf("Zur Veranstaltung", reverse("veranstaltung_detail", args=[s.veranstaltung_id])))
+        if (s.art == "protokoll" and s.veranstaltung.openslides_meeting_id and rt.darf("schriftverkehr", "change")
+                and rt.darf("openslides", "change")):
+            from apps.openslides.models import OpenSlidesVerbindung
+            if OpenSlidesVerbindung.objects.filter(verein=request.verein, aktiv=True).exists():
+                aktionen.append(knopf("Abstimmungen und Wahlen aus OpenSlides einfügen",
+                                      reverse("schriftstueck_abstimmungen", args=[s.pk]), post=True,
+                                      stil="outline-success"))
     hinweise = []
     fehlend = offene(s.text + " " + s.betreff, s.kontext())
     if fehlend:

@@ -1,5 +1,6 @@
 import secrets
 from datetime import date
+from decimal import Decimal, InvalidOperation
 
 from django.db.models import Q
 from django.utils import timezone
@@ -266,6 +267,16 @@ def _kandidat_name(daten, user_id):
     return name or daten.get(f"user/{user_id}/username") or f"Nutzer {user_id}"
 
 
+def _zahl(wert):
+    """OpenSlides liefert Stimmen als Dezimalzahl-Text ("8.000000") - fuers Protokoll lesbar: "8" bzw. "0,5"."""
+    try:
+        d = Decimal(str(wert))
+    except InvalidOperation:
+        return str(wert)
+    text = format(d.normalize(), "f")
+    return text.replace(".", ",")
+
+
 def _stimmen_zeile(daten, option_id):
     name = None
     coid = daten.get(f"option/{option_id}/content_object_id")
@@ -280,17 +291,102 @@ def _stimmen_zeile(daten, option_id):
     for feld, label in (("yes", "Ja"), ("no", "Nein"), ("abstain", "Enthaltung")):
         wert = daten.get(f"option/{option_id}/{feld}")
         if wert is not None:
-            teile.append(f"{wert} {label}")
+            teile.append(f"{_zahl(wert)} {label}")
     if not name and not teile:
         return None
     return f"{name or 'Option ' + str(option_id)}: {', '.join(teile) if teile else '–'}"
 
 
+def _poll_felder():
+    """Felder einer Abstimmung (poll) fuer Antraege/Themen: Titel, Zustand, Stimmen je Option (Ja/Nein/Enthaltung)
+    und die Gesamtzahlen."""
+    option_felder = {"yes": None, "no": None, "abstain": None, "text": None}
+    return {"title": None, "state": None, "pollmethod": None, "votesvalid": None, "votesinvalid": None,
+            "votescast": None, "option_ids": {"type": "relation-list", "collection": "option", "fields": option_felder}}
+
+
+def _antraege_anfrage(meeting_id):
+    """Alle Antraege (motion) der Versammlung samt Abstimmungen und dem in OpenSlides gesetzten Status."""
+    antrag_felder = {
+        "number": None, "title": None,
+        "state_id": {"type": "relation", "collection": "motion_state", "fields": {"name": None}},
+        "poll_ids": {"type": "relation-list", "collection": "poll", "fields": _poll_felder()},
+    }
+    return [{"ids": [meeting_id], "collection": "meeting",
+            "fields": {"motion_ids": {"type": "relation-list", "collection": "motion", "fields": antrag_felder}}}]
+
+
+def _themen_anfrage(meeting_id):
+    """Alle Themen (topic) der Versammlung samt ihrer Abstimmungen."""
+    return [{"ids": [meeting_id], "collection": "meeting",
+            "fields": {"topic_ids": {"type": "relation-list", "collection": "topic", "fields": {
+                "title": None, "poll_ids": {"type": "relation-list", "collection": "poll",
+                                            "fields": _poll_felder()}}}}}]
+
+
+def _antrag_bezeichnung(daten, antrag_id):
+    nummer, titel = daten.get(f"motion/{antrag_id}/number"), daten.get(f"motion/{antrag_id}/title") or ""
+    bez = f"Antrag {nummer}: {titel}" if nummer else f"Antrag: {titel or antrag_id}"
+    status_id = daten.get(f"motion/{antrag_id}/state_id")
+    return bez, daten.get(f"motion_state/{status_id}/name") if status_id else None
+
+
+def _thema_bezeichnung(daten, thema_id):
+    return f"Thema: {daten.get(f'topic/{thema_id}/title') or thema_id}", None
+
+
+def _abstimmung_zeilen(daten, poll_id):
+    """Stimmenverteilung einer Abstimmung als Textzeilen: je Option "Ja/Nein/Enthaltung" (bei Optionen mit Text
+    davor der Text), dazu - falls geliefert - gueltige/ungueltige/abgegebene Stimmen."""
+    zeilen = []
+    for option_id in daten.get(f"poll/{poll_id}/option_ids") or []:
+        teile = [f"{_zahl(daten[f'option/{option_id}/{feld}'])} {label}"
+                 for feld, label in (("yes", "Ja"), ("no", "Nein"), ("abstain", "Enthaltung"))
+                 if daten.get(f"option/{option_id}/{feld}") is not None]
+        if not teile:
+            continue
+        text = daten.get(f"option/{option_id}/text")
+        zeilen.append(f"{text}: {', '.join(teile)}" if text else ", ".join(teile))
+    gesamt = [f"{label}: {_zahl(daten[f'poll/{poll_id}/{feld}'])}"
+              for feld, label in (("votesvalid", "Gültige Stimmen"), ("votesinvalid", "Ungültige Stimmen"),
+                                  ("votescast", "Abgegebene Stimmen"))
+              if daten.get(f"poll/{poll_id}/{feld}") not in (None, "")]
+    if zeilen and gesamt:
+        zeilen.append(", ".join(gesamt))
+    return zeilen
+
+
+def _abstimmungen_speichern(daten, mid, veranstaltung, sammlung, bezeichnung):
+    """Speichert jede abgeschlossene Abstimmung der Antraege bzw. Themen als Abstimmungsergebnis. Ob ein Antrag
+    angenommen ist, bestimmt die Software nicht; der in OpenSlides gesetzte Status wird nur als Information
+    angehaengt."""
+    if not isinstance(daten, dict):
+        return 0
+    n = 0
+    for objekt_id in daten.get(f"meeting/{mid}/{sammlung}_ids") or []:
+        bez, status = bezeichnung(daten, objekt_id)
+        for poll_id in daten.get(f"{sammlung}/{objekt_id}/poll_ids") or []:
+            if daten.get(f"poll/{poll_id}/state") not in POLL_ABGESCHLOSSEN:
+                continue
+            zeilen = _abstimmung_zeilen(daten, poll_id)
+            if not zeilen:
+                continue
+            if status:
+                zeilen.append(f"Status in OpenSlides: {status}")
+            Wahlergebnis.objects.create(verein=veranstaltung.verein, veranstaltung=veranstaltung, art="abstimmung",
+                                        openslides_poll_id=poll_id, amt=bez[:250],
+                                        wahlgang=(daten.get(f"poll/{poll_id}/title") or "")[:250],
+                                        ergebnis="\n".join(zeilen))
+            n += 1
+    return n
+
+
 def wahlergebnisse_abrufen(v, veranstaltung):
-    """Ruft alle Wahlen (assignment) der verknüpften OpenSlides-Versammlung ab und speichert die
-    Stimmenverteilung je abgeschlossenem Wahlgang als Wahlergebnis - ersetzt zuvor abgerufene Ergebnisse dieser
-    Veranstaltung vollständig (idempotent bei erneutem Abruf). Wer gewählt ist, wird bewusst NICHT automatisch
-    bestimmt (siehe Wahlergebnis-Modell)."""
+    """Ruft alle Wahlen (assignment) sowie alle Abstimmungen zu Anträgen (motion) und Themen (topic) der
+    verknüpften OpenSlides-Versammlung ab und speichert die Stimmenverteilung je abgeschlossenem Wahlgang bzw.
+    jeder abgeschlossenen Abstimmung - ersetzt zuvor abgerufene Ergebnisse dieser Veranstaltung vollständig
+    (idempotent bei erneutem Abruf). Wer gewählt ist bzw. ob ein Antrag angenommen ist, wird bewusst NICHT
+    automatisch bestimmt (siehe Wahlergebnis-Modell). Gibt die Gesamtzahl der gespeicherten Ergebnisse zurück."""
     if not veranstaltung.openslides_meeting_id:
         raise OpenSlidesFehler("Die Veranstaltung ist noch keiner OpenSlides-Versammlung zugeordnet.")
     c = OSClient(v)
@@ -309,9 +405,12 @@ def wahlergebnisse_abrufen(v, veranstaltung):
             if not zeilen:
                 continue
             Wahlergebnis.objects.create(verein=veranstaltung.verein, veranstaltung=veranstaltung, amt=amt,
-                                        wahlgang=daten.get(f"poll/{poll_id}/title") or "",
-                                        ergebnis="\n".join(zeilen))
+                                        wahlgang=daten.get(f"poll/{poll_id}/title") or "", art="wahl",
+                                        openslides_poll_id=poll_id, ergebnis="\n".join(zeilen))
             n += 1
+    for sammlung, anfrage, bezeichnung in (("motion", _antraege_anfrage, _antrag_bezeichnung),
+                                           ("topic", _themen_anfrage, _thema_bezeichnung)):
+        n += _abstimmungen_speichern(c.abfragen(anfrage(mid)), mid, veranstaltung, sammlung, bezeichnung)
     return n
 
 

@@ -249,20 +249,25 @@ class Tagesordnungspunkt(TenantModel):
 
 
 class Wahlergebnis(TenantModel):
-    """Aus OpenSlides zurückübertragenes Wahlergebnis (Rückfluss ins Protokoll) - je Amt und Wahlgang ein
-    Datensatz, mit der reinen Stimmenverteilung; wer gewählt ist, trägt der Protokollführer anhand der
-    Vereinssatzung (Mehrheitserfordernis, Stichwahl bei Gleichstand usw.) selbst ein, das entscheidet die
-    Software bewusst nicht."""
+    """Aus OpenSlides zurückübertragenes Wahl- oder Abstimmungsergebnis (Rückfluss ins Protokoll) - je Amt/Antrag
+    und Wahlgang/Abstimmung ein Datensatz, mit der reinen Stimmenverteilung; wer gewählt ist bzw. ob ein Antrag
+    angenommen ist, trägt der Protokollführer anhand der Vereinssatzung (Mehrheitserfordernis, Stichwahl bei
+    Gleichstand usw.) selbst ein, das entscheidet die Software bewusst nicht (bei Anträgen wird lediglich der in
+    OpenSlides gesetzte Status als Information mit übernommen)."""
+    ART = [("wahl", _("Wahl")), ("abstimmung", _("Abstimmung"))]
+    art = models.CharField(_("Art"), max_length=10, choices=ART, default="wahl")
+    openslides_poll_id = models.PositiveIntegerField(_("OpenSlides-Abstimmungs-ID"), null=True, blank=True,
+                                                     editable=False)
     veranstaltung = models.ForeignKey(Veranstaltung, on_delete=models.CASCADE, related_name="wahlergebnisse",
                                       verbose_name=_("Veranstaltung"))
-    amt = models.CharField(_("Amt / Wahl"), max_length=250)
-    wahlgang = models.CharField(_("Wahlgang"), max_length=250, blank=True)
+    amt = models.CharField(_("Amt / Wahl bzw. Antrag / Thema"), max_length=250)
+    wahlgang = models.CharField(_("Wahlgang / Abstimmung"), max_length=250, blank=True)
     ergebnis = models.TextField(_("Stimmenverteilung"))
 
     class Meta:
-        verbose_name = _("Wahlergebnis")
-        verbose_name_plural = _("Wahlergebnisse")
-        ordering = ["amt", "wahlgang", "id"]
+        verbose_name = _("Wahl-/Abstimmungsergebnis")
+        verbose_name_plural = _("Wahl- und Abstimmungsergebnisse")
+        ordering = ["art", "amt", "wahlgang", "id"]
 
     def __str__(self):
         return f"{self.amt} ({self.wahlgang})" if self.wahlgang else self.amt

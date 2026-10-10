@@ -55,10 +55,10 @@ def veranstaltung_kontext(request, v):
                                   else "In OpenSlides anlegen", reverse("veranstaltung_openslides", args=[v.pk]), post=True,
                                   stil="outline-success"))
             if v.openslides_meeting_id:
-                aktionen.append(knopf("Wahlergebnisse aus OpenSlides übernehmen",
+                aktionen.append(knopf("Wahlen und Abstimmungen aus OpenSlides übernehmen",
                                       reverse("veranstaltung_wahlergebnisse", args=[v.pk]), post=True,
                                       stil="outline-success",
-                                      bestaetigung="Wahlergebnisse aus OpenSlides abrufen? Zuvor übernommene "
+                                      bestaetigung="Wahlen und Abstimmungen aus OpenSlides abrufen? Zuvor übernommene "
                                                    "Ergebnisse dieser Veranstaltung werden dabei ersetzt."))
     s = v.summen()
     hinweise = [f"Plan: Einnahmen {geld(s['plan_ein'])} · Ausgaben {geld(s['plan_aus'])} · "
@@ -86,8 +86,12 @@ def veranstaltung_kontext(request, v):
     if r.darf("teilnehmer", "view"):
         ab.insert(2, abschnitt(request, "Anmeldungen", v.anmeldungen.all(), (("wer", "Name"), "personen", "status"),
                                "anmeldung_add", {"veranstaltung": v.pk}))
-    if v.wahlergebnisse.exists():
-        ab.append(abschnitt(request, "Wahlergebnisse (aus OpenSlides)", v.wahlergebnisse.all(), ("amt", "wahlgang")))
+    if v.wahlergebnisse.filter(art="abstimmung").exists():
+        ab.append(abschnitt(request, "Abstimmungen (aus OpenSlides)", v.wahlergebnisse.filter(art="abstimmung"),
+                            ("amt", "wahlgang")))
+    if v.wahlergebnisse.filter(art="wahl").exists():
+        ab.append(abschnitt(request, "Wahlergebnisse (aus OpenSlides)", v.wahlergebnisse.filter(art="wahl"),
+                            ("amt", "wahlgang")))
     if r.darf("verleih", "view"):
         ab.append(abschnitt(request, "Reserviertes Inventar", v.verleihe.all(), ("gegenstand", "von", "bis", "status")))
     if r.darf("schriftverkehr", "view"):
