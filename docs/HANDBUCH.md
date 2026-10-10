@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.65.1)
+# Handbuch – Feuerix (Version 1.66.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -587,14 +587,24 @@ Anwesenheit also am besten vor Schließen der Versammlung abrufen, bevor Persone
 eine anwesende Person stimmberechtigt war, entscheidet die Software nicht; das prüft der Protokollführer (die
 Beschlussfähigkeit ebenso). Platzhalter: `{anwesenheit}` (alphabetische Namensliste) und `{anwesenheit_anzahl}`.
 
-**Ins Protokoll übernehmen**: Am Protokoll (Schriftverkehr › Schriftstücke, Art „Protokoll“ einer verknüpften
-Veranstaltung) gibt es den Knopf „Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen“: Er ruft den aktuellen Stand ab
-und fügt – falls noch nicht vorhanden – die Abschnitte „Anwesenheitsliste“, „Abstimmungen“ und „Wahlergebnisse“
-mit den Platzhaltern `{anwesenheit}`, `{abstimmungen}` und `{wahlergebnisse}` ans Ende des Protokolls an. Die Platzhalter werden bei PDF und Word immer mit
-dem aktuellen Stand gefüllt; ein erneuter Klick aktualisiert also die Daten, ohne den Text zu verdoppeln oder eigene
-Ergänzungen zu überschreiben. Die mitgelieferte Vorlage „Protokoll Mitgliederversammlung“ enthält beide Platzhalter
-bereits (bei älteren, bereits angelegten Vorlagen den Knopf oder die Platzhalter von Hand nutzen). Ein erneuter
-Abruf ersetzt zuvor übernommene Ergebnisse und die Anwesenheit dieser Veranstaltung vollständig.
+**Als Anlagen ins Protokoll**: Am Protokoll (Schriftverkehr › Schriftstücke, Art „Protokoll“ einer verknüpften
+Veranstaltung) gibt es den Knopf „Anwesenheit, Abstimmungen und Wahlen aus OpenSlides abrufen (als Anlagen)“. Er
+ruft den aktuellen Stand ab; beim Erzeugen von **PDF und Word** werden die Ergebnisse dann automatisch als
+**Anlagen auf jeweils eigener Seite** hinter dem Protokolltext angehängt (mit Briefkopf und Seitenzahl):
+
+* **Anlage 1: Teilnehmerliste** – alle anwesenden Personen alphabetisch, mit Kennzeichnung Mitglied/Gast und der
+  Gesamtzahl.
+* **Anlage 2: Abstimmungen** – alle Abstimmungen zu Anträgen und Themen zusammengefasst, je Abstimmung ein Block mit
+  Antragsteller*in, Antragstext, Begründung, Ergebnistabelle und OpenSlides-Status sowie einer Ankreuzzeile
+  „angenommen / abgelehnt“ für den Versammlungsleiter.
+* **Anlage 3: Wahlergebnisse** – alle Wahlen zusammengefasst, je Wahl(gang) ein Block mit der Stimmentabelle je
+  Kandidat*in und einer Zeile „Gewählt: ____“.
+
+Es gibt nur die Anlagen, zu denen Daten vorliegen; die Nummern sind fortlaufend. Der Protokolltext selbst wird nicht
+verändert; die Platzhalter `{anwesenheit}`, `{abstimmungen}` und `{wahlergebnisse}` (in der Vorlage „Protokoll
+Mitgliederversammlung“ enthalten) setzen dort nur einen Verweis wie „Abstimmungen: siehe Anlage 2 (Abstimmungen)“ ein –
+und bleiben **ganz leer** (auch ohne Überschrift), wenn es nichts gibt. Ein erneuter Abruf ersetzt zuvor übernommene
+Ergebnisse und die Anwesenheit dieser Veranstaltung vollständig.
 
 ## 13. Paperless-ngx-Anbindung
 

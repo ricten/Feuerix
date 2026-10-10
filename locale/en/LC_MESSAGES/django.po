@@ -4679,3 +4679,15 @@ msgstr "Settings"
 
 msgid "Einrichten"
 msgstr "Set up"
+
+# Anlagen
+
+msgid "Einzelheiten (strukturiert)"
+msgstr "Details (structured)"
+
+msgid ""
+"Liste aus [Bezeichnung, Wert]-Paaren - Grundlage fuer die Anlagen im "
+"Protokoll; der Text unter Stimmenverteilung enthaelt dasselbe."
+msgstr ""
+"List of [label, value] pairs - basis for the appendices in the minutes; the "
+"text under vote distribution contains the same."

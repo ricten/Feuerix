@@ -43,16 +43,11 @@ class WahlergebnisPlatzhalterTests(TestCase):
         OpenSlidesVerbindung.objects.create(verein=self.v, url="https://os.example.org", benutzername="sync",
                                             passwort="geheim", aktiv=True)
 
-    def test_ohne_wahlergebnisse_zeigt_hinweistext(self):
+    def test_ohne_wahlergebnisse_ist_der_platzhalter_leer(self):
         self._anbinden()
         ctx = kontext(self.v, veranstaltung=self.ver)
-        self.assertIn("keine Wahlergebnisse", ctx["wahlergebnisse"])
-
-    def test_ohne_openslides_neutrale_eintragsfelder_ohne_hinweis_auf_openslides(self):
-        ctx = kontext(self.v, veranstaltung=self.ver)
         for schluessel in ("wahlergebnisse", "abstimmungen", "anwesenheit"):
-            self.assertTrue(ctx[schluessel].startswith("["), schluessel)
-            self.assertNotIn("OpenSlides", ctx[schluessel])
+            self.assertEqual(ctx[schluessel], "", schluessel)   # kein "keine Angaben"-Feld, auch keine Ueberschrift
 
     def test_mit_wahlergebnissen_werden_amt_und_stimmen_eingesetzt(self):
         Wahlergebnis.objects.create(verein=self.v, veranstaltung=self.ver, amt="1. Vorsitzender",
@@ -60,12 +55,13 @@ class WahlergebnisPlatzhalterTests(TestCase):
         ctx = kontext(self.v, veranstaltung=self.ver)
         self.assertIn("1. Vorsitzender – Wahlgang 1", ctx["wahlergebnisse"])
         self.assertIn("Max Muster: 8 Ja, 1 Nein, 1 Enthaltung", ctx["wahlergebnisse"])
+        self.assertTrue(ctx["wahlergebnisse"].startswith("Wahlergebnisse:\n"))
 
     def test_abstimmungen_haben_eigenen_platzhalter_und_vermischen_sich_nicht_mit_wahlen(self):
         self._anbinden()
         Wahlergebnis.objects.create(verein=self.v, veranstaltung=self.ver, amt="Kassenwart", ergebnis="X: 1 Ja")
         ctx = kontext(self.v, veranstaltung=self.ver)
-        self.assertIn("keine Abstimmungen", ctx["abstimmungen"])
+        self.assertEqual(ctx["abstimmungen"], "")
         Wahlergebnis.objects.create(verein=self.v, veranstaltung=self.ver, art="abstimmung",
                                     amt="Antrag A1: Beitragserhöhung", wahlgang="Abstimmung",
                                     ergebnis="9 Ja, 2 Nein, 1 Enthaltung")

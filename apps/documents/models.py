@@ -172,7 +172,8 @@ class Schriftstueck(TenantModel):
 
     def kontext(self):
         from .platzhalter import kontext
-        return kontext(self.verein, mitglied=self.mitglied, veranstaltung=self.veranstaltung, datum=self.datum)
+        return kontext(self.verein, mitglied=self.mitglied, veranstaltung=self.veranstaltung, datum=self.datum,
+                       anlagen=self.art == "protokoll")
 
 
 class Serienbrief(TenantModel):

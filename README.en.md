@@ -143,8 +143,10 @@ login, CSRF protection, language – no tracking cookies).
   topics** (status "finished"/"published"). The software deliberately does not decide itself who is elected or
   whether a motion is carried (majority requirements/tie-break rules live in the bylaws) – the plain
   yes/no/abstain distribution is shown (for motions plus the status set in OpenSlides, for information). On the
-  minutes, the button "Insert attendance, votes and elections from OpenSlides" inserts the `{anwesenheit}`,
-  `{abstimmungen}` and `{wahlergebnisse}` placeholders with the current state. Attendance (persons marked
+  minutes, the button "Retrieve attendance, votes and elections from OpenSlides (as appendices)" fetches everything; PDF
+  and Word then append the **attendance list, votes and election results as appendices on their own pages** (all
+  elections in one block, all votes in one block); the `{anwesenheit}`, `{abstimmungen}` and `{wahlergebnisse}`
+  placeholders refer to them and stay empty without data. Attendance (persons marked
   "present"; members matched via their OpenSlides account) is imported as well. Implemented technically via a single, nested query to the OpenSlides
   autoupdate service (following its documentation, likewise not tested against a real instance). Fetching
   again fully replaces previously imported results for the same event.

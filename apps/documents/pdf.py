@@ -2,6 +2,7 @@ import re
 
 from apps.core.pdf import brief_pdf, seiten_pdf
 
+from . import anlagen
 from .platzhalter import ersetzen, kontext
 
 
@@ -24,7 +25,10 @@ def schriftstueck_pdf(s):
     ctx = s.kontext()
     seite = _seite(s.verein, s.betreff or s.titel, s.text, s.mitglied, s.datum, ctx,
                    mit_empfaenger=s.art != "protokoll")
-    return seiten_pdf(s.verein, [seite], titel=seite["betreff"])
+    seiten = [seite]
+    if s.art == "protokoll" and s.veranstaltung_id:   # Teilnehmerliste/Abstimmungen/Wahlen als Anlagen (eigene Seiten)
+        seiten += anlagen.pdf_seiten(s.veranstaltung, ctx.get("veranstaltung_datum", ""))
+    return seiten_pdf(s.verein, seiten, titel=seite["betreff"])
 
 
 def serienbrief_pdf(sb, mitglieder, limit=None):

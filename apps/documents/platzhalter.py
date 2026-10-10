@@ -62,7 +62,7 @@ def briefanrede(m):
 OPENSLIDES_PLATZHALTER = {"wahlergebnisse", "abstimmungen", "anwesenheit", "anwesenheit_anzahl"}
 
 
-def kontext(verein, mitglied=None, veranstaltung=None, datum=None):
+def kontext(verein, mitglied=None, veranstaltung=None, datum=None, anlagen=False):
     heute = date.today()
     k = {
         "verein": verein.name, "verein_anschrift": verein.adresszeile, "verein_ort": verein.ort,
@@ -102,14 +102,24 @@ def kontext(verein, mitglied=None, veranstaltung=None, datum=None):
         def _block(art):
             return "\n\n".join(f"{w.amt}{' – ' + w.wahlgang if w.wahlgang else ''}:\n{w.ergebnis}"
                                for w in v.wahlergebnisse.filter(art=art))
-        # Ohne angebundenes OpenSlides sind das schlichte Eintragsfelder - kein Hinweis auf OpenSlides im Protokoll.
-        k["wahlergebnisse"] = _block("wahl") or (
-            "(keine Wahlergebnisse aus OpenSlides übernommen)" if os_aktiv else "[Wahlergebnisse eintragen]")
-        k["abstimmungen"] = _block("abstimmung") or (
-            "(keine Abstimmungen aus OpenSlides übernommen)" if os_aktiv else "[Abstimmungen und Beschlüsse eintragen]")
+
+        # Protokoll (anlagen=True): vorhandene Ergebnisse stehen auf eigenen Anlageseiten, im Text nur ein Verweis.
+        # Gibt es nichts, bleibt der Platzhalter ganz leer (samt Ueberschrift) - kein "keine Angaben"-Feld.
+        nummern = {}
+        if anlagen:
+            from .anlagen import anlagen_nummern
+            nummern = anlagen_nummern(v)
+
+        def _abschnitt(ueberschrift, art, anlage_titel, inhalt):
+            if art in nummern:
+                return f"{ueberschrift}: siehe Anlage {nummern[art]} ({anlage_titel})"
+            return f"{ueberschrift}:\n{inhalt}" if inhalt else ""
+
+        k["wahlergebnisse"] = _abschnitt("Wahlergebnisse", "wahl", "Wahlergebnisse", _block("wahl"))
+        k["abstimmungen"] = _abschnitt("Abstimmungen", "abstimmung", "Abstimmungen", _block("abstimmung"))
         anwesende = sorted((a.wer for a in v.anwesenheiten.select_related("mitglied")), key=str.casefold)
-        k["anwesenheit"] = "\n".join(f"- {n}" for n in anwesende) or (
-            "(keine Anwesenheit aus OpenSlides übernommen)" if os_aktiv else "[Namen der Anwesenden eintragen]")
+        k["anwesenheit"] = _abschnitt("Anwesenheitsliste", "anwesenheit", "Teilnehmerliste",
+                                      "\n".join(f"- {n}" for n in anwesende))
         k["anwesenheit_anzahl"] = str(len(anwesende)) if anwesende else "[Anzahl]"
     return k
 

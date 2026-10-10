@@ -46,6 +46,7 @@ urlpatterns += crud("tagesordnung", Tagesordnungspunkt, "veranstaltungen", list_
                     "openslides_topic_id"), select_related=("veranstaltung",), filter=("veranstaltung",),
                     ordering=("veranstaltung", "position"))
 urlpatterns += crud("wahlergebnisse", Wahlergebnis, "veranstaltungen", list_display=("veranstaltung", "amt", "wahlgang"),
-                    select_related=("veranstaltung",), filter=("veranstaltung",), add=False, edit=False)
+                    select_related=("veranstaltung",), filter=("veranstaltung",), add=False, edit=False,
+                    detail_ausblenden=("details",))
 urlpatterns += crud("anwesenheit", Anwesenheit, "teilnehmer", list_display=("veranstaltung", ("wer", "Name")),
                     select_related=("veranstaltung", "mitglied"), filter=("veranstaltung",), add=False, edit=False)

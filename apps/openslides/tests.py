@@ -307,37 +307,37 @@ class ProtokollAbstimmungenViewTests(TestCase):
 
     def test_knopf_nur_bei_protokoll_mit_verknuepfter_versammlung(self):
         self.assertContains(self.client.get(reverse("schriftstueck_detail", args=[self.s.pk])),
-                            "Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen")
+                            "Anwesenheit, Abstimmungen und Wahlen aus OpenSlides abrufen (als Anlagen)")
         self.ver.openslides_meeting_id = None
         self.ver.save()
         self.assertNotContains(self.client.get(reverse("schriftstueck_detail", args=[self.s.pk])),
-                               "Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen")
+                               "aus OpenSlides abrufen (als Anlagen)")
 
-    def test_fuegt_abschnitte_ein_und_platzhalter_zeigen_ergebnis(self):
-        r = self._post(antraege=_antrag_antwort(), wahlen=_wahl_antwort())
-        self.assertContains(r, "1 Wahlergebnis(se), 1 Abstimmung(en) und 0 Anwesende aus OpenSlides übernommen.")
+    def test_abruf_meldet_die_angehaengten_anlagen_und_laesst_den_text_unveraendert(self):
+        r = self._post(antraege=_antrag_antwort(), wahlen=_wahl_antwort(), anwesenheit=_anwesenheit_antwort())
+        self.assertContains(r, "1 Wahlergebnis(se), 1 Abstimmung(en) und 2 Anwesende aus OpenSlides übernommen.")
+        self.assertContains(r, "Anlage 1: Teilnehmerliste, Anlage 2: Abstimmungen, Anlage 3: Wahlergebnisse")
         self.s.refresh_from_db()
-        self.assertIn("{abstimmungen}", self.s.text)
-        self.assertIn("{wahlergebnisse}", self.s.text)
-        self.assertTrue(self.s.text.startswith("Beginn der Sitzung."))
-        ctx = self.s.kontext()
-        from apps.documents.platzhalter import ersetzen
-        ausgefuellt = ersetzen(self.s.text, ctx)
-        self.assertIn("Antrag A1: Beitragserhöhung", ausgefuellt)
-        self.assertIn("9 Ja, 2 Nein, 1 Enthaltung", ausgefuellt)
-        self.assertIn("1. Vorsitzender", ausgefuellt)
+        self.assertEqual(self.s.text, "Beginn der Sitzung.")
 
-    def test_erneuter_klick_verdoppelt_nichts_und_behaelt_eigene_ergaenzungen(self):
-        self._post(antraege=_antrag_antwort())
-        self.s.refresh_from_db()
-        self.s.text += "\nEigene Ergänzung."
-        self.s.save()
-        text_vorher = self.s.text
-        r = self._post(antraege=_antrag_antwort())
-        self.assertContains(r, "Platzhalter bereits")
-        self.s.refresh_from_db()
-        self.assertEqual(self.s.text, text_vorher)
-        self.assertEqual(self.s.text.count("{abstimmungen}"), 1)
+    def test_pdf_und_word_des_protokolls_enthalten_die_anlagen(self):
+        self._post(antraege=_antrag_antwort(), wahlen=_wahl_antwort(), anwesenheit=_anwesenheit_antwort())
+        import io
+        from pypdf import PdfReader
+        pdf = PdfReader(io.BytesIO(self.client.get(reverse("schriftstueck_pdf", args=[self.s.pk])).content))
+        text = "\n".join(seite.extract_text() for seite in pdf.pages)
+        self.assertEqual(len(pdf.pages), 4)   # Protokoll + 3 Anlagen, je eigene Seite
+        for erwartet in ("Anlage 1: Teilnehmerliste", "Gast Besucher", "Anlage 2: Abstimmungen", "Antrag A1",
+                         "Anlage 3: Wahlergebnisse", "1. Vorsitzender", "Max Muster"):
+            self.assertIn(erwartet, text)
+        from docx import Document
+        word = Document(io.BytesIO(self.client.get(reverse("schriftstueck_docx", args=[self.s.pk])).content))
+        absaetze = [p.text for p in word.paragraphs]
+        for erwartet in ("Anlage 1: Teilnehmerliste", "Anlage 2: Abstimmungen", "Anlage 3: Wahlergebnisse"):
+            self.assertIn(erwartet, absaetze)
+        zellen = [z.text for t in word.tables for r in t.rows for z in r.cells]
+        self.assertIn("Gast Besucher", zellen)
+        self.assertIn("Max Muster", zellen)
 
     def test_ohne_ergebnisse_warnung_und_text_unveraendert(self):
         r = self._post()
@@ -431,15 +431,15 @@ class AnwesenheitAbrufenTests(TestCase):
 
     def test_platzhalter_anwesenheit_und_anzahl(self):
         from apps.documents.platzhalter import kontext
-        self.verbindung.aktiv = True
-        self.verbindung.save()
         ctx = kontext(self.v, veranstaltung=self.ver)
         self.assertEqual(ctx["anwesenheit_anzahl"], "[Anzahl]")
-        self.assertIn("keine Anwesenheit", ctx["anwesenheit"])
+        self.assertEqual(ctx["anwesenheit"], "")   # leer -> kein "keine Angaben"-Feld
         self._abrufen(_anwesenheit_antwort())
         ctx = kontext(self.v, veranstaltung=self.ver)
         self.assertEqual(ctx["anwesenheit_anzahl"], "2")
-        self.assertEqual(ctx["anwesenheit"], "- Erika Muster\n- Gast Besucher")
+        self.assertEqual(ctx["anwesenheit"], "Anwesenheitsliste:\n- Erika Muster\n- Gast Besucher")
+        self.assertEqual(kontext(self.v, veranstaltung=self.ver, anlagen=True)["anwesenheit"],
+                         "Anwesenheitsliste: siehe Anlage 1 (Teilnehmerliste)")
 
     def test_anonymisiertes_mitglied_erscheint_anonymisiert(self):
         from apps.documents.platzhalter import kontext
@@ -451,19 +451,16 @@ class AnwesenheitAbrufenTests(TestCase):
 
 
 class ProtokollAnwesenheitViewTests(ProtokollAbstimmungenViewTests):
-    """Der Knopf am Protokoll fuegt zusaetzlich die Anwesenheitsliste ein (erbt Einrichtung und Hilfsmethode)."""
+    """Erbt Einrichtung und Hilfsmethode; prueft zusaetzlich die Teilnehmerliste/Verweise im Protokolltext."""
 
-    def test_anwesenheit_wird_abgerufen_und_abschnitt_eingefuegt(self):
-        r = self._post(anwesenheit=_anwesenheit_antwort(), antraege=_antrag_antwort())
-        self.assertContains(r, "1 Abstimmung(en) und 2 Anwesende aus OpenSlides übernommen.")
-        self.s.refresh_from_db()
-        self.assertIn("{anwesenheit}", self.s.text)
+    def test_verweis_im_text_und_veranstaltung_zeigt_abschnitt(self):
+        self._post(anwesenheit=_anwesenheit_antwort())
+        self.s.text = "Anwesend: {anwesenheit_anzahl}\n\n{anwesenheit}"
+        self.s.save()
         from apps.documents.platzhalter import ersetzen
         text = ersetzen(self.s.text, self.s.kontext())
-        self.assertIn("- Gast Besucher", text)
-
-    def test_veranstaltung_zeigt_abschnitt_anwesenheit(self):
-        self._post(anwesenheit=_anwesenheit_antwort())
+        self.assertIn("Anwesend: 2", text)
+        self.assertIn("Anwesenheitsliste: siehe Anlage 1 (Teilnehmerliste)", text)
         r = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
         self.assertContains(r, "Anwesenheit (aus OpenSlides)")
         self.assertContains(r, "Gast Besucher")

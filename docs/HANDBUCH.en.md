@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.65.1)
+# Handbook – Feuerix (Version 1.66.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -571,14 +571,22 @@ meeting, before people are set to absent. Whether a present person was entitled 
 software; the minute-taker checks that (as well as the quorum). Placeholders: `{anwesenheit}` (alphabetical list
 of names) and `{anwesenheit_anzahl}`.
 
-**Adding them to the minutes:** on the minutes (Correspondence › Documents, kind "Minutes" of a linked event)
-there is the button "Insert attendance, votes and elections from OpenSlides": it fetches the current state and –
-if not already present – appends the sections "Attendance list", "Votes" and "Election results" with the
-placeholders `{anwesenheit}`, `{abstimmungen}` and `{wahlergebnisse}` to the end of the minutes. The placeholders are always filled with the current state in
-PDF and Word, so clicking again updates the data without duplicating the text or overwriting your own additions.
-The supplied "Minutes of General Meeting" template already contains both placeholders (for older templates that
-were already created, use the button or add the placeholders by hand). Fetching again fully replaces previously
-imported results and the attendance for that event.
+**As appendices to the minutes:** on the minutes (Correspondence › Documents, kind "Minutes" of a linked event)
+there is the button "Retrieve attendance, votes and elections from OpenSlides (as appendices)". It fetches the
+current state; when **PDF and Word** are generated, the results are then appended automatically as **appendices,
+each on its own page**, after the minutes text (with letterhead and page number):
+
+* **Appendix 1: Attendance list** – all persons present, alphabetically, marked member/guest, with the total.
+* **Appendix 2: Votes** – all votes on motions and topics summarised, one block per vote with submitter, motion text,
+  reason, result table and OpenSlides status, plus a tick line "adopted / rejected" for the chair.
+* **Appendix 3: Election results** – all elections summarised, one block per election (ballot) with the vote table
+  per candidate and a line "Elected: ____".
+
+Only appendices with data exist; numbering is consecutive. The minutes text itself is not changed; the placeholders
+`{anwesenheit}`, `{abstimmungen}` and `{wahlergebnisse}` (contained in the "Minutes of General Meeting" template)
+only insert a reference such as "Abstimmungen: siehe Anlage 2" there – and stay **completely empty** (including the
+heading) when there is nothing. Fetching again fully replaces previously imported results and the attendance for
+that event.
 
 ## 13. Paperless-ngx integration
 

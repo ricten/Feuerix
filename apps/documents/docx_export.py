@@ -129,6 +129,40 @@ def _fusszeile(doc, verein):
             lauf.add_break()
 
 
+def _tabelle(doc, t):
+    """Tabelle (erste Zeile = Kopfzeile, fett) aus einem Anlagen-Block/-Tabellen-Dict."""
+    zeilen = t["zeilen"]
+    tabelle = doc.add_table(rows=len(zeilen), cols=len(zeilen[0]))
+    tabelle.style = "Table Grid"
+    for i, zeile in enumerate(zeilen):
+        for j, text in enumerate(zeile):
+            lauf = tabelle.cell(i, j).paragraphs[0].add_run(str(text))
+            lauf.bold = i == 0
+    return tabelle
+
+
+def _anlagen(doc, veranstaltung, datum_text):
+    """Hängt Teilnehmerliste, Abstimmungen und Wahlergebnisse als Anlagen an - je Anlage auf neuer Seite."""
+    from . import anlagen
+    for anlage in anlagen.anlagen(veranstaltung, datum_text):
+        doc.add_page_break()
+        doc.add_heading(anlage["titel"], level=2)
+        for text in anlage["vor"]:
+            doc.add_paragraph(text)
+        for t in anlage["tabellen"]:
+            _tabelle(doc, t)
+        for block in anlage["bloecke"]:
+            doc.add_heading(block["titel"], level=3)
+            for text in block.get("absaetze", ()):
+                doc.add_paragraph(text)
+            if block.get("zeilen"):
+                _tabelle(doc, block)
+            for text in block.get("nach", ()):
+                doc.add_paragraph(text)
+        for text in anlage["nach"]:
+            doc.add_paragraph(text)
+
+
 def schriftstueck_docx(s):
     from docx import Document
     from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
@@ -200,6 +234,8 @@ def schriftstueck_docx(s):
     doc.add_heading(ersetzen(s.betreff or s.titel, ctx), level=2)
     for a in absaetze(ersetzen(s.text, ctx)):
         doc.add_paragraph(a)
+    if s.art == "protokoll" and s.veranstaltung_id:   # Teilnehmerliste/Abstimmungen/Wahlen als Anlagen (eigene Seiten)
+        _anlagen(doc, s.veranstaltung, ctx.get("veranstaltung_datum", ""))
 
     _fusszeile(doc, v)
 

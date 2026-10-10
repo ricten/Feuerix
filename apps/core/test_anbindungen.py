@@ -117,8 +117,9 @@ class VorlagenOhneOpenSlidesTests(AnbindungenBasis):
         protokoll = next(d for d in STANDARDVORLAGEN if d["name"] == "Protokoll Mitgliederversammlung")
         ausgefuellt = ersetzen(protokoll["text"], kontext(self.v, veranstaltung=self.ver))
         self.assertNotIn("OpenSlides", ausgefuellt)
-        self.assertIn("[Namen der Anwesenden eintragen]", ausgefuellt)
-        self.assertIn("[Abstimmungen und Beschlüsse eintragen]", ausgefuellt)
+        self.assertNotIn("keine ", ausgefuellt.split("Tagesordnung:")[0])
+        for ueberschrift in ("Anwesenheitsliste", "Abstimmungen", "Wahlergebnisse"):   # leer -> samt Ueberschrift weg
+            self.assertNotIn(ueberschrift, ausgefuellt)
 
     def test_platzhalterliste_bleibt_vollstaendig_im_code(self):
         # nur die Anzeige wird gefiltert, nicht PLATZHALTER selbst

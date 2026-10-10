@@ -79,7 +79,7 @@ def schriftstueck_kontext(request, s):
         aktionen.append(knopf("Zur Veranstaltung", reverse("veranstaltung_detail", args=[s.veranstaltung_id])))
         if (s.art == "protokoll" and s.veranstaltung.openslides_meeting_id and rt.darf("schriftverkehr", "change")
                 and rt.darf("openslides", "change") and anbindungen(request).openslides):
-            aktionen.append(knopf("Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen",
+            aktionen.append(knopf("Anwesenheit, Abstimmungen und Wahlen aus OpenSlides abrufen (als Anlagen)",
                                   reverse("schriftstueck_abstimmungen", args=[s.pk]), post=True,
                                   stil="outline-success"))
     hinweise = []

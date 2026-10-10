@@ -137,6 +137,37 @@ def _stile():
     }
 
 
+def _tabelle(t_, normal, rechts):
+    """Eine Tabelle (optional mit fetter Titelzeile) als Liste von Flowables - fuer Tabellen und Bloecke."""
+    story = []
+    zeilen_roh = t_["zeilen"]
+    ab = t_.get("rechts_ab", len(zeilen_roh[0]) - 1)  # ab dieser Spalte rechtsbündig
+    if t_.get("titel"):
+        story.append(Paragraph(f"<b>{escape(t_['titel'])}</b>", ParagraphStyle(
+            "tt", parent=normal, spaceBefore=4, spaceAfter=2, keepWithNext=1)))
+    zeilen = []
+    n_stil, r_stil = (normal, rechts)
+    if t_.get("klein"):
+        n_stil = ParagraphStyle("nk", parent=normal, fontSize=8, leading=10)
+        r_stil = ParagraphStyle("rk", parent=n_stil, alignment=2)
+    for i, z in enumerate(zeilen_roh):
+        zeile = []
+        for j, c in enumerate(z):
+            c = str(c)
+            fett = c.startswith("**")
+            text = escape(c[2:] if fett else c).replace("\n", "<br/>")
+            zeile.append(Paragraph(f"<b>{text}</b>" if fett else text, r_stil if j >= ab else n_stil))
+        zeilen.append(zeile)
+    breiten = t_.get("breiten")
+    tb = Table(zeilen, hAlign="LEFT", repeatRows=1, colWidths=[b * mm for b in breiten] if breiten else None)
+    tb.setStyle(TableStyle([
+        ("LINEBELOW", (0, 0), (-1, 0), 0.8, colors.black),
+        ("LINEBELOW", (0, 1), (-1, -1), 0.25, colors.lightgrey),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("BACKGROUND", (0, 0), (-1, 0), colors.whitesmoke)]))
+    return story + [tb, Spacer(1, 4 * mm)]
+
+
 def _seite(verein, s, stile):
     normal, klein, rechts, kopf = stile["normal"], stile["klein"], stile["rechts"], stile["kopf"]
     absender = ", ".join(x for x in (verein.name, verein.anschrift, f"{verein.plz} {verein.ort}".strip()) if x)
@@ -161,33 +192,18 @@ def _seite(verein, s, stile):
     tabellen = list(s.get("tabellen", []))
     if s.get("tabelle"):
         tabellen.insert(0, {"zeilen": s["tabelle"]})
+    for b in s.get("bloecke", ()):
+        # Block = Ueberschrift, Absaetze, Tabelle - einzeln und nacheinander (z. B. je Abstimmung/Wahl in den Anlagen)
+        story.append(Paragraph(f"<b>{escape(b['titel'])}</b>", ParagraphStyle(
+            "bt", parent=normal, spaceBefore=8, spaceAfter=2, keepWithNext=1)))
+        for a in b.get("absaetze", ()):
+            story += [_p(a, normal), Spacer(1, 1.5 * mm)]
+        if b.get("zeilen"):
+            story += _tabelle({k: v for k, v in b.items() if k not in ("titel", "absaetze", "nach")}, normal, rechts)
+        for a in b.get("nach", ()):
+            story += [Spacer(1, 1 * mm), _p(a, normal), Spacer(1, 2 * mm)]
     for t_ in tabellen:
-        zeilen_roh = t_["zeilen"]
-        ab = t_.get("rechts_ab", len(zeilen_roh[0]) - 1)  # ab dieser Spalte rechtsbündig
-        if t_.get("titel"):
-            story.append(Paragraph(f"<b>{escape(t_['titel'])}</b>", ParagraphStyle(
-                "tt", parent=normal, spaceBefore=4, spaceAfter=2, keepWithNext=1)))
-        zeilen = []
-        n_stil, r_stil = (normal, rechts)
-        if t_.get("klein"):
-            n_stil = ParagraphStyle("nk", parent=normal, fontSize=8, leading=10)
-            r_stil = ParagraphStyle("rk", parent=n_stil, alignment=2)
-        for i, z in enumerate(zeilen_roh):
-            zeile = []
-            for j, c in enumerate(z):
-                c = str(c)
-                fett = c.startswith("**")
-                text = escape(c[2:] if fett else c).replace("\n", "<br/>")
-                zeile.append(Paragraph(f"<b>{text}</b>" if fett else text, r_stil if j >= ab else n_stil))
-            zeilen.append(zeile)
-        breiten = t_.get("breiten")
-        tb = Table(zeilen, hAlign="LEFT", repeatRows=1, colWidths=[b * mm for b in breiten] if breiten else None)
-        tb.setStyle(TableStyle([
-            ("LINEBELOW", (0, 0), (-1, 0), 0.8, colors.black),
-            ("LINEBELOW", (0, 1), (-1, -1), 0.25, colors.lightgrey),
-            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-            ("BACKGROUND", (0, 0), (-1, 0), colors.whitesmoke)]))
-        story += [tb, Spacer(1, 4 * mm)]
+        story += _tabelle(t_, normal, rechts)
     for a in s.get("nach", ()):
         story += [_p(a, normal), Spacer(1, 3 * mm)]
     return story

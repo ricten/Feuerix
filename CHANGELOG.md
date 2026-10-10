@@ -3,6 +3,15 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.66.0
+- Neu: Im Protokoll werden **Teilnehmerliste, Abstimmungen und Wahlergebnisse als Anlagen auf eigenen Seiten** an PDF und Word
+  angehängt – alle Wahlen zusammengefasst auf einer Anlage, alle sonstigen Abstimmungen auf einer, die Teilnehmerliste eigens
+  (nur wenn Daten vorliegen, fortlaufend nummeriert). Der Knopf am Protokoll ruft nur noch ab; der Protokolltext bleibt
+  unverändert, die Platzhalter verweisen auf die Anlage.
+- Leere Angaben erscheinen nicht mehr: `{anwesenheit}`, `{abstimmungen}` und `{wahlergebnisse}` bleiben ohne Daten ganz leer
+  (auch ohne Überschrift) statt „(keine … übernommen)“ oder „[… eintragen]“. Bereits angelegte Vorlagen mit eigener Überschrift
+  vor dem Platzhalter behalten diese Überschrift.
+
 ## 1.65.1
 - Fix: Mit 1.65.0 wurden Abstimmungen zu Anträgen nicht mehr übernommen. Die erweiterte Abfrage (Antragsteller/Text) enthielt ein Feld,
   das OpenSlides 4.3 ablehnt, und die Fehlerantwort wurde als „keine Anträge“ gewertet. Jetzt wird bei Ablehnung mit weniger Feldern

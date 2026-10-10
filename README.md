@@ -139,8 +139,10 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
   gewählt ist bzw. ob ein Antrag angenommen ist, entscheidet die Software bewusst nicht selbst
   (Mehrheitserfordernisse/Stichwahlregeln stehen in der Satzung) – angezeigt wird die reine
   Ja/Nein/Enthaltung-Verteilung (bei Anträgen zusätzlich der in OpenSlides gesetzte Status als Information). Am
-  Protokoll fügt der Knopf „Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen“ die Platzhalter
-  `{anwesenheit}`, `{abstimmungen}` und `{wahlergebnisse}` samt aktuellem Stand ein. Die Anwesenheit (als
+  Protokoll ruft der Knopf „Anwesenheit, Abstimmungen und Wahlen aus OpenSlides abrufen (als Anlagen)“ alles ab; PDF und
+  Word hängen dann **Teilnehmerliste, Abstimmungen und Wahlergebnisse als Anlagen auf eigenen Seiten** an (alle Wahlen
+  in einem Block, alle Abstimmungen in einem Block); die Platzhalter `{anwesenheit}`, `{abstimmungen}` und
+  `{wahlergebnisse}` verweisen darauf und bleiben ohne Daten leer. Die Anwesenheit (als
   „anwesend“ markierte Personen; Mitglieder über ihr OpenSlides-Konto zugeordnet) wird mit übernommen. Technisch über eine einzelne, verschachtelte Abfrage an den
   OpenSlides-Autoupdate-Dienst umgesetzt (nach dessen Dokumentation, ebenfalls nicht gegen eine echte Instanz
   getestet). Ein erneuter Abruf ersetzt zuvor übernommene Ergebnisse derselben Veranstaltung vollständig.
