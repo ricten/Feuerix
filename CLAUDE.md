@@ -79,3 +79,13 @@ Bei jeder Version zusätzlich die Versionsnummer im Titel von `docs/HANDBUCH.md`
 (jeweils Zeile 1) synchron halten.
 Außerdem bei jeder Versionserhöhung einen kurzen Stichpunkt ganz oben in `CHANGELOG.md` ergänzen (ein bis zwei
 Zeilen, kein Roman) - dafür sind keine Testläufe nötig.
+
+## Commit, Tag und Push
+Ist eine Aufgabe fertig und getestet, wird sie **ohne Rückfrage** committet, getaggt und gepusht (ausdrücklich
+erlaubt vom Projektinhaber):
+* Direkt auf `main` committen (so wird das Repository geführt), Nachricht auf Deutsch mit der Version in
+  Klammern, z. B. `Datensicherung mit externem Ziel (1.60.0)`.
+* Danach einen **annotierten Tag** mit der reinen Versionsnummer setzen (z. B. `1.60.0`, ohne `v`) und
+  `git push origin main` sowie `git push origin <tag>` ausführen.
+* Vorher die Tests laufen lassen (außer bei reinen Doku-Änderungen) und `VERSION`, `CHANGELOG.md` und die
+  Handbuch-Titel pflegen (siehe oben). Keine halben Stände pushen.
