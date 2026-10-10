@@ -3,7 +3,7 @@
 set -e
 STAMP=$(date +%Y%m%d-%H%M%S)
 DIR=/data/backups
-PGPASSWORD="$POSTGRES_PASSWORD" pg_dump -h "$POSTGRES_HOST" -U "$POSTGRES_USER" "$POSTGRES_DB" | gzip > "$DIR/db-$STAMP.sql.gz"
+PGPASSWORD="$POSTGRES_PASSWORD" pg_dump --clean --if-exists -h "$POSTGRES_HOST" -U "$POSTGRES_USER" "$POSTGRES_DB" | gzip > "$DIR/db-$STAMP.sql.gz"
 tar -czf "$DIR/media-$STAMP.tar.gz" -C /data media
 # nur die letzten 14 Sicherungen behalten
 ls -1t $DIR/db-*.sql.gz 2>/dev/null | tail -n +15 | xargs -r rm --

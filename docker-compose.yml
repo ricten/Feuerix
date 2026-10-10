@@ -39,7 +39,7 @@ services:
   worker:
     build: .
     restart: unless-stopped
-    command: celery -A config worker -l info
+    command: celery -A config worker -B -l info
     env_file: .env
     environment:
       POSTGRES_HOST: db
@@ -49,6 +49,7 @@ services:
       - redis
     volumes:
       - media:/data/media
+      - backups:/data/backups
 
 volumes:
   pgdata:

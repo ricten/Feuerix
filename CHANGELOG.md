@@ -3,6 +3,22 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.60.0
+- Neu: Paperless-ngx- und OpenSlides-Daten werden mitgesichert - das Host-Skript `scripts/backup-zusatz.sh` legt
+  deren Dumps/Dateien ins Sicherungs-Volume; Feuerix kopiert jetzt alle lokalen Sicherungsdateien (auch
+  nachträglich nach einem Fehlschlag) auf das externe Ziel, über Hilfsnamen (keine halben Dateien). Anleitung
+  für die Wiederherstellung von Paperless/OpenSlides ergänzt.
+
+## 1.59.1
+- Anleitung um Wiederherstellung (Restore) ergänzt; Datenbank-Sicherungen enthalten jetzt `--clean --if-exists`,
+  damit sich ein Dump auch in eine bereits migrierte Datenbank einspielen lässt.
+
+## 1.59.0
+- Neu: Verwaltung › Datensicherung (nur Superadministratoren) - tägliche Sicherung nach Zeitplan, optional auf ein
+  externes Ziel (NAS per SFTP oder SMB-Freigabe), Verbindungstest, „Jetzt sichern“, Download der lokalen
+  Sicherungen und Fehlerhinweis. Der Worker startet dafür jetzt auch den Zeitplan (`-B`) und bindet das Volume
+  `backups` ein - bei bestehenden Installationen `docker-compose.yml` übernehmen und neu bauen.
+
 ## 1.58.1
 - Interne Versionsanhebung zum Test der Update-Funktion der Portalverwaltung (keine inhaltliche Änderung).
 

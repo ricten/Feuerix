@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
@@ -243,6 +245,40 @@ class Systemeinstellung(models.Model):
     update_verfuegbare_version = models.CharField(_("Verfügbare neue Version"), max_length=20, blank=True,
                                                   editable=False)
     update_geprueft_am = models.DateTimeField(_("Zuletzt auf Updates geprüft"), null=True, blank=True, editable=False)
+
+    # Datensicherung (siehe apps/core/datensicherung.py) - instanzweit, da sie die gesamte Datenbank umfasst.
+    ZIEL_ARTEN = [("", _("Nur lokal (Docker-Volume)")), ("sftp", _("SFTP / SSH (z. B. NAS)")),
+                  ("smb", _("SMB-Freigabe (Windows-/NAS-Freigabe)"))]
+    sicherung_aktiv = models.BooleanField(_("Automatische Sicherung aktiv"), default=False)
+    sicherung_uhrzeit = models.TimeField(_("Uhrzeit der täglichen Sicherung"), default=datetime.time(3, 0))
+    sicherung_aufbewahren = models.PositiveSmallIntegerField(
+        _("Sicherungen aufbewahren"), default=14, validators=[MinValueValidator(1)],
+        help_text=_("Anzahl der zuletzt behaltenen Sicherungen - lokal und am externen Ziel; ältere werden gelöscht."))
+    sicherung_ziel = models.CharField(_("Externes Ziel"), max_length=4, blank=True, choices=ZIEL_ARTEN,
+                                      help_text=_("Zusätzlich zur lokalen Kopie wird jede Sicherung hierhin kopiert."))
+    ziel_host = models.CharField(_("Server / NAS"), max_length=253, blank=True,
+                                 help_text=_("Hostname oder IP-Adresse, z. B. nas.local oder 192.168.1.20"))
+    ziel_port = models.PositiveIntegerField(_("Port"), null=True, blank=True,
+                                            help_text=_("Leer = Standard (SFTP 22, SMB 445)"))
+    ziel_benutzer = models.CharField(_("Benutzername"), max_length=150, blank=True,
+                                     help_text=_("Bei SMB ggf. mit Domäne: DOMÄNE\\Benutzer"))
+    ziel_passwort = VerschluesseltesTextField(_("Passwort"), blank=True)
+    ziel_schluessel = VerschluesseltesTextField(
+        _("Privater SSH-Schlüssel (optional, nur SFTP)"), blank=True,
+        help_text=_("Alternative zum Passwort: kompletter Inhalt der Schlüsseldatei (OpenSSH/PEM)."))
+    ziel_verzeichnis = models.CharField(
+        _("Zielverzeichnis"), max_length=300, blank=True,
+        help_text=_("SFTP: Pfad auf dem Server, z. B. /volume1/backup/feuerix. SMB: Freigabe und Unterordner, "
+                  "z. B. backup/feuerix"))
+    ziel_hostkey = models.CharField(
+        _("Hostschlüssel-Fingerabdruck (SFTP)"), max_length=120, blank=True,
+        help_text=_("Wird beim ersten erfolgreichen „Verbindung testen“ übernommen und danach bei jeder Verbindung "
+                  "geprüft. Leeren, wenn der Server absichtlich neu aufgesetzt wurde."))
+    sicherung_letzter_lauf = models.DateTimeField(_("Letzte Sicherung"), null=True, blank=True, editable=False)
+    sicherung_letzter_ok = models.BooleanField(_("Letzte Sicherung erfolgreich"), default=True, editable=False)
+    sicherung_letzte_meldung = models.TextField(_("Ergebnis der letzten Sicherung"), blank=True, editable=False)
+    sicherung_letzter_test = models.CharField(_("Letzter Verbindungstest"), max_length=300, blank=True,
+                                              editable=False)
 
     class Meta:
         verbose_name = _("Systemeinstellung")

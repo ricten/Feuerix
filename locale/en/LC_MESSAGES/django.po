@@ -4223,3 +4223,239 @@ msgstr "Sign in"
 #~ msgstr ""
 #~ "New transactions are created as bank transactions, duplicates are skipped "
 #~ "automatically."
+
+# Datensicherung
+
+msgid "Verbindung erfolgreich."
+msgstr "Connection successful."
+
+msgid "Bitte Server / NAS angeben."
+msgstr "Please enter the server / NAS."
+
+msgid "Bitte einen Benutzernamen angeben."
+msgstr "Please enter a user name."
+
+msgid "Bitte ein Passwort oder (nur SFTP) einen privaten Schlüssel angeben."
+msgstr "Please enter a password or (SFTP only) a private key."
+
+msgid ""
+"Bei SMB bitte Freigabe (und ggf. Unterordner) angeben, z. B. backup/feuerix."
+msgstr ""
+"For SMB, please enter the share (and subfolder if needed), e.g. "
+"backup/feuerix."
+
+msgid "Es ist kein externes Ziel ausgewählt."
+msgstr "No external target is selected."
+
+msgid "pg_dump ist nicht installiert."
+msgstr "pg_dump is not installed."
+
+msgid "Hostschlüssel noch nicht bestätigt - bitte zuerst „Verbindung testen“."
+msgstr "Host key not yet confirmed - please use “Test connection” first."
+
+msgid "Lokal gesichert: %(namen)s"
+msgstr "Backed up locally: %(namen)s"
+
+msgid ""
+"Der Hostschlüssel des Servers hat sich geändert (erwartet %(erwartet)s, "
+"erhalten %(erhalten)s). Verbindung aus Sicherheitsgründen abgebrochen."
+msgstr ""
+"The server's host key has changed (expected %(erwartet)s, received "
+"%(erhalten)s). Connection aborted for security reasons."
+
+msgid "Lokale Sicherung fehlgeschlagen: %(fehler)s"
+msgstr "Local backup failed: %(fehler)s"
+
+msgid "Extern kopiert (%(ziel)s: %(host)s)."
+msgstr "Copied externally (%(ziel)s: %(host)s)."
+
+msgid "Datenbank-Dump fehlgeschlagen: %(fehler)s"
+msgstr "Database dump failed: %(fehler)s"
+
+msgid ""
+"Hostschlüssel übernommen: %(fp)s - bitte mit dem Fingerabdruck Ihres Servers"
+" vergleichen."
+msgstr ""
+"Host key stored: %(fp)s - please compare it with your server's fingerprint."
+
+msgid "Kopie auf das externe Ziel fehlgeschlagen: %(fehler)s"
+msgstr "Copy to the external target failed: %(fehler)s"
+
+msgid ""
+"Die Sicherung läuft im Hintergrund. Das Ergebnis erscheint unter „Letzte "
+"Sicherung“ (Seite ggf. neu laden)."
+msgstr ""
+"The backup is running in the background. The result appears under “Last "
+"backup” (reload the page if needed)."
+
+msgid "Einstellungen gespeichert."
+msgstr "Settings saved."
+
+msgid "Datensicherung"
+msgstr "Data backup"
+
+msgid "Verbindung fehlgeschlagen: %(fehler)s"
+msgstr "Connection failed: %(fehler)s"
+
+msgid "Automatische Sicherung aktiv"
+msgstr "Automatic backup active"
+
+msgid "Uhrzeit der täglichen Sicherung"
+msgstr "Time of the daily backup"
+
+msgid "Sicherungen aufbewahren"
+msgstr "Backups to keep"
+
+msgid "Externes Ziel"
+msgstr "External target"
+
+msgid "Server / NAS"
+msgstr "Server / NAS"
+
+msgid "Port"
+msgstr "Port"
+
+msgid "Privater SSH-Schlüssel (optional, nur SFTP)"
+msgstr "Private SSH key (optional, SFTP only)"
+
+msgid "Zielverzeichnis"
+msgstr "Target directory"
+
+msgid "Hostschlüssel-Fingerabdruck (SFTP)"
+msgstr "Host key fingerprint (SFTP)"
+
+msgid "Letzte Sicherung"
+msgstr "Last backup"
+
+msgid "Letzte Sicherung erfolgreich"
+msgstr "Last backup successful"
+
+msgid "Ergebnis der letzten Sicherung"
+msgstr "Result of the last backup"
+
+msgid "Nur lokal (Docker-Volume)"
+msgstr "Local only (Docker volume)"
+
+msgid "SFTP / SSH (z. B. NAS)"
+msgstr "SFTP / SSH (e.g. NAS)"
+
+msgid "SMB-Freigabe (Windows-/NAS-Freigabe)"
+msgstr "SMB share (Windows / NAS share)"
+
+msgid ""
+"Anzahl der zuletzt behaltenen Sicherungen - lokal und am externen Ziel; "
+"ältere werden gelöscht."
+msgstr ""
+"Number of most recent backups to keep - locally and at the external target; "
+"older ones are deleted."
+
+msgid "Zusätzlich zur lokalen Kopie wird jede Sicherung hierhin kopiert."
+msgstr "In addition to the local copy, every backup is copied here."
+
+msgid "Hostname oder IP-Adresse, z. B. nas.local oder 192.168.1.20"
+msgstr "Host name or IP address, e.g. nas.local or 192.168.1.20"
+
+msgid "Leer = Standard (SFTP 22, SMB 445)"
+msgstr "Empty = default (SFTP 22, SMB 445)"
+
+msgid "Bei SMB ggf. mit Domäne: DOMÄNE\\Benutzer"
+msgstr "For SMB, with domain if needed: DOMAIN\\User"
+
+msgid ""
+"Alternative zum Passwort: kompletter Inhalt der Schlüsseldatei "
+"(OpenSSH/PEM)."
+msgstr ""
+"Alternative to the password: complete contents of the key file "
+"(OpenSSH/PEM)."
+
+msgid ""
+"SFTP: Pfad auf dem Server, z. B. /volume1/backup/feuerix. SMB: Freigabe und "
+"Unterordner, z. B. backup/feuerix"
+msgstr ""
+"SFTP: path on the server, e.g. /volume1/backup/feuerix. SMB: share and "
+"subfolder, e.g. backup/feuerix"
+
+msgid ""
+"Wird beim ersten erfolgreichen „Verbindung testen“ übernommen und danach bei"
+" jeder Verbindung geprüft. Leeren, wenn der Server absichtlich neu "
+"aufgesetzt wurde."
+msgstr ""
+"Stored on the first successful “Test connection” and checked on every "
+"connection afterwards. Clear it if the server was deliberately set up anew."
+
+msgid "Letzte Sicherung:"
+msgstr "Last backup:"
+
+msgid "erfolgreich"
+msgstr "successful"
+
+msgid "fehlgeschlagen"
+msgstr "failed"
+
+msgid "Noch keine Sicherung durchgeführt."
+msgstr "No backup has been made yet."
+
+msgid "Jetzt sichern"
+msgstr "Back up now"
+
+msgid "Lokale Sicherungen (Download)"
+msgstr "Local backups (download)"
+
+msgid "Größe"
+msgstr "Size"
+
+msgid "Noch keine Sicherungsdateien vorhanden."
+msgstr "No backup files yet."
+
+msgid "Hinweise"
+msgstr "Notes"
+
+msgid ""
+"Eine Sicherung besteht aus dem Datenbank-Dump (db-…) und dem Archiv der "
+"hochgeladenen Dateien (media-…). Sie enthält die Daten aller Vereine - "
+"Dateien und Zugangsdaten des Ziels entsprechend schützen."
+msgstr ""
+"A backup consists of the database dump (db-…) and the archive of uploaded "
+"files (media-…). It contains the data of all clubs - protect the files and "
+"the target's credentials accordingly."
+
+msgid ""
+"Der Schlüssel FIELD_ENCRYPTION_KEY aus der .env ist nicht Teil der Sicherung"
+" und muss separat aufbewahrt werden - ohne ihn sind verschlüsselte Felder "
+"(z. B. IBAN) nach einer Wiederherstellung nicht lesbar."
+msgstr ""
+"The FIELD_ENCRYPTION_KEY from the .env is not part of the backup and must be"
+" stored separately - without it, encrypted fields (e.g. IBAN) cannot be read"
+" after a restore."
+
+msgid ""
+"Wiederherstellung: scripts/restore.sh (siehe Installationsanleitung, "
+"Abschnitt Datensicherung)."
+msgstr ""
+"Restore: scripts/restore.sh (see the installation guide, section Data "
+"backup)."
+
+msgid ""
+"OpenSlides und Paperless-ngx sind nicht enthalten und werden getrennt "
+"gesichert."
+msgstr ""
+"OpenSlides and Paperless-ngx are not included and are backed up separately."
+
+msgid "Die letzte Datensicherung ist fehlgeschlagen:"
+msgstr "The last data backup failed:"
+
+msgid "Zur Datensicherung"
+msgstr "Go to data backup"
+
+msgid ""
+"OpenSlides und Paperless-ngx laufen in eigenen Docker-Stacks: Ihre Sicherung"
+" (paperless-…, openslides-…) legt das Skript scripts/backup-zusatz.sh auf "
+"dem Server ins Sicherungs-Volume (siehe Installationsanleitung, Abschnitt "
+"Datensicherung). Die Dateien erscheinen dann hier und werden mit der "
+"nächsten Sicherung auf das externe Ziel kopiert."
+msgstr ""
+"OpenSlides and Paperless-ngx run in their own Docker stacks: their backup "
+"(paperless-…, openslides-…) is placed into the backup volume on the server "
+"by the script scripts/backup-zusatz.sh (see the installation guide, section "
+"Data backup). The files then appear here and are copied to the external "
+"target with the next backup."

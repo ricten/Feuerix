@@ -16,3 +16,7 @@ paperless/export/
 paperless/consume/
 config/settings_sqlite.py
 _test_media/
+
+# Claude Code: lokaler Gespraechsverlauf und persoenliche Hook-Einstellungen
+.claude/verlauf/
+.claude/settings.local.json

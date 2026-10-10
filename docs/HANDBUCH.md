@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.58.1)
+# Handbuch – Feuerix (Version 1.60.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -687,6 +687,21 @@ nächste Mitgliederversammlung oder geplante Wartungsarbeiten) - mit wählbarer 
 nur die Farbe) und optionalem „sichtbar bis“-Datum. Leeres Textfeld = kein Banner. Jeder Benutzer kann das
 Banner für sich wegklicken, es erscheint aber bei jedem neuen Seitenaufruf wieder, bis es hier entfernt oder
 das Datum erreicht ist.
+
+**Datensicherung** (nur Superadministratoren): Unter *Verwaltung › Datensicherung* wird die tägliche Sicherung
+eingerichtet - Datenbank-Dump und Archiv der hochgeladenen Dateien, lokal im Volume `backups` und optional
+zusätzlich auf einem **externen Ziel** (NAS): per **SFTP/SSH** (Passwort oder privater Schlüssel) oder als
+**SMB-Freigabe** (Windows-/NAS-Freigabe). Einzustellen sind Uhrzeit, Zahl der aufbewahrten Sicherungen, Server,
+Zugangsdaten und Zielverzeichnis; Passwort und Schlüssel werden verschlüsselt gespeichert. Mit „Verbindung testen“
+wird das Ziel geprüft; bei SFTP wird dabei der Hostschlüssel-Fingerabdruck des Servers gemerkt (bitte mit dem
+Fingerabdruck des NAS vergleichen) und danach bei jeder Verbindung geprüft. „Jetzt sichern“ startet sofort eine
+Sicherung; die lokalen Dateien lassen sich auf derselben Seite **herunterladen**. Scheitert die Sicherung (z. B.
+NAS nicht erreichbar), erscheint für Superadministratoren ein roter Hinweis oben auf jeder Seite; die lokale
+Sicherung bleibt dann trotzdem erhalten. Voraussetzung ist, dass der Worker-Dienst läuft (er startet den
+Zeitplan). **Wichtig:** Der Schlüssel `FIELD_ENCRYPTION_KEY` aus der `.env` ist nicht Teil der Sicherung und muss
+separat aufbewahrt werden; OpenSlides und Paperless-ngx laufen in eigenen Stacks: ihre Sicherung legt das Host-Skript
+`scripts/backup-zusatz.sh` ins gleiche Volume, danach erscheint sie in der Liste und wird mit auf das externe Ziel
+kopiert (INSTALL.md, Abschnitt 12, dort auch die Wiederherstellung).
 
 ## 16. Datenschutz und Sicherheit
 

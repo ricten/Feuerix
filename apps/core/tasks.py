@@ -25,3 +25,20 @@ def update_pruefen_task():
     # kein update_fields: Systemeinstellung.laden() kann eine noch ungespeicherte Instanz (pk=None) liefern,
     # wenn noch kein Datensatz existiert - update_fields erfordert aber einen bereits existierenden Datensatz.
     se.save()
+
+
+@shared_task
+def datensicherung_task():
+    """Fuehrt die Datensicherung sofort aus (Knopf "Jetzt sichern")."""
+    from .datensicherung import sicherung_ausfuehren
+    sicherung_ausfuehren()
+
+
+@shared_task
+def datensicherung_faellig_task():
+    """Wird stuendlich von Celery Beat gestartet und sichert, sobald die eingestellte Uhrzeit des Tages erreicht
+    ist und heute noch nicht gesichert wurde."""
+    from .datensicherung import faellig, sicherung_ausfuehren
+    se = Systemeinstellung.laden()
+    if faellig(se):
+        sicherung_ausfuehren(se)

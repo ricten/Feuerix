@@ -86,6 +86,7 @@ def _basisname(url_name):
 
 
 _URL_ICON = {_basisname(url_name): icon for gruppe, icon, eintraege in NAV for label, url_name, modul in eintraege}
+_URL_ICON["datensicherung"] = "bi-gear"
 
 
 def _aktive_icon(request):
@@ -114,6 +115,8 @@ def version(request):
         neu = se.update_anzeigen(app_version)
         if neu:
             ctx["update_verfuegbare_version"] = neu
+        if se.sicherung_aktiv and se.sicherung_letzter_lauf and not se.sicherung_letzter_ok:
+            ctx["sicherung_fehler"] = se.sicherung_letzte_meldung
     return ctx
 
 
@@ -182,6 +185,13 @@ def mandant(request):
                     pass
         if punkte:
             navigation.append((gruppe, icon, punkte))
+    if request.user.is_superuser:   # Datensicherung: nur Superadministratoren (enthaelt die Daten aller Vereine)
+        for gruppe, icon, punkte in navigation:
+            if icon == "bi-gear":
+                try:
+                    punkte.append((_("Datensicherung"), reverse("datensicherung")))
+                except NoReverseMatch:
+                    pass
     try:   # fuer alle angemeldeten Benutzer sichtbar - unabhaengig von Modulrechten (reine Lesehilfe)
         navigation.append((_("Hilfe"), "bi-question-circle", [(_("Handbuch & Anleitungen"), reverse("hilfe"))]))
     except NoReverseMatch:

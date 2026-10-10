@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
-from .models import Rolle, Verein, Zugang
+from .models import Rolle, Systemeinstellung, Verein, Zugang
 from .rechte import AKTIONEN, MODULE
 
 
@@ -167,3 +167,42 @@ class ZugangForm(RechteFelderMixin, TenantModelForm):
         self.instance.user = user
         self.instance.extra_rechte = self.gesammelte_rechte()
         return super().save(commit)
+
+
+class SicherungForm(forms.ModelForm):
+    """Einstellungen der Datensicherung (Systemeinstellung). Passwort und Schluessel werden nie wieder angezeigt;
+    leer lassen = gespeicherten Wert behalten."""
+    ziel_passwort = forms.CharField(label=Systemeinstellung._meta.get_field("ziel_passwort").verbose_name,
+                                    required=False, widget=forms.PasswordInput(render_value=False),
+                                    help_text="Leer lassen = gespeichertes Passwort behalten. Wird verschlüsselt gespeichert.")
+    ziel_schluessel = forms.CharField(label=Systemeinstellung._meta.get_field("ziel_schluessel").verbose_name,
+                                      required=False, widget=forms.Textarea(attrs={"rows": 4}),
+                                      help_text=Systemeinstellung._meta.get_field("ziel_schluessel").help_text)
+
+    class Meta:
+        model = Systemeinstellung
+        fields = ("sicherung_aktiv", "sicherung_uhrzeit", "sicherung_aufbewahren", "sicherung_ziel", "ziel_host",
+                  "ziel_port", "ziel_benutzer", "ziel_passwort", "ziel_schluessel", "ziel_verzeichnis",
+                  "ziel_hostkey")
+        widgets = {"sicherung_uhrzeit": forms.TimeInput(attrs={"type": "time"}, format="%H:%M")}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._alt_passwort, self._alt_schluessel = self.instance.ziel_passwort, self.instance.ziel_schluessel
+        self.fields["ziel_schluessel"].help_text =             f"{self.fields['ziel_schluessel'].help_text} Leer lassen = gespeicherten Schlüssel behalten."
+        stilisieren_felder(self.fields)
+
+    def clean(self):
+        daten = super().clean()
+        if self.errors:
+            return daten
+        # Leer gelassene Geheimnisse behalten ihren gespeicherten Wert.
+        for feld, alt in (("ziel_passwort", self._alt_passwort), ("ziel_schluessel", self._alt_schluessel)):
+            daten[feld] = daten.get(feld) or alt
+        from .datensicherung import ziel_pruefen
+        pruef = Systemeinstellung(**{f: daten.get(f) for f in self.Meta.fields})
+        try:
+            ziel_pruefen(pruef)
+        except ValidationError as e:
+            self.add_error("sicherung_ziel", e)
+        return daten

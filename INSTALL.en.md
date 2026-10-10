@@ -257,6 +257,28 @@ backup **and restore** on a second machine.
 
 ## 12. Backups
 
+**Recommended:** In the web interface under *Administration › Data backup* (superadministrators only) switch on
+the daily backup and, if needed, enter an external target (NAS via SFTP or SMB share); the backups can also be
+downloaded there. This needs the `worker` service, which starts the schedule (`celery … worker -B`) and mounts
+the `backups` volume - on an existing installation, take over the current `docker-compose.yml` and run
+`docker compose up -d --build`.
+
+**Paperless-ngx and OpenSlides** run as separate stacks and cannot be reached from the Feuerix container. Their
+backup is done by the script `scripts/backup-zusatz.sh`, which runs **on the server (host)** and places the
+database dumps (`paperless-db-…`, `openslides-db-…`) and the Paperless files (`paperless-data-…`,
+`paperless-media-…`) into the same backup volume. There they show up in the data backup list (download) and are
+copied to the external target together with the next Feuerix backup; retention applies per kind. Stacks that are
+not set up are skipped. As a cron job **before** the Feuerix backup (default 03:00):
+
+```cron
+30 2 * * * /opt/verein/vereinsverwaltung/scripts/backup-zusatz.sh
+```
+
+Note: the Paperless files are packed while Paperless is running; for a perfectly clean copy, stop Paperless
+briefly or additionally use the Paperless exporter (`document_exporter`).
+
+Alternatively by hand (without the web interface):
+
 ```bash
 # Feuerix (database + uploaded files)
 docker compose exec -T web /app/scripts/backup.sh          # places files in the "backups" volume
@@ -280,6 +302,72 @@ documents and the full-text index live).
 Restoring: `scripts/restore.sh` (Feuerix), or per the OpenSlides instructions (`docker compose up --detach
 postgres`, then `psql < dump.sql`); similarly for Paperless-ngx (`docker compose up --detach db`, then
 `psql < dump.sql`).
+
+### Restoring Feuerix
+
+A backup consists of two files with the same timestamp: `db-YYYYMMDD-HHMMSS.sql.gz` (database) and
+`media-YYYYMMDD-HHMMSS.tar.gz` (uploaded files). You need **both** to restore.
+The dump contains `--clean --if-exists` and therefore replaces the existing tables (backups made before version
+1.59.1 do not contain it: empty the database first, see below).
+
+1. **New server:** install and start Feuerix as in sections 1-6, taking over the **old `.env`** - above all the
+   **same `FIELD_ENCRYPTION_KEY`**, otherwise encrypted fields (IBAN, credentials) cannot be read.
+2. **Put the backup files into the volume** (not needed if they are already in the `backups` volume). Copy them
+   from the NAS or from the web interface download into the project folder, then:
+   ```bash
+   docker compose cp ./db-20261010-030000.sql.gz web:/data/backups/
+   docker compose cp ./media-20261010-030000.tar.gz web:/data/backups/
+   ```
+3. **Stop the services and restore:**
+   ```bash
+   docker compose stop web worker
+   docker compose run --rm web /app/scripts/restore.sh db-20261010-030000.sql.gz media-20261010-030000.tar.gz
+   docker compose up -d
+   ```
+   On startup, missing migrations are applied automatically (even if the backup comes from an older version).
+   The second file name (media) can be omitted if only the database is to be restored.
+4. **Check:** log in, open a few members/invoices/documents, and trigger a new backup under *Administration ›
+   Data backup*.
+
+For a backup from before 1.59.1 (without `--clean`), or a dump that reports errors such as "relation already
+exists": empty and recreate the database first (credentials are in the `.env`):
+```bash
+docker compose stop web worker
+docker compose exec db psql -U verein -d postgres -c "DROP DATABASE vereinsverwaltung;" -c "CREATE DATABASE vereinsverwaltung OWNER verein;"
+docker compose run --rm web /app/scripts/restore.sh db-....sql.gz media-....tar.gz
+docker compose up -d
+```
+(`verein`/`vereinsverwaltung` are the defaults of `POSTGRES_USER`/`POSTGRES_DB`.)
+
+**Practise a restore on a second machine at least once** before you need it - a backup that cannot be restored is
+no backup. Also make sure the `FIELD_ENCRYPTION_KEY` is at hand: without it the backup is worthless for encrypted
+fields.
+
+### Restoring Paperless-ngx and OpenSlides
+
+Put the backup files (from the web interface download, from the NAS or from the `backups` volume) into a folder
+on the server, called `/path/` below.
+
+**Paperless-ngx** (stack in `paperless/`; volumes `paperless_data` and `paperless_media`):
+```bash
+cd paperless
+docker compose stop webserver
+gunzip -c /path/paperless-db-YYYYMMDD-HHMMSS.sql.gz | docker compose exec -T db psql -U paperless paperless
+docker run --rm -v paperless_data:/dst -v /path:/in:ro alpine tar -xzf /in/paperless-data-YYYYMMDD-HHMMSS.tar.gz -C /dst
+docker run --rm -v paperless_media:/dst -v /path:/in:ro alpine tar -xzf /in/paperless-media-YYYYMMDD-HHMMSS.tar.gz -C /dst
+docker compose up -d
+```
+
+**OpenSlides** (stack in `openslides/`):
+```bash
+cd openslides
+docker compose stop
+docker compose up --detach postgres
+gunzip -c /path/openslides-db-YYYYMMDD-HHMMSS.sql.gz | docker compose exec -T --user postgres postgres psql -U openslides
+docker compose up --detach
+```
+In addition, `openslides/secrets/` and `paperless/.env` are needed (not part of this backup, keep them
+separately).
 
 ## 13. Updates
 

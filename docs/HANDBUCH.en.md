@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.58.1)
+# Handbook – Feuerix (Version 1.60.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -671,6 +671,20 @@ the homepage to every logged-in user of this club (e.g. a heads-up about the nex
 maintenance) - with a selectable type (Info/Warning/Important, which only controls the colour) and an
 optional "visible until" date. An empty text field means no banner. Each user can dismiss the banner for
 themselves, but it reappears on the next page load until it is removed here or the date is reached.
+
+**Data backup** (superadministrators only): *Administration › Data backup* sets up the daily backup - database
+dump and archive of the uploaded files, stored locally in the `backups` volume and optionally also on an
+**external target** (NAS): via **SFTP/SSH** (password or private key) or as an **SMB share** (Windows / NAS share).
+You set the time, the number of backups to keep, server, credentials and target directory; password and key are
+stored encrypted. "Test connection" checks the target; with SFTP the server's host key fingerprint is remembered
+at that point (please compare it with your NAS's fingerprint) and checked on every connection afterwards. "Back up
+now" starts a backup immediately; the local files can be **downloaded** on the same page. If a backup fails (e.g.
+NAS unreachable), superadministrators see a red notice at the top of every page; the local backup is kept
+regardless. This requires the worker service to be running (it starts the schedule). **Important:** the
+`FIELD_ENCRYPTION_KEY` from the `.env` is not part of the backup and must be stored separately; OpenSlides and
+Paperless-ngx run in their own stacks: their backup is placed into the same volume by the host script
+`scripts/backup-zusatz.sh`, then appears in the list and is copied to the external target as well (INSTALL.en.md,
+section 12, which also covers restoring).
 
 ## 16. Data protection and security
 

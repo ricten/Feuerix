@@ -2,6 +2,8 @@ import os
 import sys
 from pathlib import Path
 
+from celery.schedules import crontab
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -161,6 +163,14 @@ EMAIL_BACKEND = (
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_TASK_ALWAYS_EAGER = _bool("CELERY_EAGER")
+
+# Datensicherung (Verwaltung > Datensicherung): lokaler Ablageort der Sicherungsdateien. Der Celery-Worker
+# (mit -B, siehe docker-compose.yml) prueft stuendlich, ob die taegliche Sicherung faellig ist.
+BACKUP_DIR = Path(os.environ.get("BACKUP_DIR", "/data/backups"))
+CELERY_BEAT_SCHEDULE = {
+    "datensicherung-faellig": {"task": "apps.core.tasks.datensicherung_faellig_task",
+                               "schedule": crontab(minute=5)},
+}
 
 FINTS_PRODUCT_ID = os.environ.get("FINTS_PRODUCT_ID", "")
 

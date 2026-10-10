@@ -113,6 +113,13 @@
     <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
   </div>
   {% endif %}
+  {% if sicherung_fehler %}
+  <div class="alert alert-danger d-flex align-items-center gap-2">
+    <i class="bi bi-exclamation-triangle"></i>
+    <div>{% trans "Die letzte Datensicherung ist fehlgeschlagen:" %} {{ sicherung_fehler }}
+      <a href="{% url 'datensicherung' %}">{% trans "Zur Datensicherung" %}</a></div>
+  </div>
+  {% endif %}
   {% for m in messages %}
   <div class="alert alert-{% if m.level_tag == 'error' %}danger{% else %}{{ m.level_tag }}{% endif %} alert-dismissible fade show">{{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
   {% endfor %}

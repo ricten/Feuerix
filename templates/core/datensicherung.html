@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<h3 class="mb-3">{% trans "Datensicherung" %}</h3>
+<div class="row g-3">
+  <div class="col-xl-7">
+    <div class="card shadow-sm"><div class="card-body">
+      <form method="post">{% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+          <div class="mb-3 {% if field.widget_type == 'checkbox' %}form-check{% endif %}">
+            {% if field.widget_type == 'checkbox' %}{{ field }} <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {% else %}<label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endif %}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+          </div>
+        {% endfor %}
+        <button class="btn btn-primary">{% trans "Speichern" %}</button>
+      </form>
+    </div></div>
+  </div>
+  <div class="col-xl-5">
+    <div class="card shadow-sm mb-3"><div class="card-body">
+      <h6>{% trans "Status" %}</h6>
+      {% if se.sicherung_letzter_lauf %}
+      <p class="mb-1">{% trans "Letzte Sicherung:" %} <strong>{{ se.sicherung_letzter_lauf|date:"d.m.Y H:i" }}</strong>
+        {% if se.sicherung_letzter_ok %}<span class="badge text-bg-success">{% trans "erfolgreich" %}</span>{% else %}<span class="badge text-bg-danger">{% trans "fehlgeschlagen" %}</span>{% endif %}</p>
+      <p class="small text-muted mb-2">{{ se.sicherung_letzte_meldung }}</p>
+      {% else %}<p class="mb-2">{% trans "Noch keine Sicherung durchgeführt." %}</p>{% endif %}
+      {% trans "noch nicht durchgeführt" as noch_nicht %}
+      <p class="mb-2">{% trans "Letzter Verbindungstest:" %} <strong>{{ se.sicherung_letzter_test|default:noch_nicht }}</strong></p>
+      <div class="d-flex flex-wrap gap-2">
+        <form method="post" action="{% url 'datensicherung_jetzt' %}">{% csrf_token %}<button class="btn btn-sm btn-success"><i class="bi bi-hdd-network"></i> {% trans "Jetzt sichern" %}</button></form>
+        {% if se.sicherung_ziel %}<form method="post" action="{% url 'datensicherung_test' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary"><i class="bi bi-plug"></i> {% trans "Verbindung testen" %}</button></form>{% endif %}
+      </div>
+    </div></div>
+    <div class="card shadow-sm mb-3"><div class="card-body">
+      <h6>{% trans "Lokale Sicherungen (Download)" %}</h6>
+      {% if dateien %}
+      <table class="table table-sm mb-0"><thead><tr><th>{% trans "Datei" %}</th><th class="text-end">{% trans "Größe" %}</th><th></th></tr></thead><tbody>
+      {% for name, groesse, zeit in dateien %}
+        <tr><td>{{ name }}<div class="small text-muted">{{ zeit|date:"d.m.Y H:i" }}</div></td>
+          <td class="text-end">{{ groesse|filesizeformat }}</td>
+          <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{% url 'datensicherung_download' name %}"><i class="bi bi-download"></i></a></td></tr>
+      {% endfor %}
+      </tbody></table>
+      {% else %}<p class="text-muted mb-0">{% trans "Noch keine Sicherungsdateien vorhanden." %}</p>{% endif %}
+    </div></div>
+    <div class="alert alert-secondary small">
+      <strong>{% trans "Hinweise" %}</strong>
+      <ul class="mb-0 ps-3">
+        <li>{% trans "Eine Sicherung besteht aus dem Datenbank-Dump (db-…) und dem Archiv der hochgeladenen Dateien (media-…). Sie enthält die Daten aller Vereine - Dateien und Zugangsdaten des Ziels entsprechend schützen." %}</li>
+        <li>{% trans "Der Schlüssel FIELD_ENCRYPTION_KEY aus der .env ist nicht Teil der Sicherung und muss separat aufbewahrt werden - ohne ihn sind verschlüsselte Felder (z. B. IBAN) nach einer Wiederherstellung nicht lesbar." %}</li>
+        <li>{% trans "Wiederherstellung: scripts/restore.sh (siehe Installationsanleitung, Abschnitt Datensicherung)." %}</li>
+        <li>{% trans "OpenSlides und Paperless-ngx laufen in eigenen Docker-Stacks: Ihre Sicherung (paperless-…, openslides-…) legt das Skript scripts/backup-zusatz.sh auf dem Server ins Sicherungs-Volume (siehe Installationsanleitung, Abschnitt Datensicherung). Die Dateien erscheinen dann hier und werden mit der nächsten Sicherung auf das externe Ziel kopiert." %}</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

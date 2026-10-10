@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import hilfe, matrix_views, views
+from . import hilfe, matrix_views, sicherung_views, views
 from .crud import abschnitt, crud
 from .forms import RolleForm, ZugangForm
 from .models import AuditLog, Rolle, Zugang
@@ -25,6 +25,11 @@ urlpatterns = [
     path("verwaltung/berechtigungsmatrix/", matrix_views.berechtigungsmatrix, name="berechtigungsmatrix"),
     path("verwaltung/berechtigungsmatrix/datenschutzordnung/", matrix_views.berechtigungsmatrix_dso,
          name="berechtigungsmatrix_dso"),
+    path("verwaltung/datensicherung/", sicherung_views.datensicherung_einstellungen, name="datensicherung"),
+    path("verwaltung/datensicherung/jetzt/", sicherung_views.datensicherung_jetzt, name="datensicherung_jetzt"),
+    path("verwaltung/datensicherung/test/", sicherung_views.datensicherung_test, name="datensicherung_test"),
+    path("verwaltung/datensicherung/datei/<str:name>/", sicherung_views.datensicherung_download,
+         name="datensicherung_download"),
     path("impressum/<slug:kuerzel>/", views.impressum, name="impressum"),
     path("downloads/<slug:kuerzel>/", views.oeffentliche_dokumente, name="oeffentliche_dokumente"),
     path("downloads/<slug:kuerzel>/<int:pk>/", views.oeffentliches_dokument_download,
