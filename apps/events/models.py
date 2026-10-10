@@ -311,6 +311,9 @@ class Wahlergebnis(TenantModel):
     art = models.CharField(_("Art"), max_length=10, choices=ART, default="wahl")
     openslides_poll_id = models.PositiveIntegerField(_("OpenSlides-Abstimmungs-ID"), null=True, blank=True,
                                                      editable=False)
+    details = models.JSONField(_("Einzelheiten (strukturiert)"), default=list, blank=True, editable=False,
+                               help_text=_("Liste aus [Bezeichnung, Wert]-Paaren - Grundlage fuer die Anlagen im "
+                                         "Protokoll; der Text unter Stimmenverteilung enthaelt dasselbe."))
     veranstaltung = models.ForeignKey(Veranstaltung, on_delete=models.CASCADE, related_name="wahlergebnisse",
                                       verbose_name=_("Veranstaltung"))
     amt = models.CharField(_("Amt / Wahl bzw. Antrag / Thema"), max_length=250)

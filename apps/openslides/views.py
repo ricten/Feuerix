@@ -129,6 +129,8 @@ def veranstaltung_wahlergebnisse(request, pk):
     try:
         v = _verbindung(request)
         n = services.wahlergebnisse_abrufen(v, ver) + services.anwesenheit_abrufen(v, ver)
+        for hinweis in getattr(ver, "abruf_hinweise", []):
+            messages.warning(request, f"OpenSlides: {hinweis}")
         if n:
             messages.success(request, _ergebnis_meldung(ver))
         else:
@@ -175,6 +177,8 @@ def schriftstueck_abstimmungen(request, pk):
     try:
         v = _verbindung(request)
         n = services.wahlergebnisse_abrufen(v, ver) + services.anwesenheit_abrufen(v, ver)
+        for hinweis in getattr(ver, "abruf_hinweise", []):
+            messages.warning(request, f"OpenSlides: {hinweis}")
     except OpenSlidesFehler as e:
         messages.error(request, f"OpenSlides: {e}")
         return redirect("schriftstueck_detail", pk=s.pk)

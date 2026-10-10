@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.65.1
+- Fix: Mit 1.65.0 wurden Abstimmungen zu Anträgen nicht mehr übernommen. Die erweiterte Abfrage (Antragsteller/Text) enthielt ein Feld,
+  das OpenSlides 4.3 ablehnt, und die Fehlerantwort wurde als „keine Anträge“ gewertet. Jetzt wird bei Ablehnung mit weniger Feldern
+  neu abgefragt (Antragsteller über meeting_user, direkt über user, ohne Antragsteller, minimal), ein eingeschränkter Abruf wird als
+  Hinweis angezeigt, und ein vollständiger Ausfall wird als Fehler gemeldet statt verschluckt. HTTP-Fehler der Abfrage werden
+  gemeldet. Außerdem werden Ergebnisse jetzt zusätzlich strukturiert gespeichert (Vorbereitung für Anlagen im Protokoll).
+
 ## 1.65.0
 - OpenSlides-Abstimmungen im Protokoll enthalten jetzt die Antragsdetails: Antragsteller*in, Antragstext und Begründung
   (bei Themen der Text). Nicht erfasste Zählwerte („-2“ für gültige/ungültige/abgegebene Stimmen) werden nicht mehr

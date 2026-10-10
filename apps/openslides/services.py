@@ -289,7 +289,8 @@ def _stimmen_wert(daten, option_id):
         return Decimal(0)
 
 
-def _stimmen_zeile(daten, option_id, ja_label="Ja"):
+def _stimmen_paar(daten, option_id, ja_label="Ja"):
+    """(Name, "10 Stimmen") einer Option einer Wahl - None, wenn die Option nichts Verwertbares enthaelt."""
     name = None
     coid = daten.get(f"option/{option_id}/content_object_id")
     if coid and coid.startswith("user/"):
@@ -308,7 +309,12 @@ def _stimmen_zeile(daten, option_id, ja_label="Ja"):
             teile.append(f"{_zahl(wert)} {label}")
     if not name and not teile:
         return None
-    return f"{name or 'Option ' + str(option_id)}: {', '.join(teile) if teile else '–'}"
+    return name or f"Option {option_id}", ", ".join(teile) if teile else "–"
+
+
+def _stimmen_zeile(daten, option_id, ja_label="Ja"):
+    paar = _stimmen_paar(daten, option_id, ja_label)
+    return f"{paar[0]}: {paar[1]}" if paar else None
 
 
 def _poll_felder():
@@ -319,29 +325,71 @@ def _poll_felder():
             "votescast": None, "option_ids": {"type": "relation-list", "collection": "option", "fields": option_felder}}
 
 
-def _antraege_anfrage(meeting_id):
-    """Alle Antraege (motion) der Versammlung samt Abstimmungen und dem in OpenSlides gesetzten Status."""
-    nutzer = {"first_name": None, "last_name": None, "username": None}
+NUTZER_FELDER = {"first_name": None, "last_name": None, "username": None}
+
+
+def _antraege_anfrage(meeting_id, variante="meeting_user"):
+    """Alle Antraege (motion) der Versammlung samt Abstimmungen und dem in OpenSlides gesetzten Status. Die Felder
+    unterscheiden sich je OpenSlides-Version; `variante` waehlt, wie der Antragsteller abgefragt wird:
+    "meeting_user" (ab 4.2: motion_submitter -> meeting_user -> user), "user" (aelter: motion_submitter -> user),
+    "ohne_antragsteller" oder "minimal" (nur Nummer, Titel, Status, Abstimmungen). Lehnt der Dienst eine Variante ab,
+    probiert abfragen_mit_rueckfall() die naechste."""
     antrag_felder = {
-        "number": None, "title": None, "text": None, "reason": None,
-        # Antragsteller: ab OpenSlides 4.2 ueber meeting_user, davor direkt ueber user - beide abfragen
-        "submitter_ids": {"type": "relation-list", "collection": "motion_submitter", "fields": {
-            "user_id": {"type": "relation", "collection": "user", "fields": nutzer},
-            "meeting_user_id": {"type": "relation", "collection": "meeting_user", "fields": {
-                "user_id": {"type": "relation", "collection": "user", "fields": nutzer}}}}},
+        "number": None, "title": None,
         "state_id": {"type": "relation", "collection": "motion_state", "fields": {"name": None}},
         "poll_ids": {"type": "relation-list", "collection": "poll", "fields": _poll_felder()},
     }
+    if variante != "minimal":
+        antrag_felder.update({"text": None, "reason": None})
+    if variante == "meeting_user":
+        antrag_felder["submitter_ids"] = {"type": "relation-list", "collection": "motion_submitter", "fields": {
+            "meeting_user_id": {"type": "relation", "collection": "meeting_user", "fields": {
+                "user_id": {"type": "relation", "collection": "user", "fields": NUTZER_FELDER}}}}}
+    elif variante == "user":
+        antrag_felder["submitter_ids"] = {"type": "relation-list", "collection": "motion_submitter", "fields": {
+            "user_id": {"type": "relation", "collection": "user", "fields": NUTZER_FELDER}}}
     return [{"ids": [meeting_id], "collection": "meeting",
             "fields": {"motion_ids": {"type": "relation-list", "collection": "motion", "fields": antrag_felder}}}]
 
 
-def _themen_anfrage(meeting_id):
-    """Alle Themen (topic) der Versammlung samt ihrer Abstimmungen."""
+ANTRAG_VARIANTEN = ("meeting_user", "user", "ohne_antragsteller", "minimal")
+
+
+def _themen_anfrage(meeting_id, variante="mit_text"):
+    """Alle Themen (topic) der Versammlung samt ihrer Abstimmungen (Variante "ohne_text" als Rueckfall)."""
+    felder = {"title": None, "poll_ids": {"type": "relation-list", "collection": "poll", "fields": _poll_felder()}}
+    if variante == "mit_text":
+        felder["text"] = None
     return [{"ids": [meeting_id], "collection": "meeting",
-            "fields": {"topic_ids": {"type": "relation-list", "collection": "topic", "fields": {
-                "title": None, "text": None, "poll_ids": {"type": "relation-list", "collection": "poll",
-                                            "fields": _poll_felder()}}}}}]
+            "fields": {"topic_ids": {"type": "relation-list", "collection": "topic", "fields": felder}}}]
+
+
+THEMA_VARIANTEN = ("mit_text", "ohne_text")
+
+
+def _ist_fehlerantwort(daten):
+    return not isinstance(daten, dict) or bool(daten.get("message") or daten.get("error") or daten.get("errors")
+                                               or daten.get("success") is False)
+
+
+def abfragen_mit_rueckfall(c, anfrage, varianten, was):
+    """Fragt mit der ersten Variante ab; lehnt der Dienst sie ab (Fehler/Fehlerantwort), kommt die naechste
+    (weniger Felder) dran. Gibt (Antwort, Variante, Hinweis) zurueck; Hinweis ist leer, wenn die vollstaendige
+    Variante lief. Scheitern alle, wird OpenSlidesFehler geworfen - nie stillschweigend "keine Daten"."""
+    letzter = None
+    for nr, variante in enumerate(varianten):
+        try:
+            daten = c.abfragen(anfrage(variante))
+        except OpenSlidesFehler as e:
+            letzter = str(e)
+            continue
+        if _ist_fehlerantwort(daten):
+            letzter = str(daten)[:300]
+            continue
+        hinweis = "" if nr == 0 else (f"{was}: nur eingeschraenkt abgerufen (Variante \"{variante}\"; einzelne "
+                                      f"Angaben wie Antragsteller oder Text fehlen) - {letzter}")
+        return daten, variante, hinweis
+    raise OpenSlidesFehler(f"{was} konnten nicht abgerufen werden: {letzter}")
 
 
 def _klartext(html, maximal=5000):
@@ -368,18 +416,16 @@ def _antrag_bezeichnung(daten, antrag_id):
     nummer, titel = daten.get(f"motion/{antrag_id}/number"), daten.get(f"motion/{antrag_id}/title") or ""
     bez = f"Antrag {nummer}: {titel}" if nummer else f"Antrag: {titel or antrag_id}"
     status_id = daten.get(f"motion/{antrag_id}/state_id")
-    kopf = []
-    for label, wert in (("Antragsteller*in", _antragsteller(daten, antrag_id)),
-                        ("Antragstext", _klartext(daten.get(f"motion/{antrag_id}/text"))),
-                        ("Begründung", _klartext(daten.get(f"motion/{antrag_id}/reason")))):
-        if wert:
-            kopf.append(f"{label}: {wert}")
+    kopf = [(label, wert) for label, wert in (
+        ("Antragsteller*in", _antragsteller(daten, antrag_id)),
+        ("Antragstext", _klartext(daten.get(f"motion/{antrag_id}/text"))),
+        ("Begründung", _klartext(daten.get(f"motion/{antrag_id}/reason")))) if wert]
     return bez, daten.get(f"motion_state/{status_id}/name") if status_id else None, kopf
 
 
 def _thema_bezeichnung(daten, thema_id):
     text = _klartext(daten.get(f"topic/{thema_id}/text"))
-    return f"Thema: {daten.get(f'topic/{thema_id}/title') or thema_id}", None, [f"Text: {text}"] if text else []
+    return f"Thema: {daten.get(f'topic/{thema_id}/title') or thema_id}", None, [("Text", text)] if text else []
 
 
 def _erfasst(wert):
@@ -413,6 +459,22 @@ def _abstimmung_zeilen(daten, poll_id):
     return zeilen
 
 
+def _abstimmung_paare(daten, poll_id):
+    """Dasselbe wie _abstimmung_zeilen, aber als (Bezeichnung, Wert)-Paare - die Zaehlwerte einzeln."""
+    paare = []
+    for option_id in daten.get(f"poll/{poll_id}/option_ids") or []:
+        teile = [f"{_zahl(daten[f'option/{option_id}/{feld}'])} {label}"
+                 for feld, label in (("yes", "Ja"), ("no", "Nein"), ("abstain", "Enthaltung"))
+                 if _erfasst(daten.get(f"option/{option_id}/{feld}"))]
+        if teile:
+            paare.append((daten.get(f"option/{option_id}/text") or "Ergebnis", ", ".join(teile)))
+    if paare:
+        paare += [(label, _zahl(daten[f"poll/{poll_id}/{feld}"]))
+                  for feld, label in (("votesvalid", "Gültige Stimmen"), ("votesinvalid", "Ungültige Stimmen"),
+                                      ("votescast", "Abgegebene Stimmen")) if _erfasst(daten.get(f"poll/{poll_id}/{feld}"))]
+    return paare
+
+
 def _abstimmungen_speichern(daten, mid, veranstaltung, sammlung, bezeichnung):
     """Speichert jede abgeschlossene Abstimmung der Antraege bzw. Themen als Abstimmungsergebnis. Ob ein Antrag
     angenommen ist, bestimmt die Software nicht; der in OpenSlides gesetzte Status wird nur als Information
@@ -428,13 +490,15 @@ def _abstimmungen_speichern(daten, mid, veranstaltung, sammlung, bezeichnung):
             zeilen = _abstimmung_zeilen(daten, poll_id)
             if not zeilen:
                 continue
-            zeilen = kopfzeilen + zeilen
+            zeilen = [f"{label}: {wert}" for label, wert in kopfzeilen] + zeilen
+            details = [list(p) for p in kopfzeilen] + [list(p) for p in _abstimmung_paare(daten, poll_id)]
             if status:
                 zeilen.append(f"Status in OpenSlides: {status}")
+                details.append(["Status in OpenSlides", status])
             Wahlergebnis.objects.create(verein=veranstaltung.verein, veranstaltung=veranstaltung, art="abstimmung",
                                         openslides_poll_id=poll_id, amt=bez[:250],
                                         wahlgang=(daten.get(f"poll/{poll_id}/title") or "")[:250],
-                                        ergebnis="\n".join(zeilen))
+                                        details=details, ergebnis="\n".join(zeilen))
             n += 1
     return n
 
@@ -462,16 +526,24 @@ def wahlergebnisse_abrufen(v, veranstaltung):
             ja_label = "Stimmen" if daten.get(f"poll/{poll_id}/pollmethod") == "Y" else "Ja"
             optionen = sorted(daten.get(f"poll/{poll_id}/option_ids") or [],
                               key=lambda oid: _stimmen_wert(daten, oid), reverse=True)   # meiste Stimmen zuerst
-            zeilen = [z for z in (_stimmen_zeile(daten, oid, ja_label) for oid in optionen) if z]
-            if not zeilen:
+            paare = [p for p in (_stimmen_paar(daten, oid, ja_label) for oid in optionen) if p]
+            if not paare:
                 continue
             Wahlergebnis.objects.create(verein=veranstaltung.verein, veranstaltung=veranstaltung, amt=amt,
                                         wahlgang=daten.get(f"poll/{poll_id}/title") or "", art="wahl",
-                                        openslides_poll_id=poll_id, ergebnis="\n".join(zeilen))
+                                        openslides_poll_id=poll_id, details=[list(p) for p in paare],
+                                        ergebnis="\n".join(f"{n}: {w}" for n, w in paare))
             n += 1
-    for sammlung, anfrage, bezeichnung in (("motion", _antraege_anfrage, _antrag_bezeichnung),
-                                           ("topic", _themen_anfrage, _thema_bezeichnung)):
-        n += _abstimmungen_speichern(c.abfragen(anfrage(mid)), mid, veranstaltung, sammlung, bezeichnung)
+    veranstaltung.abruf_hinweise = []   # fuer die Anzeige: was nur eingeschraenkt abgerufen werden konnte
+    for sammlung, anfrage, varianten, bezeichnung, was in (
+            ("motion", lambda v: _antraege_anfrage(mid, v), ANTRAG_VARIANTEN, _antrag_bezeichnung,
+             "Abstimmungen zu Anträgen"),
+            ("topic", lambda v: _themen_anfrage(mid, v), THEMA_VARIANTEN, _thema_bezeichnung,
+             "Abstimmungen zu Themen")):
+        daten, _variante, hinweis = abfragen_mit_rueckfall(c, anfrage, varianten, was)
+        if hinweis:
+            veranstaltung.abruf_hinweise.append(hinweis)
+        n += _abstimmungen_speichern(daten, mid, veranstaltung, sammlung, bezeichnung)
     return n
 
 

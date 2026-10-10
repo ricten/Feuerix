@@ -103,6 +103,9 @@ class OSClient:
             self.token = None
             return self.abfragen(anfrage, _erneut=False)
         try:
-            return r.json()
+            antwort = r.json()
         except ValueError:
             raise OpenSlidesFehler(f"Unerwartete Antwort (HTTP {r.status_code}): {r.text[:200]}")
+        if r.status_code != 200:   # z. B. 400: der Dienst lehnt die Abfrage ab (unbekanntes Feld o. ae.)
+            raise OpenSlidesFehler(f"Abfrage abgelehnt (HTTP {r.status_code}): {str(antwort)[:300]}")
+        return antwort

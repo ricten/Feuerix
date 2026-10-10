@@ -267,8 +267,11 @@ class AbstimmungenAbrufenTests(TestCase):
         self._abrufen(antraege=_antrag_antwort())   # erneuter Abruf ersetzt alles
         self.assertEqual(Wahlergebnis.objects.count(), 1)
 
-    def test_fehlerantwort_ohne_daten_ergibt_nichts(self):
-        self.assertEqual(self._abrufen(antraege={"message": "kaputt"}, themen={"message": "kaputt"}), 0)
+    def test_fehlerantwort_in_allen_varianten_wird_gemeldet_statt_verschluckt(self):
+        with patch("apps.openslides.services.OSClient") as MockClient:
+            MockClient.return_value.abfragen.side_effect = [{}] + [{"message": "kaputt"}] * 4
+            with self.assertRaisesMessage(OpenSlidesFehler, "Abstimmungen zu Anträgen konnten nicht abgerufen werden"):
+                services.wahlergebnisse_abrufen(self.verbindung, self.ver)
 
     def test_zahlen_lesbar(self):
         self.assertEqual(services._zahl("8.000000"), "8")
@@ -644,7 +647,13 @@ class AntragDetailsTests(TestCase):
         for feld in ("text", "reason", "submitter_ids", "number", "state_id"):
             self.assertIn(feld, felder)
         self.assertIn("meeting_user_id", felder["submitter_ids"]["fields"])
-        self.assertIn("user_id", felder["submitter_ids"]["fields"])
+        alt = services._antraege_anfrage(5, "user")[0]["fields"]["motion_ids"]["fields"]
+        self.assertIn("user_id", alt["submitter_ids"]["fields"])
+        ohne = services._antraege_anfrage(5, "ohne_antragsteller")[0]["fields"]["motion_ids"]["fields"]
+        self.assertNotIn("submitter_ids", ohne)
+        self.assertIn("text", ohne)
+        minimal = services._antraege_anfrage(5, "minimal")[0]["fields"]["motion_ids"]["fields"]
+        self.assertEqual(set(minimal), {"number", "title", "state_id", "poll_ids"})
 
     def test_klartext_aus_html(self):
         self.assertEqual(services._klartext("<p>Zeile 1</p><p>Zeile&nbsp;2 &amp; mehr</p>"), "Zeile 1\nZeile\xa02 & mehr")
@@ -661,3 +670,95 @@ class AntragDetailsTests(TestCase):
             services.wahlergebnisse_abrufen(self.verbindung, self.ver)
         self.assertTrue(Wahlergebnis.objects.get(veranstaltung=self.ver).ergebnis.startswith(
             "Text: Der Vorstand wird entlastet."))
+
+
+class AbfrageRueckfallTests(TestCase):
+    """Lehnt OpenSlides eine Abfrage-Variante ab (Feld gibt es in dieser Version nicht), muss es mit weniger Feldern
+    weitergehen - die Abstimmungen duerfen nie stillschweigend verschwinden."""
+
+    def setUp(self):
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.verbindung = OpenSlidesVerbindung.objects.create(
+            verein=self.v, url="https://os.example.org", benutzername="sync", passwort="geheim")
+        self.ver = Veranstaltung.objects.create(verein=self.v, titel="Mitgliederversammlung 2026",
+                                                beginn=timezone.now(), openslides_meeting_id=5)
+
+    def _abrufen(self, *antworten):
+        with patch("apps.openslides.services.OSClient") as MockClient:
+            MockClient.return_value.abfragen.side_effect = list(antworten)
+            return services.wahlergebnisse_abrufen(self.verbindung, self.ver), MockClient.return_value
+
+    def test_abgelehnte_erste_variante_faellt_auf_die_naechste_zurueck(self):
+        antwort = _antrag_mit_details()
+        antwort["motion_submitter/8/user_id"] = 55   # aeltere Version: Antragsteller direkt ueber user
+        del antwort["motion_submitter/8/meeting_user_id"]
+        n, client = self._abrufen({}, OpenSlidesFehler("Abfrage abgelehnt (HTTP 400): unbekanntes Feld"), antwort, {})
+        self.assertEqual(n, 1)
+        self.assertIn("Antragsteller*in: Christina Peters", Wahlergebnis.objects.get(veranstaltung=self.ver).ergebnis)
+        self.assertEqual(len(self.ver.abruf_hinweise), 1)
+        self.assertIn('Variante "user"', self.ver.abruf_hinweise[0])
+
+    def test_fehlerantwort_dict_zaehlt_wie_ein_fehler(self):
+        n, _ = self._abrufen({}, {"message": "unbekanntes Feld"}, _antrag_mit_details(), {})
+        self.assertEqual(n, 1)   # zweite Variante liefert die Daten
+
+    def test_minimale_variante_liefert_wenigstens_die_abstimmung(self):
+        minimal = {k: v for k, v in _antrag_mit_details().items()
+                   if not k.startswith(("motion/2/text", "motion/2/reason", "motion/2/submitter", "motion_submitter",
+                                        "meeting_user", "user/"))}
+        fehler = OpenSlidesFehler("HTTP 400")
+        n, _ = self._abrufen({}, fehler, fehler, fehler, minimal, {})
+        self.assertEqual(n, 1)
+        ergebnis = Wahlergebnis.objects.get(veranstaltung=self.ver).ergebnis
+        self.assertIn("Ergebnis: 10 Ja, 5 Nein, 2 Enthaltung", ergebnis)
+        self.assertNotIn("Antragsteller", ergebnis)
+        self.assertIn('Variante "minimal"', self.ver.abruf_hinweise[0])
+
+    def test_vollstaendige_variante_ohne_hinweis(self):
+        self._abrufen({}, _antrag_mit_details(), {})
+        self.assertEqual(self.ver.abruf_hinweise, [])
+
+    def test_themen_ohne_text_variante(self):
+        thema = {"meeting/5/topic_ids": [9], "topic/9/title": "Entlastung", "topic/9/poll_ids": [70],
+                 "poll/70/title": "Abstimmung", "poll/70/state": "finished", "poll/70/option_ids": [400],
+                 "option/400/yes": "10", "option/400/no": "0", "option/400/abstain": "2"}
+        n, _ = self._abrufen({}, {}, OpenSlidesFehler("HTTP 400"), thema)
+        self.assertEqual(n, 1)
+        self.assertEqual(Wahlergebnis.objects.get().amt, "Thema: Entlastung")
+
+    def test_details_sind_als_paare_gespeichert(self):
+        self._abrufen({}, _antrag_mit_details(), {})
+        paare = Wahlergebnis.objects.get(veranstaltung=self.ver).details
+        self.assertIn(["Antragsteller*in", "Christina Peters"], paare)
+        self.assertIn(["Ergebnis", "10 Ja, 5 Nein, 2 Enthaltung"], paare)
+        self.assertIn(["Status in OpenSlides", "angenommen"], paare)
+
+    def test_wahl_details_name_und_stimmen(self):
+        self._abrufen(_wahl_antwort_mit_benutzern(), {}, {})
+        self.assertEqual(Wahlergebnis.objects.get(art="wahl").details,
+                         [["Andreas Hoffmann", "10 Stimmen"], ["Karin Hofmann", "5 Stimmen"],
+                          ["Patrick Meier", "2 Stimmen"]])
+
+    def test_client_meldet_http_fehler_der_abfrage(self):
+        from types import SimpleNamespace
+        from .client import OSClient
+        c = OSClient(SimpleNamespace(url="https://os.example.org", tls_pruefen=True, benutzername="u", passwort="p"))
+        c.token = "t"
+        antwort = SimpleNamespace(status_code=400, text="", json=lambda: {"message": "unknown field"})
+        with patch.object(c.s, "post", return_value=antwort):
+            with self.assertRaisesMessage(OpenSlidesFehler, "Abfrage abgelehnt (HTTP 400)"):
+                c.abfragen([{"ids": [1], "collection": "meeting", "fields": {}}])
+
+    def test_ansicht_zeigt_hinweis_bei_eingeschraenktem_abruf(self):
+        User = get_user_model()
+        User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=User.objects.get(username="admin"),
+                              rolle=Rolle.objects.get(verein=self.v, name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+        self.verbindung.aktiv = True
+        self.verbindung.save()
+        with patch("apps.openslides.services.OSClient") as MockClient:
+            MockClient.return_value.abfragen.side_effect = [{}, OpenSlidesFehler("HTTP 400"), _antrag_mit_details(),
+                                                            {}, {}]
+            r = self.client.post(reverse("veranstaltung_wahlergebnisse", args=[self.ver.pk]), follow=True)
+        self.assertContains(r, "nur eingeschraenkt abgerufen")
