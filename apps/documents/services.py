@@ -14,7 +14,11 @@ def standardordner_anlegen(verein):
 def standardvorlagen_anlegen(verein):
     """Legt fehlende Standardvorlagen an (bestehende, ggf. geänderte bleiben unangetastet)."""
     neu = 0
+    from apps.core.anbindungen import Anbindungen
+    anbindungen = Anbindungen(verein)
     for d in STANDARDVORLAGEN:
+        if d.get("nur_mit") and not anbindungen.aktiv(d["nur_mit"]):
+            continue   # z. B. die OpenSlides-Zugangsdaten-Vorlage erst, wenn OpenSlides angebunden ist
         _, created = Vorlage.objects.get_or_create(verein=verein, name=d["name"], defaults={
             "art": d["art"], "betreff": d["betreff"], "text": d["text"], "hinweis": d.get("hinweis", ""),
             "ist_standard": d.get("standard", False)})

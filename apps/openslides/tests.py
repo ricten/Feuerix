@@ -428,6 +428,8 @@ class AnwesenheitAbrufenTests(TestCase):
 
     def test_platzhalter_anwesenheit_und_anzahl(self):
         from apps.documents.platzhalter import kontext
+        self.verbindung.aktiv = True
+        self.verbindung.save()
         ctx = kontext(self.v, veranstaltung=self.ver)
         self.assertEqual(ctx["anwesenheit_anzahl"], "[Anzahl]")
         self.assertIn("keine Anwesenheit", ctx["anwesenheit"])

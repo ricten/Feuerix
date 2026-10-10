@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.64.0
+- OpenSlides- und Paperless-Funktionen sind jetzt nur sichtbar, wenn die jeweilige Instanz angebunden und aktiv ist:
+  Knöpfe, Listenspalten, Formular- und Detailfelder (z. B. OpenSlides-Konto am Mitglied, Paperless-Felder in der Ablage,
+  Gruppenfelder an Tags), OpenSlides-Platzhalter in der Platzhalter-Hilfe und die Vorlage „Zugangsdaten OpenSlides“.
+  Im Menü gibt es dafür den neutralen Punkt „Externe Anbindungen“ (Verwaltung); die eigenen Menüpunkte folgen nach dem
+  Anbinden. Standardprotokolle enthalten ohne OpenSlides schlichte Eintragsfelder statt Hinweisen auf OpenSlides.
+
 ## 1.63.0
 - Neu: Die **Anwesenheit** wird aus OpenSlides zurückgeführt (als „anwesend“ markierte Personen; Mitglieder über ihr
   OpenSlides-Konto zugeordnet, andere als Gast). Der Abruf an der Veranstaltung und der Knopf am Protokoll

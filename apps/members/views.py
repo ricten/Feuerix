@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_POST
 
+from apps.core.anbindungen import anbindungen
 from apps.core.crud import abschnitt, knopf, wert
 from apps.core.models import AuditLog, Zugang
 
@@ -69,8 +70,10 @@ def mitglied_kontext(request, m):
     abschnitte.append(abschnitt(request, "Funktionen", m.funktionen.all(), (("anzeige", "Funktion"),),
                                 "mitgliedfunktion_add", {"mitglied": m.pk}))
     if r.darf("mitglieder", "view"):
-        abschnitte.append(abschnitt(request, "Funktionen (Tags/Zugriffsrechte)", m.tags.all(),
-                                    ("name", "rolle", "paperless_gruppe", "openslides_gruppe")))
+        a = anbindungen(request)
+        tag_spalten = ("name", "rolle") + (("paperless_gruppe",) if a.paperless else ()) + \
+            (("openslides_gruppe",) if a.openslides else ())
+        abschnitte.append(abschnitt(request, "Funktionen (Tags/Zugriffsrechte)", m.tags.all(), tag_spalten))
     if r.darf("ehrungen", "view"):
         abschnitte.append(abschnitt(request, "Ehrungen", Ehrung.objects.filter(mitglied=m),
                                     ("art", "datum", "anlass"), "ehrung_add", {"mitglied": m.pk}))

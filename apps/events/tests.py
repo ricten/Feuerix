@@ -38,9 +38,21 @@ class WahlergebnisPlatzhalterTests(TestCase):
         self.ver = Veranstaltung.objects.create(verein=self.v, titel="Mitgliederversammlung 2026",
                                                 beginn=timezone.now())
 
+    def _anbinden(self):
+        from apps.openslides.models import OpenSlidesVerbindung
+        OpenSlidesVerbindung.objects.create(verein=self.v, url="https://os.example.org", benutzername="sync",
+                                            passwort="geheim", aktiv=True)
+
     def test_ohne_wahlergebnisse_zeigt_hinweistext(self):
+        self._anbinden()
         ctx = kontext(self.v, veranstaltung=self.ver)
         self.assertIn("keine Wahlergebnisse", ctx["wahlergebnisse"])
+
+    def test_ohne_openslides_neutrale_eintragsfelder_ohne_hinweis_auf_openslides(self):
+        ctx = kontext(self.v, veranstaltung=self.ver)
+        for schluessel in ("wahlergebnisse", "abstimmungen", "anwesenheit"):
+            self.assertTrue(ctx[schluessel].startswith("["), schluessel)
+            self.assertNotIn("OpenSlides", ctx[schluessel])
 
     def test_mit_wahlergebnissen_werden_amt_und_stimmen_eingesetzt(self):
         Wahlergebnis.objects.create(verein=self.v, veranstaltung=self.ver, amt="1. Vorsitzender",
@@ -50,6 +62,7 @@ class WahlergebnisPlatzhalterTests(TestCase):
         self.assertIn("Max Muster: 8 Ja, 1 Nein, 1 Enthaltung", ctx["wahlergebnisse"])
 
     def test_abstimmungen_haben_eigenen_platzhalter_und_vermischen_sich_nicht_mit_wahlen(self):
+        self._anbinden()
         Wahlergebnis.objects.create(verein=self.v, veranstaltung=self.ver, amt="Kassenwart", ergebnis="X: 1 Ja")
         ctx = kontext(self.v, veranstaltung=self.ver)
         self.assertIn("keine Abstimmungen", ctx["abstimmungen"])

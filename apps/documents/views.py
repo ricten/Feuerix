@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
+from apps.core.anbindungen import anbindungen
 from apps.core.crud import abschnitt, knopf, pdf_vorschau
 from apps.events.models import Veranstaltung
 
@@ -18,7 +19,7 @@ from . import services
 from .docx_export import schriftstueck_docx
 from .models import Ablagedokument, Schriftstueck, Serienbrief, Vorlage
 from .pdf import schriftstueck_pdf, serienbrief_pdf
-from .platzhalter import PLATZHALTER, kontext, offene
+from .platzhalter import OPENSLIDES_PLATZHALTER, PLATZHALTER, kontext, offene
 
 
 def _pruefen(request, modul, aktion):
@@ -77,12 +78,10 @@ def schriftstueck_kontext(request, s):
     if s.veranstaltung_id:
         aktionen.append(knopf("Zur Veranstaltung", reverse("veranstaltung_detail", args=[s.veranstaltung_id])))
         if (s.art == "protokoll" and s.veranstaltung.openslides_meeting_id and rt.darf("schriftverkehr", "change")
-                and rt.darf("openslides", "change")):
-            from apps.openslides.models import OpenSlidesVerbindung
-            if OpenSlidesVerbindung.objects.filter(verein=request.verein, aktiv=True).exists():
-                aktionen.append(knopf("Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen",
-                                      reverse("schriftstueck_abstimmungen", args=[s.pk]), post=True,
-                                      stil="outline-success"))
+                and rt.darf("openslides", "change") and anbindungen(request).openslides):
+            aktionen.append(knopf("Anwesenheit, Abstimmungen und Wahlen aus OpenSlides einfügen",
+                                  reverse("schriftstueck_abstimmungen", args=[s.pk]), post=True,
+                                  stil="outline-success"))
     hinweise = []
     fehlend = offene(s.text + " " + s.betreff, s.kontext())
     if fehlend:
@@ -217,7 +216,11 @@ def vorlagen_standard(request):
 @login_required
 def platzhalter_hilfe(request):
     _pruefen(request, "schriftverkehr", "view")
-    return render(request, "documents/platzhalter.html", {"gruppen": PLATZHALTER, "titel": "Platzhalter"})
+    gruppen = PLATZHALTER
+    if not anbindungen(request).openslides:   # ohne OpenSlides-Anbindung keine OpenSlides-Platzhalter anbieten
+        gruppen = [(titel, [e for e in eintraege if e[0] not in OPENSLIDES_PLATZHALTER])
+                   for titel, eintraege in PLATZHALTER if not titel.startswith("OpenSlides")]
+    return render(request, "documents/platzhalter.html", {"gruppen": gruppen, "titel": "Platzhalter"})
 
 
 # ---------------------------------------------------------------- aus Veranstaltung

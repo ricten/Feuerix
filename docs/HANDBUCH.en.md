@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.63.0)
+# Handbook – Feuerix (Version 1.64.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -533,7 +533,13 @@ to logged-in users with the archive permission. See also chapter 15 (legal notic
 
 ## 12. OpenSlides integration
 
-Under *Administration › OpenSlides integration*, the connection to an OpenSlides instance is stored once per
+> **Note on visibility:** Functions, buttons, columns and fields relating to OpenSlides (and likewise to
+> Paperless-ngx, chapter 13) only appear in the application **once the respective instance is connected and
+> active**. Until then, set-up is reachable via *Administration › External integrations*; the dedicated menu items
+> "OpenSlides integration" and "Paperless integration" only appear in the menu after connecting. Without OpenSlides,
+> the standard minutes contain plain fill-in fields such as "[Namen der Anwesenden eintragen]".
+
+Under *Administration › External integrations › OpenSlides* (after connecting also directly as the menu item "OpenSlides integration"), the connection to an OpenSlides instance is stored once per
 club (URL, technical account, committee ID, language; optionally a role that the member sync is restricted
 to). "Test connection" checks the credentials. "Sync members" creates missing OpenSlides accounts for active
 members (credentials can be sent out using the "OpenSlides login credentials" template), updates existing
@@ -574,7 +580,7 @@ imported results and the attendance for that event.
 
 ## 13. Paperless-ngx integration
 
-Under *Administration › Paperless integration*, the connection to an existing Paperless-ngx instance is
+Under *Administration › External integrations › Paperless-ngx* (after connecting also directly as the menu item "Paperless integration"), the connection to an existing Paperless-ngx instance is
 stored once per club (address, API token – stored encrypted; optionally a default correspondent, document
 type and tags). "Test connection" checks the address and token. Once activated, every document in the
 **archive** (chapter 11) shows a "Send to Paperless" button; the archive list additionally offers "Bulk send

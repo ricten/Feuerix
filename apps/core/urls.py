@@ -22,6 +22,7 @@ urlpatterns = [
     path("verein/einstellungen/", views.verein_einstellungen, name="verein_einstellungen"),
     path("datei/<str:app_label>/<str:modell>/<int:pk>/<str:feld>/", views.datei, name="datei"),
     path("auswertungen/", views.auswertungen, name="auswertungen"),
+    path("verwaltung/anbindungen/", views.anbindungen_uebersicht, name="anbindungen"),
     path("verwaltung/berechtigungsmatrix/", matrix_views.berechtigungsmatrix, name="berechtigungsmatrix"),
     path("verwaltung/berechtigungsmatrix/datenschutzordnung/", matrix_views.berechtigungsmatrix_dso,
          name="berechtigungsmatrix_dso"),

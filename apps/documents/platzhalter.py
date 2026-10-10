@@ -58,6 +58,10 @@ def briefanrede(m):
     return f"Guten Tag {m.vorname} {m.nachname},"
 
 
+# Platzhalter, die Daten aus OpenSlides einsetzen - nur mit angebundener Instanz in der Platzhalter-Hilfe aufgefuehrt
+OPENSLIDES_PLATZHALTER = {"wahlergebnisse", "abstimmungen", "anwesenheit", "anwesenheit_anzahl"}
+
+
 def kontext(verein, mitglied=None, veranstaltung=None, datum=None):
     heute = date.today()
     k = {
@@ -79,8 +83,10 @@ def kontext(verein, mitglied=None, veranstaltung=None, datum=None):
         from apps.openslides.models import OpenSlidesVerbindung
         vb = OpenSlidesVerbindung.objects.filter(verein=verein).first()
         k["openslides_url"] = vb.url if vb else ""
+        os_aktiv = bool(vb and vb.aktiv)
     except Exception:
         k["openslides_url"] = ""
+        os_aktiv = False
     v = veranstaltung
     if v is not None:
         b = timezone.localtime(v.beginn)
@@ -96,10 +102,14 @@ def kontext(verein, mitglied=None, veranstaltung=None, datum=None):
         def _block(art):
             return "\n\n".join(f"{w.amt}{' – ' + w.wahlgang if w.wahlgang else ''}:\n{w.ergebnis}"
                                for w in v.wahlergebnisse.filter(art=art))
-        k["wahlergebnisse"] = _block("wahl") or "(keine Wahlergebnisse aus OpenSlides übernommen)"
-        k["abstimmungen"] = _block("abstimmung") or "(keine Abstimmungen aus OpenSlides übernommen)"
+        # Ohne angebundenes OpenSlides sind das schlichte Eintragsfelder - kein Hinweis auf OpenSlides im Protokoll.
+        k["wahlergebnisse"] = _block("wahl") or (
+            "(keine Wahlergebnisse aus OpenSlides übernommen)" if os_aktiv else "[Wahlergebnisse eintragen]")
+        k["abstimmungen"] = _block("abstimmung") or (
+            "(keine Abstimmungen aus OpenSlides übernommen)" if os_aktiv else "[Abstimmungen und Beschlüsse eintragen]")
         anwesende = sorted((a.wer for a in v.anwesenheiten.select_related("mitglied")), key=str.casefold)
-        k["anwesenheit"] = "\n".join(f"- {n}" for n in anwesende) or "(keine Anwesenheit aus OpenSlides übernommen)"
+        k["anwesenheit"] = "\n".join(f"- {n}" for n in anwesende) or (
+            "(keine Anwesenheit aus OpenSlides übernommen)" if os_aktiv else "[Namen der Anwesenden eintragen]")
         k["anwesenheit_anzahl"] = str(len(anwesende)) if anwesende else "[Anzahl]"
     return k
 

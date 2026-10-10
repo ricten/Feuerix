@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
+from apps.core.anbindungen import anbindungen
 from apps.core.crud import abschnitt, knopf
 from apps.core.util import geld
 
@@ -48,9 +49,7 @@ def veranstaltung_kontext(request, v):
         aktionen.append(knopf("Standard-Tagesordnung (Mitgliederversammlung)", reverse("tagesordnung_standard", args=[v.pk]),
                               post=True, stil="outline-secondary"))
     if r.darf("openslides", "change"):
-        from apps.openslides.models import OpenSlidesVerbindung
-        vb = OpenSlidesVerbindung.objects.filter(verein=request.verein, aktiv=True).first()
-        if vb:
+        if anbindungen(request).openslides:
             aktionen.append(knopf("Tagesordnung nach OpenSlides übertragen" if v.openslides_meeting_id
                                   else "In OpenSlides anlegen", reverse("veranstaltung_openslides", args=[v.pk]), post=True,
                                   stil="outline-success"))
@@ -81,7 +80,8 @@ def veranstaltung_kontext(request, v):
                                                                ("helfer", "Helfer")), "schicht_add", {"veranstaltung": v.pk}),
           abschnitt(request, "Budget", v.kosten.all(), ("art", "bezeichnung", "plan_betrag", "ist_betrag"),
                     "kostenposition_add", {"veranstaltung": v.pk})]
-    ab.insert(0, abschnitt(request, "Tagesordnung", v.tagesordnung.all(), ("position", "titel", "openslides_topic_id"),
+    top_spalten = ("position", "titel") + (("openslides_topic_id",) if anbindungen(request).openslides else ())
+    ab.insert(0, abschnitt(request, "Tagesordnung", v.tagesordnung.all(), top_spalten,
                            "tagesordnungspunkt_add", {"veranstaltung": v.pk, "position": v.tagesordnung.count() + 1}))
     if r.darf("teilnehmer", "view"):
         ab.insert(2, abschnitt(request, "Anmeldungen", v.anmeldungen.all(), (("wer", "Name"), "personen", "status"),
@@ -106,7 +106,7 @@ def veranstaltung_kontext(request, v):
         ab.append(abschnitt(request, "Ablage zu dieser Veranstaltung", v.ablage.all(),
                             ("datum", "titel", "kategorie", "version"), "ablagedokument_add",
                             {"veranstaltung": v.pk, "kategorie": "protokoll"}))
-    if v.openslides_meeting_id:
+    if v.openslides_meeting_id and anbindungen(request).openslides:
         hinweise.append(f"OpenSlides-Versammlung Nr. {v.openslides_meeting_id} ist verknüpft.")
     return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": ab}
 

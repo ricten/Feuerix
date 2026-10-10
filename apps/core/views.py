@@ -10,6 +10,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Sum
 from django.http import FileResponse, Http404, HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
@@ -307,3 +308,22 @@ def oeffentliches_dokument_download(request, kuerzel, pk):
     if not d.datei:
         raise Http404
     return FileResponse(d.datei.open("rb"), as_attachment=True, filename=os.path.basename(d.datei.name))
+
+
+@login_required
+def anbindungen_uebersicht(request):
+    """Neutraler Einstieg zum Einrichten externer Dienste (OpenSlides, Paperless-ngx). Im Menue stehen deren eigene
+    Einstellungsseiten erst, wenn die jeweilige Instanz angebunden ist - hier kommt man vorher dorthin."""
+    from .anbindungen import anbindungen
+    rechte, a = request.rechte, anbindungen(request)
+    dienste = []
+    if rechte.darf("openslides", "view"):
+        dienste.append({"name": "OpenSlides", "aktiv": a.openslides, "url": reverse("openslides_einstellungen"),
+                        "text": _("Online-Mitgliederversammlungen: Konten, Versammlung und Tagesordnung anlegen, "
+                                  "Anwesenheit, Wahlen und Abstimmungen ins Protokoll übernehmen.")})
+    if rechte.darf("paperless", "view"):
+        dienste.append({"name": "Paperless-ngx", "aktiv": a.paperless, "url": reverse("paperless_einstellungen"),
+                        "text": _("Dokumentenarchiv: Dokumente aus der Ablage an Paperless-ngx übergeben.")})
+    if not dienste:
+        raise PermissionDenied
+    return render(request, "core/anbindungen.html", {"titel": _("Externe Anbindungen"), "dienste": dienste})

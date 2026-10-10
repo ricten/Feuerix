@@ -38,12 +38,12 @@ STANDARDVORLAGEN = [
     {
         "name": "Protokoll Mitgliederversammlung", "art": "protokoll", "standard": True,
         "betreff": "Protokoll der Mitgliederversammlung vom {veranstaltung_datum}",
-        "hinweis": "Beschlüsse mit Abstimmungsergebnis (Ja/Nein/Enthaltung) festhalten; vom Versammlungsleiter und Protokollführer unterschreiben lassen. Bei Abstimmungen und Wahlen über OpenSlides zuerst „Wahlen und Abstimmungen aus OpenSlides übernehmen“ (in der Veranstaltung oder am Protokoll) nutzen, dann füllen {abstimmungen} und {wahlergebnisse} die Stimmenverteilung; ob ein Antrag angenommen ist bzw. wer gewählt ist, bitte selbst eintragen.",
+        "hinweis": "Beschlüsse mit Abstimmungsergebnis (Ja/Nein/Enthaltung) festhalten; vom Versammlungsleiter und Protokollführer unterschreiben lassen. Ist OpenSlides angebunden, füllen der Knopf am Protokoll bzw. „Anwesenheit, Wahlen und Abstimmungen aus OpenSlides übernehmen“ (an der Veranstaltung) die Platzhalter {anwesenheit}, {abstimmungen} und {wahlergebnisse}; ob ein Antrag angenommen ist bzw. wer gewählt ist, bitte selbst eintragen.",
         "text": (
             "Verein: {verein}\nDatum: {veranstaltung_datum}\nOrt: {veranstaltung_ort}\n"
             "Beginn: {veranstaltung_uhrzeit} Uhr    Ende: [Uhrzeit] Uhr\n\n"
             "Versammlungsleiter/in: [Name]\nProtokollführer/in: [Name]\n\n"
-            "Anwesend: {anwesenheit_anzahl} Personen laut OpenSlides [davon stimmberechtigte Mitglieder: Anzahl prüfen].\n"
+            "Anwesend: {anwesenheit_anzahl} Personen [davon stimmberechtigte Mitglieder: Anzahl prüfen].\n"
             "Anwesenheitsliste:\n{anwesenheit}\n"
             "Die Einladung erfolgte fristgerecht am [Datum] gemäß Satzung. Die Versammlung war beschlussfähig: [ja / nein].\n\n"
             "Tagesordnung:\n{tagesordnung}\n\n"
@@ -51,8 +51,8 @@ STANDARDVORLAGEN = [
             "TOP 1: [Ergebnis / Beschluss]\nAbstimmung: Ja [ ]  Nein [ ]  Enthaltung [ ]\n\n"
             "TOP 2: [Ergebnis / Beschluss]\nAbstimmung: Ja [ ]  Nein [ ]  Enthaltung [ ]\n\n"
             "[weitere Tagesordnungspunkte]\n\n"
-            "Abstimmungen (aus OpenSlides übernommen; ob angenommen, bitte ergänzen):\n{abstimmungen}\n\n"
-            "Wahlergebnisse (Stimmenverteilung aus OpenSlides, gewählte Person bitte ergänzen):\n{wahlergebnisse}\n\n"
+            "Abstimmungen (ob angenommen, bitte ergänzen):\n{abstimmungen}\n\n"
+            "Wahlergebnisse (gewählte Person bitte ergänzen):\n{wahlergebnisse}\n\n"
             "Die Versammlungsleitung schloss die Versammlung um [Uhrzeit] Uhr.\n\n\n"
             "______________________________          ______________________________\n"
             "Versammlungsleiter/in                                Protokollführer/in"),
@@ -94,7 +94,7 @@ STANDARDVORLAGEN = [
             "Wir würden uns freuen, Sie zur Ehrung am [Datum] begrüßen zu dürfen.\n\n" + GRUSS),
     },
     {
-        "name": "Zugangsdaten OpenSlides (Mitgliederversammlung online)", "art": "serienbrief",
+        "name": "Zugangsdaten OpenSlides (Mitgliederversammlung online)", "art": "serienbrief", "nur_mit": "openslides",
         "betreff": "Ihre Zugangsdaten für die Versammlung",
         "hinweis": "Erst nach dem OpenSlides-Abgleich verwenden. Danach Startpasswörter in der OpenSlides-Anbindung löschen.",
         "text": (

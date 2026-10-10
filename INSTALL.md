@@ -173,7 +173,7 @@ Eine ausführliche Bedienungsanleitung für alle Module steht in **[docs/HANDBUC
    Berechtigungsfehler scheitert: zusätzlich Ausschussverwaltung im Ausschuss oder – notfalls – Superadmin.
 3. Ausschuss-ID ermitteln: in OpenSlides den Ausschuss öffnen, die Zahl in der Adresszeile (`…/committees/<ID>`) notieren.
    Ebenso die Konto-ID des Administrators, der neue Versammlungen verwalten soll (Standard: `1` = superadmin).
-4. In Feuerix **Verwaltung › OpenSlides-Anbindung:** Adresse (`https://versammlung.example.org`), technischer
+4. In Feuerix **Verwaltung › Externe Anbindungen › OpenSlides (Einrichten):** Adresse (`https://versammlung.example.org`), technischer
    Benutzer, Passwort, Ausschuss-ID, Administrator-IDs eintragen, „Anbindung aktiv“ setzen, speichern → **Verbindung testen**.
 5. **Mitglieder abgleichen:** legt Konten mit Startpasswort an (läuft im Hintergrund, Ergebnis auf der Seite).
 6. Zugangsdaten verteilen: **Schriftverkehr › Serienbriefe** mit der Vorlage „Zugangsdaten OpenSlides“ (per Brief oder E-Mail),
@@ -205,7 +205,7 @@ dann Schritt A überspringen und direkt mit Schritt 1 unten weitermachen.
 **Verbinden (bei beiden Wegen gleich):**
 
 1. In Paperless-ngx anmelden, unter **Mein Profil › API-Token** einen Token erzeugen.
-2. In Feuerix **Verwaltung › Paperless-Anbindung:** Adresse der Paperless-Instanz
+2. In Feuerix **Verwaltung › Externe Anbindungen › Paperless-ngx (Einrichten):** Adresse der Paperless-Instanz
    (z. B. `https://paperless.example.org`, ohne `/` am Ende) und den API-Token eintragen. Optional einen
    Standard-Korrespondenten, -Dokumenttyp und/oder Tags festlegen – diese werden in Paperless automatisch angelegt,
    falls sie dort noch nicht existieren.

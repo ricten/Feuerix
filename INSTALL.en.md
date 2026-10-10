@@ -177,7 +177,7 @@ A detailed user guide for every module is in **[docs/HANDBUCH.en.md](docs/HANDBU
 3. Determine the committee ID: open the committee in OpenSlides, note the number in the address bar
    (`…/committees/<ID>`). Likewise note the account ID of the administrator who should manage new meetings
    (default: `1` = superadmin).
-4. In Feuerix, **Administration › OpenSlides Integration:** enter the address
+4. In Feuerix, **Administration › External integrations › OpenSlides (Set up):** enter the address
    (`https://versammlung.example.org`), the technical user, password, committee ID, administrator IDs, set
    "Integration active", save → **test the connection**.
 5. **Sync members:** creates accounts with a starting password (runs in the background, result shown on the
@@ -211,7 +211,7 @@ installation) – then skip route A and continue directly with step 1 below.
 **Connecting (the same for both routes):**
 
 1. Log in to Paperless-ngx, generate a token under **My Profile › API Token**.
-2. In Feuerix, **Administration › Paperless Integration:** enter the address of the Paperless instance (e.g.
+2. In Feuerix, **Administration › External integrations › Paperless-ngx (Set up):** enter the address of the Paperless instance (e.g.
    `https://paperless.example.org`, without a trailing `/`) and the API token. Optionally set a default
    correspondent, document type and/or tags – these are created automatically in Paperless if they don't
    already exist there.

@@ -4641,3 +4641,41 @@ msgstr "Attendance"
 
 msgid "Anwesenheiten"
 msgstr "Attendances"
+
+# Anbindungen
+
+msgid "Externe Anbindungen"
+msgstr "External integrations"
+
+msgid ""
+"Online-Mitgliederversammlungen: Konten, Versammlung und Tagesordnung "
+"anlegen, Anwesenheit, Wahlen und Abstimmungen ins Protokoll übernehmen."
+msgstr ""
+"Online general meetings: create accounts, meeting and agenda, import "
+"attendance, elections and votes into the minutes."
+
+msgid "Dokumentenarchiv: Dokumente aus der Ablage an Paperless-ngx übergeben."
+msgstr ""
+"Document archive: hand documents from the filing system over to Paperless-"
+"ngx."
+
+msgid ""
+"Hier lassen sich externe Dienste anbinden. Funktionen, Knöpfe und Felder zu "
+"einem Dienst erscheinen in der Anwendung erst, wenn dessen Anbindung "
+"eingerichtet und aktiv ist."
+msgstr ""
+"External services can be connected here. Functions, buttons and fields for a"
+" service only appear in the application once its integration is set up and "
+"active."
+
+msgid "angebunden"
+msgstr "connected"
+
+msgid "nicht angebunden"
+msgstr "not connected"
+
+msgid "Einstellungen"
+msgstr "Settings"
+
+msgid "Einrichten"
+msgstr "Set up"

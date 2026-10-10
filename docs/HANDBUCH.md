@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.63.0)
+# Handbuch – Feuerix (Version 1.64.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -549,7 +549,13 @@ Ablage-Dokumente bleiben wie gewohnt nur für angemeldete Benutzer mit Ablage-Re
 
 ## 12. OpenSlides-Anbindung
 
-Unter *Verwaltung › OpenSlides-Anbindung* wird einmal pro Verein die Verbindung zu einer OpenSlides-Instanz
+> **Hinweis zur Sichtbarkeit:** Funktionen, Knöpfe, Spalten und Felder zu OpenSlides (und ebenso zu Paperless-ngx,
+> Kapitel 13) erscheinen in der Anwendung **erst, wenn die jeweilige Instanz angebunden und aktiv ist**. Bis dahin
+> ist die Einrichtung über *Verwaltung › Externe Anbindungen* erreichbar; die eigenen Menüpunkte
+> „OpenSlides-Anbindung“ bzw. „Paperless-Anbindung“ stehen erst nach dem Anbinden im Menü. Standardprotokolle
+> enthalten ohne OpenSlides schlichte Eintragsfelder wie „[Namen der Anwesenden eintragen]“.
+
+Unter *Verwaltung › Externe Anbindungen › OpenSlides* (nach dem Anbinden auch direkt als Menüpunkt „OpenSlides-Anbindung“) wird einmal pro Verein die Verbindung zu einer OpenSlides-Instanz
 hinterlegt (URL, technischer Zugang, Committee-ID, Sprache; optional eine Funktion, auf die der Mitgliederabgleich
 eingeschränkt wird). „Verbindung testen“ prüft die Zugangsdaten. „Mitglieder abgleichen“ legt fehlende
 OpenSlides-Benutzerkonten für aktive Mitglieder an (Zugangsdaten können per Vorlage „Zugangsdaten OpenSlides“
@@ -590,7 +596,7 @@ Abruf ersetzt zuvor übernommene Ergebnisse und die Anwesenheit dieser Veranstal
 
 ## 13. Paperless-ngx-Anbindung
 
-Unter *Verwaltung › Paperless-Anbindung* wird einmal pro Verein die Verbindung zu einer bestehenden
+Unter *Verwaltung › Externe Anbindungen › Paperless-ngx* (nach dem Anbinden auch direkt als Menüpunkt „Paperless-Anbindung“) wird einmal pro Verein die Verbindung zu einer bestehenden
 Paperless-ngx-Instanz hinterlegt (Adresse, API-Token – wird verschlüsselt gespeichert; optional ein
 Standard-Korrespondent, -Dokumenttyp und Tags). „Verbindung testen“ prüft Adresse und Token. Nach dem Aktivieren
 erscheint bei jedem Dokument in der **Ablage** (Kapitel 11) der Knopf „An Paperless senden“; auf der Ablage-Liste

@@ -22,7 +22,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 
 from . import audit
 from .forms import TenantModelForm
-from .felder import feldstatus
+from .felder import anbindung_versteckt, feldstatus
 from .util import geld
 
 REGISTRY = {}  # Modell -> Rechte-Modul (fuer den geschuetzten Dateizugriff)
@@ -66,6 +66,12 @@ def _sortierbar(model, feldname):
         return True
     except FieldDoesNotExist:
         return False
+
+
+def sichtbare_spalten(req, cfg):
+    """Spalten der Listenansicht ohne die, die eine nicht angebundene Instanz (OpenSlides/Paperless) voraussetzen."""
+    versteckt = anbindung_versteckt(req, cfg.model)
+    return [(c, l) for c, l in spalten_def(cfg.model, cfg.list_display) if c not in versteckt]
 
 
 def spalten_def(model, liste):
@@ -208,7 +214,7 @@ class ListeView(MandantMixin, ListView):
                 except (ValueError, TypeError, Exception):
                     return qs.none()
         sortierung = req.GET.get("sort", "")
-        erlaubt = {c for c, _ in spalten_def(cfg.model, cfg.list_display) if _sortierbar(cfg.model, c)}
+        erlaubt = {c for c, _ in sichtbare_spalten(req, cfg) if _sortierbar(cfg.model, c)}
         if sortierung.lstrip("-") in erlaubt:
             return qs.order_by(sortierung)
         return qs.order_by(*cfg.ordering) if cfg.ordering else qs
@@ -220,7 +226,7 @@ class ListeView(MandantMixin, ListView):
         return super().get(request, *args, **kwargs)
 
     def exportieren(self, fmt):
-        cols = spalten_def(self.cfg.model, self.cfg.list_display)
+        cols = sichtbare_spalten(self.request, self.cfg)
         kopf = [l for _, l in cols]
         zeilen = [[_sicher(wert(o, c)) for c, _ in cols] for o in self.get_queryset()]
         dateiname = f"{self.cfg.name}-{date.today():%Y%m%d}"
@@ -248,7 +254,7 @@ class ListeView(MandantMixin, ListView):
     def get_context_data(self, **kw):
         ctx = super().get_context_data(**kw)
         cfg, req = self.cfg, self.request
-        cols = spalten_def(cfg.model, cfg.list_display)
+        cols = sichtbare_spalten(req, cfg)
         zeilen = [{
             "url": reverse(f"{cfg.name}_detail", args=[o.pk]) if cfg.detail else None,
             "zellen": [wert(o, c) for c, _ in cols],
@@ -304,6 +310,7 @@ class DetailAnsicht(MandantMixin, DetailView):
         cfg, req, o = self.cfg, self.request, self.object
         felder = []
         versteckt, _ = feldstatus(req, o.__class__)
+        versteckt = versteckt | anbindung_versteckt(req, o.__class__)
         for f in list(o._meta.concrete_fields) + list(o._meta.many_to_many):
             if (f.name in ("id", "verein", "erstellt", "geaendert") or f.name in cfg.detail_ausblenden
                     or f.name in versteckt):
@@ -338,6 +345,7 @@ class FormularMixin(MandantMixin):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         versteckt, schreibgeschuetzt = feldstatus(self.request, form._meta.model)
+        versteckt = versteckt | anbindung_versteckt(self.request, form._meta.model)
         for name in versteckt:
             form.fields.pop(name, None)
         for name in schreibgeschuetzt:

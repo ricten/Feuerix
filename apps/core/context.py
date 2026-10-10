@@ -5,6 +5,8 @@ from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from .anbindungen import anbindungen
+
 NAV = [
     (_("Mitglieder"), "bi-people", [
         (_("Mitglieder"), "mitglied_list", "mitglieder"),
@@ -52,6 +54,7 @@ NAV = [
     ]),
     (_("Verwaltung"), "bi-gear", [
         (_("Verein / Einstellungen / Logo"), "verein_einstellungen", "verwaltung"),
+        (_("Externe Anbindungen"), "anbindungen", "openslides"),
         (_("OpenSlides-Anbindung"), "openslides_einstellungen", "openslides"),
         (_("Paperless-Anbindung"), "paperless_einstellungen", "paperless"),
         (_("FinTS-Zugänge"), "fintszugang_list", "bank"),
@@ -72,6 +75,9 @@ NAV = [
     ]),
 ]
 
+
+# Menuepunkt -> Anbindung, die dafuer eingerichtet und aktiv sein muss
+ANBINDUNGS_MENUE = {"openslides_einstellungen": "openslides", "paperless_einstellungen": "paperless"}
 
 _SUFFIXE = ("_list", "_add", "_detail", "_edit", "_delete")
 
@@ -175,10 +181,17 @@ def mandant(request):
     if not getattr(request, "user", None) or not request.user.is_authenticated:
         return produkt
     navigation = []
+    anb = anbindungen(request)
     for gruppe, icon, eintraege in NAV:
         punkte = []
         for label, url_name, modul in eintraege:
-            if request.rechte.darf(modul, "view"):
+            if url_name in ANBINDUNGS_MENUE and not anb.aktiv(ANBINDUNGS_MENUE[url_name]):
+                continue   # Einstellungsseite erst im Menue, wenn die Instanz angebunden ist (sonst ueber "Externe Anbindungen")
+            if url_name == "anbindungen":
+                sichtbar = request.rechte.darf("openslides", "view") or request.rechte.darf("paperless", "view")
+            else:
+                sichtbar = request.rechte.darf(modul, "view")
+            if sichtbar:
                 try:
                     punkte.append((label, reverse(url_name)))
                 except NoReverseMatch:
