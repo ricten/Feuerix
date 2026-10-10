@@ -3,6 +3,7 @@ from datetime import date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.db.models import Max
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
@@ -30,6 +31,13 @@ STANDARD_TOP = [
     ("Verschiedenes", ""),
 ]
 
+
+
+def naechste_top_position(veranstaltung):
+    """Vorschlag fuer die Position eines neuen Tagesordnungspunkts: hoechste vorhandene + 1 (bei Luecken oder
+    Doppelten waere "Anzahl + 1" bereits vergeben)."""
+    hoechste = veranstaltung.tagesordnung.aggregate(m=Max("position"))["m"]
+    return (hoechste or 0) + 1
 
 def veranstaltung_kontext(request, v):
     r = request.rechte
@@ -82,7 +90,7 @@ def veranstaltung_kontext(request, v):
                     "kostenposition_add", {"veranstaltung": v.pk})]
     top_spalten = ("position", "titel") + (("openslides_topic_id",) if anbindungen(request).openslides else ())
     ab.insert(0, abschnitt(request, "Tagesordnung", v.tagesordnung.all(), top_spalten,
-                           "tagesordnungspunkt_add", {"veranstaltung": v.pk, "position": v.tagesordnung.count() + 1}))
+                           "tagesordnungspunkt_add", {"veranstaltung": v.pk, "position": naechste_top_position(v)}))
     if r.darf("teilnehmer", "view"):
         ab.insert(2, abschnitt(request, "Anmeldungen", v.anmeldungen.all(), (("wer", "Name"), "personen", "status"),
                                "anmeldung_add", {"veranstaltung": v.pk}))

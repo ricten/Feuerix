@@ -273,6 +273,33 @@ class Tagesordnungspunkt(TenantModel):
     def __str__(self):
         return f"TOP {self.position}: {self.titel}"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not getattr(self, "_ohne_nummerierung", False):
+            self.nummerieren(self.veranstaltung_id, bevorzugt=self.pk)
+            self.position = Tagesordnungspunkt.objects.values_list("position", flat=True).get(pk=self.pk)
+
+    def delete(self, *args, **kwargs):
+        veranstaltung_id = self.veranstaltung_id
+        ergebnis = super().delete(*args, **kwargs)
+        self.nummerieren(veranstaltung_id)
+        return ergebnis
+
+    @classmethod
+    def nummerieren(cls, veranstaltung_id, bevorzugt=None):
+        """Nummeriert die Tagesordnung einer Veranstaltung automatisch lueckenlos von 1 an durch (Reihenfolge: bisherige
+        Position). Ist eine Nummer doppelt vergeben, kommt der gerade gespeicherte Punkt (`bevorzugt`) davor - so wirkt
+        eine gewaehlte Position wie Einfuegen, und nach dem Loeschen schliesst sich die Luecke."""
+        if not veranstaltung_id:
+            return
+        punkte = sorted(cls.objects.filter(veranstaltung_id=veranstaltung_id),
+                        key=lambda t: (t.position, 0 if t.pk == bevorzugt else 1, t.pk))
+        for nummer, top in enumerate(punkte, start=1):
+            if top.position != nummer:
+                top.position = nummer
+                top._ohne_nummerierung = True
+                top.save(update_fields=["position", "geaendert"])   # save() statt update(): bleibt im Protokoll
+
 
 class Wahlergebnis(TenantModel):
     """Aus OpenSlides zurückübertragenes Wahl- oder Abstimmungsergebnis (Rückfluss ins Protokoll) - je Amt/Antrag

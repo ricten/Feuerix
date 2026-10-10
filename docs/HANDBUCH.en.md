@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.64.2)
+# Handbook – Feuerix (Version 1.64.3)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -428,7 +428,8 @@ converted into a donation via "Waive → donate the expense".
 
 ## 9. Events and tasks
 
-The event detail page is a hub: agenda (including a "standard agenda" for general meetings with ten common
+The event detail page is a hub: agenda (items renumber themselves automatically without gaps from 1 – a new item with
+an already used number is inserted before it, and following items move up after a deletion) (including a "standard agenda" for general meetings with ten common
 items), tasks, a shift schedule with staffing status, registrations (members or guests, with a headcount),
 budget (planned/actual per line item), reserved inventory, as well as documents/mail merges and archive
 documents generated for the event. Directly from here: "Reserve inventory" opens the multi-select picker

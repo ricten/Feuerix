@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.64.3
+- Fix: Die Tagesordnung nummeriert sich jetzt automatisch lückenlos durch. Nach dem Anlegen eines weiteren TOPs konnte eine
+  Nummer doppelt vorkommen (der Vorschlag war „Anzahl + 1“ und bei Lücken schon vergeben). Neue Punkte werden mit
+  „höchste Nummer + 1“ vorgeschlagen, eine bereits belegte Nummer fügt davor ein, nach dem Löschen rücken die folgenden
+  nach; bestehende Tagesordnungen werden per Migration bereinigt.
+
 ## 1.64.2
 - OpenSlides: `openslides/autostart.sh` (von `install.sh` aufgerufen) erzeugt eine `docker-compose.override.yml`, damit alle
   Dienste nach einem Neustart von Docker/Server wieder starten - die generierte Compose-Datei tat das nur für `search` und

@@ -712,3 +712,84 @@ class AufgabenListeTests(TestCase):
         r = self.client.get(reverse("aufgabe_list"))
         self.assertNotContains(r, "table-danger")
         self.assertNotContains(r, "table-warning")
+
+
+class TagesordnungNummerierungTests(TestCase):
+    """Die Tagesordnung nummeriert sich automatisch lueckenlos von 1 an (kein doppelter TOP mehr nach dem Anlegen)."""
+
+    def setUp(self):
+        from .models import Tagesordnungspunkt
+        self.TOP = Tagesordnungspunkt
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.ver = Veranstaltung.objects.create(verein=self.v, titel="MV 2026", beginn=timezone.now())
+
+    def _top(self, titel, position):
+        return self.TOP.objects.create(verein=self.v, veranstaltung=self.ver, titel=titel, position=position)
+
+    def _reihenfolge(self, ver=None):
+        return [(t.position, t.titel) for t in self.TOP.objects.filter(veranstaltung=ver or self.ver)]
+
+    def test_belegte_position_fuegt_davor_ein_und_rueckt_nach(self):
+        for i, t in enumerate("ABC", 1):
+            self._top(t, i)
+        neu = self._top("NEU", 2)
+        self.assertEqual(self._reihenfolge(), [(1, "A"), (2, "NEU"), (3, "B"), (4, "C")])
+        self.assertEqual(neu.position, 2)
+
+    def test_vorschlagswert_nach_dem_letzten_ergibt_fortlaufende_nummern(self):
+        from .views import naechste_top_position
+        for i, t in enumerate("ABCDE", 1):
+            self._top(t, naechste_top_position(self.ver))
+        self.assertEqual(self._reihenfolge(), [(1, "A"), (2, "B"), (3, "C"), (4, "D"), (5, "E")])
+
+    def test_vorschlag_bei_luecken_ist_nicht_die_anzahl_plus_eins(self):
+        from .views import naechste_top_position
+        self.TOP.objects.bulk_create([self.TOP(verein=self.v, veranstaltung=self.ver, titel=t, position=p)
+                                      for t, p in (("A", 1), ("B", 2), ("C", 3), ("D", 5))])
+        self.assertEqual(naechste_top_position(self.ver), 6)   # 4 Punkte -> "Anzahl + 1" waere 5 (schon vergeben)
+
+    def test_zu_grosse_position_wird_auf_die_naechste_freie_gesetzt(self):
+        self._top("A", 1)
+        self._top("B", 2)
+        c = self._top("C", 10)
+        self.assertEqual(self._reihenfolge(), [(1, "A"), (2, "B"), (3, "C")])
+        self.assertEqual(c.position, 3)
+
+    def test_loeschen_schliesst_die_luecke(self):
+        punkte = [self._top(t, i) for i, t in enumerate("ABCD", 1)]
+        punkte[1].delete()
+        self.assertEqual(self._reihenfolge(), [(1, "A"), (2, "C"), (3, "D")])
+
+    def test_bearbeiten_auf_andere_position_verschiebt(self):
+        a, b, c = (self._top(t, i) for i, t in enumerate("ABC", 1))
+        c.position = 1
+        c.save()
+        self.assertEqual(self._reihenfolge(), [(1, "C"), (2, "A"), (3, "B")])
+
+    def test_titel_aendern_veraendert_die_reihenfolge_nicht(self):
+        a, b = self._top("A", 1), self._top("B", 2)
+        b.titel = "B neu"
+        b.save()
+        self.assertEqual(self._reihenfolge(), [(1, "A"), (2, "B neu")])
+
+    def test_andere_veranstaltung_bleibt_unberuehrt(self):
+        anders = Veranstaltung.objects.create(verein=self.v, titel="Vorstand", beginn=timezone.now())
+        self.TOP.objects.create(verein=self.v, veranstaltung=anders, titel="X", position=1)
+        self._top("A", 1)
+        self._top("B", 1)
+        self.assertEqual(self._reihenfolge(anders), [(1, "X")])
+        self.assertEqual(self._reihenfolge(), [(1, "B"), (2, "A")])
+
+    def test_vorbelegung_im_anlegen_formular_ist_hoechste_plus_eins(self):
+        from .views import naechste_top_position
+        self._top("A", 1)
+        self.assertEqual(naechste_top_position(self.ver), 2)
+
+    def test_datenmigration_bereinigt_doppelte_und_luecken(self):
+        import importlib
+        from django.apps import apps as echte_apps
+        migration = importlib.import_module("apps.events.migrations.0012_tagesordnung_nummerieren")
+        self.TOP.objects.bulk_create([self.TOP(verein=self.v, veranstaltung=self.ver, titel=t, position=p)
+                                      for t, p in (("A", 1), ("B", 2), ("C", 4), ("D", 5), ("E", 5), ("F", 7))])
+        migration.nummerieren(echte_apps, None)
+        self.assertEqual(self._reihenfolge(), [(1, "A"), (2, "B"), (3, "C"), (4, "D"), (5, "E"), (6, "F")])

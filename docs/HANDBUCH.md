@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.64.2)
+# Handbuch – Feuerix (Version 1.64.3)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -434,7 +434,8 @@ Aufwandsersatz kann per „Verzicht → Aufwandsspende“ in eine Spende umgewan
 ## 9. Veranstaltungen und Aufgaben
 
 Die Veranstaltungs-Detailseite ist eine Zentrale: Tagesordnung (inkl. „Standard-Tagesordnung“ für
-Mitgliederversammlungen mit zehn üblichen Punkten), Aufgaben, Schichtplan mit Besetzungsstand, Anmeldungen
+Mitgliederversammlungen mit zehn üblichen Punkten; die Punkte nummerieren sich automatisch lückenlos von 1 an – ein neuer
+Punkt mit bereits vergebener Nummer wird davor eingefügt, nach dem Löschen rücken die folgenden nach), Aufgaben, Schichtplan mit Besetzungsstand, Anmeldungen
 (Mitglieder oder Gäste, mit Personenzahl), Budget (Plan/Ist je Position), reserviertes Inventar sowie erzeugte
 Schriftstücke/Serienbriefe und Ablage-Dokumente zur Veranstaltung. Direkt von hier aus: „Inventar reservieren“
 öffnet die Mehrfachauswahl (mehrere Gegenstände gleichzeitig ankreuzen, mit den Terminen der Veranstaltung
