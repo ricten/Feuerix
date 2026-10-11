@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.66.3
+- Detailseite eines Wahl-/Abstimmungsergebnisses: Antrag (Antragsteller*in, Text, Begründung) und Ergebnis (Stimmen, Status)
+  stehen in getrennten Tabellen, bei Wahlen Kandidat*in und Stimmen; statt des einen Textblocks. Das Protokoll ist unverändert.
+
 ## 1.66.2
 - Fix: Das Protokoll einer späteren Sitzung wurde in der Ablage als „Version 2“ des Protokolls einer früheren Sitzung mit gleichem
   Titel abgelegt. Jetzt beginnt ein erstmals abgelegtes Schriftstück immer bei Version 1; eine neue Version entsteht nur beim

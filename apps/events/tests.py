@@ -91,7 +91,8 @@ class WahlergebnisCrudTests(TestCase):
         self.assertEqual(self.client.get(reverse("wahlergebnis_list")).status_code, 200)
         r = self.client.get(reverse("wahlergebnis_detail", args=[w.pk]))
         self.assertEqual(r.status_code, 200)
-        self.assertContains(r, "Erika Musterfrau: 10 Ja")
+        self.assertContains(r, "Erika Musterfrau")
+        self.assertContains(r, "10 Ja")   # jetzt in getrennten Tabellenzellen
 
     def test_keine_add_und_edit_seite(self):
         with self.assertRaises(NoReverseMatch):
@@ -789,3 +790,64 @@ class TagesordnungNummerierungTests(TestCase):
                                       for t, p in (("A", 1), ("B", 2), ("C", 4), ("D", 5), ("E", 5), ("F", 7))])
         migration.nummerieren(echte_apps, None)
         self.assertEqual(self._reihenfolge(), [(1, "A"), (2, "B"), (3, "C"), (4, "D"), (5, "E"), (6, "F")])
+
+
+class WahlergebnisDetailseiteTests(TestCase):
+    """Die Detailseite zeigt Antrag und Ergebnis getrennt in Tabellen statt in einem Textblock."""
+
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        from apps.core.models import Rolle, Zugang
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.ver = Veranstaltung.objects.create(verein=self.v, titel="MV", beginn=timezone.now())
+        User = get_user_model()
+        admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.v, user=admin, rolle=Rolle.objects.get(verein=self.v,
+                                                                                  name="Superadministrator"))
+        self.client.login(username="admin", password="pw-Test-12345")
+
+    def _seite(self, w):
+        return self.client.get(reverse("wahlergebnis_detail", args=[w.pk]))
+
+    def test_abstimmung_antrag_und_ergebnis_getrennt(self):
+        w = Wahlergebnis.objects.create(
+            verein=self.v, veranstaltung=self.ver, art="abstimmung", amt="Antrag 01: beitragserhöhung",
+            wahlgang="Antrag Abstimmung", ergebnis="Text", details=[
+                ["Antragsteller*in", "Christina Peters"], ["Antragstext", "erste Zeile\nzweite Zeile"],
+                ["Begründung", "kein geld in der kasse"], ["Ergebnis", "10 Ja, 5 Nein, 2 Enthaltung"],
+                ["Status in OpenSlides", "angenommen"]])
+        r = self._seite(w)
+        self.assertContains(r, "<strong>Antrag</strong>", html=True)
+        self.assertContains(r, "<strong>Ergebnis</strong>", html=True)
+        for erwartet in ("Antragsteller*in", "Christina Peters", "kein geld in der kasse", "10 Ja, 5 Nein, 2 Enthaltung",
+                         "angenommen"):
+            self.assertContains(r, erwartet)
+        self.assertContains(r, "erste Zeile<br>zweite Zeile")   # mehrzeiliger Text bleibt mehrzeilig
+        self.assertNotContains(r, "Stimmenverteilung")           # der rohe Textblock ist weg
+        self.assertNotContains(r, "Abstimmungs-ID")
+
+    def test_wahl_zeigt_kandidatentabelle(self):
+        w = Wahlergebnis.objects.create(
+            verein=self.v, veranstaltung=self.ver, art="wahl", amt="1. Vorsitzender", wahlgang="Wahlgang",
+            ergebnis="x", details=[["Andreas Hoffmann", "10 Stimmen"], ["Karin Hofmann", "5 Stimmen"]])
+        r = self._seite(w)
+        self.assertContains(r, "Stimmen je Kandidat*in")
+        self.assertContains(r, "<th>Kandidat*in</th>", html=True)
+        self.assertContains(r, "Andreas Hoffmann")
+        self.assertContains(r, "10 Stimmen")
+
+    def test_aelterer_eintrag_ohne_details_wird_aus_dem_text_zerlegt(self):
+        w = Wahlergebnis.objects.create(verein=self.v, veranstaltung=self.ver, art="abstimmung", amt="Antrag alt",
+                                        ergebnis="Antragsteller*in: Max\nErgebnis: 3 Ja, 1 Nein\nStatus in OpenSlides: angenommen")
+        r = self._seite(w)
+        self.assertContains(r, "Max")
+        self.assertContains(r, "3 Ja, 1 Nein")
+        self.assertContains(r, "<strong>Antrag</strong>", html=True)
+
+    def test_html_im_text_wird_nicht_ausgefuehrt(self):
+        w = Wahlergebnis.objects.create(verein=self.v, veranstaltung=self.ver, art="abstimmung", amt="Antrag x",
+                                        ergebnis="x", details=[["Antragstext", "<script>alert(1)</script>"],
+                                                               ["Ergebnis", "1 Ja"]])
+        r = self._seite(w)
+        self.assertNotContains(r, "<script>alert(1)</script>")
+        self.assertContains(r, "&lt;script&gt;")

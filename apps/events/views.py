@@ -240,3 +240,38 @@ def veranstaltungen_ics(request):
 
 def listen_aktionen(request):
     return [knopf("Kalender (.ics)", reverse("veranstaltungen_ics"))]
+
+
+def wahlergebnis_kontext(request, w):
+    """Detailseite eines Wahl-/Abstimmungsergebnisses: statt eines einzigen Textblocks getrennte Tabellen - bei Wahlen
+    Kandidat*in und Stimmen, bei Abstimmungen "Antrag" (Antragsteller*in, Text, Begruendung) und "Ergebnis"
+    (Stimmen, Status). Aeltere Eintraege ohne strukturierte Einzelheiten werden aus dem gespeicherten Text zerlegt."""
+    from django.utils.html import conditional_escape
+    from django.utils.safestring import mark_safe
+
+    from apps.documents.anlagen import TEXTFELDER
+
+    paare = [tuple(p) for p in (w.details or []) if len(p) == 2]
+    if not paare:
+        for zeile in (w.ergebnis or "").splitlines():
+            bezeichnung, trenner, rest = zeile.partition(": ")
+            paare.append((bezeichnung, rest) if trenner else ("", zeile))
+
+    def zeilen(eintraege):
+        # Zeilenumbrueche im Text (z. B. mehrzeiliger Antragstext) sichtbar lassen
+        return [{"url": None, "zellen": [bez, mark_safe(conditional_escape(wert).replace("\n", "<br>"))]}
+                for bez, wert in eintraege]
+
+    if w.art == "wahl":
+        return {"abschnitte": [{"titel": "Stimmen je Kandidat*in", "spalten": ["Kandidat*in", "Stimmen"],
+                                "zeilen": zeilen(paare), "add_url": None}]}
+    antrag = [(b, x) for b, x in paare if b in TEXTFELDER and b != "Status in OpenSlides"]
+    ergebnis = [(b, x) for b, x in paare if b not in TEXTFELDER or b == "Status in OpenSlides"]
+    abschnitte = []
+    if antrag:
+        abschnitte.append({"titel": "Antrag" if w.amt.startswith("Antrag") else "Thema", "spalten": ["Angabe", "Inhalt"],
+                           "zeilen": zeilen(antrag), "add_url": None})
+    if ergebnis:
+        abschnitte.append({"titel": "Ergebnis", "spalten": ["Angabe", "Wert"], "zeilen": zeilen(ergebnis),
+                           "add_url": None})
+    return {"abschnitte": abschnitte}
