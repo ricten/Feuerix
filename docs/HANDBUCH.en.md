@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.67.0)
+# Handbook – Feuerix (Version 1.67.1)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -362,8 +362,9 @@ label is noticeably taller than it is wide (e.g. a narrow roll used in portrait 
 rotated 90° so the QR code makes use of the long side instead of the short one. If a label (possibly after
 rotating) is very flat and wide, the QR code and text are placed side by side instead of stacked – otherwise
 the QR code would end up unnecessarily small on the short height. If a **club logo** is stored, it is printed too
-(true to its aspect ratio) as long as there is enough room beside the QR code (at least about 7 mm); on very small
-labels it is omitted automatically.
+(true to its aspect ratio and in **black and white** – greyscale with strong contrast) as long as there is enough room
+beside the QR code (at least about 7 mm): on the standard sheet large on the left with the QR code beside it on the
+right; on very small labels the logo is omitted automatically and the QR code stays centred.
 
 **Starting a loan:**
 - *Manually* via "Create loan/reservation" on an item (the full form, including adjusting the deposit/

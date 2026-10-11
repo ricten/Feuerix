@@ -45,7 +45,7 @@ def _etikett_modus(breite, hoehe):
     return gedreht, nebeneinander, zeichenbreite, zeichenhoehe
 
 
-def _etikett_layout(breite, hoehe, nebeneinander):
+def _etikett_layout(breite, hoehe, nebeneinander, mit_logo=False):
     """Berechnet die Geometrie (QR-Code-Position/-Größe, Textbereich) für ein Etikett gegebener Größe (in
     Punkten, also bereits *mm). Maße sind bewusst klein und ABSOLUT (nicht prozentual zur Etikettengröße) -
     sonst entstünde bei einem großen Etikett unnötig viel Leerraum bzw. bei einem kleinen Überlappungen. Die
@@ -53,18 +53,21 @@ def _etikett_layout(breite, hoehe, nebeneinander):
     text_hoehe für bis zu drei zentrierte Zeilen), damit das Zeichnen selbst modusunabhängig bleibt:
     - Gestapelt: QR-Code oben, Textbox darunter - beides als Einheit senkrecht zentriert (sonst bliebe bei
       hohen Etiketten eine ungenutzte Lücke in der Mitte stehen).
-    - Nebeneinander: QR-Code links über die volle Höhe, Textbox rechts daneben, beide senkrecht zentriert."""
-    rand = min(3 * mm, min(breite, hoehe) * 0.08)
+    - Nebeneinander: QR-Code links über die volle Höhe, Textbox rechts daneben, beide senkrecht zentriert.
+    `mit_logo` (nur gestapelt): der QR-Code sitzt dann rechts statt mittig, damit links daneben ein grosser Platz fuers
+    Vereinslogo frei bleibt."""
+    rand = min(2.5 * mm, min(breite, hoehe) * 0.08)
     if nebeneinander:
         qr_groesse = max(5 * mm, min(hoehe - 2 * rand, breite * 0.55))
         text_x0 = rand + qr_groesse + rand
         text_breite = max(breite - text_x0 - rand, 8 * mm)
         return {"qr_x": rand, "qr_y": (hoehe - qr_groesse) / 2, "qr_groesse": qr_groesse,
                "text_mitte_x": text_x0 + text_breite / 2, "text_unten_y": rand, "text_hoehe": hoehe - 2 * rand}
-    text_hoehe = min(12 * mm, hoehe * 0.35)   # Platz fuer drei Zeilen: Inventarnummer, Bezeichnung, Lagerort
+    text_hoehe = min(11 * mm, hoehe * 0.33)   # Platz fuer drei Zeilen: Inventarnummer, Bezeichnung, Lagerort
     qr_groesse = max(5 * mm, min(breite - 2 * rand, hoehe - text_hoehe - 2 * rand))
     unten_frei = (hoehe - (qr_groesse + rand + text_hoehe)) / 2
-    return {"qr_x": (breite - qr_groesse) / 2, "qr_y": unten_frei + text_hoehe + rand, "qr_groesse": qr_groesse,
+    qr_x = breite - rand - qr_groesse if mit_logo else (breite - qr_groesse) / 2
+    return {"qr_x": qr_x, "qr_y": unten_frei + text_hoehe + rand, "qr_groesse": qr_groesse,
            "text_mitte_x": breite / 2, "text_unten_y": unten_frei, "text_hoehe": text_hoehe}
 
 
@@ -87,8 +90,14 @@ def etiketten_pdf(gegenstaende, scan_url, verein=None):
 
     gedreht, nebeneinander, zeichenbreite, zeichenhoehe = _etikett_modus(breite, hoehe)
     layout = _etikett_layout(zeichenbreite, zeichenhoehe, nebeneinander)
-    logo = logo_datei(verein) if verein is not None else None
-    logo_platz = _logo_platz(layout, nebeneinander, zeichenbreite, zeichenhoehe) if logo else None
+    logo_pfad = logo_datei(verein) if verein is not None else None
+    logo = logo_schwarzweiss(logo_pfad) if logo_pfad else None
+    logo_platz = None
+    if logo:   # mit Logo rueckt der QR-Code zur Seite (gestapelt) - nur uebernehmen, wenn das Logo dann Platz hat
+        mit_logo = _etikett_layout(zeichenbreite, zeichenhoehe, nebeneinander, mit_logo=True)
+        logo_platz = _logo_platz(mit_logo, nebeneinander, zeichenbreite, zeichenhoehe)
+        if logo_platz:
+            layout = mit_logo
 
     buf = BytesIO()
     c = canvas.Canvas(buf, pagesize=pagesize)
@@ -214,30 +223,42 @@ def packliste_pdf(positionen):
 
 # ---------------- Vereinslogo auf dem Etikett (nur wenn Platz ist)
 LOGO_MIN = 7 * mm
-LOGO_MAX = 20 * mm
+LOGO_MAX = 25 * mm
 
 
 def _logo_platz(layout, nebeneinander, breite, hoehe):
     """Freier Platz (x, y, Breite, Hoehe) fuer das Vereinslogo oder None, wenn kein Platz ist (mind. LOGO_MIN):
     gestapelt links neben dem QR-Code, nebeneinander ueber dem QR-Code in der linken Spalte. Er liegt ausserhalb von
     QR-Code und Textfeld, damit nichts ueberlappt."""
-    rand = min(3 * mm, min(breite, hoehe) * 0.08)
+    rand = min(2.5 * mm, min(breite, hoehe) * 0.08)
     if nebeneinander:
         y = layout["qr_y"] + layout["qr_groesse"] + rand / 2
         platz = (layout["qr_x"], y, layout["qr_groesse"], hoehe - rand - y)
     else:
-        platz = (rand, layout["qr_y"], layout["qr_x"] - 1.5 * rand, layout["qr_groesse"])
+        platz = (rand, layout["qr_y"], layout["qr_x"] - 2 * rand, layout["qr_groesse"])
     return platz if platz[2] >= LOGO_MIN and platz[3] >= LOGO_MIN else None
 
 
-def _logo_zeichnen(c, pfad, platz):
-    """Logo seitenverhaeltnistreu und zentriert in den freien Platz einpassen."""
+def logo_schwarzweiss(pfad):
+    """Das Vereinslogo als Graustufenbild mit kraeftigem Kontrast (Etiketten werden meist auf Thermo-/Schwarzweissdruckern
+    gedruckt; Farben wuerden dort unschoen gerastert). Transparente Bereiche werden weiss. None, wenn nicht lesbar."""
+    from PIL import Image, ImageOps
     try:
-        breite, hoehe = ImageReader(pfad).getSize()
+        bild = Image.open(pfad)
+        bild.load()
+        if bild.mode in ("RGBA", "LA", "P") and ("A" in bild.getbands() or "transparency" in bild.info):
+            rgba = bild.convert("RGBA")
+            bild = Image.alpha_composite(Image.new("RGBA", rgba.size, (255, 255, 255, 255)), rgba)
+        return ImageOps.autocontrast(bild.convert("L"), cutoff=1)
     except Exception:
-        return
+        return None
+
+
+def _logo_zeichnen(c, bild, platz):
+    """Logo (Graustufen-PIL-Bild) seitenverhaeltnistreu und zentriert in den freien Platz einpassen."""
+    breite, hoehe = bild.size
     x, y, w, h = platz
     w, h = min(w, LOGO_MAX), min(h, LOGO_MAX)
     skala = min(w / breite, h / hoehe)
     zw, zh = breite * skala, hoehe * skala
-    c.drawImage(pfad, x + (platz[2] - zw) / 2, y + (platz[3] - zh) / 2, zw, zh, mask="auto")
+    c.drawImage(ImageReader(bild), x + (platz[2] - zw) / 2, y + (platz[3] - zh) / 2, zw, zh)

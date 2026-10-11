@@ -14,7 +14,8 @@ from reportlab.lib.units import mm
 
 from apps.core.models import Rolle, Verein, Zugang
 from apps.inventory.models import Gegenstand, Lagerort, Verleih
-from apps.inventory.pdf import _etikett_layout, _etikett_modus, _logo_platz, etiketten_pdf, packliste_pdf
+from apps.inventory.pdf import (_etikett_layout, _etikett_modus, _logo_platz, etiketten_pdf, logo_schwarzweiss,
+                                packliste_pdf)
 from apps.members.models import Mitglied
 
 PW = "pw-Test-12345"
@@ -237,3 +238,58 @@ class VorgangKopfTests(VerleihBasis):
         r = self.client.get(reverse("verleih_vorgang_detail", args=[vorgang]))
         self.assertNotContains(r, "Leihgebühr gesamt")
         self.assertNotContains(r, "Kaution gesamt")
+
+
+class EtikettLogoGroesseUndFarbeTests(TestCase):
+    def setUp(self):
+        self._media = tempfile.mkdtemp()
+        ueb = override_settings(MEDIA_ROOT=self._media)
+        ueb.enable()
+        self.addCleanup(ueb.disable)
+        self.addCleanup(shutil.rmtree, self._media, True)
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        self.g = Gegenstand.objects.create(verein=self.v, bezeichnung="Zelt")
+
+    def _farbiges_logo(self, modus="RGB", farbe=(175, 43, 30)):
+        puffer = io.BytesIO()
+        Image.new(modus, (200, 100), farbe).save(puffer, "PNG")
+        self.v.logo.save("logo.png", ContentFile(puffer.getvalue()), save=True)
+        return self.v.logo.path
+
+    def test_logo_wird_in_graustufen_umgewandelt(self):
+        bild = logo_schwarzweiss(self._farbiges_logo())
+        self.assertEqual(bild.mode, "L")   # kein Farbkanal mehr
+
+    def test_transparenz_wird_weiss_nicht_schwarz(self):
+        bild = logo_schwarzweiss(self._farbiges_logo("RGBA", (0, 0, 0, 0)))   # komplett durchsichtig
+        self.assertEqual(bild.getpixel((10, 10)), 255)
+
+    def test_unlesbare_datei_gibt_none(self):
+        self.assertIsNone(logo_schwarzweiss("/gibt/es/nicht.png"))
+
+    def test_pdf_enthaelt_graustufenbild_ohne_farbbild(self):
+        self._farbiges_logo()
+        pdf = etiketten_pdf([self.g], lambda nr: "u", self.v)
+        self.assertIn(b"/Subtype /Image", pdf)
+        self.assertIn(b"/DeviceGray", pdf)
+        self.assertNotIn(b"/DeviceRGB", pdf.split(b"/Subtype /Image")[1].split(b"endobj")[0])   # das Bild selbst
+
+    def test_mit_logo_sitzt_der_qr_code_rechts_und_das_logo_hat_viel_platz(self):
+        b, h = 58 * mm, 40 * mm
+        ohne = _etikett_layout(b, h, False)
+        mit = _etikett_layout(b, h, False, mit_logo=True)
+        self.assertGreater(mit["qr_x"], ohne["qr_x"])            # QR-Code nach rechts gerueckt
+        self.assertEqual(mit["qr_groesse"], ohne["qr_groesse"])
+        x, y, w, hoehe = _logo_platz(mit, False, b, h)
+        self.assertGreaterEqual(w, 20 * mm)                      # deutlich mehr als zuvor (ca. 13 mm)
+        self.assertLessEqual(x + w, mit["qr_x"])                 # nichts ueberlappt den QR-Code
+
+    def test_qr_code_ist_groesser_geworden(self):
+        l = _etikett_layout(58 * mm, 40 * mm, False)
+        self.assertGreaterEqual(l["qr_groesse"], 23.5 * mm)
+
+    def test_ohne_platz_bleibt_der_qr_code_mittig(self):
+        self._farbiges_logo()
+        self.v.etikett_spalten, self.v.etikett_zeilen = 1, 1
+        self.v.etikett_breite_mm, self.v.etikett_hoehe_mm = 25, 25
+        self.assertNotIn(b"/Subtype /Image", etiketten_pdf([self.g], lambda nr: "u", self.v))

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.67.0)
+# Handbuch – Feuerix (Version 1.67.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -366,8 +366,9 @@ deutlich höher als breit (z. B. eine schmale Rolle hochkant), wird der Inhalt u
 QR-Code die lange statt der kurzen Seite ausnutzt. Ist ein Etikett (ggf. erst nach dem Drehen) sehr flach und
 breit, stehen QR-Code und Text stattdessen nebeneinander statt untereinander – sonst würde der QR-Code auf der
 kurzen Höhe unnötig klein. Ist ein **Vereinslogo** hinterlegt, wird es – sofern auf dem Etikett neben dem
-QR-Code genügend Platz ist (mindestens etwa 7 mm) – seitenverhältnistreu mit aufgedruckt; auf sehr kleinen Etiketten
-entfällt es automatisch.
+QR-Code genügend Platz ist (mindestens etwa 7 mm) – seitenverhältnistreu und in **Schwarz-Weiß (Graustufen mit
+kräftigem Kontrast)** mit aufgedruckt: auf dem Standardbogen links groß, der QR-Code rechts daneben; auf sehr kleinen
+Etiketten entfällt das Logo automatisch und der QR-Code steht mittig.
 
 **Verleih starten**:
 - *Manuell* über „Verleih / Reservierung anlegen“ auf dem Gegenstand (voller Formular-Umfang, inkl. Kaution/

@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.67.1
+- Inventar-Etiketten: Das Vereinslogo wird jetzt **schwarz-weiß** (Graustufen mit kräftigem Kontrast, Transparenz wird weiß)
+  und deutlich größer gedruckt – links, der QR-Code rechts daneben. Der QR-Code ist etwas größer geworden (Text etwas
+  kompakter). Ohne Platz für das Logo bleibt der QR-Code mittig.
+
 ## 1.67.0
 - Verleih: Mehrere gleichzeitig verliehene Gegenstände erscheinen in der Übersicht als **ein Vorgang** (eine Zeile mit Anzahl,
   Gegenständen und gemeinsamem Status, Klick öffnet die Vorgangsseite); die Vorgangsseite hat jetzt Kopfangaben (Entleiher,
