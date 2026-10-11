@@ -5,6 +5,11 @@
   <div><a href="{% url 'verleih_list' %}" class="text-decoration-none small"><i class="bi bi-arrow-left"></i> {% trans "Verleih" %}</a><h3 class="mb-0">{{ titel }}</h3></div>
   <div class="d-flex gap-2 flex-wrap">{% include "core/_buttons.html" with buttons=aktionen %}</div>
 </div>
+<div class="card shadow-sm mb-3"><div class="card-body py-2">
+  <dl class="row mb-0 small">
+    {% for label, wert in kopf %}<dt class="col-sm-3 col-lg-2 text-muted fw-normal">{{ label }}</dt><dd class="col-sm-9 col-lg-4 mb-1">{{ wert }}</dd>{% endfor %}
+  </dl>
+</div></div>
 <div class="card shadow-sm mb-3">
   <div class="table-responsive"><table class="table table-sm table-hover mb-0 tabelle">
     <thead class="table-light"><tr><th>{% trans "Gegenstand" %}</th><th>{% trans "Inventarnr." %}</th><th>{% trans "Von" %}</th><th>{% trans "Bis" %}</th><th>{% trans "Status" %}</th><th>{% trans "Kaution" %}</th><th></th></tr></thead>

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.66.3)
+# Handbuch – Feuerix (Version 1.67.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -365,7 +365,9 @@ auch der Lagerort mit aufgedruckt. Die Anordnung passt sich der Etikettenform au
 deutlich höher als breit (z. B. eine schmale Rolle hochkant), wird der Inhalt um 90° gedreht, damit der
 QR-Code die lange statt der kurzen Seite ausnutzt. Ist ein Etikett (ggf. erst nach dem Drehen) sehr flach und
 breit, stehen QR-Code und Text stattdessen nebeneinander statt untereinander – sonst würde der QR-Code auf der
-kurzen Höhe unnötig klein.
+kurzen Höhe unnötig klein. Ist ein **Vereinslogo** hinterlegt, wird es – sofern auf dem Etikett neben dem
+QR-Code genügend Platz ist (mindestens etwa 7 mm) – seitenverhältnistreu mit aufgedruckt; auf sehr kleinen Etiketten
+entfällt es automatisch.
 
 **Verleih starten**:
 - *Manuell* über „Verleih / Reservierung anlegen“ auf dem Gegenstand (voller Formular-Umfang, inkl. Kaution/
@@ -379,7 +381,13 @@ kurzen Höhe unnötig klein.
 
 Mehrere gleichzeitig verliehene Gegenstände werden als **Vorgang** verknüpft: von der Vorgangsseite aus lassen sich
 alle Positionen gemeinsam ausgeben, gemeinsam zurücknehmen, ein gemeinsamer Leihschein drucken und – siehe unten –
-landen auf **einer** gemeinsamen Rechnung statt vieler einzelner.
+landen auf **einer** gemeinsamen Rechnung statt vieler einzelner. In der **Verleih-Übersicht** erscheint ein Vorgang
+entsprechend als **eine Zeile** („3 Gegenstände: Stuhl, Tisch, Zelt“, mit gemeinsamem Status bzw. z. B. „1 reserviert,
+2 ausgegeben“); ein Klick öffnet die Vorgangsseite mit Kopfangaben (Entleiher, Zeitraum, Veranstaltung, Zweck,
+Gebühr und Kaution gesamt) und allen Positionen. Einzelverleihe bleiben einzelne Zeilen; Suche und Filter betreffen
+alle Positionen. Für die Ausgabe gibt es die **druckbare Packliste** („Packliste drucken (PDF)“ am Vorgang bzw. am
+einzelnen Verleih): alle Positionen nach Lagerort sortiert mit Inventarnummer, Gegenstand, Lagerort,
+Ankreuzfeldern für **Ausgabe** und **Rückgabe**, Platz für Bemerkungen und Unterschriftszeilen.
 
 **Rückgabe erfassen** ist ein Formular (einzeln wie im Vorgang): pro Gegenstand wird der **Zustand bei Rückgabe**
 gewählt (wirkt sich sofort auch auf den Gegenstand selbst aus, damit die Inventarübersicht stimmt) und – falls eine

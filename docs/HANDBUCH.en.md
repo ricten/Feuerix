@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.66.3)
+# Handbook – Feuerix (Version 1.67.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -361,7 +361,9 @@ storage location is printed too, if one is set. The layout adapts automatically 
 label is noticeably taller than it is wide (e.g. a narrow roll used in portrait orientation), the content is
 rotated 90° so the QR code makes use of the long side instead of the short one. If a label (possibly after
 rotating) is very flat and wide, the QR code and text are placed side by side instead of stacked – otherwise
-the QR code would end up unnecessarily small on the short height.
+the QR code would end up unnecessarily small on the short height. If a **club logo** is stored, it is printed too
+(true to its aspect ratio) as long as there is enough room beside the QR code (at least about 7 mm); on very small
+labels it is omitted automatically.
 
 **Starting a loan:**
 - *Manually* via "Create loan/reservation" on an item (the full form, including adjusting the deposit/
@@ -375,7 +377,13 @@ the QR code would end up unnecessarily small on the short height.
 
 Several items lent out together are linked as a **transaction**: from the transaction page you can issue all
 items together, take them all back together, print a shared loan slip, and – see below – they end up on
-**one** shared invoice instead of many individual ones.
+**one** shared invoice instead of many individual ones. In the **loan overview**, a transaction accordingly shows as
+**one row** ("3 items: Chair, Table, Tent", with the common status or e.g. "1 reserved, 2 issued"); a click opens the
+transaction page with header details (borrower, period, event, purpose, total fee and deposit) and all items.
+Individual loans remain single rows; search and filters apply to all items. For handing out there is the **printable
+packing list** ("Print packing list (PDF)" on the transaction or on a single loan): all items sorted by storage
+location with inventory number, item, storage location, tick boxes for **issue** and **return**, room for remarks and
+signature lines.
 
 **Recording a return** is a form (for a single item as well as within a transaction): for each item, the
 **condition on return** is chosen (this immediately affects the item itself too, so the inventory overview

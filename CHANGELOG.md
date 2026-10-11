@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.67.0
+- Verleih: Mehrere gleichzeitig verliehene Gegenstände erscheinen in der Übersicht als **ein Vorgang** (eine Zeile mit Anzahl,
+  Gegenständen und gemeinsamem Status, Klick öffnet die Vorgangsseite); die Vorgangsseite hat jetzt Kopfangaben (Entleiher,
+  Zeitraum, Veranstaltung, Zweck, Gebühr/Kaution gesamt). Neu: **druckbare Packliste** (PDF) je Vorgang und je Einzelverleih
+  mit Ankreuzfeldern für Ausgabe und Rückgabe.
+- Inventar-Etiketten tragen, wenn neben dem QR-Code genug Platz ist, das **Vereinslogo**.
+
 ## 1.66.3
 - Detailseite eines Wahl-/Abstimmungsergebnisses: Antrag (Antragsteller*in, Text, Begründung) und Ergebnis (Stimmen, Status)
   stehen in getrennten Tabellen, bei Wahlen Kandidat*in und Stimmen; statt des einen Textblocks. Das Protokoll ist unverändert.

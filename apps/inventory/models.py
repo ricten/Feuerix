@@ -1,5 +1,6 @@
 import uuid
 from datetime import date
+from functools import cached_property
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -146,6 +147,35 @@ class Verleih(TenantModel):
         if self.veranstaltung_id:
             return f"Verein selbst ({self.veranstaltung.titel})"
         return "?"
+
+    @cached_property
+    def vorgang_positionen(self):
+        """Alle Positionen des Vorgangs (bei einem Einzelverleih nur dieser Verleih selbst)."""
+        if not self.vorgang:
+            return [self]
+        return list(Verleih.objects.filter(verein_id=self.verein_id, vorgang=self.vorgang)
+                    .select_related("gegenstand").order_by("gegenstand__bezeichnung", "id"))
+
+    @property
+    def uebersicht_gegenstand(self):
+        """Fuer die Uebersicht: der Gegenstand - bei einem Vorgang "3 Gegenstände: A, B, C"."""
+        positionen = self.vorgang_positionen
+        if len(positionen) == 1:
+            return str(positionen[0].gegenstand)
+        namen = [p.gegenstand.bezeichnung for p in positionen]
+        return f"{len(positionen)} Gegenstände: {', '.join(namen[:3])}{' …' if len(namen) > 3 else ''}"
+
+    @property
+    def uebersicht_status(self):
+        """Fuer die Uebersicht: der gemeinsame Status des Vorgangs, sonst z. B. "2 ausgegeben, 1 zurückgegeben"."""
+        positionen = self.vorgang_positionen
+        anzahl = {}
+        for p in positionen:
+            anzahl[p.status] = anzahl.get(p.status, 0) + 1
+        if len(anzahl) == 1:
+            return positionen[0].get_status_display()
+        # in der natuerlichen Reihenfolge des Ablaufs: reserviert, ausgegeben, zurueckgegeben, storniert
+        return ", ".join(f"{anzahl[s]} {str(name).lower()}" for s, name in self.STATUS if s in anzahl)
 
     @property
     def ueberfaellig(self):

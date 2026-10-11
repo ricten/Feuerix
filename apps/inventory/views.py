@@ -1,5 +1,6 @@
 import uuid
 from datetime import date
+from decimal import Decimal
 
 from django.conf import settings
 from django.contrib import messages
@@ -13,11 +14,12 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from apps.core.crud import abschnitt, knopf
+from apps.core.util import geld
 from apps.finance import services as finance_services
 
 from .forms import SammelverleihForm
 from .models import Gegenstand, Inventur, Inventurposition, Lagerort, Verleih
-from .pdf import etiketten_pdf, leihschein_pdf, leihschein_sammel_pdf
+from .pdf import etiketten_pdf, leihschein_pdf, leihschein_sammel_pdf, packliste_pdf
 
 
 def _pruefen(request, modul, aktion):
@@ -48,7 +50,8 @@ def gegenstand_kontext(request, g):
 
 # ---------------------------------------------------------------- Verleih
 def verleih_kontext(request, v):
-    rt, aktionen = request.rechte, [knopf("Leihschein (PDF)", reverse("verleih_leihschein", args=[v.pk]))]
+    rt, aktionen = request.rechte, [knopf("Leihschein (PDF)", reverse("verleih_leihschein", args=[v.pk])),
+                                    knopf("Packliste drucken (PDF)", reverse("verleih_packliste", args=[v.pk]))]
     if v.vorgang:
         aktionen.append(knopf("Zum gesamten Vorgang", reverse("verleih_vorgang_detail", args=[v.vorgang])))
     if rt.darf("verleih", "change"):
@@ -265,7 +268,8 @@ def verleih_leihschein(request, pk):
 # ---------------------------------------------------------------- Verleih-Vorgang (mehrere Gegenstände auf einmal)
 def _vorgang_positionen(request, vorgang):
     positionen = list(Verleih.objects.filter(verein=request.verein, vorgang=vorgang)
-                      .select_related("gegenstand", "entleiher", "rechnung").order_by("gegenstand__bezeichnung"))
+                      .select_related("gegenstand__lagerort", "entleiher", "rechnung")
+                      .order_by("gegenstand__bezeichnung"))
     if not positionen:
         raise Http404
     return positionen
@@ -321,12 +325,28 @@ def verleih_vorgang_detail(request, vorgang):
               for p in positionen):
             aktionen.append(knopf("Alle Kautionen zurückgezahlt", reverse("verleih_vorgang_kaution_zurueckgezahlt",
                                   args=[vorgang]), post=True, stil="success"))
+    aktionen.append(knopf("Packliste drucken (PDF)", reverse("verleih_vorgang_packliste", args=[vorgang]),
+                          stil="outline-primary"))
     aktionen.append(knopf("Leihschein (PDF, alle Positionen)", reverse("verleih_vorgang_leihschein", args=[vorgang])))
     if any(p.rechnung_id for p in positionen) and rt.darf("rechnungen", "view"):
         for r in {p.rechnung_id: p.rechnung for p in positionen if p.rechnung_id}.values():
             aktionen.append(knopf(f"Rechnung {r.nummer} ansehen", reverse("rechnung_detail", args=[r.pk])))
+    p0 = positionen[0]
+    gebuehr = sum((p.leihgebuehr or 0 for p in positionen), Decimal("0"))
+    kaution = sum((p.kaution or 0 for p in positionen), Decimal("0"))
+    kopf = [("Entleiher", p0.wer), ("Zeitraum", f"{min(p.von for p in positionen):%d.%m.%Y} – "
+                                              f"{max(p.bis for p in positionen):%d.%m.%Y}"),
+            ("Positionen", str(len(positionen))), ("Status", p0.uebersicht_status)]
+    if p0.veranstaltung_id:
+        kopf.append(("Veranstaltung", p0.veranstaltung.titel))
+    if p0.zweck:
+        kopf.append(("Zweck", p0.zweck))
+    if gebuehr:
+        kopf.append(("Leihgebühr gesamt", geld(gebuehr)))
+    if kaution:
+        kopf.append(("Kaution gesamt", geld(kaution)))
     return render(request, "inventory/vorgang.html", {
-        "titel": f"Verleih-Vorgang – {positionen[0].wer}", "positionen": positionen, "aktionen": aktionen})
+        "titel": f"Verleih-Vorgang – {p0.wer}", "positionen": positionen, "aktionen": aktionen, "kopf": kopf})
 
 
 @login_required
@@ -380,6 +400,25 @@ def verleih_vorgang_kaution_zurueckgezahlt(request, vorgang):
             n += 1
     messages.success(request, f"{n} Kautionen als zurückgezahlt markiert.")
     return redirect("verleih_vorgang_detail", vorgang=vorgang)
+
+
+@login_required
+def verleih_vorgang_packliste(request, vorgang):
+    _pruefen(request, "verleih", "view")
+    positionen = _vorgang_positionen(request, vorgang)
+    r = HttpResponse(packliste_pdf(positionen), content_type="application/pdf")
+    r["Content-Disposition"] = f'inline; filename="packliste-{vorgang}.pdf"'
+    return r
+
+
+@login_required
+def verleih_packliste(request, pk):
+    _pruefen(request, "verleih", "view")
+    v = get_object_or_404(Verleih.objects.select_related("gegenstand__lagerort", "entleiher"), pk=pk,
+                          verein=request.verein)
+    r = HttpResponse(packliste_pdf([v]), content_type="application/pdf")
+    r["Content-Disposition"] = f'inline; filename="packliste-{v.pk}.pdf"'
+    return r
 
 
 @login_required

@@ -6,10 +6,11 @@ from reportlab.graphics.barcode.qr import QrCodeWidget
 from reportlab.graphics.shapes import Drawing
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
+from reportlab.lib.utils import ImageReader
 from reportlab.lib.units import mm
 from reportlab.pdfgen import canvas
 
-from apps.core.pdf import brief_pdf
+from apps.core.pdf import brief_pdf, logo_datei, seiten_pdf
 from apps.core.util import geld
 
 # Vorgaben, falls kein Verein (bzw. keine eigenen Einstellungen) übergeben wird - entsprechen den bisherigen
@@ -86,6 +87,8 @@ def etiketten_pdf(gegenstaende, scan_url, verein=None):
 
     gedreht, nebeneinander, zeichenbreite, zeichenhoehe = _etikett_modus(breite, hoehe)
     layout = _etikett_layout(zeichenbreite, zeichenhoehe, nebeneinander)
+    logo = logo_datei(verein) if verein is not None else None
+    logo_platz = _logo_platz(layout, nebeneinander, zeichenbreite, zeichenhoehe) if logo else None
 
     buf = BytesIO()
     c = canvas.Canvas(buf, pagesize=pagesize)
@@ -112,6 +115,8 @@ def etiketten_pdf(gegenstaende, scan_url, verein=None):
         else:
             c.translate(x, y)
         _qr_zeichnen(c, scan_url(g.inventarnummer), layout["qr_x"], layout["qr_y"], layout["qr_groesse"])
+        if logo_platz:   # Vereinslogo, wenn neben dem QR-Code Platz ist
+            _logo_zeichnen(c, logo, logo_platz)
         mitte_x, unten_y, text_hoehe = layout["text_mitte_x"], layout["text_unten_y"], layout["text_hoehe"]
         c.setFont("Helvetica-Bold", 11)
         c.drawCentredString(mitte_x, unten_y + text_hoehe * 0.80, g.inventarnummer)
@@ -176,3 +181,63 @@ def leihschein_sammel_pdf(positionen):
         text.append(f"Kaution gesamt: {geld(kaution_gesamt)} (wird bei ordnungsgemäßer Rückgabe erstattet)")
     text += ["\n\nDatum, Unterschrift Entleiher: ______________________     Unterschrift Verein: ______________________"]
     return brief_pdf(verein, emp, "Leihschein", meta=[("Datum", f"{v0.von:%d.%m.%Y}")], tabelle=tab, nach=text)
+
+
+def packliste_pdf(positionen):
+    """Druckbare Packliste/Ausgabeliste zu einem Verleih-Vorgang (oder einzelnem Verleih): jede Position mit
+    Inventarnummer, Gegenstand, Lagerort und Ankreuzfeldern fuer Ausgabe und Rueckgabe sowie Platz fuer
+    Bemerkungen - zum Abhaken beim Zusammenstellen und bei der Rueckgabe."""
+    v0, verein = positionen[0], positionen[0].verein
+    positionen = sorted(positionen, key=lambda p: (p.gegenstand.lagerort.name if p.gegenstand.lagerort_id else "",
+                                                   p.gegenstand.bezeichnung))
+    von = min(p.von for p in positionen)
+    bis = max(p.bis for p in positionen)
+    zeilen = [["Nr.", "Inv.-Nr.", "Gegenstand", "Lagerort", "Ausgabe", "Rückgabe", "Bemerkung"]]
+    for i, p in enumerate(positionen, 1):
+        g = p.gegenstand
+        zeilen.append([str(i), g.inventarnummer, f"{g.bezeichnung} {g.hersteller} {g.modell}".strip(),
+                       str(g.lagerort) if g.lagerort_id else "", "[    ]", "[    ]", ""])
+    vor = [f"Entleiher: {v0.wer}", f"Zeitraum: {von:%d.%m.%Y} – {bis:%d.%m.%Y}"]
+    if v0.veranstaltung_id:
+        vor.append(f"Veranstaltung: {v0.veranstaltung.titel}")
+    if v0.zweck:
+        vor.append(f"Zweck: {v0.zweck}")
+    vor.append(f"Anzahl Positionen: {len(positionen)}")
+    seite = {
+        "empfaenger": [], "betreff": "Packliste", "vor": vor,
+        "tabellen": [{"zeilen": zeilen, "breiten": [9, 24, 50, 30, 17, 17, 28], "rechts_ab": 99}],
+        "nach": ["Ausgabe vollständig bestätigt (Datum, Unterschrift): ________________________________",
+                 "Rückgabe vollständig bestätigt (Datum, Unterschrift): _____________________________"],
+    }
+    return seiten_pdf(verein, [seite], titel="Packliste")
+
+
+# ---------------- Vereinslogo auf dem Etikett (nur wenn Platz ist)
+LOGO_MIN = 7 * mm
+LOGO_MAX = 20 * mm
+
+
+def _logo_platz(layout, nebeneinander, breite, hoehe):
+    """Freier Platz (x, y, Breite, Hoehe) fuer das Vereinslogo oder None, wenn kein Platz ist (mind. LOGO_MIN):
+    gestapelt links neben dem QR-Code, nebeneinander ueber dem QR-Code in der linken Spalte. Er liegt ausserhalb von
+    QR-Code und Textfeld, damit nichts ueberlappt."""
+    rand = min(3 * mm, min(breite, hoehe) * 0.08)
+    if nebeneinander:
+        y = layout["qr_y"] + layout["qr_groesse"] + rand / 2
+        platz = (layout["qr_x"], y, layout["qr_groesse"], hoehe - rand - y)
+    else:
+        platz = (rand, layout["qr_y"], layout["qr_x"] - 1.5 * rand, layout["qr_groesse"])
+    return platz if platz[2] >= LOGO_MIN and platz[3] >= LOGO_MIN else None
+
+
+def _logo_zeichnen(c, pfad, platz):
+    """Logo seitenverhaeltnistreu und zentriert in den freien Platz einpassen."""
+    try:
+        breite, hoehe = ImageReader(pfad).getSize()
+    except Exception:
+        return
+    x, y, w, h = platz
+    w, h = min(w, LOGO_MAX), min(h, LOGO_MAX)
+    skala = min(w / breite, h / hoehe)
+    zw, zh = breite * skala, hoehe * skala
+    c.drawImage(pfad, x + (platz[2] - zw) / 2, y + (platz[3] - zh) / 2, zw, zh, mask="auto")

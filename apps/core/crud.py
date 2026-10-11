@@ -213,6 +213,8 @@ class ListeView(MandantMixin, ListView):
                     list(qs[:0])
                 except (ValueError, TypeError, Exception):
                     return qs.none()
+        if cfg.gruppiert:
+            qs = cfg.gruppiert(qs)
         sortierung = req.GET.get("sort", "")
         erlaubt = {c for c, _ in sichtbare_spalten(req, cfg) if _sortierbar(cfg.model, c)}
         if sortierung.lstrip("-") in erlaubt:
@@ -256,7 +258,8 @@ class ListeView(MandantMixin, ListView):
         cfg, req = self.cfg, self.request
         cols = sichtbare_spalten(req, cfg)
         zeilen = [{
-            "url": reverse(f"{cfg.name}_detail", args=[o.pk]) if cfg.detail else None,
+            "url": (cfg.zeilen_url(o) if cfg.zeilen_url else reverse(f"{cfg.name}_detail", args=[o.pk]))
+            if cfg.detail else None,
             "zellen": [wert(o, c) for c, _ in cols],
             "klasse": cfg.zeile_klasse(o) if cfg.zeile_klasse else "",
         } for o in ctx["object_list"]]
@@ -430,12 +433,15 @@ class LoeschenView(MandantMixin, DeleteView):
 def crud(prefix, model, modul, *, form=None, list_display=None, suche=(), filter=(), ordering=None,
          select_related=(), add=True, edit=True, delete=True, detail=True, kontext=None, nach_speichern=None,
          bearbeitbar=None, loeschbar=None, label=None, detail_ausblenden=(), paginate=50, listen_aktionen=None,
-         hinweis=None, zeile_klasse=None):
+         hinweis=None, zeile_klasse=None, gruppiert=None, zeilen_url=None):
     """Erzeugt die URL-Patterns fuer ein Modell. URL-Namen: <modell>_list/_add/_detail/_edit/_delete.
     `hinweis`: optionaler kurzer Infotext, der oben auf der Listenseite angezeigt wird (z. B. um auf eine
     einfachere Alternative fuer Fortgeschrittenen-Funktionen hinzuweisen).
     `zeile_klasse`: optionales callable(objekt) -> CSS-Klasse (z. B. "table-danger") fuer die Tabellenzeile
-    in der Listenansicht, z. B. um Faelligkeiten farblich hervorzuheben."""
+    in der Listenansicht, z. B. um Faelligkeiten farblich hervorzuheben.
+    `gruppiert`: optionales callable(queryset) -> queryset, das NACH Suche und Filtern mehrere zusammengehoerende
+    Zeilen zu einer zusammenfasst (z. B. Verleih: ein Vorgang statt einer Zeile je Gegenstand).
+    `zeilen_url`: optionales callable(objekt) -> Adresse, wohin eine Zeile fuehrt (statt zur Detailseite des Objekts)."""
     name = model._meta.model_name
     REGISTRY[model] = modul
     if form is None and (add or edit):
@@ -445,7 +451,8 @@ def crud(prefix, model, modul, *, form=None, list_display=None, suche=(), filter
               delete=delete, detail=detail, kontext=kontext, nach_speichern=nach_speichern, bearbeitbar=bearbeitbar,
               loeschbar=loeschbar, label=label or str(model._meta.verbose_name),
               label_plural=str(model._meta.verbose_name_plural), detail_ausblenden=detail_ausblenden,
-              paginate=paginate, listen_aktionen=listen_aktionen, hinweis=hinweis, zeile_klasse=zeile_klasse)
+              paginate=paginate, listen_aktionen=listen_aktionen, hinweis=hinweis, zeile_klasse=zeile_klasse,
+              gruppiert=gruppiert, zeilen_url=zeilen_url)
     if cfg.list_display == ("__str__",):
         cfg.list_display = (("__str__", cfg.label),)
     urls = [path(f"{prefix}/", ListeView.as_view(cfg=cfg), name=f"{name}_list")]

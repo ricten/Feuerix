@@ -1,3 +1,4 @@
+from django.db.models import OuterRef, Q, Subquery
 from django.urls import path
 
 from apps.core.crud import crud, knopf
@@ -31,6 +32,9 @@ urlpatterns = [
         name="verleih_vorgang_kaution_zurueckgezahlt"),
     path("verleih/vorgang/<uuid:vorgang>/leihschein/", views.verleih_vorgang_leihschein,
         name="verleih_vorgang_leihschein"),
+    path("verleih/vorgang/<uuid:vorgang>/packliste/", views.verleih_vorgang_packliste,
+        name="verleih_vorgang_packliste"),
+    path("verleih/<int:pk>/packliste/", views.verleih_packliste, name="verleih_packliste"),
 ]
 
 
@@ -62,8 +66,21 @@ urlpatterns += crud("inventar", Gegenstand, "inventar", list_display=("inventarn
                     listen_aktionen=gegenstand_listen_aktionen)
 urlpatterns += crud("inventar-kategorien", Kategorie, "inventar", list_display=("name",))
 urlpatterns += crud("inventar-lagerorte", Lagerort, "inventar", list_display=("name", "beschreibung"))
-urlpatterns += crud("verleih", Verleih, "verleih", form=VerleihForm, list_display=("gegenstand", ("wer", "Entleiher"), "von", "bis",
-                    "status", "veranstaltung"), select_related=("gegenstand", "entleiher", "veranstaltung"),
+def verleih_gruppieren(qs):
+    """Mehrere Gegenstaende eines Vorgangs erscheinen in der Uebersicht als EINE Zeile (die erste passende Position);
+    Einzelverleihe ohne Vorgang bleiben einzeln. Suche und Filter wirken vorher auf alle Positionen."""
+    erste = qs.filter(vorgang=OuterRef("vorgang")).order_by("id").values("id")[:1]
+    return qs.filter(Q(vorgang__isnull=True) | Q(pk=Subquery(erste)))
+
+
+def verleih_zeilen_url(v):
+    from django.urls import reverse
+    return reverse("verleih_vorgang_detail", args=[v.vorgang]) if v.vorgang else reverse("verleih_detail", args=[v.pk])
+
+
+urlpatterns += crud("verleih", Verleih, "verleih", form=VerleihForm, gruppiert=verleih_gruppieren,
+                    zeilen_url=verleih_zeilen_url, list_display=(("uebersicht_gegenstand", "Gegenstand / Vorgang"),
+                    ("wer", "Entleiher"), "von", "bis", ("uebersicht_status", "Status"), "veranstaltung"), select_related=("gegenstand", "entleiher", "veranstaltung"),
                     filter=("status", "gegenstand", "entleiher", "veranstaltung"), kontext=views.verleih_kontext,
                     suche=("gegenstand__bezeichnung", "gegenstand__inventarnummer", "entleiher_name",
                            "entleiher__nachname"), ordering=("-von",),
