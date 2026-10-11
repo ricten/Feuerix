@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.68.1
+- Veranstaltung: Gehört verliehenes/reserviertes Inventar zur Veranstaltung, ist die **Packliste (PDF)** direkt an der Veranstaltung
+  verlinkt (je Vorgang ein Knopf; mit dem Recht „Verleih anzeigen“).
+
 ## 1.68.0
 - Verleih: Gegenstände, die später zur **selben Veranstaltung** hinzugefügt werden, kommen in den bestehenden, noch laufenden Vorgang
   (gleiche Veranstaltung und gleicher Entleiher bzw. „Verein selbst“) statt einen zweiten Vorgang zu bilden – auch bei

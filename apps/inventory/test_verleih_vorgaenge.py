@@ -408,3 +408,61 @@ class VorgangDerVeranstaltungTests(VerleihBasis):
 def timezone_now():
     from django.utils import timezone
     return timezone.now()
+
+
+class PacklisteAnDerVeranstaltungTests(VerleihBasis):
+    def setUp(self):
+        super().setUp()
+        self.ver = Veranstaltung.objects.create(verein=self.v, titel="Sommerfest", beginn=timezone_now())
+
+    def _seite(self):
+        return self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
+
+    def test_ohne_inventar_keine_packliste(self):
+        self.assertNotContains(self._seite(), "Packliste")
+
+    def test_packliste_des_vorgangs_ist_verlinkt(self):
+        vorgang = uuid.uuid4()
+        for g in (self.zelt, self.tisch):
+            Verleih.objects.create(verein=self.v, gegenstand=g, veranstaltung=self.ver, von=self.von, bis=self.bis,
+                                   vorgang=vorgang)
+        r = self._seite()
+        self.assertContains(r, "Packliste drucken (PDF)")
+        self.assertContains(r, reverse("verleih_vorgang_packliste", args=[Verleih.objects.first().vorgang]))
+        self.assertEqual(r.content.decode().count("Packliste drucken (PDF)"), 1)   # ein Vorgang = ein Knopf
+
+    def test_einzelner_gegenstand_ohne_vorgang_verlinkt_die_einzel_packliste(self):
+        v = Verleih.objects.create(verein=self.v, gegenstand=self.zelt, veranstaltung=self.ver, von=self.von,
+                                   bis=self.bis)
+        self.assertContains(self._seite(), reverse("verleih_packliste", args=[v.pk]))
+
+    def test_mehrere_vorgaenge_je_ein_knopf_mit_entleiher(self):
+        Verleih.objects.create(verein=self.v, gegenstand=self.zelt, veranstaltung=self.ver, von=self.von, bis=self.bis)
+        Verleih.objects.create(verein=self.v, gegenstand=self.tisch, veranstaltung=self.ver, entleiher=self.m,
+                               von=self.von, bis=self.bis)
+        r = self._seite()
+        self.assertContains(r, "Packliste: Erika Muster")
+        self.assertContains(r, "Packliste: Verein selbst")
+
+    def test_stornierte_werden_nicht_verlinkt(self):
+        Verleih.objects.create(verein=self.v, gegenstand=self.zelt, veranstaltung=self.ver, von=self.von, bis=self.bis,
+                               status="storniert")
+        self.assertNotContains(self._seite(), "Packliste")
+
+    def test_der_link_fuehrt_zum_pdf_mit_den_positionen(self):
+        for g in (self.zelt, self.tisch):
+            Verleih.objects.create(verein=self.v, gegenstand=g, veranstaltung=self.ver, von=self.von, bis=self.bis)
+        vorgang = Verleih.objects.first().vorgang
+        antwort = self.client.get(reverse("verleih_vorgang_packliste", args=[vorgang]))
+        text = "\n".join(p.extract_text() for p in PdfReader(io.BytesIO(antwort.content)).pages)
+        self.assertIn("Sommerfest", text)
+        self.assertIn("Anzahl Positionen: 2", text)
+
+    def test_ohne_verleih_recht_kein_knopf(self):
+        Verleih.objects.create(verein=self.v, gegenstand=self.zelt, veranstaltung=self.ver, von=self.von, bis=self.bis)
+        User = get_user_model()
+        u = User.objects.create_user("anna", password=PW)
+        Zugang.objects.create(verein=self.v, user=u, rolle=Rolle.objects.create(
+            verein=self.v, name="Nur Veranstaltungen", rechte=["veranstaltungen.view"]))
+        self.client.login(username="anna", password=PW)
+        self.assertNotContains(self._seite(), "Packliste")

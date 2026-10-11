@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.68.0)
+# Handbook – Feuerix (Version 1.68.1)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -384,7 +384,8 @@ already split are merged in the process (completed ones stay unchanged). In the 
 accordingly shows as **one row** ("3 items: Chair, Table, Tent", with the common status or e.g. "1 reserved, 2 issued"); a click opens the
 transaction page with header details (borrower, period, event, purpose, total fee and deposit) and all items.
 Individual loans remain single rows; search and filters apply to all items. For handing out there is the **printable
-packing list** ("Print packing list (PDF)" on the transaction or on a single loan): all items sorted by storage
+packing list** (also linked directly on the **event** the inventory is lent/reserved for; one button per transaction if
+there are several) ("Print packing list (PDF)" on the transaction or on a single loan): all items sorted by storage
 location with inventory number, item, storage location, tick boxes for **issue** and **return**, room for remarks and
 signature lines.
 

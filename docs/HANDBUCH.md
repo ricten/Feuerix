@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.68.0)
+# Handbuch – Feuerix (Version 1.68.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -389,7 +389,8 @@ unverändert). In der **Verleih-Übersicht** erscheint ein Vorgang
 entsprechend als **eine Zeile** („3 Gegenstände: Stuhl, Tisch, Zelt“, mit gemeinsamem Status bzw. z. B. „1 reserviert,
 2 ausgegeben“); ein Klick öffnet die Vorgangsseite mit Kopfangaben (Entleiher, Zeitraum, Veranstaltung, Zweck,
 Gebühr und Kaution gesamt) und allen Positionen. Einzelverleihe bleiben einzelne Zeilen; Suche und Filter betreffen
-alle Positionen. Für die Ausgabe gibt es die **druckbare Packliste** („Packliste drucken (PDF)“ am Vorgang bzw. am
+alle Positionen. Für die Ausgabe gibt es die **druckbare Packliste** (auch direkt an der **Veranstaltung** verlinkt, zu der das Inventar
+verliehen/reserviert ist; bei mehreren Vorgängen je ein Knopf) („Packliste drucken (PDF)“ am Vorgang bzw. am
 einzelnen Verleih): alle Positionen nach Lagerort sortiert mit Inventarnummer, Gegenstand, Lagerort,
 Ankreuzfeldern für **Ausgabe** und **Rückgabe**, Platz für Bemerkungen und Unterschriftszeilen.
 

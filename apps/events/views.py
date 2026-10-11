@@ -39,6 +39,24 @@ def naechste_top_position(veranstaltung):
     hoechste = veranstaltung.tagesordnung.aggregate(m=Max("position"))["m"]
     return (hoechste or 0) + 1
 
+def packlisten_knoepfe(v):
+    """Knoepfe zur druckbaren Packliste je Verleih-Vorgang (bzw. Einzelverleih) dieser Veranstaltung - laufende zuerst,
+    stornierte werden nicht beruecksichtigt. Mehrere Vorgaenge (z. B. verschiedene Entleiher) bekommen je einen Knopf."""
+    aktiv = ("reserviert", "ausgegeben")
+    positionen = sorted(v.verleihe.exclude(status="storniert").select_related("entleiher", "veranstaltung"),
+                        key=lambda p: (p.status not in aktiv, p.pk))
+    ziele, gesehen = [], set()
+    for p in positionen:
+        schluessel = p.vorgang or ("einzel", p.pk)
+        if schluessel in gesehen:
+            continue
+        gesehen.add(schluessel)
+        ziele.append((p, reverse("verleih_vorgang_packliste", args=[p.vorgang]) if p.vorgang
+                      else reverse("verleih_packliste", args=[p.pk])))
+    return [knopf("Packliste drucken (PDF)" if len(ziele) == 1 else f"Packliste: {p.wer}", url, stil="outline-primary")
+            for p, url in ziele[:4]]
+
+
 def veranstaltung_kontext(request, v):
     r = request.rechte
     aktionen = []
@@ -46,6 +64,8 @@ def veranstaltung_kontext(request, v):
         aktionen.append(knopf("Inventar reservieren", reverse("verleih_sammel_add") + f"?veranstaltung={v.pk}"
                               f"&von={timezone.localtime(v.beginn):%Y-%m-%d}"
                               f"&bis={timezone.localtime(v.ende or v.beginn):%Y-%m-%d}"))
+    if r.darf("verleih", "view"):   # Packliste(n) des zur Veranstaltung verliehenen/reservierten Inventars
+        aktionen += packlisten_knoepfe(v)
     if r.darf("schriftverkehr", "add"):
         aktionen.append(knopf("Einladung erstellen", reverse("veranstaltung_schriftstueck", args=[v.pk, "einladung"]),
                               post=True, stil="primary"))
