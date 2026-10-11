@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.69.0)
+# Handbuch – Feuerix (Version 1.70.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -454,7 +454,13 @@ Eingeteilten (mit Kontakt); freie Plätze bleiben als Schreiblinien zum handschr
 **selbst eintragen** können, in der Veranstaltung „Helfer dürfen sich selbst in Schichten eintragen“ ankreuzen: Auf der
 Veranstaltungsseite erscheint dann ein **Helfer-Link zum Weitergeben** (nicht erratbar, funktioniert ohne Anmeldung). Dort
 wählt man Schichten mit freien Plätzen, gibt Namen (und optional Telefon/E-Mail) an und trägt sich verbindlich ein; die
-Eintragung erscheint sofort im Plan und im PDF (in der Schicht als „selbst eingetragen“ gekennzeichnet). Aus
+Eintragung erscheint sofort im Plan und im PDF (in der Schicht als „selbst eingetragen“ gekennzeichnet). Mit dem Kästchen **„Ich bin Mitglied im Verein“** (optional mit Mitgliedsnummer) wird der Helfer
+anhand seines Namens (Reihenfolge, Schreibweise und Umlaute egal; aktive/ruhende Mitglieder) **seiner Mitgliedsakte zugeordnet**:
+Der Eintrag zeigt dann den Namen aus der Akte, und – wenn beim Eintragen kein Kontakt angegeben wurde – Mobil/Telefon/E-Mail aus der
+Akte (nur für Benutzer mit dem Recht, Mitgliederdaten zu sehen, auch im PDF). Wird kein eindeutiges Mitglied gefunden (unbekannter
+Name oder zwei gleichnamige Mitglieder ohne passende Nummer), bleibt der Helfer ein Gast mit dem Vermerk „gibt an, Mitglied zu sein
+(bitte zuordnen)“, und die Verwaltung kann ihn im Eintrag von Hand einem Mitglied zuordnen. Die öffentliche Seite verrät dabei **nicht**,
+ob ein Mitglied gefunden wurde. Aus
 Datenschutzgründen sieht man auf der öffentlichen Seite nur Zeiten und freie Plätze, keine Namen anderer Helfer. Volle,
 vergangene Schichten und abgesagte/abgeschlossene Veranstaltungen sind nicht buchbar, derselbe Name kann sich nicht doppelt
 in dieselbe Schicht eintragen, und gleichzeitige Eintragungen überbuchen keine Schicht. Austragen und Korrigieren erfolgt

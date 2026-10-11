@@ -9,6 +9,7 @@ from django.utils import timezone
 from pypdf import PdfReader
 
 from apps.core.models import Rolle, Verein, Zugang
+from apps.events.helfer import finde_mitglied
 from apps.events.models import Schicht, Schichteinsatz, Veranstaltung
 from apps.events.pdf import schichtplan_pdf
 from apps.members.models import Mitglied
@@ -242,3 +243,176 @@ class OeffentlicheEintragungTests(SchichtBasis):
         pdf = PdfReader(io.BytesIO(schichtplan_pdf(self.ver)))
         text = "\n".join(p.extract_text() for p in pdf.pages)
         self.assertIn("Max Muster (0151 999)", text)
+
+
+class MitgliedFindenTests(SchichtBasis):
+    def test_name_in_beliebiger_reihenfolge_schreibweise_und_mit_komma(self):
+        for name in ("Erika Muster", "muster erika", "Muster, Erika", "  ERIKA   MUSTER "):
+            self.assertEqual(finde_mitglied(self.v.pk, name), self.m, name)
+
+    def test_umlaute_in_beiden_schreibweisen(self):
+        m = Mitglied.objects.create(verein=self.v, vorname="Jürgen", nachname="Müller", mitgliedsnummer=9)
+        for name in ("Jürgen Müller", "Juergen Mueller", "jurgen muller"[:0] + "Müller Jürgen"):
+            self.assertEqual(finde_mitglied(self.v.pk, name), m, name)
+
+    def test_bindestrich_nachname(self):
+        m = Mitglied.objects.create(verein=self.v, vorname="Anna", nachname="Meier-Schmidt", mitgliedsnummer=10)
+        self.assertEqual(finde_mitglied(self.v.pk, "Anna Meier Schmidt"), m)
+        self.assertEqual(finde_mitglied(self.v.pk, "Anna Meier-Schmidt"), m)
+
+    def test_unbekannt_oder_nur_teil_des_namens_ergibt_none(self):
+        self.assertIsNone(finde_mitglied(self.v.pk, "Erika"))
+        self.assertIsNone(finde_mitglied(self.v.pk, "Erika Beispiel"))
+        self.assertIsNone(finde_mitglied(self.v.pk, ""))
+
+    def test_ausgetretene_und_andere_vereine_zaehlen_nicht(self):
+        self.m.status = "ausgetreten"
+        self.m.save()
+        self.assertIsNone(finde_mitglied(self.v.pk, "Erika Muster"))
+        anderer = Verein.objects.create(name="Anderer e.V.", kuerzel="anderer")
+        Mitglied.objects.create(verein=anderer, vorname="Fremd", nachname="Person", mitgliedsnummer=1)
+        self.assertIsNone(finde_mitglied(self.v.pk, "Fremd Person"))
+
+    def test_gleicher_name_zweimal_nur_mit_passender_nummer_eindeutig(self):
+        zweiter = Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Muster", mitgliedsnummer=8)
+        self.assertIsNone(finde_mitglied(self.v.pk, "Erika Muster"))           # nicht raten
+        self.assertIsNone(finde_mitglied(self.v.pk, "Erika Muster", 99))        # falsche Nummer
+        self.assertEqual(finde_mitglied(self.v.pk, "Erika Muster", 8), zweiter)
+        self.assertEqual(finde_mitglied(self.v.pk, "Erika Muster", 7), self.m)
+
+    def test_ruhende_mitglieder_werden_gefunden(self):
+        self.m.status = "ruhend"
+        self.m.save()
+        self.assertEqual(finde_mitglied(self.v.pk, "Erika Muster"), self.m)
+
+
+class SelbsteintragAlsMitgliedTests(SchichtBasis):
+    def setUp(self):
+        super().setUp()
+        self.m.mobil, self.m.email = "0171 555", "erika@example.org"
+        self.m.save()
+        self.url = reverse("veranstaltung_helfer", args=[self.ver.rueckmeldung_code])
+
+    def _post(self, **daten):
+        return self.client.post(self.url, daten)
+
+    def test_kaestchen_und_nummernfeld_sind_auf_der_seite(self):
+        r = self.client.get(self.url)
+        self.assertContains(r, "Ich bin Mitglied im Verein")
+        self.assertContains(r, 'name="mitglied"')
+        self.assertContains(r, 'name="mitgliedsnummer"')
+
+    def test_mitglied_wird_zugeordnet_und_name_nicht_kopiert(self):
+        r = self._post(name="Muster, Erika", mitglied="ja", schicht=[self.aufbau.pk])
+        self.assertContains(r, "Danke, Sie sind eingetragen")
+        e = Schichteinsatz.objects.get()
+        self.assertEqual(e.mitglied, self.m)
+        self.assertEqual(e.name, "")   # Name kommt aus der Mitgliedsakte (Anonymisierung wirkt)
+        self.assertTrue(e.selbst_eingetragen and e.mitglied_angegeben)
+        self.assertEqual(e.wer, "Erika Muster")
+        self.assertEqual(e.zuordnung, "Mitglied")
+
+    def test_oeffentliche_seite_verraet_nicht_ob_ein_mitglied_gefunden_wurde(self):
+        gefunden = self._post(name="Erika Muster", mitglied="ja", schicht=[self.aufbau.pk]).content.decode()
+        unbekannt = self._post(name="Unbekannt Person", mitglied="ja", schicht=[self.theke.pk]).content.decode()
+        for seite in (gefunden, unbekannt):
+            self.assertNotIn("0171 555", seite)
+            self.assertNotIn("erika@example.org", seite)
+            self.assertNotIn("1 Mitglied", seite)
+        self.assertNotIn("Mitgliedsakte erkannt", gefunden)
+
+    def test_ohne_kaestchen_bleibt_es_ein_gast_auch_bei_passendem_namen(self):
+        self._post(name="Erika Muster", schicht=[self.aufbau.pk])
+        e = Schichteinsatz.objects.get()
+        self.assertIsNone(e.mitglied)
+        self.assertEqual((e.name, e.mitglied_angegeben), ("Erika Muster", False))
+
+    def test_kaestchen_aber_nicht_gefunden_bleibt_gast_mit_hinweis_zur_zuordnung(self):
+        self._post(name="Unbekannt Person", mitglied="ja", schicht=[self.aufbau.pk])
+        e = Schichteinsatz.objects.get()
+        self.assertIsNone(e.mitglied)
+        self.assertTrue(e.mitglied_angegeben)
+        self.assertIn("bitte zuordnen", e.zuordnung)
+
+    def test_zwei_gleichnamige_mitglieder_ohne_nummer_werden_nicht_geraten(self):
+        Mitglied.objects.create(verein=self.v, vorname="Erika", nachname="Muster", mitgliedsnummer=8)
+        self._post(name="Erika Muster", mitglied="ja", schicht=[self.aufbau.pk])
+        self.assertIsNone(Schichteinsatz.objects.get().mitglied)
+        self._post(name="Erika Muster", mitglied="ja", mitgliedsnummer="8", schicht=[self.theke.pk])
+        zugeordnet = Schichteinsatz.objects.get(schicht=self.theke)
+        self.assertEqual(zugeordnet.mitglied.mitgliedsnummer, 8)
+
+    def test_ungueltige_mitgliedsnummer_stoert_nicht(self):
+        self._post(name="Erika Muster", mitglied="ja", mitgliedsnummer="abc", schicht=[self.aufbau.pk])
+        self.assertEqual(Schichteinsatz.objects.get().mitglied, self.m)
+
+    def test_doppelte_eintragung_des_mitglieds_wird_verhindert(self):
+        self._post(name="Erika Muster", mitglied="ja", schicht=[self.aufbau.pk])
+        r = self._post(name="Muster Erika", mitglied="ja", schicht=[self.aufbau.pk])   # andere Schreibweise
+        self.assertContains(r, "bereits eingetragen")
+        self.assertEqual(Schichteinsatz.objects.count(), 1)
+
+    def test_angegebener_kontakt_wird_beibehalten(self):
+        self._post(name="Erika Muster", mitglied="ja", kontakt="privat 123", schicht=[self.aufbau.pk])
+        self.assertEqual(Schichteinsatz.objects.get().kontakt, "privat 123")
+
+
+class MitgliedskontaktSichtbarkeitTests(SchichtBasis):
+    def setUp(self):
+        super().setUp()
+        self.m.mobil, self.m.telefon, self.m.email = "0171 555", "030 111", "erika@example.org"
+        self.m.save()
+        self.e = self.einsatz(self.aufbau, mitglied=self.m, selbst_eingetragen=True, mitglied_angegeben=True)
+
+    def test_kontakt_anzeige_prioritaet_und_vorrang_des_angegebenen(self):
+        self.assertEqual(self.e.kontakt_anzeige(False), "")
+        self.assertEqual(self.e.kontakt_anzeige(True), "0171 555")   # Mobil vor Telefon vor E-Mail
+        self.m.mobil = ""
+        self.assertEqual(self.e.kontakt_anzeige(True), "030 111")
+        self.m.telefon = ""
+        self.assertEqual(self.e.kontakt_anzeige(True), "erika@example.org")
+        self.e.kontakt = "angegeben"
+        self.assertEqual(self.e.kontakt_anzeige(True), "angegeben")
+
+    def test_pdf_nimmt_mitgliedskontakt_nur_auf_wunsch(self):
+        def text(**kw):
+            return "\n".join(p.extract_text() for p in PdfReader(io.BytesIO(schichtplan_pdf(self.ver, **kw))).pages)
+        self.assertNotIn("0171 555", text())
+        self.assertIn("Erika Muster (0171 555)", text(mit_mitgliedskontakt=True))
+
+    def test_schichtseite_mit_recht_zeigt_mitgliedskontakt_ohne_recht_nicht(self):
+        self.anmelden()
+        r = self.client.get(reverse("schicht_detail", args=[self.aufbau.pk]))
+        self.assertContains(r, "0171 555")
+        self.assertContains(r, "Mitglied")
+        User = get_user_model()
+        u = User.objects.create_user("lena", password=PW)
+        Zugang.objects.create(verein=self.v, user=u, rolle=Rolle.objects.create(
+            verein=self.v, name="Nur Veranstaltungen", rechte=["veranstaltungen.view"]))
+        self.client.login(username="lena", password=PW)
+        r = self.client.get(reverse("schicht_detail", args=[self.aufbau.pk]))
+        self.assertContains(r, "Erika Muster")
+        self.assertNotContains(r, "0171 555")
+
+    def test_pdf_ansicht_gibt_kontakt_nur_mit_mitglieder_recht_aus(self):
+        url = reverse("veranstaltung_schichtplan_pdf", args=[self.ver.pk])
+        self.anmelden()
+        text = "\n".join(p.extract_text() for p in PdfReader(io.BytesIO(self.client.get(url).content)).pages)
+        self.assertIn("0171 555", text)
+        User = get_user_model()
+        u = User.objects.create_user("lena", password=PW)
+        Zugang.objects.create(verein=self.v, user=u, rolle=Rolle.objects.create(
+            verein=self.v, name="Nur Veranstaltungen", rechte=["veranstaltungen.view"]))
+        self.client.login(username="lena", password=PW)
+        text = "\n".join(p.extract_text() for p in PdfReader(io.BytesIO(self.client.get(url).content)).pages)
+        self.assertNotIn("0171 555", text)
+        self.assertIn("Erika Muster", text)
+
+    def test_zuordnung_nachtraeglich_durch_die_verwaltung(self):
+        gast = self.einsatz(self.theke, name="Erika M.", mitglied_angegeben=True, selbst_eingetragen=True)
+        self.anmelden()
+        r = self.client.post(reverse("schichteinsatz_edit", args=[gast.pk]),
+                             {"schicht": self.theke.pk, "mitglied": self.m.pk, "name": "", "kontakt": "", "bemerkung": ""})
+        self.assertEqual(r.status_code, 302)
+        gast.refresh_from_db()
+        self.assertEqual(gast.zuordnung, "Mitglied")

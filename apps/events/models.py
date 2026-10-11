@@ -187,6 +187,10 @@ class Schichteinsatz(TenantModel):
                             help_text=_("Für Helfer ohne Mitgliedskonto bzw. bei Selbsteintrag."))
     kontakt = models.CharField(_("Kontakt (Telefon/E-Mail)"), max_length=150, blank=True)
     selbst_eingetragen = models.BooleanField(_("Selbst eingetragen"), default=False, editable=False)
+    mitglied_angegeben = models.BooleanField(
+        _("Gibt an, Mitglied zu sein"), default=False, editable=False,
+        help_text=_("Beim Selbsteintrag angekreuzt; ohne zugeordnetes Mitglied konnte der Name keinem Mitglied "
+                  "eindeutig zugeordnet werden."))
     bemerkung = models.CharField(_("Bemerkung"), max_length=200, blank=True)
 
     class Meta:
@@ -200,6 +204,20 @@ class Schichteinsatz(TenantModel):
     @property
     def wer(self):
         return self.mitglied.name if self.mitglied_id else (self.name or "?")
+
+    @property
+    def zuordnung(self):
+        if self.mitglied_id:
+            return "Mitglied"
+        return "Gast – gibt an, Mitglied zu sein (bitte zuordnen)" if self.mitglied_angegeben else "Gast"
+
+    def kontakt_anzeige(self, mit_mitgliedskontakt=False):
+        """Der angegebene Kontakt; fehlt er und ist der Helfer einem Mitglied zugeordnet, auf Wunsch (nur mit dem Recht,
+        Mitgliederdaten zu sehen) dessen Mobil-/Telefonnummer bzw. E-Mail aus der Mitgliedsakte."""
+        if self.kontakt or not (mit_mitgliedskontakt and self.mitglied_id):
+            return self.kontakt
+        m = self.mitglied
+        return m.mobil or m.telefon or m.email
 
     def clean(self):
         if not (self.mitglied_id or self.name):

@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.69.0)
+# Handbook – Feuerix (Version 1.70.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -447,7 +447,13 @@ produces a **printable shift plan**: grouped by day, per shift the time and all 
 remain as writing lines for handwritten additions. So that helpers can **sign up themselves**, tick "Helpers may sign up for
 shifts themselves" in the event: a **helper link to pass on** then appears on the event page (unguessable, works without
 login). There people choose shifts with free places, give a name (and optionally phone/e-mail) and sign up bindingly; the
-entry appears immediately in the plan and the PDF (marked "signed up by themselves" in the shift). For privacy, the public
+entry appears immediately in the plan and the PDF (marked "signed up by themselves" in the shift). With the checkbox **"I am a member of the club"** (optionally
+with membership number), the helper is **matched to their membership record** by name (order, spelling and umlauts do not matter; active/dormant members):
+the entry then shows the name from the record and – if no contact was given when signing up – mobile/phone/e-mail from the record
+(only for users allowed to see member data, also in the PDF). If no unambiguous member is found (unknown name or two members
+with the same name without a matching number), the helper stays a guest marked "states to be a member (please assign)", and the
+administration can assign them to a member by hand in the entry. The public page does **not** reveal whether a member was found.
+For privacy, the public
 page only shows times and free places, no names of other helpers. Full or past shifts and cancelled/completed events cannot
 be booked, the same name cannot sign up twice for the same shift, and simultaneous sign-ups cannot overbook a shift.
 Removing and correcting entries is done by the administration (open the shift, delete the entry).

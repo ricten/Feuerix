@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.70.0
+- Helfer-Selbsteintragung: Kästchen **„Ich bin Mitglied im Verein“** (optional mit Mitgliedsnummer). Der Name wird dann dem Mitglied
+  zugeordnet (Reihenfolge/Schreibweise/Umlaute egal; bei zwei gleichnamigen Mitgliedern entscheidet die Nummer, sonst wird nicht
+  geraten). Der Eintrag nutzt Name und – falls keiner angegeben – Mobil/Telefon/E-Mail aus der Mitgliedsakte (nur mit dem Recht
+  „Mitgliederdaten ansehen“, auch im Schichtplan-PDF). Nicht gefundene bleiben Gast mit Vermerk zum Zuordnen; die öffentliche Seite
+  verrät nicht, ob ein Mitglied gefunden wurde.
+
 ## 1.69.0
 - Schichtplan: **druckbarer Schichtplan (PDF)** je Veranstaltung – nach Tagen gegliedert, je Schicht alle Eingeteilten mit Kontakt,
   freie Plätze als Schreiblinien. Die Seite einer Schicht zeigt alle Eingeteilten samt Kontakt und freien Plätzen.

@@ -36,7 +36,7 @@ urlpatterns += crud("aufgabenotizen", AufgabeNotiz, "veranstaltungen", list_disp
 urlpatterns += crud("schichten", Schicht, "veranstaltungen", list_display=("veranstaltung", "bezeichnung", "beginn",
                     "ende", ("besetzung", "Besetzung")), select_related=("veranstaltung",), filter=("veranstaltung",),
                     kontext=views.schicht_kontext)
-urlpatterns += crud("schichteinsaetze", Schichteinsatz, "veranstaltungen", list_display=("schicht", ("wer", "Helfer"), "kontakt"),
+urlpatterns += crud("schichteinsaetze", Schichteinsatz, "veranstaltungen", list_display=("schicht", ("wer", "Helfer"), ("zuordnung", "Zuordnung"), "kontakt"),
                     select_related=("schicht", "mitglied", "schicht__veranstaltung"), filter=("schicht",))
 urlpatterns += crud("anmeldungen", Anmeldung, "teilnehmer", list_display=("veranstaltung", ("wer", "Name"),
                     "personen", "status"), select_related=("veranstaltung", "mitglied"), filter=("veranstaltung",

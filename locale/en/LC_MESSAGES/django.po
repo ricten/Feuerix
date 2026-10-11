@@ -4767,3 +4767,28 @@ msgid "%(n)s Platz frei"
 msgid_plural "%(n)s Plätze frei"
 msgstr[0] "%(n)s place free"
 msgstr[1] "%(n)s places free"
+
+# Helfer als Mitglied
+
+msgid "Gibt an, Mitglied zu sein"
+msgstr "States to be a member"
+
+msgid ""
+"Beim Selbsteintrag angekreuzt; ohne zugeordnetes Mitglied konnte der Name "
+"keinem Mitglied eindeutig zugeordnet werden."
+msgstr ""
+"Ticked when signing up; without an assigned member, the name could not be "
+"matched to a member unambiguously."
+
+msgid "Ich bin Mitglied im Verein"
+msgstr "I am a member of the club"
+
+msgid "optional, hilft bei der Zuordnung"
+msgstr "optional, helps with matching"
+
+msgid ""
+"Wir ordnen Sie anhand Ihres Namens Ihrer Mitgliedsakte zu, damit Ihre "
+"Kontaktdaten nicht erneut abgefragt werden müssen."
+msgstr ""
+"We match you to your membership record by name so that your contact details "
+"do not have to be asked for again."

@@ -44,6 +44,15 @@
   <div class="card shadow-sm mb-3"><div class="card-body">
     <div class="mb-3"><label class="form-label">{% trans "Ihr Name" %}</label>
       <input type="text" name="name" class="form-control" maxlength="150" value="{{ name }}" required></div>
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" name="mitglied" value="ja" id="ist-mitglied" {% if ist_mitglied %}checked{% endif %}>
+      <label class="form-check-label" for="ist-mitglied">{% trans "Ich bin Mitglied im Verein" %}</label>
+    </div>
+    <div class="mb-3" id="mitgliedsnummer-feld" {% if not ist_mitglied %}style="display:none"{% endif %}>
+      <label class="form-label">{% trans "Mitgliedsnummer" %} ({% trans "optional, hilft bei der Zuordnung" %})</label>
+      <input type="number" name="mitgliedsnummer" class="form-control" min="1" style="max-width:12rem" value="{{ mitgliedsnummer }}">
+      <div class="form-text">{% trans "Wir ordnen Sie anhand Ihres Namens Ihrer Mitgliedsakte zu, damit Ihre Kontaktdaten nicht erneut abgefragt werden müssen." %}</div>
+    </div>
     <div class="mb-3"><label class="form-label">{% trans "Telefon oder E-Mail" %} ({% trans "optional, für Rückfragen" %})</label>
       <input type="text" name="kontakt" class="form-control" maxlength="150"></div>
     <div style="position:absolute;left:-9999px" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
@@ -53,4 +62,10 @@
 {% endif %}
 <p class="text-muted small">{% trans "Aus Datenschutzgründen werden hier keine Namen anderer Helfer angezeigt." %}</p>
 </div></div>
+<script>
+(function () {
+  var box = document.getElementById("ist-mitglied"), feld = document.getElementById("mitgliedsnummer-feld");
+  if (box && feld) box.addEventListener("change", function () { feld.style.display = box.checked ? "" : "none"; });
+})();
+</script>
 {% endblock %}

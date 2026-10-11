@@ -12,9 +12,11 @@ def _zeit(s):
     return f"{b:%d.%m. %H:%M} – {e:%d.%m. %H:%M} Uhr"
 
 
-def schichtplan_pdf(veranstaltung):
+def schichtplan_pdf(veranstaltung, mit_mitgliedskontakt=False):
     """Alle Schichten der Veranstaltung nach Tag und Beginn, je Schicht alle Eingeteilten (Mitglieder und eingetragene
-    Gaeste mit Kontakt); freie Plaetze bleiben als Schreiblinien zum handschriftlichen Eintragen stehen."""
+    Gaeste mit Kontakt); freie Plaetze bleiben als Schreiblinien zum handschriftlichen Eintragen stehen.
+    `mit_mitgliedskontakt`: fehlt bei einem zugeordneten Mitglied der angegebene Kontakt, wird dessen Telefon/E-Mail aus
+    der Mitgliedsakte gedruckt (nur fuer Benutzer mit dem Recht, Mitgliederdaten zu sehen)."""
     v = veranstaltung
     schichten = list(v.schichten.prefetch_related("einsaetze__mitglied").order_by("beginn", "id"))
     zeilen = [["Schicht", "Zeit", "Eingeteilte Helfer"]]
@@ -26,7 +28,8 @@ def schichtplan_pdf(veranstaltung):
             zeilen.append([f"**{WOCHENTAGE[beginn.weekday()]}, {beginn:%d.%m.%Y}", "", ""])
         helfer = []
         for e in sorted(s.einsaetze.all(), key=lambda e: e.wer.casefold()):
-            helfer.append(f"{e.wer} ({e.kontakt})" if e.kontakt else e.wer)
+            kontakt = e.kontakt_anzeige(mit_mitgliedskontakt)
+            helfer.append(f"{e.wer} ({kontakt})" if kontakt else e.wer)
         frei = max(s.benoetigt - len(helfer), 0)
         offene += frei
         helfer += ["_" * 34] * frei

@@ -18,6 +18,7 @@ from apps.core.crud import abschnitt, knopf
 from apps.core.util import geld
 
 from .models import Anmeldung, Aufgabe, Schicht, Schichteinsatz, Tagesordnungspunkt, Veranstaltung
+from .helfer import finde_mitglied
 from .pdf import schichtplan_pdf
 
 STANDARD_TOP = [
@@ -194,9 +195,22 @@ def schicht_kontext(request, s):
     return {"aktionen": [knopf("Schichtplan der Veranstaltung drucken (PDF)",
                                reverse("veranstaltung_schichtplan_pdf", args=[s.veranstaltung_id]), stil="outline-primary")],
             "hinweise": hinweise,
-            "abschnitte": [abschnitt(request, "Eingeteilte Helfer", s.einsaetze.select_related("mitglied"),
-                                     (("wer", "Helfer"), "kontakt", "bemerkung", ("selbst_eingetragen", "Selbst eingetragen")),
-                                     "schichteinsatz_add", {"schicht": s.pk, "next": request.get_full_path()})]}
+            "abschnitte": [_helfer_abschnitt(request, s)]}
+
+
+def _helfer_abschnitt(request, s):
+    """Tabelle der Eingeteilten einer Schicht. Den Kontakt aus der Mitgliedsakte (wenn beim Selbsteintrag keiner angegeben
+    wurde) sieht nur, wer Mitgliederdaten sehen darf."""
+    mit_kontakt = request.rechte.darf("mitglieder", "view")
+    abschnitt_ = abschnitt(request, "Eingeteilte Helfer", s.einsaetze.none(), ("id",), "schichteinsatz_add",
+                           {"schicht": s.pk, "next": request.get_full_path()})
+    abschnitt_["spalten"] = ["Helfer", "Zuordnung", "Kontakt", "Bemerkung", "Selbst eingetragen"]
+    abschnitt_["zeilen"] = [
+        {"url": reverse("schichteinsatz_detail", args=[e.pk]),
+         "zellen": [e.wer, e.zuordnung, e.kontakt_anzeige(mit_kontakt) or "–", e.bemerkung or "–",
+                    "✓" if e.selbst_eingetragen else "✗"]}
+        for e in sorted(s.einsaetze.select_related("mitglied"), key=lambda e: e.wer.casefold())]
+    return abschnitt_
 
 
 @login_required
@@ -204,7 +218,8 @@ def schichtplan_pdf_view(request, pk):
     if request.verein is None or not request.rechte.darf("veranstaltungen", "view"):
         raise PermissionDenied
     v = get_object_or_404(Veranstaltung, pk=pk, verein=request.verein)
-    r = HttpResponse(schichtplan_pdf(v), content_type="application/pdf")
+    r = HttpResponse(schichtplan_pdf(v, mit_mitgliedskontakt=request.rechte.darf("mitglieder", "view")),
+                     content_type="application/pdf")
     r["Content-Disposition"] = f'inline; filename="schichtplan-{v.pk}.pdf"'
     return r
 
@@ -219,6 +234,11 @@ def helfer_anmeldung(request, code):
     if request.method == "POST" and not geschlossen and not request.POST.get("website"):   # "website": Spam-Falle
         name = " ".join(request.POST.get("name", "").split())[:150]
         kontakt = request.POST.get("kontakt", "").strip()[:150]
+        ist_mitglied = request.POST.get("mitglied") == "ja"
+        try:
+            nummer = int(request.POST.get("mitgliedsnummer", "").strip() or 0) or None
+        except ValueError:
+            nummer = None
         try:
             ids = [int(x) for x in request.POST.getlist("schicht")][:10]
         except ValueError:
@@ -228,20 +248,28 @@ def helfer_anmeldung(request, code):
         elif not ids:
             messages.error(request, _("Bitte mindestens eine Schicht auswählen."))
         else:
+            # Gibt der Helfer an, Mitglied zu sein, wird er - wenn eindeutig gefunden - dem Mitglied zugeordnet (dann stehen
+            # Name und weitere Daten aus der Mitgliedsakte zur Verfuegung). Die Seite verraet dem Besucher NICHT, ob ein
+            # Mitglied gefunden wurde (kein Abfragen der Mitgliederliste ueber das oeffentliche Formular).
+            mitglied = finde_mitglied(v.verein_id, name, nummer) if ist_mitglied else None
             with transaction.atomic():   # gleichzeitige Eintragungen duerfen eine Schicht nicht ueberbuchen
                 for s in Schicht.objects.select_for_update().filter(pk__in=ids, veranstaltung=v, ende__gte=jetzt):
-                    if s.einsaetze.filter(mitglied__isnull=True, name__iexact=name).exists():
+                    bereits = (s.einsaetze.filter(mitglied=mitglied).exists() if mitglied else
+                               s.einsaetze.filter(mitglied__isnull=True, name__iexact=name).exists())
+                    if bereits:
                         schon.append(s)
                     elif s.einsaetze.count() >= s.benoetigt:
                         voll.append(s)
                     else:
-                        Schichteinsatz.objects.create(verein_id=v.verein_id, schicht=s, name=name, kontakt=kontakt,
-                                                      selbst_eingetragen=True)
+                        Schichteinsatz.objects.create(
+                            verein_id=v.verein_id, schicht=s, mitglied=mitglied, name="" if mitglied else name,
+                            kontakt=kontakt, selbst_eingetragen=True, mitglied_angegeben=ist_mitglied)
                         eingetragen.append(s)
     schichten = [s for s in v.schichten.order_by("beginn", "id") if s.ende >= jetzt]
     return render(request, "events/helfer.html", {
         "veranstaltung": v, "schichten": [(s, s.freie_plaetze) for s in schichten], "geschlossen": geschlossen,
         "eingetragen": eingetragen, "voll": voll, "schon": schon, "name": request.POST.get("name", ""),
+        "ist_mitglied": request.POST.get("mitglied") == "ja", "mitgliedsnummer": request.POST.get("mitgliedsnummer", ""),
         "titel": f"{_('Helfer gesucht')} – {v.titel}"})
 
 
