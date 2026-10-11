@@ -4792,3 +4792,26 @@ msgid ""
 msgstr ""
 "We match you to your membership record by name so that your contact details "
 "do not have to be asked for again."
+
+# Schicht-Freigabe
+
+msgid "Für Selbsteintrag freigegeben"
+msgstr "Open for self sign-up"
+
+msgid ""
+"Nur wirksam, wenn bei der Veranstaltung die Helfer-Selbsteintragung "
+"aktiviert ist. Nicht freigegebene Schichten erscheinen auf der öffentlichen "
+"Seite nicht und werden nur von der Verwaltung besetzt."
+msgstr ""
+"Only effective if helper self sign-up is enabled for the event. Shifts that "
+"are not open do not appear on the public page and are only staffed by the "
+"administration."
+
+msgid "Die gewählten Schichten sind nicht (mehr) zur Eintragung freigegeben."
+msgstr "The selected shifts are not (or no longer) open for sign-up."
+
+msgid "Alle Schichten sind für den Selbsteintrag freigegeben."
+msgstr "All shifts are open for self sign-up."
+
+msgid "Alle Schichten sind für den Selbsteintrag gesperrt."
+msgstr "All shifts are closed for self sign-up."

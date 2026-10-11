@@ -417,3 +417,100 @@ class MitgliedskontaktSichtbarkeitTests(SchichtBasis):
         self.assertEqual(r.status_code, 302)
         gast.refresh_from_db()
         self.assertEqual(gast.zuordnung, "Mitglied")
+
+
+class SchichtFreigabeTests(SchichtBasis):
+    """Nur bestimmte Schichten fuer die Selbsteintragung freigeben."""
+
+    def setUp(self):
+        super().setUp()
+        self.url = reverse("veranstaltung_helfer", args=[self.ver.rueckmeldung_code])
+        self.theke.selbsteintrag = False   # nur der Aufbau ist freigegeben
+        self.theke.save()
+
+    def test_neue_und_bestehende_schichten_sind_standardmaessig_freigegeben(self):
+        neu = self.schicht("Abbau", 9, 11)
+        self.assertTrue(neu.selbsteintrag)
+        self.assertTrue(self.aufbau.selbsteintrag)
+
+    def test_oeffentliche_seite_zeigt_nur_freigegebene_schichten(self):
+        r = self.client.get(self.url)
+        self.assertContains(r, "Aufbau")
+        self.assertNotContains(r, "Theke")
+
+    def test_nicht_freigegebene_schicht_ist_nicht_buchbar(self):
+        r = self.client.post(self.url, {"name": "Max Muster", "schicht": [self.theke.pk]})
+        self.assertContains(r, "nicht (mehr) zur Eintragung freigegeben")
+        self.assertFalse(self.theke.einsaetze.exists())
+
+    def test_freigegebene_wird_gebucht_auch_wenn_eine_gesperrte_mitgewaehlt_wurde(self):
+        r = self.client.post(self.url, {"name": "Max Muster", "schicht": [self.aufbau.pk, self.theke.pk]})
+        self.assertContains(r, "Danke, Sie sind eingetragen")
+        self.assertEqual(self.aufbau.einsaetze.count(), 1)
+        self.assertEqual(self.theke.einsaetze.count(), 0)
+
+    def test_ohne_freigegebene_schichten_hinweis_statt_formular(self):
+        self.aufbau.selbsteintrag = False
+        self.aufbau.save()
+        r = self.client.get(self.url)
+        self.assertContains(r, "keine Schichten zur Eintragung offen")
+        self.assertNotContains(r, 'name="schicht"')
+
+    def test_verwaltung_kann_gesperrte_schicht_trotzdem_besetzen(self):
+        self.anmelden()
+        r = self.client.post(reverse("schichteinsatz_add"), {"schicht": self.theke.pk, "name": "Von Hand",
+                                                             "kontakt": "", "bemerkung": ""})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(self.theke.einsaetze.count(), 1)
+
+    def test_freigabe_am_schichtformular(self):
+        self.anmelden()
+        r = self.client.post(reverse("schicht_edit", args=[self.theke.pk]), {
+            "veranstaltung": self.ver.pk, "bezeichnung": "Theke",
+            "beginn": self.theke.beginn.strftime("%Y-%m-%dT%H:%M"), "ende": self.theke.ende.strftime("%Y-%m-%dT%H:%M"),
+            "benoetigt": 2, "selbsteintrag": "on"})
+        self.assertEqual(r.status_code, 302)
+        self.theke.refresh_from_db()
+        self.assertTrue(self.theke.selbsteintrag)
+
+    def test_veranstaltungsseite_zeigt_spalte_zaehlung_und_sammelknoepfe(self):
+        self.anmelden()
+        r = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
+        self.assertContains(r, "Selbsteintrag")
+        self.assertContains(r, "1 von 2 Schichten sind für den Selbsteintrag freigegeben.")
+        self.assertContains(r, "Alle Schichten für Selbsteintrag freigeben")
+        self.assertContains(r, "Alle Schichten für Selbsteintrag sperren")
+
+    def test_ohne_helfer_eintragung_keine_freigabe_elemente(self):
+        self.anmelden()
+        self.ver.helfer_eintragung = False
+        self.ver.save()
+        r = self.client.get(reverse("veranstaltung_detail", args=[self.ver.pk]))
+        self.assertNotContains(r, "für den Selbsteintrag freigegeben")
+        self.assertNotContains(r, "Alle Schichten für Selbsteintrag")
+
+    def test_alle_freigeben_und_alle_sperren(self):
+        self.anmelden()
+        self.client.post(reverse("veranstaltung_schichten_freigabe", args=[self.ver.pk, "alle"]))
+        self.assertEqual(self.ver.schichten.filter(selbsteintrag=True).count(), 2)
+        self.client.post(reverse("veranstaltung_schichten_freigabe", args=[self.ver.pk, "keine"]))
+        self.assertEqual(self.ver.schichten.filter(selbsteintrag=True).count(), 0)
+
+    def test_sammelaktion_nur_per_post_mit_recht_und_im_eigenen_verein(self):
+        url = reverse("veranstaltung_schichten_freigabe", args=[self.ver.pk, "alle"])
+        self.anmelden()
+        self.assertEqual(self.client.get(url).status_code, 405)                       # nur POST
+        self.assertEqual(self.client.post(reverse("veranstaltung_schichten_freigabe",
+                                                  args=[self.ver.pk, "unsinn"])).status_code, 403)
+        anderer = Verein.objects.create(name="Anderer e.V.", kuerzel="anderer")
+        fremd = Veranstaltung.objects.create(verein=anderer, titel="Fremd", beginn=self.beginn)
+        self.assertEqual(self.client.post(reverse("veranstaltung_schichten_freigabe",
+                                                  args=[fremd.pk, "alle"])).status_code, 404)
+        User = get_user_model()
+        u = User.objects.create_user("lena", password=PW)
+        Zugang.objects.create(verein=self.v, user=u, rolle=Rolle.objects.create(
+            verein=self.v, name="Nur Lesen", rechte=["veranstaltungen.view"]))
+        self.client.login(username="lena", password=PW)
+        self.assertEqual(self.client.post(url).status_code, 403)
+        self.theke.refresh_from_db()
+        self.assertFalse(self.theke.selbsteintrag)

@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.70.1)
+# Handbook – Feuerix (Version 1.71.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -440,6 +440,9 @@ converted into a donation via "Waive → donate the expense".
 
 ## 9. Events and tasks
 
+The **agenda** only appears for events of the kind "Meeting" or "Session" (for parties, trips, drills etc. it is hidden, as
+are the "Standard agenda" button and the OpenSlides buttons; agenda items that were already entered stay visible).
+
 **Shift plan and helper sign-up:** shifts can be created for each event (name, start, end, helpers needed) and helpers
 assigned – members or **guests without a member account** (name, optional phone/e-mail). A shift's page shows **everyone
 assigned** with contact details and the places still free. "Print shift plan (PDF)" (on the event and on each shift)
@@ -453,7 +456,10 @@ the entry then shows the name from the record and – if no contact was given wh
 (only for users allowed to see member data, also in the PDF). If no unambiguous member is found (unknown name or two members
 with the same name without a matching number), the helper stays a guest marked "states to be a member (please assign)", and the
 administration can assign them to a member by hand in the entry. The public page does **not** reveal whether a member was found.
-For privacy, the public
+Not every shift has to be open:
+each shift has the checkbox **"Open for self sign-up"** (default: yes); shifts that are not open do not appear on the public
+page and are only staffed by the administration. On the event there are "Open/Close all shifts for self sign-up", and in the
+shift plan the column "Self sign-up" shows the state. For privacy, the public
 page only shows times and free places, no names of other helpers. Full or past shifts and cancelled/completed events cannot
 be booked, the same name cannot sign up twice for the same shift, and simultaneous sign-ups cannot overbook a shift.
 Removing and correcting entries is done by the administration (open the shift, delete the entry).

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.70.1)
+# Handbuch – Feuerix (Version 1.71.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -446,6 +446,9 @@ Aufwandsersatz kann per „Verzicht → Aufwandsspende“ in eine Spende umgewan
 
 ## 9. Veranstaltungen und Aufgaben
 
+Die **Tagesordnung** erscheint nur bei Veranstaltungen der Art „Versammlung“ oder „Sitzung“ (bei Festen, Ausflügen, Übungen usw.
+ist sie ausgeblendet, ebenso der Knopf „Standard-Tagesordnung“ und die OpenSlides-Knöpfe; bereits erfasste Punkte bleiben sichtbar).
+
 **Schichtplan und Helfer-Eintragung**: Zu jeder Veranstaltung lassen sich Schichten anlegen (Bezeichnung, Beginn, Ende, benötigte
 Helfer) und Helfer einteilen – Mitglieder oder **Gäste ohne Mitgliedskonto** (Name, optional Telefon/E-Mail). Auf der Seite
 einer Schicht stehen **alle Eingeteilten** mit Kontakt und die noch freien Plätze. Mit „Schichtplan drucken (PDF)“ (an der
@@ -460,7 +463,10 @@ Der Eintrag zeigt dann den Namen aus der Akte, und – wenn beim Eintragen kein 
 Akte (nur für Benutzer mit dem Recht, Mitgliederdaten zu sehen, auch im PDF). Wird kein eindeutiges Mitglied gefunden (unbekannter
 Name oder zwei gleichnamige Mitglieder ohne passende Nummer), bleibt der Helfer ein Gast mit dem Vermerk „gibt an, Mitglied zu sein
 (bitte zuordnen)“, und die Verwaltung kann ihn im Eintrag von Hand einem Mitglied zuordnen. Die öffentliche Seite verrät dabei **nicht**,
-ob ein Mitglied gefunden wurde. Aus
+ob ein Mitglied gefunden wurde. Nicht jede Schicht muss
+freigegeben sein: Jede Schicht hat das Häkchen **„Für Selbsteintrag freigegeben“** (Standard: ja); nicht freigegebene Schichten
+erscheinen auf der öffentlichen Seite nicht und werden nur von der Verwaltung besetzt. An der Veranstaltung gibt es dazu „Alle
+Schichten für Selbsteintrag freigeben/sperren“, und im Schichtplan zeigt die Spalte „Selbsteintrag“ den Stand. Aus
 Datenschutzgründen sieht man auf der öffentlichen Seite nur Zeiten und freie Plätze, keine Namen anderer Helfer. Volle,
 vergangene Schichten und abgesagte/abgeschlossene Veranstaltungen sind nicht buchbar, derselbe Name kann sich nicht doppelt
 in dieselbe Schicht eintragen, und gleichzeitige Eintragungen überbuchen keine Schicht. Austragen und Korrigieren erfolgt

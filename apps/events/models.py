@@ -50,6 +50,12 @@ class Veranstaltung(TenantModel):
         if self.beginn and self.ende and self.ende < self.beginn:
             raise ValidationError(_("Das Ende liegt vor dem Beginn."))
 
+    @property
+    def hat_tagesordnung(self):
+        """Eine Tagesordnung gibt es nur bei Versammlungen und Sitzungen - bei Festen, Ausfluegen, Uebungen usw. wird sie
+        ausgeblendet. Bereits erfasste Tagesordnungspunkte bleiben aber sichtbar (z. B. nach Aenderung der Art)."""
+        return self.art in ("versammlung", "sitzung") or self.tagesordnung.exists()
+
     def summen(self):
         def s(art, feld):
             return self.kosten.filter(art=art).aggregate(x=Sum(feld))["x"] or Decimal("0")
@@ -152,6 +158,10 @@ class Schicht(TenantModel):
     beginn = models.DateTimeField(_("Beginn"))
     ende = models.DateTimeField(_("Ende"))
     benoetigt = models.PositiveIntegerField(_("Benötigte Helfer"), default=1)
+    selbsteintrag = models.BooleanField(
+        _("Für Selbsteintrag freigegeben"), default=True,
+        help_text=_("Nur wirksam, wenn bei der Veranstaltung die Helfer-Selbsteintragung aktiviert ist. Nicht freigegebene "
+                  "Schichten erscheinen auf der öffentlichen Seite nicht und werden nur von der Verwaltung besetzt."))
 
     class Meta:
         verbose_name = _("Schicht")

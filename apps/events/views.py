@@ -70,6 +70,12 @@ def veranstaltung_kontext(request, v):
     if r.darf("veranstaltungen", "view") and v.schichten.exists():
         aktionen.append(knopf("Schichtplan drucken (PDF)", reverse("veranstaltung_schichtplan_pdf", args=[v.pk]),
                               stil="outline-primary"))
+    if v.helfer_eintragung and v.schichten.exists() and r.darf("veranstaltungen", "change"):
+        aktionen.append(knopf("Alle Schichten für Selbsteintrag freigeben", reverse("veranstaltung_schichten_freigabe",
+                              args=[v.pk, "alle"]), post=True, stil="outline-secondary"))
+        aktionen.append(knopf("Alle Schichten für Selbsteintrag sperren", reverse("veranstaltung_schichten_freigabe",
+                              args=[v.pk, "keine"]), post=True, stil="outline-secondary",
+                              bestaetigung="Alle Schichten für den Selbsteintrag sperren? Bereits eingetragene Helfer bleiben."))
     if r.darf("verleih", "view"):   # Packliste(n) des zur Veranstaltung verliehenen/reservierten Inventars
         aktionen += packlisten_knoepfe(v)
     if r.darf("schriftverkehr", "add"):
@@ -79,10 +85,10 @@ def veranstaltung_kontext(request, v):
                               reverse("veranstaltung_schriftstueck", args=[v.pk, "serienbrief"]), post=True))
         aktionen.append(knopf("Protokoll erstellen", reverse("veranstaltung_schriftstueck", args=[v.pk, "protokoll"]),
                               post=True))
-    if r.darf("veranstaltungen", "change") and not v.tagesordnung.exists():
+    if r.darf("veranstaltungen", "change") and v.hat_tagesordnung and not v.tagesordnung.exists():
         aktionen.append(knopf("Standard-Tagesordnung (Mitgliederversammlung)", reverse("tagesordnung_standard", args=[v.pk]),
                               post=True, stil="outline-secondary"))
-    if r.darf("openslides", "change"):
+    if r.darf("openslides", "change") and (v.hat_tagesordnung or v.openslides_meeting_id):
         if anbindungen(request).openslides:
             aktionen.append(knopf("Tagesordnung nach OpenSlides übertragen" if v.openslides_meeting_id
                                   else "In OpenSlides anlegen", reverse("veranstaltung_openslides", args=[v.pk]), post=True,
@@ -105,22 +111,29 @@ def veranstaltung_kontext(request, v):
             reverse("veranstaltung_helfer", args=[v.rueckmeldung_code]))})
     ab = [abschnitt(request, "Aufgaben", v.aufgaben.all(), ("titel", "zustaendig", "faellig", "status"),
                     "aufgabe_add", {"veranstaltung": v.pk}),
-          abschnitt(request, "Schichtplan", v.schichten.all(), ("bezeichnung", "beginn", "ende", ("besetzung", "Besetzung"),
-                                                               ("helfer", "Helfer")), "schicht_add", {"veranstaltung": v.pk}),
+          abschnitt(request, "Schichtplan", v.schichten.all(),
+                    ("bezeichnung", "beginn", "ende", ("besetzung", "Besetzung"), ("helfer", "Helfer"))
+                    + ((("selbsteintrag", "Selbsteintrag"),) if v.helfer_eintragung else ()),
+                    "schicht_add", {"veranstaltung": v.pk}),
           abschnitt(request, "Budget", v.kosten.all(), ("art", "bezeichnung", "plan_betrag", "ist_betrag"),
                     "kostenposition_add", {"veranstaltung": v.pk})]
     # Zusammenfassungen gehoeren unter ihre Tabelle (Fusszeile des Abschnitts)
     offene_schichten = [sc for sc in v.schichten.all() if sc.einsaetze.count() < sc.benoetigt]
-    if offene_schichten:
-        ab[1]["fuss"] = [f"{len(offene_schichten)} Schicht(en) noch nicht voll besetzt."]
+    fuss = [f"{len(offene_schichten)} Schicht(en) noch nicht voll besetzt."] if offene_schichten else []
+    if v.helfer_eintragung and v.schichten.exists():
+        frei = v.schichten.filter(selbsteintrag=True).count()
+        fuss.append(f"{frei} von {v.schichten.count()} Schichten sind für den Selbsteintrag freigegeben.")
+    if fuss:
+        ab[1]["fuss"] = fuss
     if v.kosten.exists():
         ab[2]["fuss"] = [f"Plan: Einnahmen {geld(s['plan_ein'])} · Ausgaben {geld(s['plan_aus'])} · "
                          f"Ergebnis {geld(s['plan_ein'] - s['plan_aus'])}",
                          f"Ist: Einnahmen {geld(s['ist_ein'])} · Ausgaben {geld(s['ist_aus'])} · "
                          f"Ergebnis {geld(s['ist_ein'] - s['ist_aus'])}"]
     top_spalten = ("position", "titel") + (("openslides_topic_id",) if anbindungen(request).openslides else ())
-    ab.insert(0, abschnitt(request, "Tagesordnung", v.tagesordnung.all(), top_spalten,
-                           "tagesordnungspunkt_add", {"veranstaltung": v.pk, "position": naechste_top_position(v)}))
+    if v.hat_tagesordnung:   # nur bei Versammlungen/Sitzungen (oder wenn schon Punkte erfasst sind)
+        ab.insert(0, abschnitt(request, "Tagesordnung", v.tagesordnung.all(), top_spalten,
+                               "tagesordnungspunkt_add", {"veranstaltung": v.pk, "position": naechste_top_position(v)}))
     if r.darf("teilnehmer", "view"):
         anmeldungen = abschnitt(request, "Anmeldungen", v.anmeldungen.all(), (("wer", "Name"), "personen", "status"),
                                 "anmeldung_add", {"veranstaltung": v.pk})
@@ -128,7 +141,7 @@ def veranstaltung_kontext(request, v):
             zugesagt = sum(a.personen for a in v.anmeldungen.filter(status="zugesagt"))
             anmeldungen["fuss"] = [f"Zugesagte Personen: {zugesagt}" + (f" von erwartet {v.erwartete_teilnehmer}"
                                                                         if v.erwartete_teilnehmer else "")]
-        ab.insert(2, anmeldungen)
+        ab.insert(2 if v.hat_tagesordnung else 1, anmeldungen)   # nach den Aufgaben
     if r.darf("teilnehmer", "view") and v.anwesenheiten.exists():
         ab.append(abschnitt(request, "Anwesenheit (aus OpenSlides)", v.anwesenheiten.select_related("mitglied"),
                             (("wer", "Name"),)))
@@ -229,6 +242,21 @@ def schichtplan_pdf_view(request, pk):
     return r
 
 
+@login_required
+@require_POST
+def schichten_freigabe(request, pk, modus):
+    """Alle Schichten einer Veranstaltung fuer den Selbsteintrag freigeben bzw. sperren (einzeln am Schicht-Formular)."""
+    if request.verein is None or not request.rechte.darf("veranstaltungen", "change") or modus not in ("alle", "keine"):
+        raise PermissionDenied
+    v = get_object_or_404(Veranstaltung, pk=pk, verein=request.verein)
+    for s in v.schichten.exclude(selbsteintrag=(modus == "alle")):   # save() statt update(): bleibt im Protokoll
+        s.selbsteintrag = modus == "alle"
+        s.save(update_fields=["selbsteintrag", "geaendert"])
+    messages.success(request, _("Alle Schichten sind für den Selbsteintrag freigegeben.") if modus == "alle"
+                     else _("Alle Schichten sind für den Selbsteintrag gesperrt."))
+    return redirect("veranstaltung_detail", pk=v.pk)
+
+
 def helfer_anmeldung(request, code):
     """Oeffentliche Seite (ohne Anmeldung, ueber den nicht erratbaren Veranstaltungs-Link), auf der sich Helfer selbst in
     freie Schichten eintragen. Sichtbar sind nur Schichten mit Zeit und freien Plaetzen - keine Namen anderer Helfer."""
@@ -258,7 +286,9 @@ def helfer_anmeldung(request, code):
             # Mitglied gefunden wurde (kein Abfragen der Mitgliederliste ueber das oeffentliche Formular).
             mitglied = finde_mitglied(v.verein_id, name, nummer) if ist_mitglied else None
             with transaction.atomic():   # gleichzeitige Eintragungen duerfen eine Schicht nicht ueberbuchen
-                for s in Schicht.objects.select_for_update().filter(pk__in=ids, veranstaltung=v, ende__gte=jetzt):
+                buchbar = Schicht.objects.select_for_update().filter(pk__in=ids, veranstaltung=v, ende__gte=jetzt,
+                                                                      selbsteintrag=True)
+                for s in buchbar:
                     bereits = (s.einsaetze.filter(mitglied=mitglied).exists() if mitglied else
                                s.einsaetze.filter(mitglied__isnull=True, name__iexact=name).exists())
                     if bereits:
@@ -270,7 +300,9 @@ def helfer_anmeldung(request, code):
                             verein_id=v.verein_id, schicht=s, mitglied=mitglied, name="" if mitglied else name,
                             kontakt=kontakt, selbst_eingetragen=True, mitglied_angegeben=ist_mitglied)
                         eingetragen.append(s)
-    schichten = [s for s in v.schichten.order_by("beginn", "id") if s.ende >= jetzt]
+            if not (eingetragen or voll or schon):
+                messages.warning(request, _("Die gewählten Schichten sind nicht (mehr) zur Eintragung freigegeben."))
+    schichten = [s for s in v.schichten.filter(selbsteintrag=True).order_by("beginn", "id") if s.ende >= jetzt]
     return render(request, "events/helfer.html", {
         "veranstaltung": v, "schichten": [(s, s.freie_plaetze) for s in schichten], "geschlossen": geschlossen,
         "eingetragen": eingetragen, "voll": voll, "schon": schon, "name": request.POST.get("name", ""),

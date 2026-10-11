@@ -85,5 +85,72 @@ class VeranstaltungSeitenaufbauTests(TestCase):
         r = self._seite()
         titel = [a["titel"] for a in r.context["abschnitte"]]
         self.assertEqual(r.context["abschnitte"][titel.index("Schichtplan")]["fuss"],
-                         ["1 Schicht(en) noch nicht voll besetzt."])
+                         ["1 Schicht(en) noch nicht voll besetzt.",
+                          "1 von 1 Schichten sind für den Selbsteintrag freigegeben."])
         self.assertNotIn("alert-info py-2\">1 Schicht", r.content.decode())
+
+
+class TagesordnungNurBeiVersammlungenTests(TestCase):
+    """Die Tagesordnung gibt es nur bei Versammlungen und Sitzungen."""
+
+    def setUp(self):
+        from apps.events.models import Tagesordnungspunkt
+        self.TOP = Tagesordnungspunkt
+        self.v = Verein.objects.create(name="Test e.V.", kuerzel="test")
+        User = get_user_model()
+        admin = User.objects.create_superuser("admin", password=PW)
+        Zugang.objects.create(verein=self.v, user=admin, rolle=Rolle.objects.get(verein=self.v,
+                                                                                  name="Superadministrator"))
+        self.client.login(username="admin", password=PW)
+
+    def _veranstaltung(self, art):
+        return Veranstaltung.objects.create(verein=self.v, titel=f"Test {art}", art=art, beginn=timezone.now())
+
+    def _titel(self, ver):
+        r = self.client.get(reverse("veranstaltung_detail", args=[ver.pk]))
+        return [a["titel"] for a in r.context["abschnitte"]], r
+
+    def test_versammlung_und_sitzung_zeigen_tagesordnung_und_standardknopf(self):
+        for art in ("versammlung", "sitzung"):
+            titel, r = self._titel(self._veranstaltung(art))
+            self.assertIn("Tagesordnung", titel, art)
+            self.assertContains(r, "Standard-Tagesordnung")
+
+    def test_andere_arten_blenden_tagesordnung_und_knopf_aus(self):
+        for art in ("fest", "ausflug", "schulung", "sonstiges"):
+            titel, r = self._titel(self._veranstaltung(art))
+            self.assertNotIn("Tagesordnung", titel, art)
+            self.assertNotContains(r, "Standard-Tagesordnung")
+
+    def test_bereits_erfasste_punkte_bleiben_trotzdem_sichtbar(self):
+        fest = self._veranstaltung("fest")
+        self.TOP.objects.create(verein=self.v, veranstaltung=fest, position=1, titel="Begrüßung")
+        titel, r = self._titel(fest)
+        self.assertIn("Tagesordnung", titel)
+        self.assertContains(r, "Begrüßung")
+
+    def test_reihenfolge_der_abschnitte_bleibt_sinnvoll_ohne_tagesordnung(self):
+        titel, _ = self._titel(self._veranstaltung("fest"))
+        self.assertEqual(titel[:4], ["Aufgaben", "Anmeldungen", "Schichtplan", "Budget"])
+        titel, _ = self._titel(self._veranstaltung("versammlung"))
+        self.assertEqual(titel[:5], ["Tagesordnung", "Aufgaben", "Anmeldungen", "Schichtplan", "Budget"])
+
+    def test_art_wird_geaendert_dann_verschwindet_die_leere_tagesordnung(self):
+        ver = self._veranstaltung("versammlung")
+        self.assertIn("Tagesordnung", self._titel(ver)[0])
+        ver.art = "fest"
+        ver.save()
+        self.assertNotIn("Tagesordnung", self._titel(ver)[0])
+
+    def test_openslides_knoepfe_nur_bei_versammlung_oder_vorhandener_verknuepfung(self):
+        from apps.openslides.models import OpenSlidesVerbindung
+        OpenSlidesVerbindung.objects.create(verein=self.v, url="https://os.example.org", benutzername="s",
+                                            passwort="p", aktiv=True)
+        self.assertContains(self.client.get(reverse("veranstaltung_detail", args=[self._veranstaltung("versammlung").pk])),
+                            "In OpenSlides anlegen")
+        fest = self._veranstaltung("fest")
+        self.assertNotContains(self.client.get(reverse("veranstaltung_detail", args=[fest.pk])), "In OpenSlides anlegen")
+        fest.openslides_meeting_id = 5
+        fest.save()
+        self.assertContains(self.client.get(reverse("veranstaltung_detail", args=[fest.pk])),
+                            "Tagesordnung nach OpenSlides übertragen")

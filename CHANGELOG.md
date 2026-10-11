@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.71.0
+- Schichtplan: Bei aktivierter Helfer-Selbsteintragung lassen sich **einzelne Schichten freigeben**: Häkchen „Für Selbsteintrag freigegeben“ je
+  Schicht (Standard: ja). Die öffentliche Seite zeigt und bucht nur freigegebene Schichten; an der Veranstaltung gibt es „Alle Schichten
+  für Selbsteintrag freigeben/sperren“, im Schichtplan die Spalte „Selbsteintrag“ und eine Zählung (x von y freigegeben).
+- Die **Tagesordnung** wird bei Veranstaltungen, die keine Versammlung/Sitzung sind, ausgeblendet (samt Knopf „Standard-Tagesordnung“ und
+  OpenSlides-Knöpfen); schon erfasste Punkte bzw. eine bestehende OpenSlides-Verknüpfung bleiben sichtbar.
+
 ## 1.70.1
 - Veranstaltungsseite aufgeräumt: Die Hinweiskästen oben entfallen. Die **Weitergabe-Links** (Rückmeldung, Helfer-Selbsteintrag) stehen in einer
   eigenen Karte „Links zum Weitergeben“ unter den Angaben (mit Kopieren-/Öffnen-Knopf), die **Budget-Zusammenfassung** (Plan/Ist) in der
