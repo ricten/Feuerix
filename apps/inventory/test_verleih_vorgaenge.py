@@ -13,6 +13,7 @@ from pypdf import PdfReader
 from reportlab.lib.units import mm
 
 from apps.core.models import Rolle, Verein, Zugang
+from apps.events.models import Veranstaltung
 from apps.inventory.models import Gegenstand, Lagerort, Verleih
 from apps.inventory.pdf import (_etikett_layout, _etikett_modus, _logo_platz, etiketten_pdf, logo_schwarzweiss,
                                 packliste_pdf)
@@ -293,3 +294,117 @@ class EtikettLogoGroesseUndFarbeTests(TestCase):
         self.v.etikett_spalten, self.v.etikett_zeilen = 1, 1
         self.v.etikett_breite_mm, self.v.etikett_hoehe_mm = 25, 25
         self.assertNotIn(b"/Subtype /Image", etiketten_pdf([self.g], lambda nr: "u", self.v))
+
+
+class VorgangDerVeranstaltungTests(VerleihBasis):
+    """Gegenstaende, die spaeter zur selben Veranstaltung hinzukommen, landen im bestehenden Vorgang."""
+
+    def setUp(self):
+        super().setUp()
+        self.ver = Veranstaltung.objects.create(verein=self.v, titel="Sommerfest", beginn=timezone_now())
+
+    def _sammel(self, gegenstaende, **extra):
+        daten = {"gegenstaende": [g.pk for g in gegenstaende], "veranstaltung": self.ver.pk,
+                 "von": self.von.isoformat(), "bis": self.bis.isoformat(), **extra}
+        return self.client.post(reverse("verleih_sammel_add"), daten, follow=False)
+
+    def _vorgaenge(self):
+        return set(Verleih.objects.filter(veranstaltung=self.ver).values_list("vorgang", flat=True))
+
+    def test_spaeter_hinzugefuegte_gegenstaende_kommen_in_den_bestehenden_vorgang(self):
+        r1 = self._sammel([self.zelt, self.tisch])
+        self.assertEqual(r1.status_code, 302)
+        self.assertEqual(len(self._vorgaenge()), 1)
+        r2 = self._sammel([self.stuhl])
+        self.assertEqual(len(self._vorgaenge()), 1)   # kein zweiter Vorgang
+        self.assertEqual(Verleih.objects.filter(veranstaltung=self.ver).count(), 3)
+        vorgang = next(iter(self._vorgaenge()))
+        self.assertEqual(r2["Location"], reverse("verleih_vorgang_detail", args=[vorgang]))
+        self.assertContains(self.client.get(r2["Location"]), "Stuhl")
+
+    def test_meldung_nennt_den_bestehenden_vorgang(self):
+        self._sammel([self.zelt])
+        r = self.client.post(reverse("verleih_sammel_add"), {
+            "gegenstaende": [self.tisch.pk], "veranstaltung": self.ver.pk, "von": self.von.isoformat(),
+            "bis": self.bis.isoformat()}, follow=True)
+        self.assertContains(r, "zum bestehenden Vorgang dieser Veranstaltung hinzugefügt")
+
+    def test_uebersicht_zeigt_eine_zeile_fuer_die_veranstaltung(self):
+        self._sammel([self.zelt, self.tisch])
+        self._sammel([self.stuhl])
+        r = self.client.get(reverse("verleih_list"))
+        self.assertEqual(len(r.context["zeilen"]), 1)
+        self.assertContains(r, "3 Gegenstände")
+
+    def test_einzelverleih_zur_veranstaltung_schliesst_sich_an_und_nimmt_den_alten_mit(self):
+        erster = Verleih.objects.create(verein=self.v, gegenstand=self.zelt, veranstaltung=self.ver, von=self.von,
+                                        bis=self.bis)   # Verein selbst, noch ohne Vorgang
+        self.assertIsNone(Verleih.objects.get(pk=erster.pk).vorgang)   # allein -> kein Vorgang
+        zweiter = Verleih.objects.create(verein=self.v, gegenstand=self.tisch, veranstaltung=self.ver, von=self.von,
+                                         bis=self.bis)
+        erster.refresh_from_db()
+        self.assertIsNotNone(erster.vorgang)
+        self.assertEqual(erster.vorgang, zweiter.vorgang)
+
+    def test_bereits_getrennte_vorgaenge_werden_beim_hinzufuegen_zusammengefuehrt(self):
+        a = Verleih.objects.create(verein=self.v, gegenstand=self.zelt, veranstaltung=self.ver, von=self.von,
+                                   bis=self.bis, vorgang=uuid.uuid4())
+        b = Verleih.objects.create(verein=self.v, gegenstand=self.tisch, veranstaltung=self.ver, von=self.von,
+                                   bis=self.bis, vorgang=uuid.uuid4())
+        Verleih.objects.filter(pk=b.pk).update(vorgang=uuid.uuid4())   # zwei getrennte Vorgaenge herstellen
+        a.refresh_from_db()
+        b.refresh_from_db()
+        self.assertNotEqual(a.vorgang, b.vorgang)
+        c = Verleih.objects.create(verein=self.v, gegenstand=self.stuhl, veranstaltung=self.ver, von=self.von,
+                                   bis=self.bis)
+        for v in (a, b):
+            v.refresh_from_db()
+        self.assertEqual(len({a.vorgang, b.vorgang, c.vorgang}), 1)
+
+    def test_anderer_entleiher_oder_andere_veranstaltung_bleiben_getrennt(self):
+        self._sammel([self.zelt])
+        self._sammel([self.tisch], entleiher=self.m.pk)   # ein Mitglied statt "Verein selbst"
+        self.assertEqual(len(self._vorgaenge()), 2)
+        andere = Veranstaltung.objects.create(verein=self.v, titel="Herbstfest", beginn=timezone_now())
+        v = Verleih.objects.create(verein=self.v, gegenstand=self.stuhl, veranstaltung=andere, entleiher=self.m,
+                                   von=self.von, bis=self.bis)
+        self.assertIsNone(v.vorgang)
+
+    def test_abgeschlossener_vorgang_nimmt_keine_neuen_positionen_auf(self):
+        self._sammel([self.zelt, self.tisch])
+        Verleih.objects.filter(veranstaltung=self.ver).update(status="zurueckgegeben")
+        alt = next(iter(self._vorgaenge()))
+        self._sammel([self.stuhl])
+        neu = Verleih.objects.get(gegenstand=self.stuhl).vorgang
+        self.assertNotEqual(neu, alt)   # neuer Vorgang, der alte (ggf. abgerechnete) bleibt unveraendert
+
+    def test_ohne_veranstaltung_aendert_sich_nichts(self):
+        a = self.verleih(self.zelt)
+        b = self.verleih(self.tisch)
+        self.assertEqual((a.vorgang, b.vorgang), (None, None))
+        vorgang, _ = self.vorgang([self.stuhl])
+        c = self.verleih(self.bank, vorgang)
+        self.assertEqual(c.vorgang, vorgang)
+
+    def test_datenmigration_fuehrt_bestehende_vorgaenge_zusammen(self):
+        import importlib
+        from django.apps import apps as echte_apps
+        migration = importlib.import_module("apps.inventory.migrations.0009_vorgaenge_je_veranstaltung")
+        ids = []
+        for g in (self.zelt, self.tisch, self.stuhl):
+            ids.append(Verleih.objects.create(verein=self.v, gegenstand=g, veranstaltung=self.ver, von=self.von,
+                                              bis=self.bis).pk)
+        Verleih.objects.filter(pk=ids[0]).update(vorgang=uuid.uuid4())
+        Verleih.objects.filter(pk=ids[1]).update(vorgang=uuid.uuid4())
+        Verleih.objects.filter(pk=ids[2]).update(vorgang=None)
+        fertig = Verleih.objects.create(verein=self.v, gegenstand=self.bank, veranstaltung=self.ver, von=self.von,
+                                        bis=self.bis, status="zurueckgegeben")
+        fertig_vorher = Verleih.objects.get(pk=fertig.pk).vorgang
+        migration.zusammenfuehren(echte_apps, None)
+        self.assertEqual(len(set(Verleih.objects.filter(pk__in=ids).values_list("vorgang", flat=True))), 1)
+        self.assertEqual(Verleih.objects.get(pk=fertig.pk).vorgang, fertig_vorher)   # abgeschlossen: unberuehrt
+
+
+def timezone_now():
+    from django.utils import timezone
+    return timezone.now()

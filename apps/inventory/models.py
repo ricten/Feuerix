@@ -220,7 +220,29 @@ class Verleih(TenantModel):
                     pk=self.pk).exists():
                 raise ValidationError(_("Der Gegenstand ist überfällig und noch nicht zurückgegeben."))
 
+    def _vorgang_der_veranstaltung(self):
+        """Gehoert dieser Verleih zu einer Veranstaltung, kommt er in den schon laufenden Vorgang derselben
+        Veranstaltung und desselben Entleihers (gleichzeitig verliehen bzw. spaeter ergaenzt) statt einen eigenen
+        Vorgang zu bilden. Gibt es dort noch einen Einzelverleih ohne Vorgang oder weitere, bereits getrennte Vorgaenge,
+        werden auch sie angeschlossen. Nur laufende Positionen (reserviert/ausgegeben) zaehlen - ein vollstaendig
+        abgeschlossener Vorgang (ggf. schon abgerechnet) bleibt unveraendert. Ohne Treffer bleibt `self.vorgang`."""
+        gleiche = (Verleih.objects.filter(verein_id=self.verein_id, veranstaltung_id=self.veranstaltung_id,
+                                          entleiher_id=self.entleiher_id, entleiher_name=self.entleiher_name,
+                                          status__in=AKTIV).exclude(pk=self.pk).order_by("id"))
+        erste = gleiche.first()
+        if erste is None:
+            return self.vorgang
+        if erste.vorgang is None:
+            erste.vorgang = uuid.uuid4()
+            erste.save(update_fields=["vorgang", "geaendert"])
+        for andere in gleiche.exclude(vorgang=erste.vorgang):   # schliesst auch Verleihe ohne Vorgang (NULL) ein
+            andere.vorgang = erste.vorgang
+            andere.save(update_fields=["vorgang", "geaendert"])
+        return erste.vorgang
+
     def save(self, *args, **kwargs):
+        if self._state.adding and self.veranstaltung_id and self.status in AKTIV:
+            self.vorgang = self._vorgang_der_veranstaltung()
         if self._state.adding and self.gegenstand_id:
             # Reserviert der Verein selbst fuer eine Veranstaltung (kein Entleiher angegeben), ergibt eine
             # Leihgebuehr/Kaution an sich selbst keinen Sinn - unabhaengig davon, was am Gegenstand hinterlegt ist.

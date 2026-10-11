@@ -287,12 +287,16 @@ def verleih_sammel_add(request):
                 v = Verleih(verein=request.verein, vorgang=vorgang, gegenstand=g, **form.cleaned_data)
                 try:
                     v.full_clean()
-                    v.save()
+                    v.save()   # gehoert der Verleih zu einer Veranstaltung mit laufendem Vorgang, kommt er dorthin
+                    vorgang = v.vorgang
                     angelegt += 1
                 except Exception as e:
                     fehler.append(f"{g}: {'; '.join(getattr(e, 'messages', [str(e)]))}")
             if angelegt:
-                messages.success(request, f"{angelegt} Gegenstände als Vorgang angelegt.")
+                zu_bestehendem = Verleih.objects.filter(verein=request.verein, vorgang=vorgang).count() > angelegt
+                messages.success(request, f"{angelegt} Gegenstände " + (
+                    "zum bestehenden Vorgang dieser Veranstaltung hinzugefügt." if zu_bestehendem
+                    else "als Vorgang angelegt."))
                 request.session.pop(_warenkorb_key(request), None)
             for f in fehler:
                 messages.warning(request, f)

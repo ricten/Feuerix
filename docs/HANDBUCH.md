@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.67.1)
+# Handbuch – Feuerix (Version 1.68.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -382,7 +382,10 @@ Etiketten entfällt das Logo automatisch und der QR-Code steht mittig.
 
 Mehrere gleichzeitig verliehene Gegenstände werden als **Vorgang** verknüpft: von der Vorgangsseite aus lassen sich
 alle Positionen gemeinsam ausgeben, gemeinsam zurücknehmen, ein gemeinsamer Leihschein drucken und – siehe unten –
-landen auf **einer** gemeinsamen Rechnung statt vieler einzelner. In der **Verleih-Übersicht** erscheint ein Vorgang
+landen auf **einer** gemeinsamen Rechnung statt vieler einzelner. Gehören Gegenstände zu einer **Veranstaltung**, kommen auch **später hinzugefügte** in den
+bestehenden, noch laufenden Vorgang derselben Veranstaltung und desselben Entleihers (bzw. „Verein selbst“) statt einen
+zweiten Vorgang zu bilden; bereits getrennte Vorgänge werden dabei zusammengeführt (abgeschlossene bleiben
+unverändert). In der **Verleih-Übersicht** erscheint ein Vorgang
 entsprechend als **eine Zeile** („3 Gegenstände: Stuhl, Tisch, Zelt“, mit gemeinsamem Status bzw. z. B. „1 reserviert,
 2 ausgegeben“); ein Klick öffnet die Vorgangsseite mit Kopfangaben (Entleiher, Zeitraum, Veranstaltung, Zweck,
 Gebühr und Kaution gesamt) und allen Positionen. Einzelverleihe bleiben einzelne Zeilen; Suche und Filter betreffen

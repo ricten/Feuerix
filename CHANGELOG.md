@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.68.0
+- Verleih: Gegenstände, die später zur **selben Veranstaltung** hinzugefügt werden, kommen in den bestehenden, noch laufenden Vorgang
+  (gleiche Veranstaltung und gleicher Entleiher bzw. „Verein selbst“) statt einen zweiten Vorgang zu bilden – auch bei
+  „Inventar reservieren“ und beim einzelnen Anlegen. Bereits getrennte Vorgänge werden beim Hinzufügen zusammengeführt, und eine
+  Migration führt bestehende laufende Vorgänge derselben Veranstaltung zusammen. Abgeschlossene Vorgänge bleiben unverändert.
+
 ## 1.67.1
 - Inventar-Etiketten: Das Vereinslogo wird jetzt **schwarz-weiß** (Graustufen mit kräftigem Kontrast, Transparenz wird weiß)
   und deutlich größer gedruckt – links, der QR-Code rechts daneben. Der QR-Code ist etwas größer geworden (Text etwas

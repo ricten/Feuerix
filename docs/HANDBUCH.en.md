@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.67.1)
+# Handbook – Feuerix (Version 1.68.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -378,8 +378,10 @@ right; on very small labels the logo is omitted automatically and the QR code st
 
 Several items lent out together are linked as a **transaction**: from the transaction page you can issue all
 items together, take them all back together, print a shared loan slip, and – see below – they end up on
-**one** shared invoice instead of many individual ones. In the **loan overview**, a transaction accordingly shows as
-**one row** ("3 items: Chair, Table, Tent", with the common status or e.g. "1 reserved, 2 issued"); a click opens the
+**one** shared invoice instead of many individual ones. If items belong to an **event**, items **added later** also go into the existing, still running transaction of the
+same event and the same borrower (or "the club itself") instead of forming a second one; transactions that were
+already split are merged in the process (completed ones stay unchanged). In the **loan overview**, a transaction
+accordingly shows as **one row** ("3 items: Chair, Table, Tent", with the common status or e.g. "1 reserved, 2 issued"); a click opens the
 transaction page with header details (borrower, period, event, purpose, total fee and deposit) and all items.
 Individual loans remain single rows; search and filters apply to all items. For handing out there is the **printable
 packing list** ("Print packing list (PDF)" on the transaction or on a single loan): all items sorted by storage
