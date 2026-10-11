@@ -3,6 +3,14 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.69.0
+- Schichtplan: **druckbarer Schichtplan (PDF)** je Veranstaltung – nach Tagen gegliedert, je Schicht alle Eingeteilten mit Kontakt,
+  freie Plätze als Schreiblinien. Die Seite einer Schicht zeigt alle Eingeteilten samt Kontakt und freien Plätzen.
+- Neu: **Helfer tragen sich selbst ein** – in der Veranstaltung „Helfer dürfen sich selbst in Schichten eintragen“ aktivieren; ein
+  öffentlicher Link (ohne Anmeldung) zum Weitergeben erscheint auf der Veranstaltungsseite. Helfer wählen freie Schichten und
+  tragen Name/Kontakt ein (ohne Namen anderer Helfer zu sehen; keine Überbuchung, keine Doppel-Eintragung, Spam-Falle).
+- Schichteinsätze können jetzt auch **Gäste ohne Mitgliedskonto** sein (Name, Kontakt).
+
 ## 1.68.1
 - Veranstaltung: Gehört verliehenes/reserviertes Inventar zur Veranstaltung, ist die **Packliste (PDF)** direkt an der Veranstaltung
   verlinkt (je Vorgang ein Knopf; mit dem Recht „Verleih anzeigen“).

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.68.1)
+# Handbuch – Feuerix (Version 1.69.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -445,6 +445,20 @@ noch keine Erklärung vorliegt, dass die Pauschale nicht anderweitig ausgeschöp
 Aufwandsersatz kann per „Verzicht → Aufwandsspende“ in eine Spende umgewandelt werden.
 
 ## 9. Veranstaltungen und Aufgaben
+
+**Schichtplan und Helfer-Eintragung**: Zu jeder Veranstaltung lassen sich Schichten anlegen (Bezeichnung, Beginn, Ende, benötigte
+Helfer) und Helfer einteilen – Mitglieder oder **Gäste ohne Mitgliedskonto** (Name, optional Telefon/E-Mail). Auf der Seite
+einer Schicht stehen **alle Eingeteilten** mit Kontakt und die noch freien Plätze. Mit „Schichtplan drucken (PDF)“ (an der
+Veranstaltung und an jeder Schicht) entsteht ein **druckbarer Schichtplan**: nach Tagen gegliedert, je Schicht Zeit und alle
+Eingeteilten (mit Kontakt); freie Plätze bleiben als Schreiblinien zum handschriftlichen Ergänzen stehen. Damit sich Helfer
+**selbst eintragen** können, in der Veranstaltung „Helfer dürfen sich selbst in Schichten eintragen“ ankreuzen: Auf der
+Veranstaltungsseite erscheint dann ein **Helfer-Link zum Weitergeben** (nicht erratbar, funktioniert ohne Anmeldung). Dort
+wählt man Schichten mit freien Plätzen, gibt Namen (und optional Telefon/E-Mail) an und trägt sich verbindlich ein; die
+Eintragung erscheint sofort im Plan und im PDF (in der Schicht als „selbst eingetragen“ gekennzeichnet). Aus
+Datenschutzgründen sieht man auf der öffentlichen Seite nur Zeiten und freie Plätze, keine Namen anderer Helfer. Volle,
+vergangene Schichten und abgesagte/abgeschlossene Veranstaltungen sind nicht buchbar, derselbe Name kann sich nicht doppelt
+in dieselbe Schicht eintragen, und gleichzeitige Eintragungen überbuchen keine Schicht. Austragen und Korrigieren erfolgt
+durch die Verwaltung (Schicht öffnen, Eintrag löschen).
 
 Die Veranstaltungs-Detailseite ist eine Zentrale: Tagesordnung (inkl. „Standard-Tagesordnung“ für
 Mitgliederversammlungen mit zehn üblichen Punkten; die Punkte nummerieren sich automatisch lückenlos von 1 an – ein neuer

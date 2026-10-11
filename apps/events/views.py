@@ -3,6 +3,7 @@ from datetime import date
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.db.models import Max
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -16,7 +17,8 @@ from apps.core.anbindungen import anbindungen
 from apps.core.crud import abschnitt, knopf
 from apps.core.util import geld
 
-from .models import Anmeldung, Aufgabe, Tagesordnungspunkt, Veranstaltung
+from .models import Anmeldung, Aufgabe, Schicht, Schichteinsatz, Tagesordnungspunkt, Veranstaltung
+from .pdf import schichtplan_pdf
 
 STANDARD_TOP = [
     ("Begrüßung und Feststellung der ordnungsgemäßen Einladung und Beschlussfähigkeit", ""),
@@ -64,6 +66,9 @@ def veranstaltung_kontext(request, v):
         aktionen.append(knopf("Inventar reservieren", reverse("verleih_sammel_add") + f"?veranstaltung={v.pk}"
                               f"&von={timezone.localtime(v.beginn):%Y-%m-%d}"
                               f"&bis={timezone.localtime(v.ende or v.beginn):%Y-%m-%d}"))
+    if r.darf("veranstaltungen", "view") and v.schichten.exists():
+        aktionen.append(knopf("Schichtplan drucken (PDF)", reverse("veranstaltung_schichtplan_pdf", args=[v.pk]),
+                              stil="outline-primary"))
     if r.darf("verleih", "view"):   # Packliste(n) des zur Veranstaltung verliehenen/reservierten Inventars
         aktionen += packlisten_knoepfe(v)
     if r.darf("schriftverkehr", "add"):
@@ -99,6 +104,10 @@ def veranstaltung_kontext(request, v):
     if v.anmeldung_erforderlich:
         link = request.build_absolute_uri(reverse("veranstaltung_rueckmeldung", args=[v.rueckmeldung_code]))
         hinweise.append(format_html('{} <a href="{}">{}</a>', "Rückmeldungs-Link zum Weitergeben:", link, link))
+    if v.helfer_eintragung:
+        helfer_link = request.build_absolute_uri(reverse("veranstaltung_helfer", args=[v.rueckmeldung_code]))
+        hinweise.append(format_html('{} <a href="{}">{}</a>', "Helfer-Link zum Weitergeben (Selbsteintrag in Schichten):",
+                                    helfer_link, helfer_link))
     offene_schichten = [sc for sc in v.schichten.all() if sc.einsaetze.count() < sc.benoetigt]
     if offene_schichten:
         hinweise.append(f"{len(offene_schichten)} Schicht(en) noch nicht voll besetzt.")
@@ -180,8 +189,60 @@ def tagesordnung_standard(request, pk):
 
 
 def schicht_kontext(request, s):
-    return {"abschnitte": [abschnitt(request, "Eingetragene Helfer", s.einsaetze.all(), ("mitglied", "bemerkung"),
+    """Detailseite einer Schicht: alle Eingeteilten (Mitglieder und Gaeste, mit Kontakt) und die freien Plaetze."""
+    hinweise = [f"{s.freie_plaetze} von {s.benoetigt} Plätzen noch frei."] if s.freie_plaetze else []
+    return {"aktionen": [knopf("Schichtplan der Veranstaltung drucken (PDF)",
+                               reverse("veranstaltung_schichtplan_pdf", args=[s.veranstaltung_id]), stil="outline-primary")],
+            "hinweise": hinweise,
+            "abschnitte": [abschnitt(request, "Eingeteilte Helfer", s.einsaetze.select_related("mitglied"),
+                                     (("wer", "Helfer"), "kontakt", "bemerkung", ("selbst_eingetragen", "Selbst eingetragen")),
                                      "schichteinsatz_add", {"schicht": s.pk, "next": request.get_full_path()})]}
+
+
+@login_required
+def schichtplan_pdf_view(request, pk):
+    if request.verein is None or not request.rechte.darf("veranstaltungen", "view"):
+        raise PermissionDenied
+    v = get_object_or_404(Veranstaltung, pk=pk, verein=request.verein)
+    r = HttpResponse(schichtplan_pdf(v), content_type="application/pdf")
+    r["Content-Disposition"] = f'inline; filename="schichtplan-{v.pk}.pdf"'
+    return r
+
+
+def helfer_anmeldung(request, code):
+    """Oeffentliche Seite (ohne Anmeldung, ueber den nicht erratbaren Veranstaltungs-Link), auf der sich Helfer selbst in
+    freie Schichten eintragen. Sichtbar sind nur Schichten mit Zeit und freien Plaetzen - keine Namen anderer Helfer."""
+    v = get_object_or_404(Veranstaltung, rueckmeldung_code=code, helfer_eintragung=True)
+    geschlossen = v.status in ("abgesagt", "abgeschlossen")
+    jetzt = timezone.now()
+    eingetragen, voll, schon = [], [], []
+    if request.method == "POST" and not geschlossen and not request.POST.get("website"):   # "website": Spam-Falle
+        name = " ".join(request.POST.get("name", "").split())[:150]
+        kontakt = request.POST.get("kontakt", "").strip()[:150]
+        try:
+            ids = [int(x) for x in request.POST.getlist("schicht")][:10]
+        except ValueError:
+            ids = []
+        if not name:
+            messages.error(request, _("Bitte Ihren Namen angeben."))
+        elif not ids:
+            messages.error(request, _("Bitte mindestens eine Schicht auswählen."))
+        else:
+            with transaction.atomic():   # gleichzeitige Eintragungen duerfen eine Schicht nicht ueberbuchen
+                for s in Schicht.objects.select_for_update().filter(pk__in=ids, veranstaltung=v, ende__gte=jetzt):
+                    if s.einsaetze.filter(mitglied__isnull=True, name__iexact=name).exists():
+                        schon.append(s)
+                    elif s.einsaetze.count() >= s.benoetigt:
+                        voll.append(s)
+                    else:
+                        Schichteinsatz.objects.create(verein_id=v.verein_id, schicht=s, name=name, kontakt=kontakt,
+                                                      selbst_eingetragen=True)
+                        eingetragen.append(s)
+    schichten = [s for s in v.schichten.order_by("beginn", "id") if s.ende >= jetzt]
+    return render(request, "events/helfer.html", {
+        "veranstaltung": v, "schichten": [(s, s.freie_plaetze) for s in schichten], "geschlossen": geschlossen,
+        "eingetragen": eingetragen, "voll": voll, "schon": schon, "name": request.POST.get("name", ""),
+        "titel": f"{_('Helfer gesucht')} – {v.titel}"})
 
 
 def aufgabe_kontext(request, a):

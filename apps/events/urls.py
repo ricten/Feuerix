@@ -18,6 +18,8 @@ urlpatterns = [
     path("aufgaben/<int:pk>/erledigt/", views.aufgabe_erledigen, name="aufgabe_erledigen"),
     path("aufgaben/<int:pk>/beobachten/", views.aufgabe_beobachten, name="aufgabe_beobachten"),
     path("veranstaltungen/rueckmeldung/<uuid:code>/", views.rueckmeldung, name="veranstaltung_rueckmeldung"),
+    path("veranstaltungen/helfer/<uuid:code>/", views.helfer_anmeldung, name="veranstaltung_helfer"),
+    path("veranstaltungen/<int:pk>/schichtplan/pdf/", views.schichtplan_pdf_view, name="veranstaltung_schichtplan_pdf"),
 ]
 urlpatterns += crud("veranstaltungen", Veranstaltung, "veranstaltungen",
                     list_display=("beginn", "titel", "art", "ort", "status", ("verantwortlich", "Verantwortlich")),
@@ -34,7 +36,7 @@ urlpatterns += crud("aufgabenotizen", AufgabeNotiz, "veranstaltungen", list_disp
 urlpatterns += crud("schichten", Schicht, "veranstaltungen", list_display=("veranstaltung", "bezeichnung", "beginn",
                     "ende", ("besetzung", "Besetzung")), select_related=("veranstaltung",), filter=("veranstaltung",),
                     kontext=views.schicht_kontext)
-urlpatterns += crud("schichteinsaetze", Schichteinsatz, "veranstaltungen", list_display=("schicht", "mitglied"),
+urlpatterns += crud("schichteinsaetze", Schichteinsatz, "veranstaltungen", list_display=("schicht", ("wer", "Helfer"), "kontakt"),
                     select_related=("schicht", "mitglied", "schicht__veranstaltung"), filter=("schicht",))
 urlpatterns += crud("anmeldungen", Anmeldung, "teilnehmer", list_display=("veranstaltung", ("wer", "Name"),
                     "personen", "status"), select_related=("veranstaltung", "mitglied"), filter=("veranstaltung",

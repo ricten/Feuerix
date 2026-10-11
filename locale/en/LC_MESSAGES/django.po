@@ -4691,3 +4691,79 @@ msgid ""
 msgstr ""
 "List of [label, value] pairs - basis for the appendices in the minutes; the "
 "text under vote distribution contains the same."
+
+# Schichtplan
+
+msgid "Helfer dürfen sich selbst in Schichten eintragen"
+msgstr "Helpers may sign up for shifts themselves"
+
+msgid ""
+"Schaltet eine öffentliche Seite frei (Link auf der Veranstaltungsseite zum "
+"Weitergeben), auf der sich Helfer ohne Anmeldung in freie Schichten "
+"eintragen können."
+msgstr ""
+"Enables a public page (link on the event page to pass on) where helpers can "
+"sign up for open shifts without logging in."
+
+msgid "Helfer (Mitglied)"
+msgstr "Helper (member)"
+
+msgid "Für Helfer ohne Mitgliedskonto bzw. bei Selbsteintrag."
+msgstr "For helpers without a member account or when signing up themselves."
+
+msgid "Kontakt (Telefon/E-Mail)"
+msgstr "Contact (phone/e-mail)"
+
+msgid "Selbst eingetragen"
+msgstr "Signed up by themselves"
+
+msgid "Bitte mindestens eine Schicht auswählen."
+msgstr "Please select at least one shift."
+
+msgid "Helfer gesucht"
+msgstr "Helpers wanted"
+
+msgid "Danke, Sie sind eingetragen für:"
+msgstr "Thank you, you are signed up for:"
+
+msgid "bis"
+msgstr "until"
+
+msgid "Sie waren bereits eingetragen für:"
+msgstr "You were already signed up for:"
+
+msgid "Leider inzwischen voll:"
+msgstr "Unfortunately full by now:"
+
+msgid "Die Eintragung für diese Veranstaltung ist geschlossen."
+msgstr "Sign-up for this event is closed."
+
+msgid "Aktuell sind keine Schichten zur Eintragung offen."
+msgstr "There are currently no shifts open for sign-up."
+
+msgid "Schichten auswählen"
+msgstr "Select shifts"
+
+msgid "Uhr"
+msgstr "o'clock"
+
+msgid "voll"
+msgstr "full"
+
+msgid "Telefon oder E-Mail"
+msgstr "Phone or e-mail"
+
+msgid "optional, für Rückfragen"
+msgstr "optional, for questions"
+
+msgid "Verbindlich eintragen"
+msgstr "Sign up (binding)"
+
+msgid ""
+"Aus Datenschutzgründen werden hier keine Namen anderer Helfer angezeigt."
+msgstr "For privacy reasons, no names of other helpers are shown here."
+
+msgid "%(n)s Platz frei"
+msgid_plural "%(n)s Plätze frei"
+msgstr[0] "%(n)s place free"
+msgstr[1] "%(n)s places free"

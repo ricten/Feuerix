@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.68.1)
+# Handbook – Feuerix (Version 1.69.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -439,6 +439,18 @@ on file that the flat rate hasn't already been used up elsewhere. An approved ex
 converted into a donation via "Waive → donate the expense".
 
 ## 9. Events and tasks
+
+**Shift plan and helper sign-up:** shifts can be created for each event (name, start, end, helpers needed) and helpers
+assigned – members or **guests without a member account** (name, optional phone/e-mail). A shift's page shows **everyone
+assigned** with contact details and the places still free. "Print shift plan (PDF)" (on the event and on each shift)
+produces a **printable shift plan**: grouped by day, per shift the time and all assigned people (with contact); free places
+remain as writing lines for handwritten additions. So that helpers can **sign up themselves**, tick "Helpers may sign up for
+shifts themselves" in the event: a **helper link to pass on** then appears on the event page (unguessable, works without
+login). There people choose shifts with free places, give a name (and optionally phone/e-mail) and sign up bindingly; the
+entry appears immediately in the plan and the PDF (marked "signed up by themselves" in the shift). For privacy, the public
+page only shows times and free places, no names of other helpers. Full or past shifts and cancelled/completed events cannot
+be booked, the same name cannot sign up twice for the same shift, and simultaneous sign-ups cannot overbook a shift.
+Removing and correcting entries is done by the administration (open the shift, delete the entry).
 
 The event detail page is a hub: agenda (items renumber themselves automatically without gaps from 1 – a new item with
 an already used number is inserted before it, and following items move up after a deletion) (including a "standard agenda" for general meetings with ten common

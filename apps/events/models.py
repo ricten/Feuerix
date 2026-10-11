@@ -29,6 +29,10 @@ class Veranstaltung(TenantModel):
     oeffentlich = models.BooleanField(_("Öffentliche Veranstaltung"), default=False)
     anmeldung_erforderlich = models.BooleanField(_("Anmeldung erforderlich"), default=False)
     anmeldeschluss = models.DateField(_("Anmeldeschluss"), null=True, blank=True)
+    helfer_eintragung = models.BooleanField(
+        _("Helfer dürfen sich selbst in Schichten eintragen"), default=False,
+        help_text=_("Schaltet eine öffentliche Seite frei (Link auf der Veranstaltungsseite zum Weitergeben), auf der sich "
+                  "Helfer ohne Anmeldung in freie Schichten eintragen können."))
     notizen = models.TextField(_("Interne Notizen"), blank=True)
     openslides_meeting_id = models.PositiveIntegerField(_("OpenSlides-Meeting-ID"), null=True, blank=True, editable=False)
     rueckmeldung_code = models.UUIDField(_("Code für öffentliche Rückmeldung"), default=uuid.uuid4, editable=False,
@@ -162,13 +166,27 @@ class Schicht(TenantModel):
         return f"{self.einsaetze.count()}/{self.benoetigt}"
 
     @property
+    def freie_plaetze(self):
+        return max(self.benoetigt - self.einsaetze.count(), 0)
+
+    @property
+    def helfer_namen(self):
+        """Namen aller Eingeteilten (Mitglieder und eingetragene Gaeste), alphabetisch."""
+        return sorted((e.wer for e in self.einsaetze.select_related("mitglied")), key=str.casefold)
+
+    @property
     def helfer(self):
-        return ", ".join(e.mitglied.name for e in self.einsaetze.select_related("mitglied")) or "–"
+        return ", ".join(self.helfer_namen) or "–"
 
 
 class Schichteinsatz(TenantModel):
     schicht = models.ForeignKey(Schicht, on_delete=models.CASCADE, related_name="einsaetze", verbose_name=_("Schicht"))
-    mitglied = models.ForeignKey("members.Mitglied", on_delete=models.CASCADE, related_name="+", verbose_name=_("Helfer"))
+    mitglied = models.ForeignKey("members.Mitglied", on_delete=models.CASCADE, related_name="+", null=True, blank=True,
+                                 verbose_name=_("Helfer (Mitglied)"))
+    name = models.CharField(_("Name (Gast)"), max_length=150, blank=True,
+                            help_text=_("Für Helfer ohne Mitgliedskonto bzw. bei Selbsteintrag."))
+    kontakt = models.CharField(_("Kontakt (Telefon/E-Mail)"), max_length=150, blank=True)
+    selbst_eingetragen = models.BooleanField(_("Selbst eingetragen"), default=False, editable=False)
     bemerkung = models.CharField(_("Bemerkung"), max_length=200, blank=True)
 
     class Meta:
@@ -177,9 +195,15 @@ class Schichteinsatz(TenantModel):
         unique_together = [("schicht", "mitglied")]
 
     def __str__(self):
-        return f"{self.mitglied.name} – {self.schicht}"
+        return f"{self.wer} – {self.schicht}"
+
+    @property
+    def wer(self):
+        return self.mitglied.name if self.mitglied_id else (self.name or "?")
 
     def clean(self):
+        if not (self.mitglied_id or self.name):
+            raise ValidationError(_("Bitte ein Mitglied oder einen Namen angeben."))
         if self.schicht_id and not self.pk and self.schicht.einsaetze.count() >= self.schicht.benoetigt:
             raise ValidationError(_("Diese Schicht ist bereits vollständig besetzt."))
 

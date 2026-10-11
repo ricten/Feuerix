@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-8">
+<h3 class="mb-3">{% trans "Helfer gesucht" %}</h3>
+<div class="card shadow-sm mb-3"><div class="card-body">
+  <h5 class="mb-1">{{ veranstaltung.titel }}</h5>
+  <p class="text-muted mb-2">
+    {{ veranstaltung.beginn|date:"l, d.m.Y H:i" }}{% if veranstaltung.ort %} · {{ veranstaltung.ort }}{% endif %}
+  </p>
+  {% if veranstaltung.beschreibung %}<p class="mb-0" style="white-space: pre-line;">{{ veranstaltung.beschreibung }}</p>{% endif %}
+</div></div>
+
+{% if eingetragen %}
+<div class="alert alert-success"><i class="bi bi-check-circle"></i>
+  {% trans "Danke, Sie sind eingetragen für:" %}
+  <ul class="mb-0 mt-1">{% for s in eingetragen %}<li><strong>{{ s.bezeichnung }}</strong> – {{ s.beginn|date:"l, d.m.Y H:i" }} {% trans "bis" %} {{ s.ende|date:"H:i" }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+{% if schon %}<div class="alert alert-info">{% trans "Sie waren bereits eingetragen für:" %} {% for s in schon %}{{ s.bezeichnung }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+{% if voll %}<div class="alert alert-warning">{% trans "Leider inzwischen voll:" %} {% for s in voll %}{{ s.bezeichnung }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>{% endif %}
+{% for m in messages %}<div class="alert alert-{% if m.level_tag == 'error' %}danger{% else %}{{ m.level_tag }}{% endif %}">{{ m }}</div>{% endfor %}
+
+{% if geschlossen %}
+<div class="alert alert-secondary">{% trans "Die Eintragung für diese Veranstaltung ist geschlossen." %}</div>
+{% elif not schichten %}
+<div class="alert alert-secondary">{% trans "Aktuell sind keine Schichten zur Eintragung offen." %}</div>
+{% else %}
+<form method="post">{% csrf_token %}
+  <div class="card shadow-sm mb-3"><div class="card-body">
+    <h6>{% trans "Schichten auswählen" %}</h6>
+    <div class="list-group list-group-flush">
+      {% for s, frei in schichten %}
+      <label class="list-group-item d-flex align-items-start gap-2 {% if not frei %}text-muted{% endif %}">
+        <input class="form-check-input mt-1" type="checkbox" name="schicht" value="{{ s.pk }}" {% if not frei %}disabled{% endif %}>
+        <span class="flex-grow-1"><strong>{{ s.bezeichnung }}</strong><br>
+          <small>{{ s.beginn|date:"l, d.m.Y H:i" }} – {{ s.ende|date:"H:i" }} {% trans "Uhr" %}</small></span>
+        <span class="badge {% if frei %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+          {% if frei %}{% blocktrans count n=frei %}{{ n }} Platz frei{% plural %}{{ n }} Plätze frei{% endblocktrans %}{% else %}{% trans "voll" %}{% endif %}</span>
+      </label>
+      {% endfor %}
+    </div>
+  </div></div>
+  <div class="card shadow-sm mb-3"><div class="card-body">
+    <div class="mb-3"><label class="form-label">{% trans "Ihr Name" %}</label>
+      <input type="text" name="name" class="form-control" maxlength="150" value="{{ name }}" required></div>
+    <div class="mb-3"><label class="form-label">{% trans "Telefon oder E-Mail" %} ({% trans "optional, für Rückfragen" %})</label>
+      <input type="text" name="kontakt" class="form-control" maxlength="150"></div>
+    <div style="position:absolute;left:-9999px" aria-hidden="true"><input type="text" name="website" tabindex="-1" autocomplete="off"></div>
+    <button class="btn btn-success"><i class="bi bi-check-lg"></i> {% trans "Verbindlich eintragen" %}</button>
+  </div></div>
+</form>
+{% endif %}
+<p class="text-muted small">{% trans "Aus Datenschutzgründen werden hier keine Namen anderer Helfer angezeigt." %}</p>
+</div></div>
+{% endblock %}
