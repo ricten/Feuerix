@@ -90,6 +90,24 @@
       </dl>
     </div></div>
     {% endif %}
+    {% if links %}
+    <div class="card mt-3 mb-4 mb-xl-0">
+      <div class="card-header py-2"><strong>{% trans "Links zum Weitergeben" %}</strong></div>
+      <div class="list-group list-group-flush">
+        {% for l in links %}
+        <div class="list-group-item">
+          <div class="small text-muted mb-1">{{ l.label }}</div>
+          <div class="input-group input-group-sm">
+            <input type="text" class="form-control" readonly value="{{ l.url }}" onclick="this.select()" aria-label="{{ l.label }}">
+            <button type="button" class="btn btn-outline-secondary" data-url="{{ l.url }}" title="{% trans 'Link kopieren' %}"
+              onclick="var b=this; try { navigator.clipboard.writeText(b.dataset.url); b.innerHTML='&#10003;'; } catch (e) { b.previousElementSibling.select(); }"><i class="bi bi-clipboard"></i></button>
+            <a class="btn btn-outline-secondary" href="{{ l.url }}" target="_blank" rel="noopener" title="{% trans 'Seite öffnen' %}"><i class="bi bi-box-arrow-up-right"></i></a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
   </div>
   <div class="col-xl-8">
     {% for a in abschnitte %}
@@ -105,6 +123,7 @@
           {% if a.mit_aktionen %}<td class="text-end">{% include a.zeile_vorlage|default:"core/_buttons.html" with buttons=z.aktionen zeile=z auswahl=a.lagerorte %}</td>{% endif %}</tr>
         {% empty %}<tr><td colspan="{{ a.spalten|length }}" class="text-muted">{% trans "Keine Einträge." %}</td></tr>{% endfor %}
         </tbody></table></div>
+      {% if a.fuss %}<div class="card-footer small text-muted">{% for z in a.fuss %}<div>{{ z }}</div>{% endfor %}</div>{% endif %}
     </div>
     {% endif %}
     {% endfor %}

@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.70.1
+- Veranstaltungsseite aufgeräumt: Die Hinweiskästen oben entfallen. Die **Weitergabe-Links** (Rückmeldung, Helfer-Selbsteintrag) stehen in einer
+  eigenen Karte „Links zum Weitergeben“ unter den Angaben (mit Kopieren-/Öffnen-Knopf), die **Budget-Zusammenfassung** (Plan/Ist) in der
+  Fußzeile des Abschnitts „Budget“ (nur mit Budgetposten), „Zugesagte Personen“ unter „Anmeldungen“ und die Zahl der nicht voll
+  besetzten Schichten unter „Schichtplan“.
+
 ## 1.70.0
 - Helfer-Selbsteintragung: Kästchen **„Ich bin Mitglied im Verein“** (optional mit Mitgliedsnummer). Der Name wird dann dem Mitglied
   zugeordnet (Reihenfolge/Schreibweise/Umlaute egal; bei zwei gleichnamigen Mitgliedern entscheidet die Nummer, sonst wird nicht

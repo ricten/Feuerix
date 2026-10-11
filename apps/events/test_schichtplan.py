@@ -132,7 +132,8 @@ class OberflaecheTests(SchichtBasis):
         self.assertContains(r, "Schichtplan drucken (PDF)")
         self.assertContains(r, reverse("veranstaltung_schichtplan_pdf", args=[self.ver.pk]))
         self.assertContains(r, reverse("veranstaltung_helfer", args=[self.ver.rueckmeldung_code]))
-        self.assertContains(r, "Helfer-Link zum Weitergeben")
+        self.assertContains(r, "Links zum Weitergeben")
+        self.assertContains(r, "Helfer-Selbsteintrag in Schichten")
 
     def test_ohne_schichten_kein_pdf_knopf_ohne_freigabe_kein_link(self):
         ohne = Veranstaltung.objects.create(verein=self.v, titel="Ohne", beginn=self.beginn)

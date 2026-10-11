@@ -94,36 +94,41 @@ def veranstaltung_kontext(request, v):
                                       bestaetigung="Anwesenheit, Wahlen und Abstimmungen aus OpenSlides abrufen? Zuvor übernommene "
                                                    "Ergebnisse dieser Veranstaltung werden dabei ersetzt."))
     s = v.summen()
-    hinweise = [f"Plan: Einnahmen {geld(s['plan_ein'])} · Ausgaben {geld(s['plan_aus'])} · "
-                f"Ergebnis {geld(s['plan_ein'] - s['plan_aus'])}",
-                f"Ist: Einnahmen {geld(s['ist_ein'])} · Ausgaben {geld(s['ist_aus'])} · "
-                f"Ergebnis {geld(s['ist_ein'] - s['ist_aus'])}"]
-    zugesagt = sum(a.personen for a in v.anmeldungen.filter(status="zugesagt"))
-    if v.anmeldungen.exists():
-        hinweise.append(f"Zugesagte Personen: {zugesagt}" + (f" von erwartet {v.erwartete_teilnehmer}"
-                                                             if v.erwartete_teilnehmer else ""))
+    hinweise = []
+    # Weitergabe-Links: eigene Karte unter den Angaben (nicht mehr als Hinweiskasten ganz oben)
+    links = []
     if v.anmeldung_erforderlich:
-        link = request.build_absolute_uri(reverse("veranstaltung_rueckmeldung", args=[v.rueckmeldung_code]))
-        hinweise.append(format_html('{} <a href="{}">{}</a>', "Rückmeldungs-Link zum Weitergeben:", link, link))
+        links.append({"label": "Rückmeldung (Zu-/Absage)", "url": request.build_absolute_uri(
+            reverse("veranstaltung_rueckmeldung", args=[v.rueckmeldung_code]))})
     if v.helfer_eintragung:
-        helfer_link = request.build_absolute_uri(reverse("veranstaltung_helfer", args=[v.rueckmeldung_code]))
-        hinweise.append(format_html('{} <a href="{}">{}</a>', "Helfer-Link zum Weitergeben (Selbsteintrag in Schichten):",
-                                    helfer_link, helfer_link))
-    offene_schichten = [sc for sc in v.schichten.all() if sc.einsaetze.count() < sc.benoetigt]
-    if offene_schichten:
-        hinweise.append(f"{len(offene_schichten)} Schicht(en) noch nicht voll besetzt.")
+        links.append({"label": "Helfer-Selbsteintrag in Schichten", "url": request.build_absolute_uri(
+            reverse("veranstaltung_helfer", args=[v.rueckmeldung_code]))})
     ab = [abschnitt(request, "Aufgaben", v.aufgaben.all(), ("titel", "zustaendig", "faellig", "status"),
                     "aufgabe_add", {"veranstaltung": v.pk}),
           abschnitt(request, "Schichtplan", v.schichten.all(), ("bezeichnung", "beginn", "ende", ("besetzung", "Besetzung"),
                                                                ("helfer", "Helfer")), "schicht_add", {"veranstaltung": v.pk}),
           abschnitt(request, "Budget", v.kosten.all(), ("art", "bezeichnung", "plan_betrag", "ist_betrag"),
                     "kostenposition_add", {"veranstaltung": v.pk})]
+    # Zusammenfassungen gehoeren unter ihre Tabelle (Fusszeile des Abschnitts)
+    offene_schichten = [sc for sc in v.schichten.all() if sc.einsaetze.count() < sc.benoetigt]
+    if offene_schichten:
+        ab[1]["fuss"] = [f"{len(offene_schichten)} Schicht(en) noch nicht voll besetzt."]
+    if v.kosten.exists():
+        ab[2]["fuss"] = [f"Plan: Einnahmen {geld(s['plan_ein'])} · Ausgaben {geld(s['plan_aus'])} · "
+                         f"Ergebnis {geld(s['plan_ein'] - s['plan_aus'])}",
+                         f"Ist: Einnahmen {geld(s['ist_ein'])} · Ausgaben {geld(s['ist_aus'])} · "
+                         f"Ergebnis {geld(s['ist_ein'] - s['ist_aus'])}"]
     top_spalten = ("position", "titel") + (("openslides_topic_id",) if anbindungen(request).openslides else ())
     ab.insert(0, abschnitt(request, "Tagesordnung", v.tagesordnung.all(), top_spalten,
                            "tagesordnungspunkt_add", {"veranstaltung": v.pk, "position": naechste_top_position(v)}))
     if r.darf("teilnehmer", "view"):
-        ab.insert(2, abschnitt(request, "Anmeldungen", v.anmeldungen.all(), (("wer", "Name"), "personen", "status"),
-                               "anmeldung_add", {"veranstaltung": v.pk}))
+        anmeldungen = abschnitt(request, "Anmeldungen", v.anmeldungen.all(), (("wer", "Name"), "personen", "status"),
+                                "anmeldung_add", {"veranstaltung": v.pk})
+        if v.anmeldungen.exists():
+            zugesagt = sum(a.personen for a in v.anmeldungen.filter(status="zugesagt"))
+            anmeldungen["fuss"] = [f"Zugesagte Personen: {zugesagt}" + (f" von erwartet {v.erwartete_teilnehmer}"
+                                                                        if v.erwartete_teilnehmer else "")]
+        ab.insert(2, anmeldungen)
     if r.darf("teilnehmer", "view") and v.anwesenheiten.exists():
         ab.append(abschnitt(request, "Anwesenheit (aus OpenSlides)", v.anwesenheiten.select_related("mitglied"),
                             (("wer", "Name"),)))
@@ -146,7 +151,7 @@ def veranstaltung_kontext(request, v):
                             {"veranstaltung": v.pk, "kategorie": "protokoll"}))
     if v.openslides_meeting_id and anbindungen(request).openslides:
         hinweise.append(f"OpenSlides-Versammlung Nr. {v.openslides_meeting_id} ist verknüpft.")
-    return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": ab}
+    return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": ab, "links": links}
 
 
 def rueckmeldung(request, code):

@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.70.0)
+# Handbook – Feuerix (Version 1.70.1)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -469,7 +469,7 @@ regardless of what's configured on the item. "Create invitation"/"Invitation to 
 respective default template), and, with an OpenSlides integration set up, "Create in OpenSlides"/"Transfer
 agenda". Every date can be exported as a calendar file (.ics).
 
-If "Registration required" is enabled for an event, the detail page shows an RSVP link to pass on (e.g. by
+If "Registration required" is enabled for an event, the detail page shows an RSVP link in the "Links to pass on" card (below the details, with a copy button) (e.g. by
 email or newsletter) - an unguessable, public link, no login required. Through it, any invited person can enter
 their name, state the number of people, and respond with "Accept" or "Decline"; a repeat response from the same
 person (e.g. after a change in headcount) updates the existing registration instead of creating a second one.

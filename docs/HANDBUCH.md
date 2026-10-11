@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.70.0)
+# Handbuch – Feuerix (Version 1.70.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -479,8 +479,8 @@ Kaution werden in diesem Fall automatisch auf 0 gesetzt, unabhängig davon, was 
 OpenSlides-Anbindung „In OpenSlides anlegen“/„Tagesordnung übertragen“. Alle Termine lassen sich als Kalenderdatei
 (.ics) exportieren.
 
-Ist bei einer Veranstaltung „Anmeldung erforderlich“ aktiviert, zeigt die Detailseite einen Rückmeldungs-Link zum
-Weitergeben (z. B. per E-Mail oder Rundschreiben) - über einen nicht erratbaren, öffentlichen Link, ohne Login.
+Ist bei einer Veranstaltung „Anmeldung erforderlich“ aktiviert, zeigt die Detailseite in der Karte „Links zum Weitergeben“ (unter den Angaben, mit Kopieren-Knopf) einen Rückmeldungs-Link
+(z. B. per E-Mail oder Rundschreiben) - über einen nicht erratbaren, öffentlichen Link, ohne Login.
 Darüber kann jede eingeladene Person ihren Namen eintragen, die Anzahl Personen angeben und mit „Zusagen“ oder
 „Absagen“ reagieren; eine erneute Rückmeldung derselben Person (z. B. bei geänderter Personenzahl) aktualisiert die
 bestehende Anmeldung statt eine zweite anzulegen. Nach einem gesetzten Anmeldeschluss ist die Seite nur noch
