@@ -16,9 +16,10 @@ Internet ──► Caddy (ports 80/443, automatic HTTPS)
 
 > **Note on status:** an automated test suite and GitHub Actions CI check Feuerix against a real PostgreSQL
 > database on every change. The Paperless-ngx integration has been successfully tested against a running
-> instance (document submission); for a new instance, a quick test is still recommended (section 11). Not
-> yet verified against a production instance is the OpenSlides integration (implemented following the
-> official documentation) – be sure to plan a test phase for it (section 11) if you use it. The OpenSlides
+> instance (document submission); for a new instance, a quick test is still recommended (section 11). The
+> OpenSlides integration (implemented following the official documentation) has been tried out with an OpenSlides 4.3
+> instance (connection test, member sync, creating a meeting, retrieving attendance, elections and votes); further parts
+> are still only implemented according to the documentation – plan a test phase (section 11) if you use it. The OpenSlides
 > installation steps match the official `INSTALL.md` (OpenSlides 4.x, the `osmanage` tool); the Paperless
 > installation steps match the official Docker Compose installation.
 

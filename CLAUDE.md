@@ -12,7 +12,10 @@ verlinken.)
   vertrauen - ein einzeln berechneter Default wird bei PostgreSQL für ALLE Bestandszeilen gleich gesetzt
   (siehe z. B. `apps/events/migrations/0003`-`0005`: erst nullable anlegen, dann je Zeile einzeln befüllen,
   erst danach `unique=True` setzen).
-* OpenSlides-Anbindung (`apps/openslides`) folgt der Dokumentation von OpenSlides 4, ist nicht gegen eine Instanz getestet.
+* OpenSlides-Anbindung (`apps/openslides`) folgt der Dokumentation von OpenSlides 4 und wurde vom Projektinhaber mit einer
+  OpenSlides-4.3-Instanz erprobt (Verbindungstest, Mitgliederabgleich, Versammlung anlegen, Abruf von Anwesenheit/Wahlen/
+  Abstimmungen). Nicht erprobt: Gruppenzuweisung über Tags, Anonymisierung. Die Abfragen per Autoupdate-Dienst haben Rückfall-
+  Varianten (`abfragen_mit_rueckfall`), weil sich die Felder je OpenSlides-Version unterscheiden.
 * FinTS (`fints_abruf`) ist gegen eine echte Bank getestet (reiner Kontoumsätze-Abruf, kein TAN-Erfordernis dort gewesen) – Implementierungen unterscheiden sich je Bank, bei einer neuen Bank vorab kurz prüfen.
 * Login-Brute-Force-Schutz über `django-axes` (5 Fehlversuche sperren Benutzername+IP für 1h); während
   `manage.py test` automatisch deaktiviert (`AXES_ENABLED = "test" not in sys.argv`), sonst sperren sich

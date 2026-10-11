@@ -16,8 +16,10 @@ Internet ──► Caddy (Ports 80/443, automatisches HTTPS)
 > **Hinweis zum Stand:** Eine automatisierte Testsuite und GitHub-Actions-CI prüfen Feuerix bei jeder
 > Änderung gegen eine echte PostgreSQL-Datenbank. Die Paperless-ngx-Anbindung wurde erfolgreich gegen eine laufende
 > Instanz getestet (Dokumentenübergabe); bei einer neuen Instanz empfiehlt sich trotzdem ein kurzer Test (Abschnitt
-> 11). Nicht gegen eine produktive Instanz verifiziert ist weiterhin die OpenSlides-Anbindung (nach offizieller
-> Dokumentation umgesetzt) – planen Sie dafür unbedingt eine Testphase ein (Abschnitt 11), falls Sie sie nutzen. Die
+> 11). Die OpenSlides-Anbindung (nach offizieller
+> Dokumentation umgesetzt) wurde mit einer OpenSlides-4.3-Instanz erprobt (Verbindungstest, Mitgliederabgleich, Versammlung
+> anlegen, Abruf von Anwesenheit, Wahlen und Abstimmungen); weitere Teile sind weiterhin nur nach der Dokumentation
+> umgesetzt – planen Sie eine Testphase ein (Abschnitt 11), falls Sie sie nutzen. Die
 > OpenSlides-Installationsschritte entsprechen der offiziellen `INSTALL.md` (OpenSlides 4.x, Werkzeug `osmanage`);
 > die Paperless-Installationsschritte der offiziellen Docker-Compose-Installation.
 

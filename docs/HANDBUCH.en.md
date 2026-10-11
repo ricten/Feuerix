@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.71.0)
+# Handbook – Feuerix (Version 1.71.1)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -472,7 +472,7 @@ documents generated for the event. Directly from here: "Reserve inventory" opens
 (check off several items at once, pre-filled with the event's dates) - no borrower is needed here since the
 association itself is reserving them; the lending fee and deposit are automatically set to 0 in this case,
 regardless of what's configured on the item. "Create invitation"/"Invitation to members (mail merge)"/"Create minutes" (from the
-respective default template), and, with an OpenSlides integration set up, "Create in OpenSlides"/"Transfer
+respective default template), and, with an OpenSlides integration set up (for meetings/sessions), "Create in OpenSlides"/"Transfer
 agenda". Every date can be exported as a calendar file (.ics).
 
 If "Registration required" is enabled for an event, the detail page shows an RSVP link in the "Links to pass on" card (below the details, with a copy button) (e.g. by
@@ -574,15 +574,16 @@ to logged-in users with the archive permission. See also chapter 15 (legal notic
 > **Note on visibility:** Functions, buttons, columns and fields relating to OpenSlides (and likewise to
 > Paperless-ngx, chapter 13) only appear in the application **once the respective instance is connected and
 > active**. Until then, set-up is reachable via *Administration › External integrations*; the dedicated menu items
-> "OpenSlides integration" and "Paperless integration" only appear in the menu after connecting. Without OpenSlides,
-> the standard minutes contain plain fill-in fields such as "[Namen der Anwesenden eintragen]".
+> "OpenSlides integration" and "Paperless integration" only appear in the menu after connecting. In the standard
+> minutes, the OpenSlides placeholders stay completely empty without data – there is no reference to OpenSlides.
 
 Under *Administration › External integrations › OpenSlides* (after connecting also directly as the menu item "OpenSlides integration"), the connection to an OpenSlides instance is stored once per
 club (URL, technical account, committee ID, language; optionally a role that the member sync is restricted
 to). "Test connection" checks the credentials. "Sync members" creates missing OpenSlides accounts for active
-members (credentials can be sent out using the "OpenSlides login credentials" template), updates existing
-ones, and deactivates accounts for members no longer in scope. For a linked event, "Create in OpenSlides"
-transfers a new meeting with its agenda, and "Transfer agenda" afterwards transfers only newly added items.
+members (credentials can be sent out using the "OpenSlides login credentials" template, which is only created once OpenSlides is connected), updates existing
+ones, and deactivates accounts for members no longer in scope. For an event of the kind "Meeting" or "Session", "Create in OpenSlides"
+creates a new meeting with its agenda, and "Transfer agenda" afterwards transfers only newly added items (for other
+kinds, the agenda and the OpenSlides buttons are hidden unless a link or items already exist).
 "Delete starting passwords" removes all stored OpenSlides initial passwords (e.g. once all credentials have
 been distributed).
 
@@ -598,7 +599,10 @@ submitter, motion text and reason, the yes/no/abstain distribution, the number o
 OpenSlides) and – for information only – the motion status set in OpenSlides (e.g. "adopted"; so set the status in
 OpenSlides before importing). Who was actually elected, or whether a motion is carried, must be determined and
 entered based on the bylaws (majority requirements, handling ties) yourselves; the software deliberately does
-not decide this automatically.
+not decide this automatically. The detail page of a result shows the motion (submitter, text, reason) and the result or
+candidates and votes in separate tables. If the OpenSlides version rejects individual query fields, the query is
+automatically repeated with fewer details (e.g. without submitter) and a **notice** shows what is missing; if the query
+fails completely, an **error message** is shown instead of "no votes".
 
 **Attendance:** All persons marked as "present" in OpenSlides are imported as well (section "Attendance (from
 OpenSlides)", visible with the "participant lists" right). Members are matched via their linked OpenSlides account
@@ -783,8 +787,9 @@ Currently **not** included: a REST API, and pro-rata fee calculation for joining
 is possible in the web interface, see chapter 15). The SEPA direct debit feature (chapter 4) only generates the collection
 file; there is no return channel that automatically detects whether a direct debit actually arrived or was
 reversed – that still runs via the normal bank-statement import. The OpenSlides integration follows the
-official documentation but has not been verified against a production instance – please check it in a test
-run before relying on it. The Paperless-ngx integration was implemented following the official REST API
+official documentation and has been tried out with an OpenSlides 4.3 instance (connection test, member sync, creating a
+meeting, retrieving attendance, elections and votes); other parts (e.g. group assignment via tags, anonymisation) are
+still only implemented according to the documentation – please check them in a test run before relying on them. The Paperless-ngx integration was implemented following the official REST API
 documentation and has been successfully tested against a running instance (document submission) – for a new
 instance, a quick check with "Test connection" and a test document is still recommended. The **FinTS fetch**
 (*Administration › FinTS accesses*, see chapter 4) was implemented following the documentation of the

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.71.0)
+# Handbuch – Feuerix (Version 1.71.1)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -482,7 +482,7 @@ vorausgefüllt) - ein Entleiher ist dabei nicht nötig, da hier der Verein selbs
 Kaution werden in diesem Fall automatisch auf 0 gesetzt, unabhängig davon, was am Gegenstand hinterlegt ist.
 „Einladung erstellen“/„Einladung an Mitglieder
 (Serienbrief)“/„Protokoll erstellen“ (aus der jeweiligen Standard-Vorlage), sowie bei bestehender
-OpenSlides-Anbindung „In OpenSlides anlegen“/„Tagesordnung übertragen“. Alle Termine lassen sich als Kalenderdatei
+OpenSlides-Anbindung (und bei Versammlungen/Sitzungen) „In OpenSlides anlegen“/„Tagesordnung übertragen“. Alle Termine lassen sich als Kalenderdatei
 (.ics) exportieren.
 
 Ist bei einer Veranstaltung „Anmeldung erforderlich“ aktiviert, zeigt die Detailseite in der Karte „Links zum Weitergeben“ (unter den Angaben, mit Kopieren-Knopf) einen Rückmeldungs-Link
@@ -593,16 +593,17 @@ Ablage-Dokumente bleiben wie gewohnt nur für angemeldete Benutzer mit Ablage-Re
 > **Hinweis zur Sichtbarkeit:** Funktionen, Knöpfe, Spalten und Felder zu OpenSlides (und ebenso zu Paperless-ngx,
 > Kapitel 13) erscheinen in der Anwendung **erst, wenn die jeweilige Instanz angebunden und aktiv ist**. Bis dahin
 > ist die Einrichtung über *Verwaltung › Externe Anbindungen* erreichbar; die eigenen Menüpunkte
-> „OpenSlides-Anbindung“ bzw. „Paperless-Anbindung“ stehen erst nach dem Anbinden im Menü. Standardprotokolle
-> enthalten ohne OpenSlides schlichte Eintragsfelder wie „[Namen der Anwesenden eintragen]“.
+> „OpenSlides-Anbindung“ bzw. „Paperless-Anbindung“ stehen erst nach dem Anbinden im Menü. Im Standardprotokoll
+> bleiben die OpenSlides-Platzhalter ohne Daten ganz leer – es erscheint kein Hinweis auf OpenSlides.
 
 Unter *Verwaltung › Externe Anbindungen › OpenSlides* (nach dem Anbinden auch direkt als Menüpunkt „OpenSlides-Anbindung“) wird einmal pro Verein die Verbindung zu einer OpenSlides-Instanz
 hinterlegt (URL, technischer Zugang, Committee-ID, Sprache; optional eine Funktion, auf die der Mitgliederabgleich
 eingeschränkt wird). „Verbindung testen“ prüft die Zugangsdaten. „Mitglieder abgleichen“ legt fehlende
 OpenSlides-Benutzerkonten für aktive Mitglieder an (Zugangsdaten können per Vorlage „Zugangsdaten OpenSlides“
-verschickt werden), aktualisiert bestehende und deaktiviert Konten von Mitgliedern, die nicht mehr im Geltungsbereich
-sind. Bei einer verknüpften Veranstaltung überträgt „In OpenSlides anlegen“ eine neue Sitzung mit Tagesordnung,
-„Tagesordnung übertragen“ danach nur noch neu hinzugekommene Punkte. „Startpasswörter löschen“ entfernt alle
+verschickt werden, die erst bei angebundenem OpenSlides angelegt wird), aktualisiert bestehende und deaktiviert Konten von Mitgliedern, die nicht mehr im Geltungsbereich
+sind. Bei einer Veranstaltung der Art „Versammlung“ oder „Sitzung“ legt „In OpenSlides anlegen“ eine neue Versammlung
+mit Tagesordnung an, „Tagesordnung übertragen“ danach nur noch neu hinzugekommene Punkte (bei anderen Arten sind
+Tagesordnung und OpenSlides-Knöpfe ausgeblendet, sofern noch keine Verknüpfung oder Punkte bestehen). „Startpasswörter löschen“ entfernt alle
 gespeicherten OpenSlides-Anfangspasswörter (z. B. nachdem alle Zugangsdaten verteilt wurden).
 
 Die OpenSlides-Anbindung einrichten können laut Datenschutzordnung alle sechs DSO-Rollen (Zeile „Vereinssoftware /
@@ -617,7 +618,11 @@ Wahlgang bzw. Abstimmung auf der Veranstaltung ab (Abschnitte „Wahlergebnisse 
 der gültigen/ungültigen Stimmen (sofern in OpenSlides erfasst) und – nur zur Information – der in OpenSlides gesetzte
 Antragsstatus (z. B. „angenommen“; also den Status in OpenSlides vor dem Abruf setzen). Wer tatsächlich
 gewählt ist bzw. ob ein Antrag angenommen ist, muss anhand der Satzung (Mehrheitserfordernis, Umgang mit
-Gleichstand) selbst festgestellt und eingetragen werden, das entscheidet die Software bewusst nicht automatisch.
+Gleichstand) selbst festgestellt und eingetragen werden, das entscheidet die Software bewusst nicht automatisch. Auf der
+Detailseite eines Ergebnisses stehen Antrag (Antragsteller*in, Text, Begründung) und Ergebnis bzw. Kandidat*innen und
+Stimmen in getrennten Tabellen. Lehnt die OpenSlides-Version einzelne Abfragefelder ab, wird automatisch mit weniger
+Angaben neu abgefragt (z. B. ohne Antragsteller) und ein **Hinweis** zeigt, was fehlt; scheitert die Abfrage ganz,
+erscheint eine **Fehlermeldung** statt „keine Abstimmungen“.
 
 **Anwesenheit**: Außerdem werden alle Personen übernommen, die in OpenSlides als „anwesend“ markiert sind
 (Abschnitt „Anwesenheit (aus OpenSlides)“, sichtbar mit dem Recht „Teilnehmerlisten“). Mitglieder werden über ihr
@@ -806,8 +811,10 @@ Aktuell **nicht** enthalten: eine REST-API sowie eine anteilige Beitragsberechnu
 (die Datenbank-Wiederherstellung ist in der Weboberfläche möglich, siehe Kapitel 15). Der SEPA-Einzug
 (Kapitel 4) erzeugt nur die Einzugsdatei; ein Rückkanal, der eine tatsächlich eingegangene oder zurückgebuchte
 Lastschrift automatisch erkennt, existiert nicht – das läuft weiterhin über den normalen Kontoauszug-Import. Die
-OpenSlides-Anbindung folgt der offiziellen Dokumentation, wurde aber nicht gegen eine produktive Instanz
-verifiziert – bitte im Testbetrieb prüfen, bevor Sie sich darauf verlassen. Die Paperless-ngx-Anbindung wurde nach
+OpenSlides-Anbindung folgt der offiziellen Dokumentation und wurde mit einer OpenSlides-4.3-Instanz erprobt
+(Verbindungstest, Mitgliederabgleich, Versammlung anlegen, Abruf von Anwesenheit, Wahlen und Abstimmungen); andere
+Teile (z. B. Gruppenzuweisung über Tags, Anonymisierung) sind weiterhin nur nach der Dokumentation umgesetzt – bitte im
+Testbetrieb prüfen, bevor Sie sich darauf verlassen. Die Paperless-ngx-Anbindung wurde nach
 der offiziellen REST-API-Dokumentation umgesetzt und erfolgreich gegen eine laufende Instanz getestet
 (Dokumentenübergabe) – bei einer neuen Instanz empfiehlt sich trotzdem ein kurzer Test mit „Verbindung testen“ und
 einem Testdokument. Der **FinTS-Abruf**

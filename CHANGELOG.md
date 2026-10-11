@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.71.1
+- Dokumentation (Handbuch, INSTALL, README, CLAUDE.md) zur OpenSlides-Anbindung auf den aktuellen Stand gebracht: leere Platzhalter im
+  Standardprotokoll, OpenSlides nur bei Versammlung/Sitzung, Rückfall-Abfragen mit Hinweis/Fehlermeldung, getrennte Tabellen der
+  Ergebnisdetailseite, Vorlage „Zugangsdaten OpenSlides“ erst bei Anbindung, und die Aussage zum Teststand (mit OpenSlides 4.3 erprobt).
+
 ## 1.71.0
 - Schichtplan: Bei aktivierter Helfer-Selbsteintragung lassen sich **einzelne Schichten freigeben**: Häkchen „Für Selbsteintrag freigegeben“ je
   Schicht (Standard: ja). Die öffentliche Seite zeigt und bucht nur freigegebene Schichten; an der Veranstaltung gibt es „Alle Schichten

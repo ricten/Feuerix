@@ -12,8 +12,9 @@ Rechte/Rollen, vollständiges Änderungsprotokoll, Auswertungen mit CSV/Excel-Ex
 > **Stand:** Eine automatisierte Testsuite (`python manage.py test`, ~440 Tests) und eine GitHub-Actions-CI prüfen
 > bei jeder Änderung gegen eine echte PostgreSQL-Datenbank. Der FinTS-Abruf (reiner Kontoumsätze-Abruf) und die
 > Paperless-ngx-Anbindung (Dokumentenübergabe) wurden erfolgreich gegen eine echte Bank bzw. eine laufende
-> Paperless-Instanz getestet. Nicht gegen eine produktive Instanz verifiziert ist weiterhin die OpenSlides-Anbindung
-> (nach offizieller Dokumentation umgesetzt) – dafür vor dem Verlass darauf eine Testphase einplanen.
+> Paperless-Instanz getestet. Die OpenSlides-Anbindung (nach offizieller Dokumentation umgesetzt) wurde mit einer OpenSlides-4.3-Instanz erprobt
+> (Verbindungstest, Mitgliederabgleich, Versammlung anlegen, Abruf von Anwesenheit, Wahlen und Abstimmungen); weitere Teile
+> sind nur nach der Dokumentation umgesetzt – vor dem Verlass darauf eine Testphase einplanen.
 
 **Handbuch:** Eine ausführliche Bedienungsanleitung für Vorstand, Kassenwart, Schriftführer & Co. steht in
 **[docs/HANDBUCH.md](docs/HANDBUCH.md)**.
@@ -98,7 +99,7 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 | Veranstaltungen | Planung, Aufgaben, Schichtplan mit Besetzung, Anmeldungen, Budget (Plan/Ist), Inventarreservierung, iCal-Export |
 | Schriftverkehr | Vereinslogo (auf allen PDFs), bearbeitbare Vorlagen (Einladung, Protokoll, Serienbrief …) mit Platzhaltern, Einzelschriftstücke mit PDF- und Word-Export, Serienbriefe mit Empfängerfilter (PDF-Sammeldatei oder E-Mail mit PDF-Anhang) – siehe [docs/SCHRIFTVERKEHR.md](docs/SCHRIFTVERKEHR.md) |
 | Ablage | Ordnerstruktur (Kategorie/Jahr), versionierte Dokumente, Zuordnung zu Veranstaltungen, geschützter Dateizugriff; erzeugte PDFs werden automatisch abgelegt; optionaler Versand an **Paperless-ngx** (einzeln oder gesammelt); einzelne Dokumente als **öffentlich** markierbar (Datenschutzerklärung, Aufnahmeformular u. Ä.) – erscheinen dann ohne Anmeldung auf einer öffentlichen Downloads-Seite |
-| OpenSlides | Anbindung an OpenSlides 4: Konten der Mitglieder anlegen/abgleichen, Versammlung + Tagesordnung aus der Veranstaltung anlegen, **Anwesenheit, Wahlen und Abstimmungen zurückholen** (Rückfluss der Anwesenheit, der Stimmenverteilung abgeschlossener Personenwahlen sowie aller Abstimmungen zu Anträgen/Themen in die Veranstaltung, per Knopf oder Platzhalter `{anwesenheit}`/`{abstimmungen}`/`{wahlergebnisse}` direkt im Protokoll) (nach Dokumentation umgesetzt, ungetestet) |
+| OpenSlides | Anbindung an OpenSlides 4: Konten der Mitglieder anlegen/abgleichen, Versammlung + Tagesordnung aus der Veranstaltung anlegen, **Anwesenheit, Wahlen und Abstimmungen zurückholen** (Rückfluss der Anwesenheit, der Stimmenverteilung abgeschlossener Personenwahlen sowie aller Abstimmungen zu Anträgen/Themen in die Veranstaltung, per Knopf oder Platzhalter `{anwesenheit}`/`{abstimmungen}`/`{wahlergebnisse}` direkt im Protokoll) (nach Dokumentation umgesetzt, mit OpenSlides 4.3 erprobt) |
 | Paperless-ngx | Verbindung je Verein (Adresse, API-Token verschlüsselt gespeichert, Verbindungstest); Ablage-Dokumente per Knopf oder gesammelt an eine bestehende Paperless-Instanz senden (Korrespondent/Dokumenttyp/Tags werden dort bei Bedarf automatisch angelegt) |
 | Protokoll | Jede Änderung: wer, wann, IP, Feld alt → neu, optionaler Grund; sensible Felder maskiert |
 
@@ -144,8 +145,8 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
   in einem Block, alle Abstimmungen in einem Block); die Platzhalter `{anwesenheit}`, `{abstimmungen}` und
   `{wahlergebnisse}` verweisen darauf und bleiben ohne Daten leer. Die Anwesenheit (als
   „anwesend“ markierte Personen; Mitglieder über ihr OpenSlides-Konto zugeordnet) wird mit übernommen. Technisch über eine einzelne, verschachtelte Abfrage an den
-  OpenSlides-Autoupdate-Dienst umgesetzt (nach dessen Dokumentation, ebenfalls nicht gegen eine echte Instanz
-  getestet). Ein erneuter Abruf ersetzt zuvor übernommene Ergebnisse derselben Veranstaltung vollständig.
+  OpenSlides-Autoupdate-Dienst umgesetzt (nach dessen Dokumentation; mit Rückfall auf weniger Felder, falls die
+  OpenSlides-Version einzelne ablehnt). Ein erneuter Abruf ersetzt zuvor übernommene Ergebnisse derselben Veranstaltung vollständig.
 * **Paperless-ngx:** Entweder eine bereits laufende, separate Instanz verwenden (nur Adresse und API-Token unter
   *Verwaltung › Paperless-Anbindung* eintragen), oder optional über [paperless/](paperless/) als eigenen
   Docker-Compose-Stack auf diesem Server mitbetreiben (siehe INSTALL.md Abschnitt 9). Der Versand ist in jedem

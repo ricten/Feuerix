@@ -14,8 +14,10 @@ complete audit trail, reports with CSV/Excel export.
 > **Status:** an automated test suite (`python manage.py test`, ~440 tests) and a GitHub Actions CI check
 > every change against a real PostgreSQL database. The FinTS fetch (plain transaction fetching) and the
 > Paperless-ngx integration (document submission) have been successfully tested against a real bank and a
-> running Paperless instance, respectively. Not yet verified against a production instance is the OpenSlides
-> integration (implemented following the official documentation) – plan a test phase before relying on it.
+> running Paperless instance, respectively. The OpenSlides
+> integration (implemented following the official documentation) has been tried out with an OpenSlides 4.3 instance
+> (connection test, member sync, creating a meeting, retrieving attendance, elections and votes); further parts are
+> only implemented according to the documentation – plan a test phase before relying on it.
 
 **Handbook:** a detailed user guide for the board, treasurer, secretary & co. is available in
 **[docs/HANDBUCH.en.md](docs/HANDBUCH.en.md)**.
@@ -100,7 +102,7 @@ login, CSRF protection, language – no tracking cookies).
 | Events | Planning, tasks, shift schedule with staffing, registrations, budget (planned/actual), inventory reservation, iCal export |
 | Correspondence | Club logo (on every PDF), editable templates (invitation, minutes, mail merge …) with placeholders, individual documents with PDF and Word export, mail merges with a recipient filter (a single PDF or email with a PDF attachment) – see [docs/SCHRIFTVERKEHR.en.md](docs/SCHRIFTVERKEHR.en.md) |
 | Archive | Folder structure (category/year), versioned documents, linked to events, protected file access; generated PDFs are filed automatically; optional submission to **Paperless-ngx** (individually or in bulk); individual documents can be marked **public** (privacy policy, intake form, etc.) – they then appear without login on a public downloads page |
-| OpenSlides | Integration with OpenSlides 4: creating/syncing member accounts, creating a meeting + agenda from an event, **retrieving attendance, elections and votes** (attendance, vote distribution of completed personnel elections and of all votes on motions/topics flows back into the event, also directly into the minutes via a button or the `{anwesenheit}`/`{abstimmungen}`/`{wahlergebnisse}` placeholders) (implemented following the documentation, untested) |
+| OpenSlides | Integration with OpenSlides 4: creating/syncing member accounts, creating a meeting + agenda from an event, **retrieving attendance, elections and votes** (attendance, vote distribution of completed personnel elections and of all votes on motions/topics flows back into the event, also directly into the minutes via a button or the `{anwesenheit}`/`{abstimmungen}`/`{wahlergebnisse}` placeholders) (implemented following the documentation, tried out with OpenSlides 4.3) |
 | Paperless-ngx | A connection per club (address, API token stored encrypted, connection test); send archive documents to an existing Paperless instance via a button or in bulk (correspondent/document type/tags are created there automatically if needed) |
 | Audit trail | Every change: who, when, IP, field old → new, an optional reason; sensitive fields masked |
 
@@ -148,7 +150,8 @@ login, CSRF protection, language – no tracking cookies).
   elections in one block, all votes in one block); the `{anwesenheit}`, `{abstimmungen}` and `{wahlergebnisse}`
   placeholders refer to them and stay empty without data. Attendance (persons marked
   "present"; members matched via their OpenSlides account) is imported as well. Implemented technically via a single, nested query to the OpenSlides
-  autoupdate service (following its documentation, likewise not tested against a real instance). Fetching
+  autoupdate service (following its documentation; falling back to fewer fields if the
+  OpenSlides version rejects some). Fetching
   again fully replaces previously imported results for the same event.
 * **Paperless-ngx:** either use an already-running, separate instance (just enter the address and API token
   under *Administration › Paperless Integration*), or optionally run it alongside, on this server, via

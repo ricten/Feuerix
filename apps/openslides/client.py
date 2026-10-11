@@ -1,7 +1,8 @@
 """Minimaler Client für die OpenSlides-4-API (Auth-Service + Action-Service).
 
 Aufbau nach der offiziellen Dokumentation (openslides-auth-service, openslides-backend/docs/actions).
-NICHT gegen eine laufende Instanz getestet - bitte zuerst mit dem Verbindungstest prüfen.
+Erprobt mit OpenSlides 4.3 (Verbindungstest, Mitgliederabgleich, Versammlung, Wahlen/Abstimmungen/Anwesenheit); die Felder der
+Abfragen unterscheiden sich je Version - siehe abfragen_mit_rueckfall() in services.py. Bei Problemen zuerst den Verbindungstest nutzen.
 """
 import requests
 
