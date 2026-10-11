@@ -19,6 +19,7 @@ urlpatterns = [
     path("aufgaben/<int:pk>/beobachten/", views.aufgabe_beobachten, name="aufgabe_beobachten"),
     path("veranstaltungen/rueckmeldung/<uuid:code>/", views.rueckmeldung, name="veranstaltung_rueckmeldung"),
     path("veranstaltungen/helfer/<uuid:code>/", views.helfer_anmeldung, name="veranstaltung_helfer"),
+    path("schichteinsaetze/<int:pk>/entfernen/", views.schichteinsatz_entfernen, name="schichteinsatz_entfernen"),
     path("veranstaltungen/<int:pk>/schichtplan/pdf/", views.schichtplan_pdf_view, name="veranstaltung_schichtplan_pdf"),
     path("veranstaltungen/<int:pk>/schichten/<str:modus>/", views.schichten_freigabe,
          name="veranstaltung_schichten_freigabe"),

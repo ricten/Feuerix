@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.71.2
+- Schichtseite: In der Liste „Eingeteilte Helfer“ steht hinter jedem Namen ein **Papierkorb-Knopf** zum Entfernen (mit Rückfrage; mit dem Recht
+  „Veranstaltungen löschen“, im Änderungsprotokoll erfasst). Danach geht es zur Schicht zurück, der Platz ist wieder frei.
+
 ## 1.71.1
 - Dokumentation (Handbuch, INSTALL, README, CLAUDE.md) zur OpenSlides-Anbindung auf den aktuellen Stand gebracht: leere Platzhalter im
   Standardprotokoll, OpenSlides nur bei Versammlung/Sitzung, Rückfall-Abfragen mit Hinweis/Fehlermeldung, getrennte Tabellen der

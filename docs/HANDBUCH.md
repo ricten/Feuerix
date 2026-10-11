@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.71.1)
+# Handbuch – Feuerix (Version 1.71.2)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -470,7 +470,8 @@ Schichten für Selbsteintrag freigeben/sperren“, und im Schichtplan zeigt die 
 Datenschutzgründen sieht man auf der öffentlichen Seite nur Zeiten und freie Plätze, keine Namen anderer Helfer. Volle,
 vergangene Schichten und abgesagte/abgeschlossene Veranstaltungen sind nicht buchbar, derselbe Name kann sich nicht doppelt
 in dieselbe Schicht eintragen, und gleichzeitige Eintragungen überbuchen keine Schicht. Austragen und Korrigieren erfolgt
-durch die Verwaltung (Schicht öffnen, Eintrag löschen).
+durch die Verwaltung (Schicht öffnen, bei dem Namen den Papierkorb-Knopf drücken; die Rückfrage nennt die Person, der Platz wird
+wieder frei).
 
 Die Veranstaltungs-Detailseite ist eine Zentrale: Tagesordnung (inkl. „Standard-Tagesordnung“ für
 Mitgliederversammlungen mit zehn üblichen Punkten; die Punkte nummerieren sich automatisch lückenlos von 1 an – ein neuer

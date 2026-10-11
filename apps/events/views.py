@@ -6,11 +6,12 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Max
 from django.http import HttpResponse
+from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.html import format_html
+from django.utils.html import escapejs, format_html
 from django.utils.translation import gettext as _
 
 from apps.core.anbindungen import anbindungen
@@ -220,15 +221,38 @@ def _helfer_abschnitt(request, s):
     """Tabelle der Eingeteilten einer Schicht. Den Kontakt aus der Mitgliedsakte (wenn beim Selbsteintrag keiner angegeben
     wurde) sieht nur, wer Mitgliederdaten sehen darf."""
     mit_kontakt = request.rechte.darf("mitglieder", "view")
+    darf_loeschen = request.rechte.darf("veranstaltungen", "delete")
     abschnitt_ = abschnitt(request, "Eingeteilte Helfer", s.einsaetze.none(), ("id",), "schichteinsatz_add",
                            {"schicht": s.pk, "next": request.get_full_path()})
-    abschnitt_["spalten"] = ["Helfer", "Zuordnung", "Kontakt", "Bemerkung", "Selbst eingetragen"]
-    abschnitt_["zeilen"] = [
-        {"url": reverse("schichteinsatz_detail", args=[e.pk]),
-         "zellen": [e.wer, e.zuordnung, e.kontakt_anzeige(mit_kontakt) or "–", e.bemerkung or "–",
-                    "✓" if e.selbst_eingetragen else "✗"]}
-        for e in sorted(s.einsaetze.select_related("mitglied"), key=lambda e: e.wer.casefold())]
+    abschnitt_["spalten"] = ["Helfer", ""] + ["Zuordnung", "Kontakt", "Bemerkung", "Selbst eingetragen"]
+    csrf = get_token(request)
+    zeilen = []
+    for e in sorted(s.einsaetze.select_related("mitglied"), key=lambda e: e.wer.casefold()):
+        # Loeschknopf direkt hinter dem Namen (eigene Zelle, damit er nicht im Link der ersten Zelle steckt)
+        entfernen = format_html(
+            '<form method="post" action="{}" class="d-inline" onsubmit="return confirm(\'{}\')">'
+            '<input type="hidden" name="csrfmiddlewaretoken" value="{}">'
+            '<button class="btn btn-sm btn-outline-danger py-0 px-1" title="{}"><i class="bi bi-trash"></i></button></form>',
+            reverse("schichteinsatz_entfernen", args=[e.pk]), escapejs(f"{e.wer} aus dieser Schicht entfernen?"), csrf,
+            "Aus der Schicht entfernen") if darf_loeschen else ""
+        zeilen.append({"url": reverse("schichteinsatz_detail", args=[e.pk]), "zellen": [
+            e.wer, entfernen, e.zuordnung, e.kontakt_anzeige(mit_kontakt) or "–", e.bemerkung or "–",
+            "✓" if e.selbst_eingetragen else "✗"]})
+    abschnitt_["zeilen"] = zeilen
     return abschnitt_
+
+
+@login_required
+@require_POST
+def schichteinsatz_entfernen(request, pk):
+    """Entfernt einen Helfer aus einer Schicht (Papierkorb-Knopf in der Helferliste) und kehrt zur Schicht zurueck."""
+    if request.verein is None or not request.rechte.darf("veranstaltungen", "delete"):
+        raise PermissionDenied
+    e = get_object_or_404(Schichteinsatz.objects.select_related("schicht", "mitglied"), pk=pk, verein=request.verein)
+    schicht_id, wer = e.schicht_id, e.wer
+    e.delete()   # delete() statt Queryset-Loeschen: bleibt im Aenderungsprotokoll
+    messages.success(request, f"{wer} wurde aus der Schicht entfernt.")
+    return redirect("schicht_detail", pk=schicht_id)
 
 
 @login_required

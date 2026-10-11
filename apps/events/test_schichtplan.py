@@ -514,3 +514,75 @@ class SchichtFreigabeTests(SchichtBasis):
         self.assertEqual(self.client.post(url).status_code, 403)
         self.theke.refresh_from_db()
         self.assertFalse(self.theke.selbsteintrag)
+
+
+class HelferEntfernenTests(SchichtBasis):
+    def setUp(self):
+        super().setUp()
+        self.e1 = self.einsatz(self.aufbau, mitglied=self.m)
+        self.e2 = self.einsatz(self.aufbau, name="Anton Gast")
+
+    def _seite(self):
+        return self.client.get(reverse("schicht_detail", args=[self.aufbau.pk]))
+
+    def test_loeschknopf_hinter_jedem_namen(self):
+        self.anmelden()
+        r = self._seite()
+        html = r.content.decode()
+        for e in (self.e1, self.e2):
+            self.assertIn(reverse("schichteinsatz_entfernen", args=[e.pk]), html)
+        self.assertEqual(html.count("/entfernen/"), 2)   # ein Knopf je Zeile
+        # Knopf steht in der Zeile direkt NACH dem Namen (eigene Zelle), nicht im Namens-Link
+        zeile = html.split("Anton Gast")[1].split("</tr>")[0]
+        self.assertLess(zeile.index("schichteinsaetze"), zeile.index("Gast") if "Gast" in zeile else len(zeile))
+        self.assertContains(r, "Anton Gast aus dieser Schicht entfernen?")   # Rueckfrage mit Namen
+
+    def test_entfernen_loescht_und_kehrt_zur_schicht_zurueck(self):
+        self.anmelden()
+        r = self.client.post(reverse("schichteinsatz_entfernen", args=[self.e2.pk]), follow=True)
+        self.assertRedirects(r, reverse("schicht_detail", args=[self.aufbau.pk]))
+        self.assertContains(r, "Anton Gast wurde aus der Schicht entfernt")
+        self.assertFalse(Schichteinsatz.objects.filter(pk=self.e2.pk).exists())
+        self.assertTrue(Schichteinsatz.objects.filter(pk=self.e1.pk).exists())
+        self.assertEqual(self.aufbau.freie_plaetze, 2)   # Platz wieder frei
+
+    def test_mitglied_wird_mit_seinem_namen_gemeldet(self):
+        self.anmelden()
+        r = self.client.post(reverse("schichteinsatz_entfernen", args=[self.e1.pk]), follow=True)
+        self.assertContains(r, "Erika Muster wurde aus der Schicht entfernt")
+
+    def test_nur_per_post(self):
+        self.anmelden()
+        self.assertEqual(self.client.get(reverse("schichteinsatz_entfernen", args=[self.e1.pk])).status_code, 405)
+        self.assertTrue(Schichteinsatz.objects.filter(pk=self.e1.pk).exists())
+
+    def test_ohne_loeschrecht_kein_knopf_und_kein_loeschen(self):
+        User = get_user_model()
+        u = User.objects.create_user("lena", password=PW)
+        Zugang.objects.create(verein=self.v, user=u, rolle=Rolle.objects.create(
+            verein=self.v, name="Nur Lesen", rechte=["veranstaltungen.view"]))
+        self.client.login(username="lena", password=PW)
+        self.assertNotContains(self._seite(), "/entfernen/")
+        self.assertEqual(self.client.post(reverse("schichteinsatz_entfernen", args=[self.e1.pk])).status_code, 403)
+        self.assertTrue(Schichteinsatz.objects.filter(pk=self.e1.pk).exists())
+
+    def test_fremder_verein_und_ohne_anmeldung(self):
+        url = reverse("schichteinsatz_entfernen", args=[self.e1.pk])
+        self.assertEqual(self.client.post(url).status_code, 302)   # Login-Weiterleitung
+        anderer = Verein.objects.create(name="Anderer e.V.", kuerzel="anderer")
+        fremd_ver = Veranstaltung.objects.create(verein=anderer, titel="Fremd", beginn=self.beginn)
+        fremd_schicht = Schicht.objects.create(verein=anderer, veranstaltung=fremd_ver, bezeichnung="X",
+                                               beginn=self.beginn, ende=self.beginn + timedelta(hours=1))
+        fremd = Schichteinsatz.objects.create(verein=anderer, schicht=fremd_schicht, name="Fremd")
+        self.anmelden()
+        sitzung = self.client.session   # Superadmin sieht mehrere Vereine: den eigenen Test-Verein aktiv waehlen
+        sitzung["verein_id"] = self.v.pk
+        sitzung.save()
+        self.assertEqual(self.client.post(reverse("schichteinsatz_entfernen", args=[fremd.pk])).status_code, 404)
+        self.assertTrue(Schichteinsatz.objects.filter(pk=fremd.pk).exists())
+
+    def test_loeschen_steht_im_aenderungsprotokoll(self):
+        from apps.core.models import AuditLog
+        self.anmelden()
+        self.client.post(reverse("schichteinsatz_entfernen", args=[self.e2.pk]))
+        self.assertTrue(AuditLog.objects.filter(modell="Schichteinsatz", aktion="geloescht").exists())

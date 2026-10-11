@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.71.1)
+# Handbook – Feuerix (Version 1.71.2)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -462,7 +462,8 @@ page and are only staffed by the administration. On the event there are "Open/Cl
 shift plan the column "Self sign-up" shows the state. For privacy, the public
 page only shows times and free places, no names of other helpers. Full or past shifts and cancelled/completed events cannot
 be booked, the same name cannot sign up twice for the same shift, and simultaneous sign-ups cannot overbook a shift.
-Removing and correcting entries is done by the administration (open the shift, delete the entry).
+Removing and correcting entries is done by the administration (open the shift, press the trash button next to the name; the confirmation names the person, the place becomes
+free again).
 
 The event detail page is a hub: agenda (items renumber themselves automatically without gaps from 1 – a new item with
 an already used number is inserted before it, and following items move up after a deletion) (including a "standard agenda" for general meetings with ten common
