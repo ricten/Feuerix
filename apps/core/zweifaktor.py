@@ -75,7 +75,10 @@ def ist_aktiv(user):
 
 
 def ist_pflicht(user):
-    return bool(settings.ZWEIFAKTOR_PFLICHT and user.is_authenticated and user.is_superuser)
+    if not (settings.ZWEIFAKTOR_PFLICHT and user.is_authenticated):
+        return False
+    from .models import Systemeinstellung
+    return bool(user.is_superuser or Systemeinstellung.laden().zweifaktor_fuer_alle)
 
 
 def wiederherstellungscodes_erzeugen(zf):

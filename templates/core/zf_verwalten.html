@@ -11,5 +11,17 @@
     {% if not pflicht %}<button name="aktion" value="aus" class="btn btn-outline-danger" onclick="return confirm('{% trans "Zwei-Faktor-Anmeldung wirklich deaktivieren?" %}')">{% trans "Deaktivieren" %}</button>
     {% else %}<div class="text-muted small mt-3">{% trans "Für Superadmins ist die Zwei-Faktor-Anmeldung verpflichtend." %}</div>{% endif %}
   </form>
+  {% if user.is_superuser %}
+  <hr>
+  <form method="post">{% csrf_token %}
+    <input type="hidden" name="aktion" value="pflicht_alle">
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" name="fuer_alle" id="fuer_alle" {% if fuer_alle %}checked{% endif %}>
+      <label class="form-check-label" for="fuer_alle">{% trans "Zwei-Faktor-Anmeldung für alle Konten verpflichtend" %}</label>
+    </div>
+    <div class="text-muted small mb-2">{% trans "Alle Benutzer werden bei der nächsten Anmeldung zur Einrichtung geleitet und können sie nicht abschalten." %}</div>
+    <button class="btn btn-sm btn-outline-primary">{% trans "Speichern" %}</button>
+  </form>
+  {% endif %}
 </div></div></div></div>
 {% endblock %}

@@ -242,6 +242,10 @@ class Systemeinstellung(models.Model):
         help_text=_("Alternative zur Umgebungsvariable FINTS_PRODUCT_ID - wird bevorzugt verwendet, wenn gesetzt. "
                   "Kostenlos zu registrieren bei der Deutschen Kreditwirtschaft: "
                   "https://www.hbci-zka.de/register/prod_register.htm"))
+    zweifaktor_fuer_alle = models.BooleanField(
+        _("Zwei-Faktor-Anmeldung für alle Konten verpflichtend"), default=False,
+        help_text=_("Superadmins müssen die Zwei-Faktor-Anmeldung immer einrichten; mit diesem Haken gilt das für alle "
+                  "Konten (sie werden bei der nächsten Anmeldung zur Einrichtung geleitet)."))
     update_verfuegbare_version = models.CharField(_("Verfügbare neue Version"), max_length=20, blank=True,
                                                   editable=False)
     update_geprueft_am = models.DateTimeField(_("Zuletzt auf Updates geprüft"), null=True, blank=True, editable=False)

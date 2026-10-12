@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from . import zweifaktor
+from .models import Systemeinstellung
 
 
 def _ziel(request):
@@ -62,6 +63,12 @@ def zf_verwalten(request):
     if not zf.aktiv:
         return redirect("zf_einrichten")
     pflicht = zweifaktor.ist_pflicht(request.user)
+    se = Systemeinstellung.laden()
+    if request.method == "POST" and request.POST.get("aktion") == "pflicht_alle" and request.user.is_superuser:
+        se.zweifaktor_fuer_alle = request.POST.get("fuer_alle") == "on"
+        se.save()
+        messages.success(request, _("Einstellung gespeichert."))
+        return redirect("zf_verwalten")
     if request.method == "POST":
         if not request.user.check_password(request.POST.get("passwort", "")):
             messages.error(request, _("Das Passwort ist falsch."))
@@ -74,4 +81,5 @@ def zf_verwalten(request):
                 zweifaktor.deaktivieren(zf)
                 messages.success(request, _("Die Zwei-Faktor-Anmeldung wurde deaktiviert."))
                 return redirect("zf_einrichten")
-    return render(request, "core/zf_verwalten.html", {"pflicht": pflicht, "codes_rest": len(zf.wiederherstellungscodes)})
+    return render(request, "core/zf_verwalten.html", {"pflicht": pflicht, "codes_rest": len(zf.wiederherstellungscodes),
+        "fuer_alle": se.zweifaktor_fuer_alle})

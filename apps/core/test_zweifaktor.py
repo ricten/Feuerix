@@ -6,7 +6,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from . import zweifaktor
-from .models import ZweiFaktor
+from .models import Systemeinstellung, ZweiFaktor
 
 User = get_user_model()
 PW = "pw-Test-12345"
@@ -198,3 +198,42 @@ class SuperadminPflichtTests(TestCase):
         self.client.login(username="max", password=PW)
         r = self.client.get(reverse("nach_login"))
         self.assertNotIn("zwei-faktor", r.url)
+
+
+@override_settings(ZWEIFAKTOR_PFLICHT=True)
+class PflichtFuerAlleTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_superuser("admin", password=PW)
+        self.user = User.objects.create_user("max", password=PW)
+
+    def test_ohne_haken_nicht_betroffen_mit_haken_schon(self):
+        self.client.login(username="max", password=PW)
+        self.assertNotIn("zwei-faktor", self.client.get(reverse("dashboard")).get("Location", ""))
+        Systemeinstellung.objects.create(zweifaktor_fuer_alle=True)
+        self.assertRedirects(self.client.get(reverse("dashboard")), reverse("zf_einrichten"), fetch_redirect_response=False)
+
+    def test_nur_superuser_darf_haken_setzen(self):
+        zf_aktivieren(self.user)
+        self.client.login(username="max", password=PW)
+        s = self.client.session
+        s["zf_ok"] = True
+        s.save()
+        self.client.post(reverse("zf_verwalten"), {"aktion": "pflicht_alle", "fuer_alle": "on"})
+        self.assertFalse(Systemeinstellung.laden().zweifaktor_fuer_alle)
+
+    def test_superuser_setzt_haken_und_pflicht_verhindert_abschalten(self):
+        zf_aktivieren(self.admin)
+        zf_aktivieren(self.user)
+        self.client.login(username="admin", password=PW)
+        s = self.client.session
+        s["zf_ok"] = True
+        s.save()
+        self.client.post(reverse("zf_verwalten"), {"aktion": "pflicht_alle", "fuer_alle": "on"})
+        self.assertTrue(Systemeinstellung.laden().zweifaktor_fuer_alle)
+        self.client.logout()
+        self.client.login(username="max", password=PW)
+        s = self.client.session
+        s["zf_ok"] = True
+        s.save()
+        self.client.post(reverse("zf_verwalten"), {"aktion": "aus", "passwort": PW})
+        self.assertTrue(ZweiFaktor.objects.get(user=self.user).aktiv)

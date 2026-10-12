@@ -3,6 +3,9 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.73.0
+- Haken „Zwei-Faktor-Anmeldung für alle Konten verpflichtend“ (2FA-Seite für Superadmins bzw. Django-Admin): dann müssen alle Benutzer 2FA einrichten.
+
 ## 1.72.1
 - Neuer Befehl `manage.py demodaten --verein <kuerzel>`: Demo-Veranstaltungen und -Verleihe für alle Szenarien (mit `--zuruecksetzen` entfernbar).
 

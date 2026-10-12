@@ -4931,3 +4931,27 @@ msgstr "Two-factor authentications"
 
 msgid "Verbleibende Wiederherstellungscodes: %(codes_rest)s"
 msgstr "Remaining recovery codes: %(codes_rest)s"
+
+# 2FA fuer alle
+
+msgid "Einstellung gespeichert."
+msgstr "Setting saved."
+
+msgid "Zwei-Faktor-Anmeldung für alle Konten verpflichtend"
+msgstr "Two-factor authentication mandatory for all accounts"
+
+msgid ""
+"Superadmins müssen die Zwei-Faktor-Anmeldung immer einrichten; mit diesem "
+"Haken gilt das für alle Konten (sie werden bei der nächsten Anmeldung zur "
+"Einrichtung geleitet)."
+msgstr ""
+"Superadmins must always set up two-factor authentication; with this checkbox"
+" it applies to all accounts (they are redirected to the setup at their next "
+"login)."
+
+msgid ""
+"Alle Benutzer werden bei der nächsten Anmeldung zur Einrichtung geleitet und"
+" können sie nicht abschalten."
+msgstr ""
+"All users are redirected to the setup at their next login and cannot disable"
+" it."

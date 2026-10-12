@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.72.1)
+# Handbuch – Feuerix (Version 1.73.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -44,7 +44,8 @@ Zwei-Faktor-Anmeldung per Authenticator-App (TOTP, z. B. FreeOTP, Aegis, Google/
 den 6-stelligen Code bestätigen und die einmalig angezeigten **Wiederherstellungscodes** sicher aufbewahren. Danach fragt
 jede Anmeldung nach dem Code (alternativ nach einem Wiederherstellungscode). Für **Superadmins ist die 2FA verpflichtend** –
 sie werden bis zur Einrichtung auf die Einrichtungsseite geleitet und können sie nicht abschalten; für alle anderen ist sie
-optional. Wird das Passwort **5-mal falsch** eingegeben und das Konto hat **keine aktive 2FA**, wird das **Konto gesperrt**
+optional – ein Superadmin kann sie über den Haken „Zwei-Faktor-Anmeldung für alle Konten verpflichtend“ auf der 2FA-Seite
+(oder im Django-Admin unter Systemeinstellungen) für **alle** Konten verpflichtend machen. Wird das Passwort **5-mal falsch** eingegeben und das Konto hat **keine aktive 2FA**, wird das **Konto gesperrt**
 (zusätzlich zur Sperre von Benutzername+IP für eine Stunde). Entsperren: `docker compose exec web python manage.py
 zweifaktor_zuruecksetzen <Benutzername>` (mit `--2fa-zuruecksetzen` wird zusätzlich die 2FA gelöscht, z. B. bei verlorenem
 Gerät und Codes) oder im Django-Admin unter „Zwei-Faktor-Anmeldungen“ per Aktion. Konten mit aktiver 2FA werden bei
