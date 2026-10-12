@@ -34,6 +34,20 @@ new name), or created from scratch.
 * On the detail page: **view PDF**, **Word (.docx)** for further editing, **save as PDF to the archive**.
 * Placeholders that could not be replaced are shown as a notice.
 
+## Layout of a template
+
+Every template has two sections **"Layout"** in its form that determine how the PDFs created from it look (documents and mail merges
+created with this template; invoices, reminders etc. keep their fixed look):
+
+- **Letterhead:** name and logo with divider line (default), name only, logo only or **no letterhead** for pre-printed letter paper –
+  the top margin (default 45 mm) is then left free on the first page. **Logo left or right.**
+- **Sender line** (small return address above the address, for window envelopes) on/off, **date** left or right, **footer** with
+  club details, page number only or none.
+- **Font:** Helvetica, Times or Courier, size 8 to 14 pt. **Margins** left, right, bottom (and top with "no letterhead") in mm.
+
+On the template's detail page, **"Layout preview (PDF)"** shows a sample PDF with a sample recipient. The default values match the
+previous look. The Word export (.docx) does not adopt the layout.
+
 ## Mail merges
 
 1. *Correspondence › Mail merges › New* (or, from an event, "Invitation to members (mail merge)").

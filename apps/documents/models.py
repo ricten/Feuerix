@@ -2,6 +2,7 @@ import os
 from datetime import date
 
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Max, Q
 from django.utils.translation import gettext_lazy as _
@@ -135,6 +136,38 @@ class Vorlage(TenantModel):
                                        help_text=_("Wird bei 'Einladung/Protokoll erstellen' in Veranstaltungen verwendet."))
     aktiv = models.BooleanField(_("Aktiv"), default=True)
     hinweis = models.TextField(_("Interner Hinweis"), blank=True)
+
+    # Layout (Gestaltung der PDFs, die aus dieser Vorlage entstehen) - Standardwerte = bisheriges Aussehen, siehe
+    # apps/core/pdf.py: Layout. Gilt fuer Schriftstuecke und Serienbriefe, die mit dieser Vorlage angelegt wurden.
+    LAYOUT_KOPF = [("voll", _("Name und Logo mit Trennlinie")), ("name", _("Nur Vereinsname mit Trennlinie")),
+                   ("logo", _("Nur Logo mit Trennlinie")),
+                   ("ohne", _("Kein Briefkopf (vorgedrucktes Briefpapier)"))]
+    LAYOUT_SEITE = [("rechts", _("Rechts")), ("links", _("Links"))]
+    LAYOUT_SCHRIFT = [("Helvetica", _("Helvetica (serifenlos)")), ("Times-Roman", _("Times (mit Serifen)")),
+                      ("Courier", _("Courier (Schreibmaschine)"))]
+    LAYOUT_FUSS = [("voll", _("Vereinsangaben und Seitenzahl")), ("seitenzahl", _("Nur Seitenzahl")),
+                   ("ohne", _("Keine Fußzeile"))]
+    layout_kopf = models.CharField(_("Briefkopf"), max_length=6, choices=LAYOUT_KOPF, default="voll")
+    layout_logo_position = models.CharField(_("Logo-Position"), max_length=6, choices=LAYOUT_SEITE, default="rechts")
+    layout_absenderzeile = models.BooleanField(
+        _("Absenderzeile über dem Empfänger"), default=True,
+        help_text=_("Kleine Rücksendeangabe (Verein, Anschrift) über der Empfängeranschrift - für Fensterumschläge."))
+    layout_datum_position = models.CharField(_("Datum"), max_length=6, choices=LAYOUT_SEITE, default="rechts")
+    layout_fuss = models.CharField(_("Fußzeile"), max_length=10, choices=LAYOUT_FUSS, default="voll")
+    layout_schriftart = models.CharField(_("Schriftart"), max_length=12, choices=LAYOUT_SCHRIFT, default="Helvetica")
+    layout_schriftgroesse = models.PositiveSmallIntegerField(
+        _("Schriftgröße (pt)"), default=10, validators=[MinValueValidator(8), MaxValueValidator(14)])
+    layout_rand_links = models.PositiveSmallIntegerField(
+        _("Rand links (mm)"), default=25, validators=[MinValueValidator(10), MaxValueValidator(50)])
+    layout_rand_rechts = models.PositiveSmallIntegerField(
+        _("Rand rechts (mm)"), default=10, validators=[MinValueValidator(10), MaxValueValidator(50)])
+    layout_rand_oben = models.PositiveSmallIntegerField(
+        _("Rand oben bei Seite 1 ohne Briefkopf (mm)"), default=45, validators=[MinValueValidator(20), MaxValueValidator(90)],
+        help_text=_("Nur wirksam bei „Kein Briefkopf“: so viel Platz bleibt auf der ersten Seite für das vorgedruckte "
+                  "Briefpapier frei."))
+    layout_rand_unten = models.PositiveSmallIntegerField(
+        _("Rand unten (mm)"), default=28, validators=[MinValueValidator(10), MaxValueValidator(50)],
+        help_text=_("Platz für die Fußzeile bzw. das vorgedruckte Briefpapier."))
 
     class Meta:
         verbose_name = _("Vorlage")

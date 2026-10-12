@@ -40,6 +40,15 @@
       </div>
     </div>
   </div>
+  {% elif abschnitte %}
+  {% for a in abschnitte %}
+  <div class="card shadow-sm mb-3">
+    {% if a.titel %}<div class="card-header fw-semibold">{{ a.titel }}</div>{% endif %}
+    <div class="card-body pb-1">{% for field in a.felder %}{% include "core/_formfeld.html" %}{% endfor %}</div>
+  </div>
+  {% endfor %}
+  <button class="btn btn-primary"><i class="bi bi-check-lg"></i> {% trans "Speichern" %}</button>
+  <a href="{{ abbrechen_url }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i> {% trans "Abbrechen" %}</a>
   {% else %}
   <div class="card shadow-sm"><div class="card-body">
     {% for field in form %}{% include "core/_formfeld.html" %}{% endfor %}

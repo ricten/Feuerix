@@ -13,13 +13,14 @@ from django.views.decorators.http import require_POST
 
 from apps.core.anbindungen import anbindungen
 from apps.core.crud import abschnitt, knopf, pdf_vorschau
+from apps.core.pdf import Layout, seiten_pdf
 from apps.events.models import Veranstaltung
 
 from . import services
 from .docx_export import schriftstueck_docx
 from .models import Ablagedokument, Schriftstueck, Serienbrief, Vorlage
-from .pdf import schriftstueck_pdf, serienbrief_pdf
-from .platzhalter import OPENSLIDES_PLATZHALTER, PLATZHALTER, kontext, offene
+from .pdf import absaetze, schriftstueck_pdf, serienbrief_pdf
+from .platzhalter import OPENSLIDES_PLATZHALTER, PLATZHALTER, ersetzen, kontext, offene
 
 
 def _pruefen(request, modul, aktion):
@@ -126,6 +127,26 @@ def schriftstueck_ablegen(request, pk):
         _auto_uebergeben(d)
     messages.success(request, f"In Ablage gespeichert: {d.ordner} · Version {d.version}.")
     return redirect("schriftstueck_detail", pk=s.pk)
+
+
+# ---------------------------------------------------------------- Vorlage
+def vorlage_kontext(request, v):
+    return {"aktionen": [knopf("Layout-Vorschau (PDF)", reverse("vorlage_vorschau", args=[v.pk]), stil="primary")],
+            "vorschau": pdf_vorschau(reverse("vorlage_vorschau", args=[v.pk]))}
+
+
+@login_required
+@xframe_options_sameorigin
+def vorlage_vorschau(request, pk):
+    """Beispiel-PDF der Vorlage mit ihrem Layout (Beispielempfaenger, Platzhalter soweit ohne Mitglied ersetzbar)."""
+    _pruefen(request, "schriftverkehr", "view")
+    v = get_object_or_404(Vorlage, pk=pk, verein=request.verein)
+    ctx = kontext(request.verein)
+    seite = {"empfaenger": ["Max Mustermann", "Musterstraße 1", "12345 Musterstadt"],
+             "betreff": ersetzen(v.betreff, ctx) or v.name, "datum": f"Datum: {ctx['datum']}",
+             "vor": absaetze(ersetzen(v.text, ctx)), "wasserzeichen": "VORSCHAU – Beispielempfänger"}
+    pdf = seiten_pdf(request.verein, [seite], titel=v.name, layout=Layout.von_vorlage(v))
+    return _pdf_antwort(pdf, f"Vorschau {v.name[:40]}.pdf")
 
 
 # ---------------------------------------------------------------- Serienbrief

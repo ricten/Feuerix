@@ -5096,6 +5096,33 @@ msgstr "Logo & colours"
 msgid "Briefe"
 msgstr "Letters"
 
+# Serienbrief-Versandart
+msgid "Brief für alle, E-Mail an Mitglieder mit Adresse zusätzlich möglich"
+msgstr ""
+"Letter for everyone, email to members with an address additionally possible"
+
+msgid "E-Mail an Mitglieder mit E-Mail-Adresse, alle übrigen per Post"
+msgstr "Email to members with an email address, everyone else by post"
+
+msgid "Alle per Post (Brief als PDF)"
+msgstr "Everyone by post (letter as PDF)"
+
+msgid ""
+"Nur per E-Mail (Mitglieder ohne E-Mail-Adresse bleiben unberücksichtigt)"
+msgstr "Email only (members without an email address are not considered)"
+
+msgid "Versand"
+msgstr "Dispatch"
+
+msgid ""
+"Bei „E-Mail an Mitglieder mit E-Mail-Adresse, alle übrigen per Post“ enthält"
+" das Brief-PDF (Ausdruck, Ablage) nur noch die Mitglieder ohne E-Mail-"
+"Adresse - die anderen bekommen den Brief per E-Mail."
+msgstr ""
+"With \"Email to members with an email address, everyone else by post\" the "
+"letter PDF (printout, filing) only contains the members without an email "
+"address - the others receive the letter by email."
+
 #~ msgid "Zuständig"
 #~ msgstr "Assigned to"
 
@@ -5144,30 +5171,93 @@ msgstr "Letters"
 #~ "New transactions are created as bank transactions, duplicates are skipped "
 #~ "automatically."
 
-# Serienbrief-Versandart
+# Vorlagen-Layout
 
-msgid "Brief für alle, E-Mail an Mitglieder mit Adresse zusätzlich möglich"
-msgstr ""
-"Letter for everyone, email to members with an address additionally possible"
+msgid "Name und Logo mit Trennlinie"
+msgstr "Name and logo with divider line"
 
-msgid "E-Mail an Mitglieder mit E-Mail-Adresse, alle übrigen per Post"
-msgstr "Email to members with an email address, everyone else by post"
+msgid "Nur Vereinsname mit Trennlinie"
+msgstr "Club name only, with divider line"
 
-msgid "Alle per Post (Brief als PDF)"
-msgstr "Everyone by post (letter as PDF)"
+msgid "Nur Logo mit Trennlinie"
+msgstr "Logo only, with divider line"
+
+msgid "Kein Briefkopf (vorgedrucktes Briefpapier)"
+msgstr "No letterhead (pre-printed letter paper)"
+
+msgid "Rechts"
+msgstr "Right"
+
+msgid "Links"
+msgstr "Left"
+
+msgid "Helvetica (serifenlos)"
+msgstr "Helvetica (sans serif)"
+
+msgid "Times (mit Serifen)"
+msgstr "Times (serif)"
+
+msgid "Courier (Schreibmaschine)"
+msgstr "Courier (typewriter)"
+
+msgid "Vereinsangaben und Seitenzahl"
+msgstr "Club details and page number"
+
+msgid "Nur Seitenzahl"
+msgstr "Page number only"
+
+msgid "Keine Fußzeile"
+msgstr "No footer"
+
+msgid "Briefkopf"
+msgstr "Letterhead"
+
+msgid "Logo-Position"
+msgstr "Logo position"
+
+msgid "Absenderzeile über dem Empfänger"
+msgstr "Sender line above the recipient"
 
 msgid ""
-"Nur per E-Mail (Mitglieder ohne E-Mail-Adresse bleiben unberücksichtigt)"
-msgstr "Email only (members without an email address are not considered)"
+"Kleine Rücksendeangabe (Verein, Anschrift) über der Empfängeranschrift - für"
+" Fensterumschläge."
+msgstr ""
+"Small return address (club, address) above the recipient address - for "
+"window envelopes."
 
-msgid "Versand"
-msgstr "Dispatch"
+msgid "Fußzeile"
+msgstr "Footer"
+
+msgid "Schriftart"
+msgstr "Font"
+
+msgid "Schriftgröße (pt)"
+msgstr "Font size (pt)"
+
+msgid "Rand links (mm)"
+msgstr "Left margin (mm)"
+
+msgid "Rand rechts (mm)"
+msgstr "Right margin (mm)"
+
+msgid "Rand oben bei Seite 1 ohne Briefkopf (mm)"
+msgstr "Top margin on page 1 without letterhead (mm)"
 
 msgid ""
-"Bei „E-Mail an Mitglieder mit E-Mail-Adresse, alle übrigen per Post“ enthält"
-" das Brief-PDF (Ausdruck, Ablage) nur noch die Mitglieder ohne E-Mail-"
-"Adresse - die anderen bekommen den Brief per E-Mail."
+"Nur wirksam bei „Kein Briefkopf“: so viel Platz bleibt auf der ersten Seite "
+"für das vorgedruckte Briefpapier frei."
 msgstr ""
-"With \"Email to members with an email address, everyone else by post\" the "
-"letter PDF (printout, filing) only contains the members without an email "
-"address - the others receive the letter by email."
+"Only effective with \"No letterhead\": this much space is left free on the "
+"first page for the pre-printed letter paper."
+
+msgid "Rand unten (mm)"
+msgstr "Bottom margin (mm)"
+
+msgid "Platz für die Fußzeile bzw. das vorgedruckte Briefpapier."
+msgstr "Space for the footer or the pre-printed letter paper."
+
+msgid "Layout: Briefkopf und Seite"
+msgstr "Layout: letterhead and page"
+
+msgid "Layout: Schrift und Ränder"
+msgstr "Layout: font and margins"

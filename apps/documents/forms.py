@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from apps.core.forms import TenantModelForm
 
@@ -54,9 +55,28 @@ class VorlageForm(_TextMixin, TenantModelForm):
         model = Vorlage
         exclude = ("verein",)
 
+    ABSCHNITTE = [
+        (None, ("name", "art", "betreff", "text", "ist_standard", "aktiv", "hinweis")),
+        (_("Layout: Briefkopf und Seite"), ("layout_kopf", "layout_logo_position", "layout_absenderzeile",
+                                            "layout_datum_position", "layout_fuss")),
+        (_("Layout: Schrift und Ränder"), ("layout_schriftart", "layout_schriftgroesse", "layout_rand_links",
+                                           "layout_rand_rechts", "layout_rand_oben", "layout_rand_unten")),
+    ]
+
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)
         self.textfeld()
+
+    def abschnitte(self):
+        """Felder in Karten gegliedert (siehe formular.html); nicht aufgefuehrte Felder landen im ersten Abschnitt."""
+        verteilt = {n for _t, namen in self.ABSCHNITTE for n in namen}
+        rest = [self[n] for n in self.fields if n not in verteilt]
+        ergebnis = []
+        for i, (titel, namen) in enumerate(self.ABSCHNITTE):
+            felder = [self[n] for n in namen if n in self.fields] + (rest if i == 0 else [])
+            if felder:
+                ergebnis.append({"titel": titel, "felder": felder})
+        return ergebnis
 
 
 class AblageForm(TenantModelForm):

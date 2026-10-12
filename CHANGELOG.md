@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.79.0
+
+- **Layout je Vorlage:** Briefkopf (Name/Logo/ohne für Briefpapier, Logo links/rechts), Absenderzeile, Datumsposition, Fußzeile, Schriftart/-größe
+  und Ränder lassen sich pro Vorlage einstellen; „Layout-Vorschau (PDF)“ an der Vorlage. Standardwerte = bisheriges Aussehen (Rechnungen u. a.
+  unverändert).
+
 ## 1.78.0
 
 - **Einladungen/Serienbriefe: Versandart wählbar** – E-Mail an Mitglieder mit E-Mail-Adresse und alle übrigen per Post (Standard bei Einladungen aus

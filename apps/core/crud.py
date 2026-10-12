@@ -382,6 +382,9 @@ class FormularMixin(MandantMixin):
         ctx = super().get_context_data(**kw)
         ctx.update(titel=(f"{self.cfg.label} anlegen" if self.neu else f"{self.cfg.label} bearbeiten"),
                    next=self._next() or "", abbrechen_url=self._next() or reverse(f"{self.cfg.name}_list"))
+        form = ctx.get("form")
+        if form is not None and hasattr(form, "abschnitte"):
+            ctx["abschnitte"] = form.abschnitte()     # Formular gliedert seine Felder selbst in Karten (formular.html)
         return ctx
 
 

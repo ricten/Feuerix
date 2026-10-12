@@ -19,6 +19,37 @@ BRIEFKOPF_TEXTFARBE = "#646363"
 RAND_LINKS = 25 * mm
 RAND_RECHTS = 10 * mm
 
+SCHRIFTEN = {"Helvetica": "Helvetica-Bold", "Times-Roman": "Times-Bold", "Courier": "Courier-Bold"}
+
+
+class Layout:
+    """Gestaltung eines Briefs (Vorlagen-Layout). Die Standardwerte entsprechen dem bisherigen Aussehen, so dass alle
+    Dokumente ohne eigenes Layout (Rechnungen, Mahnungen ...) unveraendert bleiben.
+    kopf: voll (Name + Logo + Linie) | name | logo | ohne (z. B. fuer vorgedrucktes Briefpapier)
+    logo_position: rechts | links      fuss: voll | seitenzahl | ohne      datum_position: rechts | links"""
+
+    def __init__(self, kopf="voll", logo_position="rechts", schriftart="Helvetica", schriftgroesse=10, rand_links_mm=25,
+                 rand_rechts_mm=10, rand_oben_mm=45, rand_unten_mm=28, fuss="voll", absenderzeile=True,
+                 datum_position="rechts"):
+        self.kopf, self.logo_position = kopf, logo_position
+        self.schriftart = schriftart if schriftart in SCHRIFTEN else "Helvetica"
+        self.schriftgroesse = float(schriftgroesse)
+        self.rand_links, self.rand_rechts = rand_links_mm * mm, rand_rechts_mm * mm
+        self.rand_oben_ohne_kopf, self.rand_unten = rand_oben_mm * mm, rand_unten_mm * mm
+        self.fuss, self.absenderzeile, self.datum_position = fuss, bool(absenderzeile), datum_position
+
+    @classmethod
+    def von_vorlage(cls, vorlage):
+        """Layout einer Vorlage (documents.Vorlage) - ohne Vorlage das Standardlayout."""
+        if vorlage is None:
+            return cls()
+        return cls(kopf=vorlage.layout_kopf, logo_position=vorlage.layout_logo_position,
+                   schriftart=vorlage.layout_schriftart, schriftgroesse=vorlage.layout_schriftgroesse,
+                   rand_links_mm=vorlage.layout_rand_links, rand_rechts_mm=vorlage.layout_rand_rechts,
+                   rand_oben_mm=vorlage.layout_rand_oben, rand_unten_mm=vorlage.layout_rand_unten,
+                   fuss=vorlage.layout_fuss, absenderzeile=vorlage.layout_absenderzeile,
+                   datum_position=vorlage.layout_datum_position)
+
 
 def _p(text, stil):
     return Paragraph(escape(str(text)).replace("\n", "<br/>"), stil)
@@ -59,7 +90,7 @@ def _logo_groesse(pfad):
         return None
 
 
-def _logo_zeichnen(canvas, verein):
+def _logo_zeichnen(canvas, verein, layout):
     pfad = logo_datei(verein)
     if not pfad:
         return
@@ -67,17 +98,29 @@ def _logo_zeichnen(canvas, verein):
     if not groesse:
         return
     w, h = groesse
+    x = layout.rand_links if layout.logo_position == "links" else A4[0] - layout.rand_rechts - w
     try:
-        canvas.drawImage(ImageReader(pfad), A4[0] - RAND_RECHTS - w, A4[1] - 12 * mm - h, width=w, height=h,
-                         mask="auto")
+        canvas.drawImage(ImageReader(pfad), x, A4[1] - 12 * mm - h, width=w, height=h, mask="auto")
     except Exception:
         pass
 
 
-def _briefkopf_hoehe(verein):
-    """-> (Paragraph, Höhe in Punkten) für den Vereinsnamen als Briefkopf-Überschrift (links neben dem Logo).
+def _logo_breite(verein, layout):
+    """Platz, den das Logo im Briefkopf braucht (0 ohne Logo oder bei Kopf ohne Logo)."""
+    if layout.kopf not in ("voll", "logo") or not logo_datei(verein):
+        return 0
+    groesse = _logo_groesse(logo_datei(verein))
+    return groesse[0] if groesse else 0
+
+
+def _briefkopf_hoehe(verein, layout=None):
+    """-> (Paragraph oder None, Höhe in Punkten) für den Vereinsnamen als Briefkopf-Überschrift (neben dem Logo).
     Textfarbe bewusst neutral grau (nicht die Akzentfarbe) - die Akzentfarbe ist nur für die Trennlinie."""
-    breite = A4[0] - RAND_LINKS - RAND_RECHTS - LOGO_BREITE - 8 * mm
+    layout = layout or Layout()
+    if layout.kopf not in ("voll", "name"):
+        return None, 0
+    logo_b = LOGO_BREITE if layout.kopf == "voll" else 0
+    breite = A4[0] - layout.rand_links - layout.rand_rechts - logo_b - (8 * mm if logo_b else 0)
     stil = ParagraphStyle("briefkopf", fontName="Helvetica", fontSize=22, leading=25,
                           textColor=colors.HexColor(BRIEFKOPF_TEXTFARBE))
     p = Paragraph(escape(verein.name), stil)
@@ -85,25 +128,41 @@ def _briefkopf_hoehe(verein):
     return p, hoehe
 
 
-def _briefkopf_zeichnen(canvas, verein, kopf_p, kopf_hoehe, linie_y):
+def _briefkopf_zeichnen(canvas, verein, kopf_p, kopf_hoehe, linie_y, layout=None):
+    layout = layout or Layout()
+    if layout.kopf == "ohne":
+        return
     kopf_top_y = A4[1] - 15 * mm
-    kopf_p.drawOn(canvas, RAND_LINKS, kopf_top_y - kopf_hoehe)
-    _logo_zeichnen(canvas, verein)
-    linie_ende = A4[0] - RAND_RECHTS
-    pfad = logo_datei(verein)
-    groesse = _logo_groesse(pfad) if pfad else None
-    if groesse:
-        linie_ende = min(linie_ende, A4[0] - RAND_RECHTS - groesse[0] - 4 * mm)
+    logo_b = _logo_breite(verein, layout)
+    links = layout.logo_position == "links" and logo_b
+    if kopf_p is not None:
+        x = layout.rand_links + (logo_b + 8 * mm if links else 0)
+        kopf_p.drawOn(canvas, x, kopf_top_y - kopf_hoehe)
+    if layout.kopf in ("voll", "logo"):
+        _logo_zeichnen(canvas, verein, layout)
+    linie_start, linie_ende = layout.rand_links, A4[0] - layout.rand_rechts
+    if logo_b and not links:
+        linie_ende = min(linie_ende, A4[0] - layout.rand_rechts - logo_b - 4 * mm)
     canvas.setStrokeColor(_akzentfarbe(verein))
     canvas.setLineWidth(0.6)
-    canvas.line(RAND_LINKS, linie_y, linie_ende, linie_y)
+    canvas.line(linie_start, linie_y, linie_ende, linie_y)
 
 
-def _fuss(canvas, verein, seitenzahl, doc):
+def _fuss(canvas, verein, seitenzahl, doc, layout=None):
+    layout = layout or Layout()
+    if layout.fuss == "ohne":
+        return
     canvas.saveState()
+    if layout.fuss == "seitenzahl":
+        canvas.setFont("Helvetica", 8.5)
+        canvas.setFillColor(colors.HexColor(BRIEFKOPF_TEXTFARBE))
+        if seitenzahl:
+            canvas.drawRightString(A4[0] - layout.rand_rechts, 8 * mm, f"Seite {doc.page}")
+        canvas.restoreState()
+        return
     canvas.setStrokeColor(_akzentfarbe_fuss(verein))
     canvas.setLineWidth(0.4)
-    canvas.line(RAND_LINKS, 23 * mm, A4[0] - RAND_RECHTS, 23 * mm)
+    canvas.line(layout.rand_links, 23 * mm, A4[0] - layout.rand_rechts, 23 * mm)
     canvas.setFont("Helvetica", 8.5)
     canvas.setFillColor(colors.HexColor(BRIEFKOPF_TEXTFARBE))
     vertretung = ", ".join(x for x in (verein.unterschrift_1, verein.adresszeile) if x)
@@ -122,18 +181,22 @@ def _fuss(canvas, verein, seitenzahl, doc):
             canvas.drawCentredString(A4[0] / 2, y, z)
             y -= 4 * mm
     if seitenzahl:
-        canvas.drawRightString(A4[0] - RAND_RECHTS, 8 * mm, f"Seite {doc.page}")
+        canvas.drawRightString(A4[0] - layout.rand_rechts, 8 * mm, f"Seite {doc.page}")
     canvas.restoreState()
 
 
-def _stile():
+def _stile(layout=None):
+    layout = layout or Layout()
     st = getSampleStyleSheet()
-    normal = ParagraphStyle("n", parent=st["BodyText"], fontSize=10, leading=13.5)
+    schrift = layout.schriftart
+    groesse = layout.schriftgroesse
+    normal = ParagraphStyle("n", parent=st["BodyText"], fontName=schrift, fontSize=groesse, leading=groesse * 1.35)
     return {
         "normal": normal,
         "klein": ParagraphStyle("k", parent=normal, fontSize=7.5, textColor=colors.grey),
-        "rechts": ParagraphStyle("r", parent=normal, alignment=2),
-        "kopf": ParagraphStyle("h", parent=st["Heading2"], spaceAfter=6),
+        "rechts": ParagraphStyle("r", parent=normal, alignment=0 if layout.datum_position == "links" else 2),
+        "rechts_tabelle": ParagraphStyle("rt", parent=normal, alignment=2),
+        "kopf": ParagraphStyle("h", parent=st["Heading2"], fontName=SCHRIFTEN[schrift], spaceAfter=6),
     }
 
 
@@ -168,18 +231,22 @@ def _tabelle(t_, normal, rechts):
     return story + [tb, Spacer(1, 4 * mm)]
 
 
-def _seite(verein, s, stile):
-    normal, klein, rechts, kopf = stile["normal"], stile["klein"], stile["rechts"], stile["kopf"]
-    absender = ", ".join(x for x in (verein.name, verein.anschrift, f"{verein.plz} {verein.ort}".strip()) if x)
-    t = Table([[_p(absender, klein)]], colWidths=[105 * mm], hAlign="LEFT")
-    t.setStyle(TableStyle([("LEFTPADDING", (0, 0), (-1, -1), 0), ("BOTTOMPADDING", (0, 0), (-1, -1), 0)]))
-    story = [t, Spacer(1, 8 * mm)]
+def _seite(verein, s, stile, layout=None):
+    layout = layout or Layout()
+    normal, klein, kopf = stile["normal"], stile["klein"], stile["kopf"]
+    datum_stil, rechts = stile["rechts"], stile["rechts_tabelle"]     # Datum kann links stehen, Tabellenzahlen bleiben rechts
+    story = []
+    if layout.absenderzeile:
+        absender = ", ".join(x for x in (verein.name, verein.anschrift, f"{verein.plz} {verein.ort}".strip()) if x)
+        t = Table([[_p(absender, klein)]], colWidths=[105 * mm], hAlign="LEFT")
+        t.setStyle(TableStyle([("LEFTPADDING", (0, 0), (-1, -1), 0), ("BOTTOMPADDING", (0, 0), (-1, -1), 0)]))
+        story += [t, Spacer(1, 8 * mm)]
     story += [_p("\n".join(z for z in s.get("empfaenger", []) if z), normal), Spacer(1, 10 * mm)]
     if s.get("datum"):
         # Einfache Briefe (Serienbrief u. ä.) brauchen nur eine Zeile - die zweispaltige Meta-Tabelle
         # unten (für Rechnungen/Mahnungen mit mehreren Angaben) sähe hier mit nur einem kurzen Wert
         # unschön aus (breiter Leerraum bis zum rechten Rand).
-        story += [_p(s["datum"], rechts), Spacer(1, 6 * mm)]
+        story += [_p(s["datum"], datum_stil), Spacer(1, 6 * mm)]
     elif s.get("meta"):
         m = Table([[_p(k, normal), _p(v, normal)] for k, v in s["meta"]], colWidths=[40 * mm, 55 * mm], hAlign="RIGHT")
         m.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"), ("BOTTOMPADDING", (0, 0), (-1, -1), 1)]))
@@ -209,44 +276,51 @@ def _seite(verein, s, stile):
     return story
 
 
-def seiten_pdf(verein, seiten, titel="Dokument", seitenzahl=True):
+def seiten_pdf(verein, seiten, titel="Dokument", seitenzahl=True, layout=None):
     """Mehrere Briefe in einem PDF (Serienbrief); jeder beginnt auf neuer Seite mit Briefkopf (Name, Logo,
-    Akzentfarbe)."""
+    Akzentfarbe). `layout` (siehe Layout) gestaltet Briefkopf, Schrift, Raender und Fusszeile - ohne Angabe das
+    bisherige Standardaussehen."""
+    layout = layout or Layout()
     buf = BytesIO()
-    kopf_p, kopf_hoehe = _briefkopf_hoehe(verein)
+    kopf_p, kopf_hoehe = _briefkopf_hoehe(verein, layout)
     kopf_top_y = A4[1] - 15 * mm
-    linie_y = kopf_top_y - kopf_hoehe - 4 * mm
-    logo_groesse = _logo_groesse(logo_datei(verein)) if logo_datei(verein) else None
-    if logo_groesse:
-        # Linie endet an der Logo-Unterkante (nicht an der festen Logobox), sonst könnte sie bei
-        # schmalen/hochformatigen Logos zu weit oben oder unten landen.
-        linie_y = min(linie_y, A4[1] - 12 * mm - logo_groesse[1] - 3 * mm)
-    linie_y += 2 * mm
-    erste_topmargin = A4[1] - linie_y + 6 * mm
+    if layout.kopf == "ohne":
+        erste_topmargin = layout.rand_oben_ohne_kopf          # z. B. vorgedrucktes Briefpapier
+        linie_y = A4[1] - erste_topmargin
+    else:
+        linie_y = kopf_top_y - kopf_hoehe - 4 * mm
+        logo_groesse = _logo_groesse(logo_datei(verein)) if (layout.kopf in ("voll", "logo") and logo_datei(verein)) else None
+        if logo_groesse:
+            # Linie endet an der Logo-Unterkante (nicht an der festen Logobox), sonst könnte sie bei
+            # schmalen/hochformatigen Logos zu weit oben oder unten landen.
+            linie_y = min(linie_y, A4[1] - 12 * mm - logo_groesse[1] - 3 * mm)
+        linie_y += 2 * mm
+        erste_topmargin = A4[1] - linie_y + 6 * mm
 
-    rand = RAND_LINKS + RAND_RECHTS
-    doc = BaseDocTemplate(buf, pagesize=A4, title=titel, author=verein.name, leftMargin=RAND_LINKS,
-                          rightMargin=RAND_RECHTS, topMargin=erste_topmargin, bottomMargin=28 * mm)
-    frame_erste = Frame(RAND_LINKS, 28 * mm, A4[0] - rand, A4[1] - erste_topmargin - 28 * mm, id="f_erste",
+    rand = layout.rand_links + layout.rand_rechts
+    unten = layout.rand_unten
+    doc = BaseDocTemplate(buf, pagesize=A4, title=titel, author=verein.name, leftMargin=layout.rand_links,
+                          rightMargin=layout.rand_rechts, topMargin=erste_topmargin, bottomMargin=unten)
+    frame_erste = Frame(layout.rand_links, unten, A4[0] - rand, A4[1] - erste_topmargin - unten, id="f_erste",
                         leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
-    frame_folge = Frame(RAND_LINKS, 28 * mm, A4[0] - rand, A4[1] - 46 * mm, id="f_folge", leftPadding=0,
+    frame_folge = Frame(layout.rand_links, unten, A4[0] - rand, A4[1] - 18 * mm - unten, id="f_folge", leftPadding=0,
                         rightPadding=0, topPadding=0, bottomPadding=0)
 
     def erste(canvas, d):
-        _briefkopf_zeichnen(canvas, verein, kopf_p, kopf_hoehe, linie_y)
-        _fuss(canvas, verein, seitenzahl, d)
+        _briefkopf_zeichnen(canvas, verein, kopf_p, kopf_hoehe, linie_y, layout)
+        _fuss(canvas, verein, seitenzahl, d, layout)
 
     def folge(canvas, d):
-        _fuss(canvas, verein, seitenzahl, d)
+        _fuss(canvas, verein, seitenzahl, d, layout)
 
     doc.addPageTemplates([PageTemplate(id="Erste", frames=[frame_erste], onPage=erste),
                           PageTemplate(id="Folge", frames=[frame_folge], onPage=folge)])
-    stile = _stile()
+    stile = _stile(layout)
     story = [NextPageTemplate("Folge")]
     for i, s in enumerate(seiten):
         if i:
             story += [NextPageTemplate("Erste"), PageBreak(), NextPageTemplate("Folge")]
-        story += _seite(verein, s, stile)
+        story += _seite(verein, s, stile, layout)
     if not seiten:
         story.append(Spacer(1, 1))
     doc.build(story)

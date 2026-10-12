@@ -48,6 +48,7 @@ def ablage_listen_aktionen(request):
 urlpatterns = [
     path("ablage/<int:pk>/vorschau/", views.ablage_vorschau, name="ablagedokument_vorschau"),
     path("vorlagen/standard/", views.vorlagen_standard, name="vorlagen_standard"),
+    path("vorlagen/<int:pk>/vorschau/", views.vorlage_vorschau, name="vorlage_vorschau"),
     path("platzhalter/", views.platzhalter_hilfe, name="platzhalter_hilfe"),
     path("schriftstuecke/<int:pk>/pdf/", views.schriftstueck_pdf_view, name="schriftstueck_pdf"),
     path("schriftstuecke/<int:pk>/word/", views.schriftstueck_docx_view, name="schriftstueck_docx"),
@@ -67,7 +68,7 @@ urlpatterns += crud("serienbriefe", Serienbrief, "rundschreiben", form=Serienbri
                     ordering=("-datum", "-id"))
 urlpatterns += crud("vorlagen", Vorlage, "schriftverkehr", form=VorlageForm,
                     list_display=("name", "art", "ist_standard", "aktiv"), suche=("name", "betreff"), filter=("art",),
-                    listen_aktionen=views.vorlagen_listen_aktionen, ordering=("art", "name"))
+                    listen_aktionen=views.vorlagen_listen_aktionen, ordering=("art", "name"), kontext=views.vorlage_kontext)
 urlpatterns += crud("ablage", Ablagedokument, "ablage", form=AblageForm,
                     list_display=("datum", "titel", "kategorie", "tags", "ordner", "version", ("dateiname", "Datei"),
                                  ("paperless_uebergeben", "Paperless")),
