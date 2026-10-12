@@ -17,6 +17,10 @@ verlinken.)
   Abstimmungen). Nicht erprobt: Gruppenzuweisung über Tags, Anonymisierung. Die Abfragen per Autoupdate-Dienst haben Rückfall-
   Varianten (`abfragen_mit_rueckfall`), weil sich die Felder je OpenSlides-Version unterscheiden.
 * FinTS (`fints_abruf`) ist gegen eine echte Bank getestet (reiner Kontoumsätze-Abruf, kein TAN-Erfordernis dort gewesen) – Implementierungen unterscheiden sich je Bank, bei einer neuen Bank vorab kurz prüfen.
+* Zwei-Faktor-Anmeldung (`apps/core/zweifaktor.py`, `ZweiFaktorMiddleware`): TOTP, für Superuser Pflicht
+  (`ZWEIFAKTOR_PFLICHT`, bei `manage.py test` aus - Tests schalten sie per `override_settings` ein); Konto ohne aktive 2FA
+  wird nach 5 falschen Passwörtern gesperrt (`is_active=False` + `ZweiFaktor.gesperrt`), Entsperren per
+  `manage.py zweifaktor_zuruecksetzen`. Die Sperre greift auch in Tests (axes ist dort aus).
 * Login-Brute-Force-Schutz über `django-axes` (5 Fehlversuche sperren Benutzername+IP für 1h); während
   `manage.py test` automatisch deaktiviert (`AXES_ENABLED = "test" not in sys.argv`), sonst sperren sich
   Tests mit absichtlich falschen Zugangsdaten gegenseitig aus.

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-6"><div class="card shadow-sm"><div class="card-body">
+  <h4 class="mb-3"><i class="bi bi-shield-lock me-1"></i>{% trans "Zwei-Faktor-Anmeldung einrichten" %}</h4>
+  {% if pflicht %}<div class="alert alert-warning">{% trans "Für Superadmins ist die Zwei-Faktor-Anmeldung verpflichtend. Bitte richten Sie sie ein, um fortzufahren." %}</div>{% endif %}
+  <ol>
+    <li>{% trans "Installieren Sie eine Authenticator-App (z. B. FreeOTP, Aegis, Google Authenticator oder Microsoft Authenticator)." %}</li>
+    <li>{% trans "Scannen Sie den QR-Code oder geben Sie den Schlüssel von Hand ein:" %}
+      <div class="text-center my-3"><img src="{{ qr }}" alt="QR-Code" style="max-width:220px"></div>
+      <div class="text-center mb-3"><code class="user-select-all">{{ geheimnis }}</code></div></li>
+    <li>{% trans "Geben Sie den angezeigten 6-stelligen Code zur Bestätigung ein:" %}</li>
+  </ol>
+  {% if fehler %}<div class="alert alert-danger">{{ fehler }}</div>{% endif %}
+  <form method="post" class="d-flex gap-2">{% csrf_token %}
+    <input name="code" class="form-control" autocomplete="one-time-code" inputmode="numeric" autofocus required>
+    <button class="btn btn-primary">{% trans "Aktivieren" %}</button>
+  </form>
+  <p class="text-muted small mt-3 mb-0">{% trans "Hinweis: Ohne aktive Zwei-Faktor-Anmeldung wird ein Konto nach 5 falschen Passworteingaben gesperrt." %}</p>
+</div></div></div></div>
+{% endblock %}

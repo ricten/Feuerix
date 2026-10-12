@@ -1,4 +1,5 @@
 from django.apps import apps as django_apps
+from django.contrib.auth.signals import user_logged_in, user_login_failed
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -39,3 +40,19 @@ def verein_angelegt(sender, instance, created, raw=False, **kw):
     from apps.accounting.services import standardkategorien_anlegen, standardkonten_anlegen
     standardkonten_anlegen(instance)
     standardkategorien_anlegen(instance)
+
+
+@receiver(user_login_failed)
+def login_fehlgeschlagen(sender, credentials=None, **kw):
+    """Falsches Passwort: Konto ohne aktive 2FA wird nach 5 Versuchen gesperrt (siehe zweifaktor.py)."""
+    from . import zweifaktor
+    zweifaktor.passwort_fehlversuch((credentials or {}).get("username"))
+
+
+@receiver(user_logged_in)
+def login_erfolgreich(sender, request=None, user=None, **kw):
+    """Fehlversuchszaehler zuruecksetzen; die 2FA-Pruefung der neuen Sitzung steht noch aus."""
+    from .models import ZweiFaktor
+    ZweiFaktor.objects.filter(user=user).update(fehlversuche=0)
+    if request is not None and hasattr(request, "session"):
+        request.session["zf_ok"] = False

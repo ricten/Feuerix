@@ -18,3 +18,4 @@ Markdown>=3.7
 django-axes>=7.0
 paramiko>=3.4
 smbprotocol>=1.14
+segno>=1.6

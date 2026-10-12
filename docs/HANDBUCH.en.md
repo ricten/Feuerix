@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.71.3)
+# Handbook – Feuerix (Version 1.72.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -38,6 +38,17 @@ This handbook and the detailed documents are also available directly in the web 
 ---
 
 ## 1. Login and interface
+
+**Two-factor authentication (2FA) and account lock:** Using the "2FA" button at the top right, every account can set up
+two-factor authentication with an authenticator app (TOTP, e.g. FreeOTP, Aegis, Google/Microsoft Authenticator): scan the QR
+code, confirm the 6-digit code and keep the **recovery codes** (shown only once) safe. From then on every login asks for the
+code (or alternatively a recovery code). **2FA is mandatory for superadmins** – they are redirected to the setup page until it
+is done and cannot disable it; for everybody else it is optional. If the password is entered **wrongly 5 times** and the
+account has **no active 2FA**, the **account is locked** (in addition to the one-hour lock of username+IP). To unlock:
+`docker compose exec web python manage.py zweifaktor_zuruecksetzen <username>` (with `--2fa-zuruecksetzen` the 2FA is deleted
+as well, e.g. after losing the device and codes) or via an action in the Django admin under "Two-factor authentications".
+Accounts with active 2FA are not locked by wrong passwords; wrong 2FA codes throttle themselves (15-minute pause after
+5 failed attempts).
 
 After logging in, staff with an administration account land on the **dashboard** – a personal greeting with
 the date at the top, followed by member counts, this year's fee status, upcoming anniversaries/honours,

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-6"><div class="card shadow-sm"><div class="card-body">
+  <h4 class="mb-3"><i class="bi bi-shield-check me-1 text-success"></i>{% trans "Zwei-Faktor-Anmeldung" %}</h4>
+  <p>{% trans "Die Zwei-Faktor-Anmeldung ist aktiv." %} {% blocktrans %}Verbleibende Wiederherstellungscodes: {{ codes_rest }}{% endblocktrans %}</p>
+  <form method="post">{% csrf_token %}
+    <div class="mb-3"><label class="form-label">{% trans "Zur Bestätigung Ihr Passwort" %}</label>
+      <input name="passwort" type="password" class="form-control" required></div>
+    <button name="aktion" value="codes" class="btn btn-outline-primary">{% trans "Neue Wiederherstellungscodes erzeugen" %}</button>
+    {% if not pflicht %}<button name="aktion" value="aus" class="btn btn-outline-danger" onclick="return confirm('{% trans "Zwei-Faktor-Anmeldung wirklich deaktivieren?" %}')">{% trans "Deaktivieren" %}</button>
+    {% else %}<div class="text-muted small mt-3">{% trans "Für Superadmins ist die Zwei-Faktor-Anmeldung verpflichtend." %}</div>{% endif %}
+  </form>
+</div></div></div></div>
+{% endblock %}

@@ -2,7 +2,7 @@ from django.apps import apps as django_apps
 from django.contrib import admin
 from django.shortcuts import redirect
 
-from .models import AuditLog, Rolle, Systemeinstellung, TenantModel, Verein, Zugang
+from .models import AuditLog, Rolle, Systemeinstellung, TenantModel, Verein, ZweiFaktor, Zugang
 
 
 class TenantAdmin(admin.ModelAdmin):
@@ -39,6 +39,30 @@ class SystemeinstellungAdmin(admin.ModelAdmin):
         if not obj.pk:
             return super().changelist_view(request, extra_context)
         return redirect("admin:core_systemeinstellung_change", obj.pk)
+
+
+@admin.register(ZweiFaktor)
+class ZweiFaktorAdmin(admin.ModelAdmin):
+    list_display = ("user", "aktiv", "gesperrt", "fehlversuche")
+    list_filter = ("aktiv", "gesperrt")
+    fields = ("user", "aktiv", "gesperrt", "fehlversuche")
+    readonly_fields = ("user", "aktiv", "gesperrt", "fehlversuche")
+    actions = ["entsperren", "zuruecksetzen"]
+
+    def has_add_permission(self, request):
+        return False
+
+    @admin.action(description="Konto entsperren")
+    def entsperren(self, request, queryset):
+        from . import zweifaktor
+        for zf in queryset.select_related("user"):
+            zweifaktor.entsperren(zf.user)
+
+    @admin.action(description="Konto entsperren und 2FA zurücksetzen")
+    def zuruecksetzen(self, request, queryset):
+        from . import zweifaktor
+        for zf in queryset.select_related("user"):
+            zweifaktor.entsperren(zf.user, zweifaktor_zuruecksetzen=True)
 
 
 @admin.register(AuditLog)

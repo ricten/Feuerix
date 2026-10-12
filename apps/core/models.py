@@ -328,3 +328,24 @@ class DashboardEinstellung(models.Model):
 
     def __str__(self):
         return f"Dashboard-Einstellung von {self.user}"
+
+
+class ZweiFaktor(models.Model):
+    """Zwei-Faktor-Anmeldung (TOTP) und Kontosperre je Benutzerkonto - gilt für das Konto, nicht pro Verein.
+    Nicht auditiert (enthält das Geheimnis); Logik in zweifaktor.py."""
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="zweifaktor")
+    geheimnis = VerschluesseltesTextField(_("Geheimnis"), blank=True)
+    aktiv = models.BooleanField(_("2FA aktiv"), default=False)
+    wiederherstellungscodes = models.JSONField(_("Wiederherstellungscodes (Hashes)"), default=list, blank=True)
+    letzte_zeitscheibe = models.BigIntegerField(default=0)
+    fehlversuche = models.PositiveSmallIntegerField(_("Fehlversuche (Passwort)"), default=0)
+    gesperrt = models.BooleanField(_("Konto gesperrt (zu viele Fehlversuche)"), default=False)
+    code_fehlversuche = models.PositiveSmallIntegerField(default=0)
+    code_gesperrt_bis = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("Zwei-Faktor-Anmeldung")
+        verbose_name_plural = _("Zwei-Faktor-Anmeldungen")
+
+    def __str__(self):
+        return f"2FA von {self.user}"

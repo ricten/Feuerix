@@ -4176,56 +4176,7 @@ msgstr "Incorrect username or password."
 msgid "Anmelden"
 msgstr "Sign in"
 
-#~ msgid "Zuständig"
-#~ msgstr "Assigned to"
-
-#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
-#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
-
-#~ msgid "Zuwendungsbestätigungen"
-#~ msgstr "Donation receipts"
-
-#~ msgid "Protokolle"
-#~ msgstr "Minutes"
-
-#~ msgid "Einladungen"
-#~ msgstr "Invitations"
-
-#~ msgid ""
-#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
-#~ "Die Bank-PIN wird nie gespeichert."
-#~ msgstr ""
-#~ "Experimental: this method has not yet been tested against a real bank. The "
-#~ "bank PIN is never stored."
-
-#~ msgid ""
-#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
-#~ "eintragen und speichern."
-#~ msgstr ""
-#~ "Enter and save the connection details here (bank code, user ID, the bank's "
-#~ "FinTS address)."
-
-#~ msgid ""
-#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
-#~ "nie gespeichert."
-#~ msgstr ""
-#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
-#~ "stored."
-
-#~ msgid ""
-#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
-#~ "abgefragt."
-#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
-
-#~ msgid ""
-#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
-#~ "übersprungen."
-#~ msgstr ""
-#~ "New transactions are created as bank transactions, duplicates are skipped "
-#~ "automatically."
-
 # Datensicherung
-
 msgid "Verbindung erfolgreich."
 msgstr "Connection successful."
 
@@ -4461,7 +4412,6 @@ msgstr ""
 "target with the next backup."
 
 # Wiederherstellung
-
 msgid ""
 "Ungültiger Dateiname - erwartet z. B. db-20261010-030000.sql.gz oder "
 "media-20261010-030000.tar.gz."
@@ -4612,7 +4562,6 @@ msgstr ""
 "cannot be restored here."
 
 # Abstimmungen
-
 msgid "Wahl"
 msgstr "Election"
 
@@ -4635,7 +4584,6 @@ msgid "Wahl- und Abstimmungsergebnisse"
 msgstr "Election and vote results"
 
 # Anwesenheit
-
 msgid "Anwesenheit"
 msgstr "Attendance"
 
@@ -4643,7 +4591,6 @@ msgid "Anwesenheiten"
 msgstr "Attendances"
 
 # Anbindungen
-
 msgid "Externe Anbindungen"
 msgstr "External integrations"
 
@@ -4681,7 +4628,6 @@ msgid "Einrichten"
 msgstr "Set up"
 
 # Anlagen
-
 msgid "Einzelheiten (strukturiert)"
 msgstr "Details (structured)"
 
@@ -4693,7 +4639,6 @@ msgstr ""
 "text under vote distribution contains the same."
 
 # Schichtplan
-
 msgid "Helfer dürfen sich selbst in Schichten eintragen"
 msgstr "Helpers may sign up for shifts themselves"
 
@@ -4769,7 +4714,6 @@ msgstr[0] "%(n)s place free"
 msgstr[1] "%(n)s places free"
 
 # Helfer als Mitglied
-
 msgid "Gibt an, Mitglied zu sein"
 msgstr "States to be a member"
 
@@ -4794,7 +4738,6 @@ msgstr ""
 "do not have to be asked for again."
 
 # Schicht-Freigabe
-
 msgid "Für Selbsteintrag freigegeben"
 msgstr "Open for self sign-up"
 
@@ -4815,3 +4758,176 @@ msgstr "All shifts are open for self sign-up."
 
 msgid "Alle Schichten sind für den Selbsteintrag gesperrt."
 msgstr "All shifts are closed for self sign-up."
+
+#~ msgid "Zuständig"
+#~ msgstr "Assigned to"
+
+#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
+#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
+
+#~ msgid "Zuwendungsbestätigungen"
+#~ msgstr "Donation receipts"
+
+#~ msgid "Protokolle"
+#~ msgstr "Minutes"
+
+#~ msgid "Einladungen"
+#~ msgstr "Invitations"
+
+#~ msgid ""
+#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
+#~ "Die Bank-PIN wird nie gespeichert."
+#~ msgstr ""
+#~ "Experimental: this method has not yet been tested against a real bank. The "
+#~ "bank PIN is never stored."
+
+#~ msgid ""
+#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
+#~ "eintragen und speichern."
+#~ msgstr ""
+#~ "Enter and save the connection details here (bank code, user ID, the bank's "
+#~ "FinTS address)."
+
+#~ msgid ""
+#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
+#~ "nie gespeichert."
+#~ msgstr ""
+#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
+#~ "stored."
+
+#~ msgid ""
+#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
+#~ "abgefragt."
+#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
+
+#~ msgid ""
+#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
+#~ "übersprungen."
+#~ msgstr ""
+#~ "New transactions are created as bank transactions, duplicates are skipped "
+#~ "automatically."
+
+# Zwei-Faktor-Anmeldung
+
+msgid "Zu viele Fehlversuche - bitte in %(min)s Minuten erneut versuchen."
+msgstr "Too many failed attempts - please try again in %(min)s minutes."
+
+msgid "Der Code ist falsch."
+msgstr "The code is incorrect."
+
+msgid "Die Zwei-Faktor-Anmeldung ist jetzt aktiv."
+msgstr "Two-factor authentication is now active."
+
+msgid "Der Code ist falsch - bitte erneut versuchen."
+msgstr "The code is incorrect - please try again."
+
+msgid "Das Passwort ist falsch."
+msgstr "The password is incorrect."
+
+msgid "Für Superadmins ist die Zwei-Faktor-Anmeldung verpflichtend."
+msgstr "Two-factor authentication is mandatory for superadmins."
+
+msgid "Die Zwei-Faktor-Anmeldung wurde deaktiviert."
+msgstr "Two-factor authentication has been disabled."
+
+msgid "Zwei-Faktor-Anmeldung"
+msgstr "Two-factor authentication"
+
+msgid ""
+"Geben Sie den 6-stelligen Code Ihrer Authenticator-App ein - oder einen "
+"Ihrer Wiederherstellungscodes."
+msgstr ""
+"Enter the 6-digit code from your authenticator app - or one of your recovery"
+" codes."
+
+msgid "Zwei-Faktor-Anmeldung einrichten"
+msgstr "Set up two-factor authentication"
+
+msgid ""
+"Für Superadmins ist die Zwei-Faktor-Anmeldung verpflichtend. Bitte richten "
+"Sie sie ein, um fortzufahren."
+msgstr ""
+"Two-factor authentication is mandatory for superadmins. Please set it up to "
+"continue."
+
+msgid ""
+"Installieren Sie eine Authenticator-App (z. B. FreeOTP, Aegis, Google "
+"Authenticator oder Microsoft Authenticator)."
+msgstr ""
+"Install an authenticator app (e.g. FreeOTP, Aegis, Google Authenticator or "
+"Microsoft Authenticator)."
+
+msgid "Scannen Sie den QR-Code oder geben Sie den Schlüssel von Hand ein:"
+msgstr "Scan the QR code or enter the key manually:"
+
+msgid "Geben Sie den angezeigten 6-stelligen Code zur Bestätigung ein:"
+msgstr "Enter the 6-digit code shown to confirm:"
+
+msgid "Aktivieren"
+msgstr "Activate"
+
+msgid ""
+"Hinweis: Ohne aktive Zwei-Faktor-Anmeldung wird ein Konto nach 5 falschen "
+"Passworteingaben gesperrt."
+msgstr ""
+"Note: Without active two-factor authentication, an account is locked after 5"
+" wrong password entries."
+
+msgid "Wiederherstellungscodes"
+msgstr "Recovery codes"
+
+msgid ""
+"Bewahren Sie diese Codes sicher auf (z. B. ausgedruckt). Jeder Code "
+"funktioniert einmal, falls Sie keinen Zugriff auf Ihre Authenticator-App "
+"haben. Sie werden nur jetzt angezeigt."
+msgstr ""
+"Keep these codes safe (e.g. printed out). Each code works once if you cannot"
+" access your authenticator app. They are only shown now."
+
+msgid "Weiter"
+msgstr "Continue"
+
+msgid "Drucken"
+msgstr "Print"
+
+msgid "Die Zwei-Faktor-Anmeldung ist aktiv."
+msgstr "Two-factor authentication is active."
+
+msgid "Zur Bestätigung Ihr Passwort"
+msgstr "Your password to confirm"
+
+msgid "Neue Wiederherstellungscodes erzeugen"
+msgstr "Generate new recovery codes"
+
+msgid "Deaktivieren"
+msgstr "Disable"
+
+msgid "Zwei-Faktor-Anmeldung wirklich deaktivieren?"
+msgstr "Really disable two-factor authentication?"
+
+msgid "2FA"
+msgstr "2FA"
+
+msgid "Benutzername oder Passwort falsch, oder das Konto ist gesperrt."
+msgstr "Wrong username or password, or the account is locked."
+
+msgid "Geheimnis"
+msgstr "Secret"
+
+msgid "2FA aktiv"
+msgstr "2FA active"
+
+msgid "Wiederherstellungscodes (Hashes)"
+msgstr "Recovery codes (hashes)"
+
+msgid "Fehlversuche (Passwort)"
+msgstr "Failed attempts (password)"
+
+msgid "Konto gesperrt (zu viele Fehlversuche)"
+msgstr "Account locked (too many failed attempts)"
+
+msgid "Zwei-Faktor-Anmeldungen"
+msgstr "Two-factor authentications"
+
+msgid "Verbleibende Wiederherstellungscodes: %(codes_rest)s"
+msgstr "Remaining recovery codes: %(codes_rest)s"

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-6"><div class="card shadow-sm"><div class="card-body">
+  <h4 class="mb-3"><i class="bi bi-key me-1"></i>{% trans "Wiederherstellungscodes" %}</h4>
+  <div class="alert alert-warning">{% trans "Bewahren Sie diese Codes sicher auf (z. B. ausgedruckt). Jeder Code funktioniert einmal, falls Sie keinen Zugriff auf Ihre Authenticator-App haben. Sie werden nur jetzt angezeigt." %}</div>
+  <pre class="fs-5 user-select-all border rounded p-3">{% for c in codes %}{{ c }}
+{% endfor %}</pre>
+  <a class="btn btn-primary" href="{% url 'nach_login' %}">{% trans "Weiter" %}</a>
+  <button class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer"></i> {% trans "Drucken" %}</button>
+</div></div></div></div>
+{% endblock %}

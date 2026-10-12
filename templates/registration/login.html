@@ -9,7 +9,7 @@
   </div>
   <div class="card shadow-sm"><div class="card-body">
     <h4 class="mb-3"><i class="bi bi-box-arrow-in-right me-1"></i>{% trans "Anmeldung" %}</h4>
-    {% if form.errors %}<div class="alert alert-danger">{% trans "Benutzername oder Passwort falsch." %}</div>{% endif %}
+    {% if form.errors %}<div class="alert alert-danger">{% trans "Benutzername oder Passwort falsch, oder das Konto ist gesperrt." %}</div>{% endif %}
     <form method="post">{% csrf_token %}
       <input type="hidden" name="next" value="{{ next }}">
       <div class="mb-3"><label class="form-label">{% trans "Benutzername" %}</label><input name="username" class="form-control" autofocus required></div>

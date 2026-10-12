@@ -1,5 +1,11 @@
 from django.conf import settings
+from urllib.parse import quote
+
+from urllib.parse import quote
+
 from django.http import HttpResponse
+from django.urls import reverse
+from django.urls import reverse
 
 from . import audit
 from .models import Verein
@@ -57,3 +63,59 @@ class MandantMiddleware:
             return self.get_response(request)
         finally:
             audit.kontext_var.reset(token)
+
+
+class ZweiFaktorMiddleware:
+    """Zweite Anmeldestufe: Konten mit aktiver 2FA muessen den Code der Sitzung bestaetigen, Superadmins ohne 2FA
+    werden zur Einrichtung gezwungen. Laeuft nach der Authentifizierung."""
+
+    ERLAUBT = ("zf_pruefen", "zf_einrichten", "logout")
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from django.shortcuts import redirect
+        from django.urls import resolve, Resolver404
+        from . import zweifaktor
+        u = request.user
+        if u.is_authenticated and not request.path.startswith(settings.STATIC_URL):
+            try:
+                name = resolve(request.path_info).url_name
+            except Resolver404:
+                name = None
+            if name not in self.ERLAUBT and not request.path.startswith("/i18n/"):
+                if zweifaktor.ist_aktiv(u):
+                    if request.session.get("zf_ok") is not True:
+                        return redirect(f"{reverse('zf_pruefen')}?next={quote(request.get_full_path())}")
+                elif zweifaktor.ist_pflicht(u):
+                    return redirect("zf_einrichten")
+        return self.get_response(request)
+
+
+class ZweiFaktorMiddleware:
+    """Zweite Anmeldestufe: Konten mit aktiver 2FA muessen den Code der Sitzung bestaetigen, Superadmins ohne 2FA
+    werden zur Einrichtung gezwungen. Laeuft nach der Authentifizierung."""
+
+    ERLAUBT = ("zf_pruefen", "zf_einrichten", "logout")
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from django.shortcuts import redirect
+        from django.urls import Resolver404, resolve
+        from . import zweifaktor
+        u = request.user
+        if u.is_authenticated and not request.path.startswith(settings.STATIC_URL):
+            try:
+                name = resolve(request.path_info).url_name
+            except Resolver404:
+                name = None
+            if name not in self.ERLAUBT and not request.path.startswith("/i18n/"):
+                if zweifaktor.ist_aktiv(u):
+                    if request.session.get("zf_ok") is not True:
+                        return redirect(f"{reverse('zf_pruefen')}?next={quote(request.get_full_path())}")
+                elif zweifaktor.ist_pflicht(u):
+                    return redirect("zf_einrichten")
+        return self.get_response(request)

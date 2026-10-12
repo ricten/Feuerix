@@ -71,6 +71,7 @@
       {% include "core/_sprachauswahl.html" %}
       {% if user.is_authenticated %}
       <a class="btn btn-sm {% if web_akzenttextfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}" href="{% url 'password_change' %}"><i class="bi bi-key"></i> {% trans "Passwort" %}</a>
+      <a class="btn btn-sm {% if web_akzenttextfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}" href="{% url 'zf_verwalten' %}"><i class="bi bi-shield-lock"></i> {% trans "2FA" %}</a>
       <form method="post" action="{% url 'logout' %}" class="d-inline">{% csrf_token %}<button class="btn btn-sm {% if web_akzenttextfarbe == '#000' %}btn-outline-dark{% else %}btn-outline-light{% endif %}"><i class="bi bi-box-arrow-right"></i> {% trans "Abmelden" %}</button></form>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav"><span class="navbar-toggler-icon"></span></button>
       {% endif %}

@@ -51,6 +51,8 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "apps.core.middleware.MandantMiddleware",
+    "apps.core.middleware.ZweiFaktorMiddleware",
+    "apps.core.middleware.ZweiFaktorMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # Muss die letzte Middleware sein (siehe django-axes-Doku).
@@ -147,6 +149,10 @@ AXES_RESET_ON_SUCCESS = True
 # Waehrend "manage.py test" nicht aktiv - sonst wuerden Tests mit absichtlich falschen Zugangsdaten
 # sich gegenseitig sperren koennen.
 AXES_ENABLED = "test" not in sys.argv
+
+# Zwei-Faktor-Pflicht fuer Superadmins (siehe apps/core/zweifaktor.py). Bei "manage.py test" aus, weil sonst jede
+# Anfrage eines Test-Superusers zur Einrichtung umgeleitet wuerde; die 2FA-Tests schalten sie gezielt ein.
+ZWEIFAKTOR_PFLICHT = "test" not in sys.argv
 
 # E-Mail
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "")

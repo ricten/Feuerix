@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import hilfe, matrix_views, sicherung_views, views
+from . import hilfe, matrix_views, sicherung_views, views, zf_views
 from .crud import abschnitt, crud
 from .forms import RolleForm, ZugangForm
 from .models import AuditLog, Rolle, Zugang
@@ -17,6 +17,9 @@ urlpatterns = [
     path("", views.dashboard, name="dashboard"),
     path("dashboard/kacheln/", views.dashboard_kacheln_speichern, name="dashboard_kacheln_speichern"),
     path("nach-anmeldung/", views.nach_login, name="nach_login"),
+    path("zwei-faktor/", zf_views.zf_verwalten, name="zf_verwalten"),
+    path("zwei-faktor/einrichten/", zf_views.zf_einrichten, name="zf_einrichten"),
+    path("zwei-faktor/pruefen/", zf_views.zf_pruefen, name="zf_pruefen"),
     path("verein/waehlen/", views.verein_waehlen, name="verein_waehlen"),
     path("verein/logo/", views.verein_logo, name="verein_logo"),
     path("verein/einstellungen/", views.verein_einstellungen, name="verein_einstellungen"),
