@@ -129,30 +129,48 @@ def schriftstueck_ablegen(request, pk):
 
 
 # ---------------------------------------------------------------- Serienbrief
+def _versandweg(sb, m):
+    """'E-Mail', 'Post' oder 'Post + E-Mail' je Empfaenger entsprechend der Versandart des Serienbriefs."""
+    if sb.versandart == "post":
+        return "Post"
+    if sb.versandart == "mail":
+        return "E-Mail" if m.email else "–"
+    if sb.versandart == "mail_post":
+        return "E-Mail" if m.email else "Post"
+    return "Post + E-Mail" if m.email else "Post"
+
+
 def serienbrief_kontext(request, sb):
     rt = request.rechte
     empf = sb.empfaenger()
     n = empf.count()
     mit_mail = empf.exclude(email="").count()
-    aktionen = [knopf("Vorschau (erster Empfänger)", reverse("serienbrief_pdf", args=[sb.pk]), stil="primary"),
-                knopf("Alle Briefe als PDF", reverse("serienbrief_pdf", args=[sb.pk]) + "?alle=1")]
-    if rt.darf("ablage", "add"):
-        aktionen.append(knopf("Alle Briefe erzeugen & in Ablage speichern", reverse("serienbrief_ablegen", args=[sb.pk]),
-                              post=True, stil="success",
-                              bestaetigung=f"{n} Briefe als PDF erzeugen und in der Ablage speichern?"))
-    if rt.darf("rundschreiben", "change") and mit_mail:
-        aktionen.append(knopf(f"Per E-Mail senden ({mit_mail})", reverse("serienbrief_mailen", args=[sb.pk]), post=True,
+    n_mail = sb.mail_empfaenger().count()
+    n_post = sb.post_empfaenger().count()
+    aktionen = [knopf("Vorschau (erster Empfänger)", reverse("serienbrief_pdf", args=[sb.pk]), stil="primary")]
+    if n_post:
+        aktionen.append(knopf(f"Briefe für den Postversand als PDF ({n_post})",
+                              reverse("serienbrief_pdf", args=[sb.pk]) + "?alle=1"))
+        if rt.darf("ablage", "add"):
+            aktionen.append(knopf("Briefe erzeugen & in Ablage speichern", reverse("serienbrief_ablegen", args=[sb.pk]),
+                                  post=True, stil="success",
+                                  bestaetigung=f"{n_post} Briefe als PDF erzeugen und in der Ablage speichern?"))
+    if rt.darf("rundschreiben", "change") and n_mail:
+        aktionen.append(knopf(f"Per E-Mail senden ({n_mail})", reverse("serienbrief_mailen", args=[sb.pk]), post=True,
                               stil="outline-primary",
-                              bestaetigung=f"E-Mail mit PDF-Anhang an {mit_mail} Mitglieder senden?"))
-    hinweise = [f"{n} Empfänger, davon {mit_mail} mit E-Mail-Adresse."]
+                              bestaetigung=f"E-Mail mit PDF-Anhang an {n_mail} Mitglieder senden?"))
+    hinweise = [f"{n} Empfänger, davon {mit_mail} mit E-Mail-Adresse. Versand: {sb.get_versandart_display()}.",
+                f"Per E-Mail: {n_mail} · Per Post (Brief-PDF): {n_post}."]
     fehlend = offene(sb.text + " " + sb.betreff, kontext(sb.verein, mitglied=empf.first(), veranstaltung=sb.veranstaltung))
     if fehlend:
         hinweise.append("Nicht ersetzbare Platzhalter: " + ", ".join("{" + f + "}" for f in fehlend))
     if sb.versand_info:
         hinweise.append(f"E-Mail-Versand: {sb.versand_info}")
     return {"aktionen": aktionen, "hinweise": hinweise,
-            "abschnitte": [{"titel": f"Empfängerliste (erste 50 von {n})", "spalten": ["Mitglied", "E-Mail", "Ort"],
-                            "zeilen": [{"url": None, "zellen": [m.name, m.email or "–", m.ort or "–"]} for m in empf[:50]],
+            "abschnitte": [{"titel": f"Empfängerliste (erste 50 von {n})",
+                            "spalten": ["Mitglied", "E-Mail", "Ort", "Versand"],
+                            "zeilen": [{"url": None, "zellen": [m.name, m.email or "–", m.ort or "–", _versandweg(sb, m)]}
+                                       for m in empf[:50]],
                             "add_url": None}],
             "vorschau": pdf_vorschau(reverse("serienbrief_pdf", args=[sb.pk]))}
 
@@ -162,8 +180,10 @@ def serienbrief_kontext(request, sb):
 def serienbrief_pdf_view(request, pk):
     _pruefen(request, "rundschreiben", "view")
     sb = get_object_or_404(Serienbrief, pk=pk, verein=request.verein)
-    empf = sb.empfaenger()
-    pdf = serienbrief_pdf(sb, empf) if request.GET.get("alle") else serienbrief_pdf(sb, empf, limit=1)
+    if request.GET.get("alle"):
+        pdf = serienbrief_pdf(sb, sb.post_empfaenger())
+    else:     # Vorschau: erster Empfaenger des Kreises (auch wenn dieser per E-Mail bedient wird)
+        pdf = serienbrief_pdf(sb, sb.empfaenger(), limit=1)
     return _pdf_antwort(pdf, f"{sb.titel[:50]}.pdf")
 
 
@@ -173,13 +193,14 @@ def serienbrief_ablegen(request, pk):
     _pruefen(request, "rundschreiben", "view")
     _pruefen(request, "ablage", "add")
     sb = get_object_or_404(Serienbrief, pk=pk, verein=request.verein)
-    empf = list(sb.empfaenger())
+    empf = list(sb.post_empfaenger())
     if not empf:
-        messages.error(request, "Keine Empfänger gefunden.")
+        messages.error(request, "Keine Empfänger für den Postversand gefunden.")
         return redirect("serienbrief_detail", pk=sb.pk)
     d = services.ablegen(request.verein, sb.titel, "serienbrief", f"{sb.titel[:60]}.pdf", serienbrief_pdf(sb, empf),
                          datum=sb.datum, veranstaltung=sb.veranstaltung,
-                         beschreibung=f"{len(empf)} Briefe · Empfängerkreis: {sb.get_status_filter_display()}")
+                         beschreibung=f"{len(empf)} Briefe (Post) · Empfängerkreis: {sb.get_status_filter_display()}"
+                                     f" · Versand: {sb.get_versandart_display()}")
     sb.ablage = d
     sb.save(update_fields=["ablage", "geaendert"])
     _auto_uebergeben(d)
@@ -239,7 +260,8 @@ def aus_veranstaltung(request, pk, art):
         return redirect("veranstaltung_detail", pk=v.pk)
     if art == "serienbrief":
         obj = Serienbrief.objects.create(verein=request.verein, titel=f"Einladung {v.titel}", vorlage=vl, veranstaltung=v,
-                                         betreff=vl.betreff, text=vl.text, datum=date.today())
+                                         betreff=vl.betreff, text=vl.text, datum=date.today(),
+                                         versandart="mail_post")
         return redirect("serienbrief_detail", pk=obj.pk)
     obj = Schriftstueck.objects.create(verein=request.verein, titel=f"{'Protokoll' if art == 'protokoll' else 'Einladung'} "
                                        f"{v.titel}", art=vorlagenart, vorlage=vl, veranstaltung=v, betreff=vl.betreff,

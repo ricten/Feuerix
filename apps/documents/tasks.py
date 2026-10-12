@@ -11,11 +11,9 @@ from .platzhalter import ersetzen, kontext
 @shared_task
 def serienbrief_mailen_task(serienbrief_id):
     sb = Serienbrief.objects.select_related("verein", "veranstaltung").get(pk=serienbrief_id)
-    ok = fehler = ohne = 0
-    for m in sb.empfaenger():
-        if not m.email:
-            ohne += 1
-            continue
+    ok = fehler = 0
+    ohne = sb.empfaenger().filter(email="").count()
+    for m in sb.mail_empfaenger():
         ctx = kontext(sb.verein, mitglied=m, veranstaltung=sb.veranstaltung, datum=sb.datum)
         try:
             mail = EmailMessage(subject=ersetzen(sb.betreff or sb.titel, ctx),
@@ -27,5 +25,7 @@ def serienbrief_mailen_task(serienbrief_id):
         except Exception:
             fehler += 1
     sb.versendet_am = timezone.now()
-    sb.versand_info = f"{ok} versendet, {fehler} Fehler, {ohne} ohne E-Mail-Adresse (nur Brief)"
+    rest = ("per Post" if sb.versandart == "mail_post" else "nur Brief" if sb.versandart == "beides"
+            else "nicht berücksichtigt")
+    sb.versand_info = f"{ok} versendet, {fehler} Fehler, {ohne} ohne E-Mail-Adresse ({rest})"
     sb.save(update_fields=["versendet_am", "versand_info", "geaendert"])

@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.78.0
+
+- **Einladungen/Serienbriefe: Versandart wählbar** – E-Mail an Mitglieder mit E-Mail-Adresse und alle übrigen per Post (Standard bei Einladungen aus
+  einer Veranstaltung), alle per Post, nur per E-Mail oder wie bisher (Brief für alle, E-Mail zusätzlich). Das Brief-PDF für Druck/Ablage enthält dann
+  nur die Postempfänger; Detailseite mit Zählern und Versandweg je Empfänger.
+
 ## 1.77.0
 
 - **Einstellungen aufgeräumt:** Neue Seite *Verwaltung › Einstellungen (Übersicht)* mit allen Verwaltungs- und Stammdatenseiten nach Themen in Tabellen

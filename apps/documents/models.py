@@ -202,6 +202,16 @@ class Serienbrief(TenantModel):
     funktion = models.ForeignKey("members.Funktion", on_delete=models.SET_NULL, null=True, blank=True,
                                  related_name="+", verbose_name=_("Nur Funktion (z. B. Vorstand)"))
     nur_mit_email = models.BooleanField(_("Nur Mitglieder mit E-Mail-Adresse"), default=False)
+    VERSANDART = [
+        ("beides", _("Brief für alle, E-Mail an Mitglieder mit Adresse zusätzlich möglich")),
+        ("mail_post", _("E-Mail an Mitglieder mit E-Mail-Adresse, alle übrigen per Post")),
+        ("post", _("Alle per Post (Brief als PDF)")),
+        ("mail", _("Nur per E-Mail (Mitglieder ohne E-Mail-Adresse bleiben unberücksichtigt)")),
+    ]
+    versandart = models.CharField(
+        _("Versand"), max_length=10, choices=VERSANDART, default="beides",
+        help_text=_("Bei „E-Mail an Mitglieder mit E-Mail-Adresse, alle übrigen per Post“ enthält das Brief-PDF (Ausdruck, "
+                  "Ablage) nur noch die Mitglieder ohne E-Mail-Adresse - die anderen bekommen den Brief per E-Mail."))
     ablage = models.ForeignKey(Ablagedokument, on_delete=models.SET_NULL, null=True, blank=True, editable=False,
                                related_name="+", verbose_name=_("Zuletzt abgelegt als"))
     versendet_am = models.DateTimeField(_("Per E-Mail versendet am"), null=True, blank=True, editable=False)
@@ -231,3 +241,17 @@ class Serienbrief(TenantModel):
         if self.nur_mit_email:
             qs = qs.exclude(email="")
         return qs.distinct().order_by("nachname", "vorname")
+
+    def mail_empfaenger(self):
+        """Wer den Brief per E-Mail bekommt (je nach Versandart)."""
+        if self.versandart == "post":
+            return self.empfaenger().none()
+        return self.empfaenger().exclude(email="")
+
+    def post_empfaenger(self):
+        """Wer den Brief per Post bekommt, d. h. fuer wen das Brief-PDF (Ausdruck/Ablage) erzeugt wird."""
+        if self.versandart == "mail":
+            return self.empfaenger().none()
+        if self.versandart == "mail_post":
+            return self.empfaenger().filter(email="")
+        return self.empfaenger()

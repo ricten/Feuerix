@@ -34,9 +34,13 @@ Jubiläum, Zugangsdaten OpenSlides, Brief allgemein. Jede Vorlage kann geändert
 
 1. *Schriftverkehr › Serienbriefe › Neu* (oder in einer Veranstaltung „Einladung an Mitglieder (Serienbrief)“).
 2. Vorlage wählen, Text anpassen, **Empfängerkreis** festlegen (Status, Mitgliedsart, Abteilung, Funktion, nur mit E-Mail).
-3. Detailseite: Empfängerzahl kontrollieren, **Vorschau** ansehen (erster Empfänger).
-4. **Alle Briefe erzeugen & in Ablage speichern** – ein PDF, ein Brief je Mitglied (jeder mit Logo und persönlicher Anrede) → zum Drucken.
-5. **Per E-Mail senden** – Text im Mailtext, Brief als PDF-Anhang, an alle Empfänger mit E-Mail-Adresse (im Hintergrund).
+3. **Versand** wählen: *E-Mail an Mitglieder mit E-Mail-Adresse, alle übrigen per Post* (Standard bei Einladungen aus einer
+   Veranstaltung), *Alle per Post*, *Nur per E-Mail* oder *Brief für alle, E-Mail zusätzlich möglich* (bisheriges Verhalten).
+4. Detailseite: Empfängerzahl kontrollieren (Zähler „Per E-Mail / Per Post“, Spalte „Versand“ in der Empfängerliste), **Vorschau** ansehen
+   (erster Empfänger).
+5. **Briefe erzeugen & in Ablage speichern** bzw. **Briefe für den Postversand als PDF** – ein PDF, ein Brief je Mitglied (jeder mit Logo
+   und persönlicher Anrede) → zum Druck; bei „E-Mail … übrige per Post“ nur für die Mitglieder **ohne** E-Mail-Adresseen.
+6. **Per E-Mail senden** – Text im Mailtext, Brief als PDF-Anhang, an alle Empfänger mit E-Mail-Adresse (im Hintergrund).
    Das Ergebnis (Anzahl versendet/Fehler/ohne Adresse) steht auf der Detailseite.
 
 ## Ablage

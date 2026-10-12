@@ -39,10 +39,13 @@ new name), or created from scratch.
 1. *Correspondence › Mail merges › New* (or, from an event, "Invitation to members (mail merge)").
 2. Choose a template, adjust the text, set the **recipient group** (status, membership type, department,
    role, email address required or not).
-3. Detail page: check the recipient count, view the **preview** (first recipient).
-4. **Generate all letters & save to archive** – one PDF, one letter per member (each with logo and personal
-   salutation) → ready to print.
-5. **Send by email** – text in the email body, letter attached as PDF, to every recipient with an email
+3. Choose the **dispatch**: *Email to members with an email address, everyone else by post* (default for invitations created from
+   an event), *Everyone by post*, *Email only* or *Letter for everyone, email additionally possible* (previous behaviour).
+4. Detail page: check the recipient count (counter "By email / By post", column "Dispatch" in the recipient list), view the
+   **preview** (first recipient).
+5. **Generate letters & save to archive** or **Letters for postal dispatch as PDF** – one PDF, one letter per member (each with logo
+   and personal salutation) → ready to print; with "Email … everyone else by post" only for the members **without** an email address.
+6. **Send by email** – text in the email body, letter attached as PDF, to every recipient with an email
    address (runs in the background). The result (number sent/failed/without an address) appears on the
    detail page.
 

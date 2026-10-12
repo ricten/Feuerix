@@ -4988,56 +4988,7 @@ msgstr "Labels"
 msgid "Weitere"
 msgstr "Other"
 
-#~ msgid "Zuständig"
-#~ msgstr "Assigned to"
-
-#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
-#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
-
-#~ msgid "Zuwendungsbestätigungen"
-#~ msgstr "Donation receipts"
-
-#~ msgid "Protokolle"
-#~ msgstr "Minutes"
-
-#~ msgid "Einladungen"
-#~ msgstr "Invitations"
-
-#~ msgid ""
-#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
-#~ "Die Bank-PIN wird nie gespeichert."
-#~ msgstr ""
-#~ "Experimental: this method has not yet been tested against a real bank. The "
-#~ "bank PIN is never stored."
-
-#~ msgid ""
-#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
-#~ "eintragen und speichern."
-#~ msgstr ""
-#~ "Enter and save the connection details here (bank code, user ID, the bank's "
-#~ "FinTS address)."
-
-#~ msgid ""
-#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
-#~ "nie gespeichert."
-#~ msgstr ""
-#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
-#~ "stored."
-
-#~ msgid ""
-#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
-#~ "abgefragt."
-#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
-
-#~ msgid ""
-#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
-#~ "übersprungen."
-#~ msgstr ""
-#~ "New transactions are created as bank transactions, duplicates are skipped "
-#~ "automatically."
-
 # Einstellungs-Uebersicht
-
 msgid "Einstellungen (Übersicht)"
 msgstr "Settings (overview)"
 
@@ -5144,3 +5095,79 @@ msgstr "Logo & colours"
 
 msgid "Briefe"
 msgstr "Letters"
+
+#~ msgid "Zuständig"
+#~ msgstr "Assigned to"
+
+#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
+#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
+
+#~ msgid "Zuwendungsbestätigungen"
+#~ msgstr "Donation receipts"
+
+#~ msgid "Protokolle"
+#~ msgstr "Minutes"
+
+#~ msgid "Einladungen"
+#~ msgstr "Invitations"
+
+#~ msgid ""
+#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
+#~ "Die Bank-PIN wird nie gespeichert."
+#~ msgstr ""
+#~ "Experimental: this method has not yet been tested against a real bank. The "
+#~ "bank PIN is never stored."
+
+#~ msgid ""
+#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
+#~ "eintragen und speichern."
+#~ msgstr ""
+#~ "Enter and save the connection details here (bank code, user ID, the bank's "
+#~ "FinTS address)."
+
+#~ msgid ""
+#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
+#~ "nie gespeichert."
+#~ msgstr ""
+#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
+#~ "stored."
+
+#~ msgid ""
+#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
+#~ "abgefragt."
+#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
+
+#~ msgid ""
+#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
+#~ "übersprungen."
+#~ msgstr ""
+#~ "New transactions are created as bank transactions, duplicates are skipped "
+#~ "automatically."
+
+# Serienbrief-Versandart
+
+msgid "Brief für alle, E-Mail an Mitglieder mit Adresse zusätzlich möglich"
+msgstr ""
+"Letter for everyone, email to members with an address additionally possible"
+
+msgid "E-Mail an Mitglieder mit E-Mail-Adresse, alle übrigen per Post"
+msgstr "Email to members with an email address, everyone else by post"
+
+msgid "Alle per Post (Brief als PDF)"
+msgstr "Everyone by post (letter as PDF)"
+
+msgid ""
+"Nur per E-Mail (Mitglieder ohne E-Mail-Adresse bleiben unberücksichtigt)"
+msgstr "Email only (members without an email address are not considered)"
+
+msgid "Versand"
+msgstr "Dispatch"
+
+msgid ""
+"Bei „E-Mail an Mitglieder mit E-Mail-Adresse, alle übrigen per Post“ enthält"
+" das Brief-PDF (Ausdruck, Ablage) nur noch die Mitglieder ohne E-Mail-"
+"Adresse - die anderen bekommen den Brief per E-Mail."
+msgstr ""
+"With \"Email to members with an email address, everyone else by post\" the "
+"letter PDF (printout, filing) only contains the members without an email "
+"address - the others receive the letter by email."
