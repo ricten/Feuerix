@@ -3,6 +3,9 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.76.2
+- Handbuch: weitere Markdown-Warnungen behoben (Tabellenformat, Leerzeilen vor Listen, einheitliche Listenzeichen).
+
 ## 1.76.1
 - Handbuch: Markdown-Hinweise behoben (2FA-Abschnitt als echte Unterüberschrift am Ende von Kapitel 1, englischer Fettdruck-Absatz im Verleih-Kapitel).
 

@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.76.1)
+# Handbuch – Feuerix (Version 1.76.2)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -127,7 +127,7 @@ Datenbereich **direkt in der Weboberfläche eingestellt**. Für jeden Verein wer
 angelegt (Rechte siehe Berechtigungsmatrix, dort auch änderbar):
 
 | Rolle | Typischer Einsatz |
-|---|---|
+| --- | --- |
 | **Superadministrator** | Technische Betreuung; Rechte-Bypass, erscheint nicht in der Berechtigungsmatrix |
 | **1. Vorsitzender (DSO) / 2. Vorsitzender (DSO)** | Vorsitz |
 | **Kassenwart (DSO) / Stellv. Kassenwart (DSO)** | Kassenführung |
@@ -209,6 +209,7 @@ steht zum Download bereit. „Vollexport (Excel)“ auf der Mitgliederliste expo
 Bankdaten (nur mit Beitragsrecht).
 
 **Auf der Mitglieder-Detailseite** (je nach eigenen Rechten):
+
 - „Datenauskunft (JSON)“ – vollständige DSGVO-Auskunft inkl. Rechnungen, Zahlungen, Spenden, Aufwand, Ehrungen,
   Dokumenten.
 - „Anonymisieren“ – löscht personenbezogene Daten, Foto und Dokumente unwiderruflich; Rechnungen bleiben aus
@@ -390,6 +391,7 @@ kräftigem Kontrast)** mit aufgedruckt: auf dem Standardbogen links groß, der Q
 Etiketten entfällt das Logo automatisch und der QR-Code steht mittig.
 
 **Verleih starten**:
+
 - *Manuell* über „Verleih / Reservierung anlegen“ auf dem Gegenstand (voller Formular-Umfang, inkl. Kaution/
   Leihgebühr-Anpassung je Ausleihe).
 - *Per Scan*: Aufkleber mit dem Handy scannen (angemeldet im System) – der Gegenstand landet im
@@ -657,12 +659,12 @@ Veranstaltung) gibt es den Knopf „Anwesenheit, Abstimmungen und Wahlen aus Ope
 ruft den aktuellen Stand ab; beim Erzeugen von **PDF und Word** werden die Ergebnisse dann automatisch als
 **Anlagen auf jeweils eigener Seite** hinter dem Protokolltext angehängt (mit Briefkopf und Seitenzahl):
 
-* **Anlage 1: Teilnehmerliste** – alle anwesenden Personen alphabetisch, mit Kennzeichnung Mitglied/Gast und der
+- **Anlage 1: Teilnehmerliste** – alle anwesenden Personen alphabetisch, mit Kennzeichnung Mitglied/Gast und der
   Gesamtzahl.
-* **Anlage 2: Abstimmungen** – alle Abstimmungen zu Anträgen und Themen zusammengefasst, je Abstimmung ein Block mit
+- **Anlage 2: Abstimmungen** – alle Abstimmungen zu Anträgen und Themen zusammengefasst, je Abstimmung ein Block mit
   Antragsteller*in, Antragstext, Begründung, Ergebnistabelle und OpenSlides-Status sowie einer Ankreuzzeile
   „angenommen / abgelehnt“ für den Versammlungsleiter.
-* **Anlage 3: Wahlergebnisse** – alle Wahlen zusammengefasst, je Wahl(gang) ein Block mit der Stimmentabelle je
+- **Anlage 3: Wahlergebnisse** – alle Wahlen zusammengefasst, je Wahl(gang) ein Block mit der Stimmentabelle je
   Kandidat*in und einer Zeile „Gewählt: ____“.
 
 Es gibt nur die Anlagen, zu denen Daten vorliegen; die Nummern sind fortlaufend. Der Protokolltext selbst wird nicht
