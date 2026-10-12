@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.76.5)
+# Handbuch – Feuerix (Version 1.77.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -768,9 +768,15 @@ Vereinsname/-anschrift/-kontakt, Registereintrag, Bankverbindung inkl. Gläubige
 Angaben zum Gemeinnützigkeitsbescheid (für Spendenquittungen), Umsatzsteuerpflicht/USt-IdNr./Steuerhinweis
 (Kapitel 4, für nicht gemeinnützige Vereine bzw. den wirtschaftlichen Geschäftsbetrieb), Zahlungsziel und
 Rechnungstexte, die konfigurierbaren Freibeträge für Aufwandsentschädigungen, sowie Logo, Akzentfarbe(n) und die
-Unterschriftszeilen für den Briefkopf (Kapitel 11). Die Seite ist nach Themen in **Reiter** aufgeteilt: *Stammdaten*, *Bank*,
-*Steuern & Gemeinnützigkeit*, *Rechnungen*, *Erscheinungsbild*, *Startseite & Impressum* und *Etiketten*; bei einem Eingabefehler
-öffnet sich automatisch der Reiter mit dem Fehler (rotes Zähler-Abzeichen), sonst der zuletzt benutzte.
+Unterschriftszeilen für den Briefkopf (Kapitel 11). Die Seite ist nach Themen aufgeteilt, die links angewählt werden: *Verein*, *Finanzen* (Bank, Steuern &
+Gemeinnützigkeit, Rechnungen), *Erscheinungsbild* (Logo & Farben, Briefe, Etiketten) und *Startseite & Impressum*; bei einem
+Eingabefehler öffnet sich automatisch das Thema mit dem Fehler (rotes Zähler-Abzeichen), sonst das zuletzt benutzte.
+
+Alle weiteren Verwaltungs- und Stammdatenseiten (Mitgliedsarten, Beitragsregeln, FinTS-Zugänge, Konten, Abteilungen, Funktionen,
+Tags, Ehrungsarten, Inventar-Kategorien und -Lagerorte, Importe, Rollen, Berechtigungsmatrix, Datensicherung …) stehen **nach
+Themen geordnet** unter *Verwaltung › Einstellungen (Übersicht)*; das Menü *Verwaltung* selbst enthält nur noch Übersicht,
+Vereinsdaten, Benutzer, **einen** Punkt für die externen Anbindungen (OpenSlides, Paperless-ngx) und – für Superadmins – die
+Datensicherung. Jeder sieht in der Übersicht nur, wofür die eigene Rolle Rechte hat.
 
 **Impressum**: Das Feld „Impressum“ enthält den vollständigen Text nach § 5 TMG/§ 18 MStV (verantwortliche
 Person, Anschrift, Kontakt, Vertretungsberechtigte, ggf. USt-IdNr.) und wird **ungeprüft** auf einer öffentlich

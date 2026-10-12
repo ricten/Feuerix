@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<h3 class="mb-1"><i class="bi bi-gear" style="color: var(--bs-primary);"></i> {% trans "Einstellungen" %}</h3>
+<p class="text-muted">{% trans "Alle Verwaltungs- und Stammdatenseiten, nach Themen geordnet." %}</p>
+<div class="row g-3">
+  {% for thema, icon, zeilen in bereiche %}
+  <div class="col-lg-6"><div class="card shadow-sm h-100">
+    <div class="card-header fw-semibold"><i class="bi {{ icon }} me-1"></i>{{ thema }}</div>
+    <table class="table table-hover table-sm mb-0 align-middle">
+      <tbody>
+        {% for label, url, text in zeilen %}
+        <tr><td class="ps-3" style="width:42%"><a class="text-decoration-none fw-medium" href="{{ url }}">{{ label }}</a></td>
+            <td class="text-muted small">{{ text }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div></div>
+  {% endfor %}
+</div>
+{% endblock %}

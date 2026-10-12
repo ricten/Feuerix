@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.77.0
+
+- **Einstellungen aufgeräumt:** Neue Seite *Verwaltung › Einstellungen (Übersicht)* mit allen Verwaltungs- und Stammdatenseiten nach Themen in Tabellen
+  (Verein, Finanzen, Mitglieder & Ehrungen, Inventar, Zugriff & Sicherheit, Externe Anbindungen, System); das Menü „Verwaltung“ ist auf fünf Punkte
+  geschrumpft (ein Punkt für alle externen Anbindungen). Die Vereinseinstellungen haben statt sieben Reitern vier Themen in einer Seitenleiste;
+  Bank, Steuern und Rechnungen sind unter „Finanzen“ zusammengefasst.
+
 ## 1.76.5
 
 - Doku: restliche Markdown-Warnungen in CHANGELOG, CLAUDE.md, README und Handbuch (en) behoben; ein fälschlich als Liste gelesener Satzanfang in der README umformuliert.

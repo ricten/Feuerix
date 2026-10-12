@@ -14,7 +14,7 @@ class RollenFortgeschrittenKennzeichnungTests(TestCase):
         self.client.login(username="admin", password="pw-Test-12345")
 
     def test_navigation_kennzeichnet_rollen_als_fortgeschritten(self):
-        r = self.client.get(reverse("dashboard"))
+        r = self.client.get(reverse("einstellungen"))
         self.assertContains(r, "Rollen (fortgeschritten)")
 
     def test_rollenliste_zeigt_hinweis_auf_tags(self):

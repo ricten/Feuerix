@@ -1,46 +1,60 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-<div class="row justify-content-center"><div class="col-xl-8">
+<div class="row justify-content-center"><div class="{% if gruppen %}col-xl-10{% else %}col-xl-8{% endif %}">
 <h3 class="mb-3">{% if aktive_icon %}<i class="bi {{ aktive_icon }}" style="color: var(--bs-primary);"></i> {% endif %}{{ titel }}</h3>
-<div class="card shadow-sm"><div class="card-body">
 <form method="post" enctype="multipart/form-data">{% csrf_token %}
   {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
   {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
   {% if gruppen %}
-  {# Aufteilung nach Themen (Reiter); gruppen = [{id, titel, icon, felder: [BoundField], fehler}] #}
-  <ul class="nav nav-tabs mb-3 flex-wrap" id="themen" role="tablist">
-    {% for g in gruppen %}
-    <li class="nav-item" role="presentation">
-      <button type="button" class="nav-link {% if g.aktiv %}active{% endif %}" id="tab-{{ g.id }}" data-bs-toggle="tab"
-              data-bs-target="#pane-{{ g.id }}" role="tab" aria-controls="pane-{{ g.id }}">
-        {% if g.icon %}<i class="bi {{ g.icon }}"></i> {% endif %}{{ g.titel }}{% if g.fehler %} <span class="badge text-bg-danger">{{ g.fehler }}</span>{% endif %}
-      </button>
-    </li>
-    {% endfor %}
-  </ul>
-  <div class="tab-content">
-    {% for g in gruppen %}
-    <div class="tab-pane fade {% if g.aktiv %}show active{% endif %}" id="pane-{{ g.id }}" role="tabpanel" aria-labelledby="tab-{{ g.id }}">
-      {% if g.hinweis %}<p class="text-muted small">{{ g.hinweis }}</p>{% endif %}
-      {% for field in g.felder %}{% include "core/_formfeld.html" %}{% endfor %}
+  {# Aufteilung nach Themen: links die Themen, rechts der Inhalt; gruppen = [{id, titel, icon, hinweis, bloecke, fehler, aktiv}] #}
+  <div class="row g-3">
+    <div class="col-md-3">
+      <div class="nav flex-column nav-pills shadow-sm rounded bg-body p-2" id="themen" role="tablist" aria-orientation="vertical">
+        {% for g in gruppen %}
+        <button type="button" class="nav-link text-start {% if g.aktiv %}active{% endif %}" id="tab-{{ g.id }}" data-bs-toggle="pill"
+                data-bs-target="#pane-{{ g.id }}" role="tab" aria-controls="pane-{{ g.id }}">
+          {% if g.icon %}<i class="bi {{ g.icon }} me-1"></i>{% endif %}{{ g.titel }}{% if g.fehler %} <span class="badge text-bg-danger">{{ g.fehler }}</span>{% endif %}
+        </button>
+        {% endfor %}
+        <hr class="my-2">
+        <button class="btn btn-primary"><i class="bi bi-check-lg"></i> {% trans "Speichern" %}</button>
+        <a href="{{ abbrechen_url }}" class="btn btn-outline-secondary mt-1"><i class="bi bi-x-lg"></i> {% trans "Abbrechen" %}</a>
+      </div>
     </div>
-    {% endfor %}
+    <div class="col-md-9">
+      <div class="tab-content">
+        {% for g in gruppen %}
+        <div class="tab-pane fade {% if g.aktiv %}show active{% endif %}" id="pane-{{ g.id }}" role="tabpanel" aria-labelledby="tab-{{ g.id }}">
+          {% if g.hinweis %}<p class="text-muted small">{{ g.hinweis }}</p>{% endif %}
+          {% for blk in g.bloecke %}
+          <div class="card shadow-sm mb-3">
+            {% if blk.titel %}<div class="card-header fw-semibold">{{ blk.titel }}</div>{% endif %}
+            <div class="card-body pb-1">
+              {% for field in blk.felder %}{% include "core/_formfeld.html" %}{% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
   </div>
-  <hr>
   {% else %}
-  {% for field in form %}{% include "core/_formfeld.html" %}{% endfor %}
+  <div class="card shadow-sm"><div class="card-body">
+    {% for field in form %}{% include "core/_formfeld.html" %}{% endfor %}
+    <button class="btn btn-primary"><i class="bi bi-check-lg"></i> {% trans "Speichern" %}</button>
+    <a href="{{ abbrechen_url }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i> {% trans "Abbrechen" %}</a>
+  </div></div>
   {% endif %}
-  <button class="btn btn-primary"><i class="bi bi-check-lg"></i> {% trans "Speichern" %}</button>
-  <a href="{{ abbrechen_url }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i> {% trans "Abbrechen" %}</a>
 </form>
-</div></div></div></div>
+</div></div>
 {% if gruppen %}
 <script>
 (function () {
-  // zuletzt gewaehlten Reiter merken (nur Komfort - ohne Speicher einfach der erste bzw. der mit Fehlern)
+  // zuletzt gewaehltes Thema merken (nur Komfort - ohne Speicher einfach das erste bzw. das mit Fehlern)
   var schluessel = "formular-reiter:" + location.pathname, fehler = {{ gruppen_hat_fehler|yesno:"true,false" }};
-  var tabs = document.querySelectorAll('#themen [data-bs-toggle="tab"]');
+  var tabs = document.querySelectorAll('#themen [data-bs-toggle="pill"]');
   tabs.forEach(function (t) {
     t.addEventListener("shown.bs.tab", function () { try { localStorage.setItem(schluessel, t.id); } catch (e) {} });
   });

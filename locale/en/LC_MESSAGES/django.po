@@ -4966,6 +4966,28 @@ msgstr ""
 "The account is unlocked as well. Pass the password on to the user through a "
 "secure channel."
 
+# Einstellungs-Reiter
+msgid "Stammdaten"
+msgstr "Master data"
+
+msgid "Steuern & Gemeinnützigkeit"
+msgstr "Taxes & non-profit status"
+
+msgid "Steuerlich Relevantes bitte mit dem Steuerberater abstimmen."
+msgstr "Please discuss anything tax-relevant with your tax advisor."
+
+msgid "Erscheinungsbild"
+msgstr "Appearance"
+
+msgid "Startseite & Impressum"
+msgstr "Start page & legal notice"
+
+msgid "Etiketten"
+msgstr "Labels"
+
+msgid "Weitere"
+msgstr "Other"
+
 #~ msgid "Zuständig"
 #~ msgstr "Assigned to"
 
@@ -5014,25 +5036,111 @@ msgstr ""
 #~ "New transactions are created as bank transactions, duplicates are skipped "
 #~ "automatically."
 
-# Einstellungs-Reiter
+# Einstellungs-Uebersicht
 
-msgid "Stammdaten"
-msgstr "Master data"
+msgid "Einstellungen (Übersicht)"
+msgstr "Settings (overview)"
 
-msgid "Steuern & Gemeinnützigkeit"
-msgstr "Taxes & non-profit status"
+msgid "Verein / Erscheinungsbild"
+msgstr "Club / appearance"
 
-msgid "Steuerlich Relevantes bitte mit dem Steuerberater abstimmen."
-msgstr "Please discuss anything tax-relevant with your tax advisor."
+msgid "Alle Verwaltungs- und Stammdatenseiten, nach Themen geordnet."
+msgstr "All administration and master data pages, ordered by topic."
 
-msgid "Erscheinungsbild"
-msgstr "Appearance"
+msgid "Verein & Erscheinungsbild"
+msgstr "Club & appearance"
 
-msgid "Startseite & Impressum"
-msgstr "Start page & legal notice"
+msgid "Vereinsdaten, Logo, Farben"
+msgstr "Club data, logo, colours"
 
-msgid "Etiketten"
-msgstr "Labels"
+msgid ""
+"Name, Anschrift, Registereintrag, Logo, Farben, Unterschriften, Startseiten-"
+"Banner, Impressum, Etiketten"
+msgstr ""
+"Name, address, register entry, logo, colours, signatures, start page banner,"
+" legal notice, labels"
 
-msgid "Weitere"
-msgstr "Other"
+msgid "Bank, Steuern & Rechnungen"
+msgstr "Bank, taxes & invoices"
+
+msgid ""
+"Bankverbindung, Gläubiger-ID, Gemeinnützigkeit, Umsatzsteuer, Zahlungsziel, "
+"Rechnungstexte, Freibeträge"
+msgstr ""
+"Bank details, creditor ID, non-profit status, VAT, payment terms, invoice "
+"texts, allowances"
+
+msgid "Beitragshöhen je Mitgliedsart"
+msgstr "Fee amounts per membership type"
+
+msgid "Ermäßigungen und Sonderregeln für Beiträge"
+msgstr "Reductions and special rules for fees"
+
+msgid "Bankzugänge für den automatischen Abruf der Umsätze"
+msgstr "Bank accesses for the automatic retrieval of transactions"
+
+msgid "Bankkonto und Barkassen des Kassenbuchs"
+msgstr "Bank account and cash boxes of the cash book"
+
+msgid "Kategorien und Sphären für Buchungen"
+msgstr "Categories and tax spheres for bookings"
+
+msgid "Mitglieder & Ehrungen"
+msgstr "Members & honours"
+
+msgid "Gliederung des Vereins"
+msgstr "Structure of the club"
+
+msgid "Ämter und Funktionen"
+msgstr "Offices and functions"
+
+msgid "Tags, über die Mitglieder Rechte und Gruppen erhalten"
+msgstr "Tags through which members receive permissions and groups"
+
+msgid "Arten von Ehrungen und Auszeichnungen"
+msgstr "Kinds of honours and awards"
+
+msgid "Wann ein Jubiläum fällig wird"
+msgstr "When an anniversary is due"
+
+msgid "Mitglieder aus Excel/CSV übernehmen"
+msgstr "Import members from Excel/CSV"
+
+msgid "Kategorien der Gegenstände"
+msgstr "Categories of items"
+
+msgid "Wo Gegenstände lagern"
+msgstr "Where items are stored"
+
+msgid "Gegenstände aus Excel/CSV übernehmen"
+msgstr "Import items from Excel/CSV"
+
+msgid "Zugriff & Sicherheit"
+msgstr "Access & security"
+
+msgid "Konten anlegen, Rollen zuweisen, Passwort/2FA zurücksetzen"
+msgstr "Create accounts, assign roles, reset password/2FA"
+
+msgid "Rechte-Sets für Benutzer"
+msgstr "Permission sets for users"
+
+msgid "Stufen je Datenbereich und Rolle"
+msgstr "Levels per data area and role"
+
+msgid "OpenSlides, Paperless-ngx"
+msgstr "OpenSlides, Paperless-ngx"
+
+msgid "Online-Versammlungen und Dokumentenarchiv anbinden"
+msgstr "Connect online meetings and document archive"
+
+msgid "System"
+msgstr "System"
+
+msgid "Sicherungen, externes Ziel, Wiederherstellung"
+msgstr "Backups, external target, restore"
+
+msgid "Logo & Farben"
+msgstr "Logo & colours"
+
+msgid "Briefe"
+msgstr "Letters"

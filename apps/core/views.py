@@ -193,39 +193,47 @@ def verein_logo(request):
     return FileResponse(verein.logo.open("rb"))
 
 
-# Aufteilung der Vereinseinstellungen nach Themen (Reiter): (id, Titel, Symbol, Hinweis, Felder). Felder, die hier nicht
-# vorkommen, landen im Reiter "Weitere", damit nach Modelländerungen nichts verschwindet.
+# Aufteilung der Vereinseinstellungen nach Themen (vertikale Navigation): (id, Titel, Symbol, Hinweis, [(Zwischenueberschrift
+# oder None, Felder)]). Felder, die hier nicht vorkommen, landen unter "Weitere", damit nach Modelländerungen nichts verschwindet.
 EINSTELLUNGS_GRUPPEN = [
-    ("stamm", _lazy("Stammdaten"), "bi-building", "",
-     ("name", "anschrift", "plz", "ort", "email", "vereinsregister")),
-    ("bank", _lazy("Bank"), "bi-bank", "", ("bankname", "iban", "bic", "glaeubiger_id")),
-    ("steuer", _lazy("Steuern & Gemeinnützigkeit"), "bi-percent",
+    ("stamm", _lazy("Verein"), "bi-building", "",
+     [(None, ("name", "anschrift", "plz", "ort", "email", "vereinsregister"))]),
+    ("finanzen", _lazy("Finanzen"), "bi-cash-coin",
      _lazy("Steuerlich Relevantes bitte mit dem Steuerberater abstimmen."),
-     ("finanzamt", "steuernummer", "umsatzsteuerpflichtig", "ust_idnr", "rechnung_steuerhinweis", "bescheid_art",
-      "bescheid_datum", "bescheid_zeitraum", "beguenstigte_zwecke", "uebungsleiter_freibetrag", "ehrenamts_freibetrag")),
-    ("rechnung", _lazy("Rechnungen"), "bi-receipt", "", ("zahlungsziel_tage", "rechnung_kopftext", "rechnung_fusstext")),
+     [(_lazy("Bank"), ("bankname", "iban", "bic", "glaeubiger_id")),
+      (_lazy("Steuern & Gemeinnützigkeit"),
+       ("finanzamt", "steuernummer", "umsatzsteuerpflichtig", "ust_idnr", "rechnung_steuerhinweis", "bescheid_art",
+        "bescheid_datum", "bescheid_zeitraum", "beguenstigte_zwecke", "uebungsleiter_freibetrag",
+        "ehrenamts_freibetrag")),
+      (_lazy("Rechnungen"), ("zahlungsziel_tage", "rechnung_kopftext", "rechnung_fusstext"))]),
     ("design", _lazy("Erscheinungsbild"), "bi-palette", "",
-     ("logo", "akzentfarbe", "akzentfarbe_fuss", "akzentfarbe_web", "akzentfarbe_web_2", "akzentfarbe_web_3",
-      "unterschrift_1", "unterschrift_2")),
+     [(_lazy("Logo & Farben"), ("logo", "akzentfarbe", "akzentfarbe_fuss", "akzentfarbe_web", "akzentfarbe_web_2",
+                                "akzentfarbe_web_3")),
+      (_lazy("Briefe"), ("unterschrift_1", "unterschrift_2")),
+      (_lazy("Etiketten"), ("etikett_breite_mm", "etikett_hoehe_mm", "etikett_spalten", "etikett_zeilen"))]),
     ("startseite", _lazy("Startseite & Impressum"), "bi-megaphone", "",
-     ("startseite_banner", "startseite_banner_art", "startseite_banner_bis", "impressum_text")),
-    ("etiketten", _lazy("Etiketten"), "bi-upc-scan", "",
-     ("etikett_breite_mm", "etikett_hoehe_mm", "etikett_spalten", "etikett_zeilen")),
+     [(None, ("startseite_banner", "startseite_banner_art", "startseite_banner_bis", "impressum_text"))]),
 ]
 
 
 def _einstellungs_gruppen(form):
-    """Teilt die Felder des Formulars in Reiter auf; der erste Reiter mit Fehlern (sonst der erste) ist aktiv."""
+    """Teilt die Felder des Formulars nach Themen auf; das erste Thema mit Fehlern (sonst das erste) ist aktiv."""
     verteilt, gruppen = set(), []
-    for gid, titel, icon, hinweis, namen in EINSTELLUNGS_GRUPPEN:
-        felder = [form[n] for n in namen if n in form.fields]
-        verteilt.update(n for n in namen if n in form.fields)
-        gruppen.append({"id": gid, "titel": titel, "icon": icon, "hinweis": hinweis, "felder": felder})
+    for gid, titel, icon, hinweis, bloecke in EINSTELLUNGS_GRUPPEN:
+        liste = []
+        for blocktitel, namen in bloecke:
+            felder = [form[n] for n in namen if n in form.fields]
+            verteilt.update(n for n in namen if n in form.fields)
+            if felder:
+                liste.append({"titel": blocktitel, "felder": felder})
+        gruppen.append({"id": gid, "titel": titel, "icon": icon, "hinweis": hinweis, "bloecke": liste})
     rest = [form[n] for n in form.fields if n not in verteilt]
     if rest:
-        gruppen.append({"id": "weitere", "titel": _lazy("Weitere"), "icon": "bi-three-dots", "hinweis": "", "felder": rest})
-    gruppen = [g for g in gruppen if g["felder"]]
+        gruppen.append({"id": "weitere", "titel": _lazy("Weitere"), "icon": "bi-three-dots", "hinweis": "",
+                        "bloecke": [{"titel": None, "felder": rest}]})
+    gruppen = [g for g in gruppen if g["bloecke"]]
     for g in gruppen:
+        g["felder"] = [f for blk in g["bloecke"] for f in blk["felder"]]
         g["fehler"] = sum(len(f.errors) for f in g["felder"])
         g["aktiv"] = False
     erste = next((g for g in gruppen if g["fehler"]), gruppen[0] if gruppen else None)
@@ -352,6 +360,18 @@ def oeffentliches_dokument_download(request, kuerzel, pk):
     if not d.datei:
         raise Http404
     return FileResponse(d.datei.open("rb"), as_attachment=True, filename=os.path.basename(d.datei.name))
+
+
+@login_required
+def einstellungen_uebersicht(request):
+    """Alle Verwaltungs- und Stammdatenseiten nach Themen geordnet (siehe einstellungen.py)."""
+    from .einstellungen import sichtbare_bereiche
+    if request.verein is None:
+        return redirect("verein_waehlen")
+    bereiche = sichtbare_bereiche(request)
+    if not bereiche:
+        raise PermissionDenied
+    return render(request, "core/einstellungen.html", {"titel": _("Einstellungen"), "bereiche": bereiche})
 
 
 @login_required

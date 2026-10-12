@@ -404,7 +404,7 @@ class WeboberflaechenDesignTests(TestCase):
         admin = User.objects.create_superuser("admin", password="pw-Test-12345")
         Zugang.objects.create(verein=v, user=admin, rolle=Rolle.objects.get(verein=v, name="Superadministrator"))
         self.client.login(username="admin", password="pw-Test-12345")
-        r = self.client.get(reverse("dashboard"))
+        r = self.client.get(reverse("einstellungen"))     # Verwaltung › Einstellungen (Übersicht)
         self.assertContains(r, reverse("mitglieder_import"))
         self.assertContains(r, reverse("gegenstand_import"))
         r = self.client.get(reverse("mitglied_list"))
@@ -891,9 +891,9 @@ class EinstellungenReiterTests(TestCase):
         namen = [f.name for g in gruppen for f in g["felder"]]
         self.assertCountEqual(namen, list(r.context["form"].fields))
         self.assertEqual(len(namen), len(set(namen)))
-        self.assertEqual([g["titel"] for g in gruppen][:2], ["Stammdaten", "Bank"])
+        self.assertEqual([g["titel"] for g in gruppen][:2], ["Verein", "Finanzen"])
         self.assertEqual(sum(1 for g in gruppen if g["aktiv"]), 1)
-        self.assertContains(r, 'data-bs-toggle="tab"')
+        self.assertContains(r, 'data-bs-toggle="pill"')
 
     def test_reiter_mit_fehler_ist_aktiv(self):
         r = self.client.post(reverse("verein_einstellungen"), {"name": "Testverein", "zahlungsziel_tage": "abc"})
@@ -904,3 +904,51 @@ class EinstellungenReiterTests(TestCase):
         r = self.client.get(reverse("verein_einstellungen"))
         self.assertNotContains(self.client.get(reverse("rolle_add")), 'id="themen"')
         self.assertContains(r, 'id="themen"')
+
+
+class EinstellungsUebersichtTests(TestCase):
+    """Verwaltung › Einstellungen: alle Stammdaten-/Verwaltungsseiten nach Themen, schlankes Verwaltungsmenü."""
+
+    def setUp(self):
+        self.verein = Verein.objects.create(name="Testverein", kuerzel="test")
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        self.client.force_login(self.admin)
+
+    def test_uebersicht_zeigt_themen_und_links(self):
+        r = self.client.get(reverse("einstellungen"))
+        self.assertEqual(r.status_code, 200)
+        for thema in ("Verein &amp; Erscheinungsbild", "Finanzen", "Mitglieder &amp; Ehrungen", "Inventar",
+                      "Zugriff &amp; Sicherheit", "Externe Anbindungen", "System"):
+            self.assertContains(r, thema)
+        for name in ("verein_einstellungen", "fintszugang_list", "abteilung_list", "kategorie_list", "zugang_list",
+                     "anbindungen", "datensicherung"):
+            self.assertContains(r, 'href="%s"' % reverse(name))
+
+    def test_menue_verwaltung_ist_kurz_mit_einem_punkt_fuer_anbindungen(self):
+        r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, 'href="%s"' % reverse("einstellungen"))
+        self.assertContains(r, 'href="%s"' % reverse("anbindungen"))
+        for name in ("openslides_einstellungen", "paperless_einstellungen", "abteilung_list", "kategorie_list"):
+            self.assertNotContains(r, 'class="dropdown-item" href="%s"' % reverse(name))
+
+    def test_nur_sichtbare_eintraege_je_rolle(self):
+        rolle = Rolle.objects.create(verein=self.verein, name="Nur Inventar", rechte=["inventar.view"])
+        u = User.objects.create_user("inv", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.verein, user=u, rolle=rolle)
+        self.client.force_login(u)
+        r = self.client.get(reverse("einstellungen"))
+        self.assertContains(r, 'href="%s"' % reverse("kategorie_list"))
+        self.assertNotContains(r, 'href="%s"' % reverse("zugang_list"))
+        self.assertNotContains(r, 'href="%s"' % reverse("datensicherung"))
+
+    def test_ohne_jegliches_recht_verboten(self):
+        rolle = Rolle.objects.create(verein=self.verein, name="Leer", rechte=[])
+        u = User.objects.create_user("leer", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.verein, user=u, rolle=rolle)
+        self.client.force_login(u)
+        self.assertEqual(self.client.get(reverse("einstellungen")).status_code, 403)
+
+    def test_seiten_der_uebersicht_markieren_menue_verwaltung(self):
+        from apps.core.context import _URL_ICON
+        for name in ("abteilung", "kategorie", "mitgliedsart", "rolle", "openslides_einstellungen"):
+            self.assertEqual(_URL_ICON.get(name), "bi-gear", name)

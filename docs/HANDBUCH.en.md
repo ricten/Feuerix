@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.76.5)
+# Handbook – Feuerix (Version 1.77.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -744,9 +744,15 @@ club name/address/contact, register entry, bank details including creditor ID, t
 details of the non-profit determination notice (for donation receipts), VAT liability/VAT ID/tax note
 (chapter 4, for non-charitable clubs or a taxable commercial operation), payment terms and invoice texts, the
 configurable tax-free allowances for expense allowances, as well as the logo, accent colour(s) and the
-signature lines for the letterhead (chapter 11). The page is divided into **tabs** by topic: *Master data*, *Bank*,
-*Taxes & non-profit status*, *Invoices*, *Appearance*, *Start page & legal notice* and *Labels*; after an input error the tab
+signature lines for the letterhead (chapter 11). The page is divided into topics selected on the left: *Club*, *Finances* (bank, taxes & non-profit status,
+invoices), *Appearance* (logo & colours, letters, labels) and *Start page & legal notice*; after an input error the topic
 containing the error opens automatically (red counter badge), otherwise the one used last.
+
+All other administration and master data pages (membership types, fee rules, FinTS accesses, accounts, departments, functions,
+tags, honour types, inventory categories and locations, imports, roles, permission matrix, backup …) are listed **by topic**
+under *Administration › Settings (overview)*; the *Administration* menu itself only contains the overview, club data, users,
+**one** entry for the external integrations (OpenSlides, Paperless-ngx) and – for superadmins – the backup. In the overview
+everybody only sees what their own role has permissions for.
 
 **Legal notice ("Impressum"):** the "Legal notice" field contains the full text required under § 5 TMG/§ 18
 MStV (the responsible person, address, contact, authorised representatives, VAT ID if applicable) and is

@@ -5,6 +5,7 @@ from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from . import einstellungen as _einstellungen
 from .anbindungen import anbindungen
 
 NAV = [
@@ -53,25 +54,10 @@ NAV = [
         (_("Änderungsprotokoll"), "auditlog_list", "audit"),
     ]),
     (_("Verwaltung"), "bi-gear", [
-        (_("Verein / Einstellungen / Logo"), "verein_einstellungen", "verwaltung"),
-        (_("Externe Anbindungen"), "anbindungen", "openslides"),
-        (_("OpenSlides-Anbindung"), "openslides_einstellungen", "openslides"),
-        (_("Paperless-Anbindung"), "paperless_einstellungen", "paperless"),
-        (_("FinTS-Zugänge"), "fintszugang_list", "bank"),
+        (_("Einstellungen (Übersicht)"), "einstellungen", None),
+        (_("Verein / Erscheinungsbild"), "verein_einstellungen", "verwaltung"),
         (_("Benutzer"), "zugang_list", "verwaltung"),
-        (_("Rollen (fortgeschritten)"), "rolle_list", "verwaltung"),
-        (_("Berechtigungsmatrix"), "berechtigungsmatrix", "verwaltung"),
-        (_("Beitragsregeln"), "beitragsregel_list", "beitraege"),
-        (_("Mitgliedsarten / Beiträge"), "mitgliedsart_list", "beitraege"),
-        (_("Abteilungen"), "abteilung_list", "mitglieder"),
-        (_("Funktionen"), "funktion_list", "mitglieder"),
-        (_("Funktionen: Tags (Zugriffsrechte)"), "mitgliedtag_list", "mitglieder"),
-        (_("Ehrungsarten"), "ehrungsart_list", "ehrungen"),
-        (_("Jubiläumsregeln"), "jubilaeumsregel_list", "ehrungen"),
-        (_("Inventar-Kategorien"), "kategorie_list", "inventar"),
-        (_("Inventar-Lagerorte"), "lagerort_list", "inventar"),
-        (_("Mitglieder-Import"), "mitglieder_import", "mitglieder"),
-        (_("Inventar-Import"), "gegenstand_import", "inventar"),
+        (_("Externe Anbindungen"), "anbindungen", "openslides"),
     ]),
 ]
 
@@ -93,6 +79,10 @@ def _basisname(url_name):
 
 _URL_ICON = {_basisname(url_name): icon for gruppe, icon, eintraege in NAV for label, url_name, modul in eintraege}
 _URL_ICON["datensicherung"] = "bi-gear"
+for _u in _einstellungen.url_namen():      # alle Seiten der Einstellungs-Uebersicht gehoeren zum Menue "Verwaltung"
+    _URL_ICON.setdefault(_basisname(_u), "bi-gear")
+for _u in ("openslides_einstellungen", "paperless_einstellungen"):
+    _URL_ICON.setdefault(_u, "bi-gear")
 
 
 def _aktive_icon(request):
@@ -192,6 +182,8 @@ def mandant(request):
                 continue   # Einstellungsseite erst im Menue, wenn die Instanz angebunden ist (sonst ueber "Externe Anbindungen")
             if url_name == "anbindungen":
                 sichtbar = request.rechte.darf("openslides", "view") or request.rechte.darf("paperless", "view")
+            elif url_name == "einstellungen":
+                sichtbar = bool(_einstellungen.sichtbare_bereiche(request))
             else:
                 sichtbar = request.rechte.darf(modul, "view")
             if sichtbar:
