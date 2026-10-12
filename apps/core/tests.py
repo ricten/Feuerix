@@ -655,6 +655,27 @@ class UpdateBenachrichtigungAnzeigeTests(TestCase):
         r2 = self.client.get(reverse("dashboard"))
         self.assertNotContains(r2, "99.0.0")
 
+    def test_banner_verlinkt_das_changelog_mit_sprung_zur_neuen_version(self):
+        Systemeinstellung.objects.create(update_verfuegbare_version="99.12.3", update_geprueft_am=timezone.now())
+        self.client.login(username="admin", password="pw-Test-12345")
+        with self.settings(PRODUCT_CHANGELOG_URL="https://github.com/x/y/blob/main/CHANGELOG.md"):
+            r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, 'href="https://github.com/x/y/blob/main/CHANGELOG.md#99123"')
+        self.assertContains(r, "Änderungen ansehen")
+
+    def test_ohne_changelog_adresse_verweist_der_banner_auf_die_quellcode_adresse(self):
+        Systemeinstellung.objects.create(update_verfuegbare_version="99.0.0", update_geprueft_am=timezone.now())
+        self.client.login(username="admin", password="pw-Test-12345")
+        with self.settings(PRODUCT_CHANGELOG_URL="", PRODUCT_SOURCE_URL="https://git.example.org/verein/feuerix"):
+            r = self.client.get(reverse("dashboard"))
+        self.assertContains(r, 'href="https://git.example.org/verein/feuerix" target="_blank"')
+        self.assertNotContains(r, "#9900")
+
+    def test_standard_changelog_adresse_wird_aus_der_github_adresse_abgeleitet(self):
+        from django.conf import settings
+        self.assertTrue(settings.PRODUCT_CHANGELOG_URL.endswith("/blob/main/CHANGELOG.md"))
+        self.assertTrue(settings.PRODUCT_CHANGELOG_URL.startswith(settings.PRODUCT_SOURCE_URL.rstrip("/")))
+
     def test_kein_banner_ohne_neuere_version(self):
         Systemeinstellung.objects.create(update_verfuegbare_version="0.1.0", update_geprueft_am=timezone.now())
         self.client.login(username="admin", password="pw-Test-12345")

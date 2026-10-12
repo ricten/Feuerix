@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.71.3
+- Update-Hinweis: „Änderungen ansehen“ führt jetzt direkt zum **Changelog** (Sprung zum Abschnitt der neuen Version) statt auf die Projektseite;
+  Adresse über `PRODUCT_CHANGELOG_URL` einstellbar (Standard: `CHANGELOG.md` im Hauptzweig der GitHub-Quellcode-Adresse).
+
 ## 1.71.2
 - Schichtseite: In der Liste „Eingeteilte Helfer“ steht hinter jedem Namen ein **Papierkorb-Knopf** zum Entfernen (mit Rückfrage; mit dem Recht
   „Veranstaltungen löschen“, im Änderungsprotokoll erfasst). Danach geht es zur Schicht zurück, der Platz ist wieder frei.

@@ -109,7 +109,7 @@
   <div class="alert alert-info alert-dismissible fade show d-flex align-items-center gap-2">
     <i class="bi bi-arrow-up-circle"></i>
     <div>{% blocktrans with version=update_verfuegbare_version %}Eine neue Feuerix-Version ist verfügbar: {{ version }}.{% endblocktrans %}
-      {% if product_source_url %}<a href="{{ product_source_url }}" target="_blank" rel="noopener">{% trans "Änderungen ansehen" %}</a>{% endif %}</div>
+      {% if update_changelog_url %}<a href="{{ update_changelog_url }}" target="_blank" rel="noopener">{% trans "Änderungen ansehen" %}</a>{% endif %}</div>
     <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
   </div>
   {% endif %}

@@ -181,6 +181,11 @@ PRODUCT_TAGLINE = "Verwaltung für Feuerwehr-Fördervereine"
 # AGPL-3.0 verlangt bei Netzwerknutzung Zugriff auf den zum laufenden Stand passenden Quellcode - bei eigenen
 # Änderungen bitte auf die eigene Quellcode-Adresse anpassen.
 PRODUCT_SOURCE_URL = os.environ.get("PRODUCT_SOURCE_URL", "https://github.com/ricten/Feuerix")
+# Changelog, auf den der Update-Hinweis verweist (bei GitHub-Quellcode-Adresse automatisch die CHANGELOG.md im Hauptzweig; fuer eine
+# andere Quellcode-Ablage hier die passende Adresse setzen, sonst verweist der Hinweis auf PRODUCT_SOURCE_URL).
+PRODUCT_CHANGELOG_URL = os.environ.get(
+    "PRODUCT_CHANGELOG_URL",
+    f"{PRODUCT_SOURCE_URL.rstrip('/')}/blob/main/CHANGELOG.md" if "github.com" in PRODUCT_SOURCE_URL else "")
 
 # Prüft periodisch (höchstens einmal pro UPDATE_CHECK_INTERVALL_STUNDEN) gegen diese Adresse auf eine neuere
 # Version - leer lassen, um die Prüfung ganz abzuschalten (z. B. in Intranet-Installationen ohne Internetzugang).

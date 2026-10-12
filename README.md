@@ -109,7 +109,8 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 * **Update-Benachrichtigung:** Superadministratoren sehen einen Hinweisbanner, sobald eine neuere Feuerix-Version
   veröffentlicht wurde – geprüft im Hintergrund (Celery), höchstens einmal pro Tag, ausgelöst beim nächsten
   Seitenaufruf (`UPDATE_CHECK_URL`/`UPDATE_CHECK_INTERVALL_STUNDEN` in der `.env`, leer lassen zum Abschalten,
-  z. B. ohne Internetzugang). Löst nur einen Hinweis aus, aktualisiert nichts automatisch.
+  z. B. ohne Internetzugang). Der Link „Änderungen ansehen“ führt direkt zur neuen Version im Changelog (`PRODUCT_CHANGELOG_URL`, bei GitHub-Quellcode-Adresse
+  automatisch abgeleitet). Löst nur einen Hinweis aus, aktualisiert nichts automatisch.
 * **Lizenzhinweis:** Der Footer jeder Seite verweist auf die AGPL-3.0-Lizenz und den Quellcode
   (`PRODUCT_SOURCE_URL` in der `.env`) – bei einem eigenen Fork bitte auf die eigene Quellcode-Adresse anpassen,
   siehe Abschnitt „Lizenz“.

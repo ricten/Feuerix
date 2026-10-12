@@ -121,6 +121,9 @@ def version(request):
         neu = se.update_anzeigen(app_version)
         if neu:
             ctx["update_verfuegbare_version"] = neu
+            # Sprung direkt zum Abschnitt der neuen Version (GitHub-Anker: "## 1.71.2" -> #1712)
+            ctx["update_changelog_url"] = (f"{settings.PRODUCT_CHANGELOG_URL}#{neu.replace('.', '')}"
+                                           if settings.PRODUCT_CHANGELOG_URL else settings.PRODUCT_SOURCE_URL)
         if se.sicherung_aktiv and se.sicherung_letzter_lauf and not se.sicherung_letzter_ok:
             ctx["sicherung_fehler"] = se.sicherung_letzte_meldung
     return ctx
