@@ -3,6 +3,9 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.72.1
+- Neuer Befehl `manage.py demodaten --verein <kuerzel>`: Demo-Veranstaltungen und -Verleihe für alle Szenarien (mit `--zuruecksetzen` entfernbar).
+
 ## 1.72.0
 - **Zwei-Faktor-Anmeldung (TOTP)** mit Authenticator-App und Wiederherstellungscodes: für Superadmins verpflichtend, für alle
   anderen optional (Knopf „2FA“). Konten ohne aktive 2FA werden nach 5 falschen Passworteingaben **gesperrt**; Entsperren per

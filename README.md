@@ -184,6 +184,10 @@ bestehenden Verein fiktive Mitglieder sowie einen Beitragsjahr-Rechnungslauf mit
 (vollständig bezahlt / teilbezahlt mit Mahnung / offen und überfällig) und ein Beispiel-Inventar (Feuerwehrausrüstung
 und Veranstaltungstechnik mit Kategorien/Lagerorten) – nur für Test-/Demoinstallationen, nicht für den
 Produktivbetrieb gedacht.
+Ergänzend legt `python manage.py demodaten --verein <kuerzel> [--zuruecksetzen]` Demo-Veranstaltungen und Demo-Verleihe für
+alle Szenarien an (Fest mit Schichtplan und Helfer-Selbsteintrag, Versammlung mit Tagesordnung/Anmeldungen, Sitzung mit
+Anwesenheit und Wahlergebnissen, Verleih reserviert/ausgegeben/überfällig/zurückgegeben/storniert, Sammelvorgang,
+Vereinsreservierung); alles ist mit „[Demo]“ markiert und mit `--zuruecksetzen` wieder entfernbar.
 
 ## Noch nicht enthalten
 

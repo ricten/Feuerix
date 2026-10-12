@@ -191,6 +191,10 @@ fictional members for an existing club, plus a fee-year invoice run with a reali
 (fully paid / partly paid with a reminder / open and overdue) and sample inventory (fire-brigade equipment
 and event technology with categories/locations) – for test/demo installations only, not intended for
 production use.
+In addition, `python manage.py demodaten --verein <code> [--zuruecksetzen]` creates demo events and demo loans for all
+scenarios (party with shift plan and helper self sign-up, meeting with agenda/registrations, session with attendance and
+election results, loans reserved/issued/overdue/returned/cancelled, bundled loans, club reservation); everything is marked
+"[Demo]" and can be removed again with `--zuruecksetzen`.
 
 ## Not yet included
 
