@@ -3,6 +3,9 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.76.3
+- Doku: Markdown-Warnungen in GITHUB.md und GITHUB.en.md behoben (Leerzeilen um Überschriften und Listen).
+
 ## 1.76.2
 - Handbuch: weitere Markdown-Warnungen behoben (Tabellenformat, Leerzeilen vor Listen, einheitliche Listenzeichen).
 

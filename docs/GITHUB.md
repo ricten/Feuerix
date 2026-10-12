@@ -3,18 +3,22 @@
 *English version: [GITHUB.en.md](GITHUB.en.md).*
 
 ## Vorbemerkung
+
 Das Projekt ist so vorbereitet, dass es direkt in ein Git-Repository passt:
+
 * `.gitignore` schließt `.env`, `openslides/secrets/` und Build-Artefakte aus – **Zugangsdaten gelangen nicht ins Repository**.
 * `.github/workflows/ci.yml` startet bei jedem Push automatisch die Tests (Django-Check, Migrationen, Testsuite gegen PostgreSQL).
 * `scripts/github_einrichten.sh` erledigt `git init`, ersten Commit und Push in einem Schritt.
 
 ## Einmalig auf GitHub (im Browser)
+
 1. Konto anlegen bzw. anmelden, **New repository**.
 2. Name z. B. `feuerix`, Sichtbarkeit **Private** (enthält Vereinskonzepte, sollte nicht öffentlich sein).
 3. **Keine** README/.gitignore/Lizenz vorab hinzufügen lassen (das Repository muss leer sein).
 4. Adresse kopieren, z. B. `git@github.com:IHR-NAME/feuerix.git` (SSH) oder `https://github.com/IHR-NAME/feuerix.git`.
 
 ## Auf Ihrem Rechner
+
 Voraussetzung: `git` installiert und bei GitHub angemeldet – am einfachsten mit der GitHub-CLI (`gh auth login`) oder mit einem
 SSH-Schlüssel (GitHub › Settings › SSH keys).
 
@@ -39,6 +43,7 @@ git push -u origin main
 Mit GitHub-CLI geht es noch kürzer: `gh repo create feuerix --private --source=. --push`
 
 ## Danach
+
 * **Actions-Reiter** öffnen: der erste CI-Lauf zeigt, ob alles startet. Der Code selbst ist durch die mitgelieferte
   Testsuite bereits geprüft – treten beim allerersten Lauf trotzdem Fehler auf, liegt das meist an umgebungs-
   spezifischen Dingen (z. B. Secrets/Umgebungsvariablen in den Actions-Einstellungen) – die Log-Ausgabe des roten
@@ -53,6 +58,7 @@ Mit GitHub-CLI geht es noch kürzer: `gh repo create feuerix --private --source=
   bewusst eine Lizenz wählen (z. B. AGPL-3.0 oder MIT).
 
 ## Kann Claude direkt committen?
+
 Kommt auf die Umgebung an: In **Claude Code** (diese CLI/IDE-Umgebung) mit Zugriff auf ein bereits eingerichtetes
 Git-Repository samt Push-Zugangsdaten kann Claude ganz normal committen und pushen, wenn Sie es explizit darum
 bitten – das ist der übliche Arbeitsweise für laufende Änderungen an einem bestehenden Repository. Für die

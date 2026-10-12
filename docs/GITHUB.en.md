@@ -4,7 +4,9 @@
 project.*
 
 ## Preliminary note
+
 The project is set up so it fits directly into a Git repository:
+
 * `.gitignore` excludes `.env`, `openslides/secrets/` and build artefacts – **credentials never end up in the
   repository**.
 * `.github/workflows/ci.yml` automatically runs the tests on every push (Django check, migrations, test
@@ -12,6 +14,7 @@ The project is set up so it fits directly into a Git repository:
 * `scripts/github_einrichten.sh` handles `git init`, the first commit and the push in one step.
 
 ## One-time setup on GitHub (in the browser)
+
 1. Create an account or sign in, **New repository**.
 2. Name e.g. `feuerix`, visibility **Private** (contains club-specific details and shouldn't be public).
 3. **Don't** let it add a README/.gitignore/license upfront (the repository needs to be empty).
@@ -19,6 +22,7 @@ The project is set up so it fits directly into a Git repository:
    `https://github.com/YOUR-NAME/feuerix.git`.
 
 ## On your computer
+
 Requires: `git` installed and signed in to GitHub – easiest with the GitHub CLI (`gh auth login`) or an SSH
 key (GitHub › Settings › SSH keys).
 
@@ -43,6 +47,7 @@ git push -u origin main
 With the GitHub CLI it's even shorter: `gh repo create feuerix --private --source=. --push`
 
 ## Afterwards
+
 * Open the **Actions tab**: the first CI run shows whether everything starts up. The code itself has already
   been checked by the included test suite – if errors still occur on the very first run, it's usually
   something environment-specific (e.g. secrets/environment variables in the Actions settings) – paste the
@@ -59,6 +64,7 @@ With the GitHub CLI it's even shorter: `gh repo create feuerix --private --sourc
   clubs, deliberately choose a license (e.g. AGPL-3.0 or MIT).
 
 ## Can Claude commit directly?
+
 It depends on the environment: in **Claude Code** (this CLI/IDE environment) with access to an already
 set-up Git repository including push credentials, Claude can commit and push completely normally when you
 explicitly ask it to – that's the usual way of working for ongoing changes to an existing repository. For
