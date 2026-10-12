@@ -4759,56 +4759,7 @@ msgstr "All shifts are open for self sign-up."
 msgid "Alle Schichten sind für den Selbsteintrag gesperrt."
 msgstr "All shifts are closed for self sign-up."
 
-#~ msgid "Zuständig"
-#~ msgstr "Assigned to"
-
-#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
-#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
-
-#~ msgid "Zuwendungsbestätigungen"
-#~ msgstr "Donation receipts"
-
-#~ msgid "Protokolle"
-#~ msgstr "Minutes"
-
-#~ msgid "Einladungen"
-#~ msgstr "Invitations"
-
-#~ msgid ""
-#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
-#~ "Die Bank-PIN wird nie gespeichert."
-#~ msgstr ""
-#~ "Experimental: this method has not yet been tested against a real bank. The "
-#~ "bank PIN is never stored."
-
-#~ msgid ""
-#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
-#~ "eintragen und speichern."
-#~ msgstr ""
-#~ "Enter and save the connection details here (bank code, user ID, the bank's "
-#~ "FinTS address)."
-
-#~ msgid ""
-#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
-#~ "nie gespeichert."
-#~ msgstr ""
-#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
-#~ "stored."
-
-#~ msgid ""
-#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
-#~ "abgefragt."
-#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
-
-#~ msgid ""
-#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
-#~ "übersprungen."
-#~ msgstr ""
-#~ "New transactions are created as bank transactions, duplicates are skipped "
-#~ "automatically."
-
 # Zwei-Faktor-Anmeldung
-
 msgid "Zu viele Fehlversuche - bitte in %(min)s Minuten erneut versuchen."
 msgstr "Too many failed attempts - please try again in %(min)s minutes."
 
@@ -4933,7 +4884,6 @@ msgid "Verbleibende Wiederherstellungscodes: %(codes_rest)s"
 msgstr "Remaining recovery codes: %(codes_rest)s"
 
 # 2FA fuer alle
-
 msgid "Einstellung gespeichert."
 msgstr "Setting saved."
 
@@ -4955,3 +4905,112 @@ msgid ""
 msgstr ""
 "All users are redirected to the setup at their next login and cannot disable"
 " it."
+
+#~ msgid "Zuständig"
+#~ msgstr "Assigned to"
+
+#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
+#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
+
+#~ msgid "Zuwendungsbestätigungen"
+#~ msgstr "Donation receipts"
+
+#~ msgid "Protokolle"
+#~ msgstr "Minutes"
+
+#~ msgid "Einladungen"
+#~ msgstr "Invitations"
+
+#~ msgid ""
+#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
+#~ "Die Bank-PIN wird nie gespeichert."
+#~ msgstr ""
+#~ "Experimental: this method has not yet been tested against a real bank. The "
+#~ "bank PIN is never stored."
+
+#~ msgid ""
+#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
+#~ "eintragen und speichern."
+#~ msgstr ""
+#~ "Enter and save the connection details here (bank code, user ID, the bank's "
+#~ "FinTS address)."
+
+#~ msgid ""
+#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
+#~ "nie gespeichert."
+#~ msgstr ""
+#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
+#~ "stored."
+
+#~ msgid ""
+#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
+#~ "abgefragt."
+#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
+
+#~ msgid ""
+#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
+#~ "übersprungen."
+#~ msgstr ""
+#~ "New transactions are created as bank transactions, duplicates are skipped "
+#~ "automatically."
+
+# Benutzer-Sicherheit
+
+msgid "Konto entsperren"
+msgstr "Unlock account"
+
+msgid "Konto entsperren?"
+msgstr "Unlock account?"
+
+msgid "Das Konto ist wegen zu vieler falscher Passworteingaben gesperrt."
+msgstr "The account is locked because of too many wrong password entries."
+
+msgid "2FA zurücksetzen"
+msgstr "Reset 2FA"
+
+msgid ""
+"Zwei-Faktor-Anmeldung dieses Kontos zurücksetzen? Der Benutzer muss sie neu "
+"einrichten."
+msgstr ""
+"Reset two-factor authentication of this account? The user will have to set "
+"it up again."
+
+msgid "Passwort neu setzen"
+msgstr "Set new password"
+
+msgid "Zwei-Faktor-Anmeldung: aktiv"
+msgstr "Two-factor authentication: active"
+
+msgid "Zwei-Faktor-Anmeldung: nicht eingerichtet"
+msgstr "Two-factor authentication: not set up"
+
+msgid "Sicherheit"
+msgstr "Security"
+
+msgid "Das Konto von %(name)s wurde entsperrt."
+msgstr "The account of %(name)s has been unlocked."
+
+msgid "Die Zwei-Faktor-Anmeldung von %(name)s wurde zurückgesetzt."
+msgstr "Two-factor authentication of %(name)s has been reset."
+
+msgid "Die beiden Passwörter stimmen nicht überein."
+msgstr "The two passwords do not match."
+
+msgid "Das Passwort von %(name)s wurde neu gesetzt."
+msgstr "The password of %(name)s has been set anew."
+
+msgid "Passwort neu setzen: %(name)s"
+msgstr "Set new password: %(name)s"
+
+msgid "Neues Passwort"
+msgstr "New password"
+
+msgid "Neues Passwort (Wiederholung)"
+msgstr "New password (repeat)"
+
+msgid ""
+"Das Konto wird dabei auch entsperrt. Geben Sie das Passwort dem Benutzer auf"
+" sicherem Weg weiter."
+msgstr ""
+"The account is unlocked as well. Pass the password on to the user through a "
+"secure channel."

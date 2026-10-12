@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.74.1)
+# Handbook – Feuerix (Version 1.75.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -49,7 +49,8 @@ account has **no active 2FA**, the **account is locked** (in addition to the one
 `docker compose exec web python manage.py zweifaktor_zuruecksetzen <username>` (with `--2fa-zuruecksetzen` the 2FA is deleted
 as well, e.g. after losing the device and codes) or via an action in the Django admin under "Two-factor authentications".
 Accounts with active 2FA are not locked by wrong passwords; wrong 2FA codes throttle themselves (15-minute pause after
-5 failed attempts).
+5 failed attempts). **Superadmins** can **set a new password**, **reset the 2FA** and **unlock** a locked account on the detail page
+of an account under Administration › Users (each recorded in the change log; not for their own account).
 
 After logging in, staff with an administration account land on the **dashboard** – a personal greeting with
 the date at the top, followed by member counts, this year's fee status, upcoming anniversaries/honours,

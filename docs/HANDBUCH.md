@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.74.1)
+# Handbuch – Feuerix (Version 1.75.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -50,6 +50,8 @@ optional – ein Superadmin kann sie über den Haken „Zwei-Faktor-Anmeldung f�
 zweifaktor_zuruecksetzen <Benutzername>` (mit `--2fa-zuruecksetzen` wird zusätzlich die 2FA gelöscht, z. B. bei verlorenem
 Gerät und Codes) oder im Django-Admin unter „Zwei-Faktor-Anmeldungen“ per Aktion. Konten mit aktiver 2FA werden bei
 Passwort-Fehlversuchen nicht gesperrt; falsche 2FA-Codes bremsen sich selbst aus (15 Minuten Pause nach 5 Fehlversuchen).
+**Superadmins** können unter Verwaltung › Benutzer in der Detailseite eines Kontos dessen **Passwort neu setzen**, die **2FA
+zurücksetzen** und ein gesperrtes Konto **entsperren** (jeweils mit Eintrag im Änderungsprotokoll; nicht für das eigene Konto).
 
 Nach der Anmeldung landen Mitarbeiter:innen mit einem Verwaltungszugang auf dem **Dashboard** – oben eine
 persönliche Begrüßung mit Datum, darunter Mitgliederzahlen, Beitragsstand des laufenden Jahres, anstehende

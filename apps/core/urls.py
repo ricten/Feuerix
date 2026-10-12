@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import hilfe, matrix_views, sicherung_views, views, zf_views
+from . import benutzer_sicherheit, hilfe, matrix_views, sicherung_views, views, zf_views
 from .crud import abschnitt, crud
 from .forms import RolleForm, ZugangForm
 from .models import AuditLog, Rolle, Zugang
@@ -13,7 +13,15 @@ def audit_kontext(request, obj):
                             "add_url": None}]}
 
 
+def benutzer_kontext(request, zugang):
+    knoepfe, hinweise = benutzer_sicherheit.aktionen(request, zugang)
+    return {"aktionen": knoepfe, "hinweise": hinweise}
+
+
 urlpatterns = [
+    path("benutzer/<int:pk>/entsperren/", benutzer_sicherheit.benutzer_entsperren, name="benutzer_entsperren"),
+    path("benutzer/<int:pk>/2fa-zuruecksetzen/", benutzer_sicherheit.benutzer_zf_reset, name="benutzer_zf_reset"),
+    path("benutzer/<int:pk>/passwort/", benutzer_sicherheit.benutzer_passwort, name="benutzer_passwort"),
     path("", views.dashboard, name="dashboard"),
     path("dashboard/kacheln/", views.dashboard_kacheln_speichern, name="dashboard_kacheln_speichern"),
     path("nach-anmeldung/", views.nach_login, name="nach_login"),
@@ -56,4 +64,4 @@ urlpatterns += crud("rollen", Rolle, "verwaltung", form=RolleForm, list_display=
                             "oder ohne eigene Rechte neu anlegbar) oder in der Berechtigungsmatrix anpassen.")
 urlpatterns += crud("benutzer", Zugang, "verwaltung", form=ZugangForm,
                     list_display=(("user", "Benutzer"), "rolle", "aktiv"), select_related=("user", "rolle"),
-                    detail_ausblenden=("extra_rechte",))
+                    detail_ausblenden=("extra_rechte",), kontext=benutzer_kontext)

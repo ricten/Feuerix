@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.75.0
+- Superadmins können in Verwaltung › Benutzer (Detailseite) das **Passwort neu setzen**, die **2FA zurücksetzen** und ein gesperrtes Konto **entsperren**;
+  alles wird im Änderungsprotokoll festgehalten.
+
 ## 1.74.1
 - Die in 1.74.0 eingeführte Lizenzverwaltung wurde vollständig wieder entfernt (Stand wie 1.73.0).
 

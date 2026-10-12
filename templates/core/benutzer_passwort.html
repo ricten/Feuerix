@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-6"><div class="card shadow-sm"><div class="card-body">
+  <h4 class="mb-3"><i class="bi bi-key me-1"></i>{% blocktrans with name=zugang.user.username %}Passwort neu setzen: {{ name }}{% endblocktrans %}</h4>
+  {% for f in fehler %}<div class="alert alert-danger py-2">{{ f }}</div>{% endfor %}
+  <form method="post" autocomplete="off">{% csrf_token %}
+    <div class="mb-3"><label class="form-label">{% trans "Neues Passwort" %}</label>
+      <input name="passwort" type="password" class="form-control" autocomplete="new-password" required autofocus></div>
+    <div class="mb-3"><label class="form-label">{% trans "Neues Passwort (Wiederholung)" %}</label>
+      <input name="passwort2" type="password" class="form-control" autocomplete="new-password" required></div>
+    <p class="text-muted small">{% trans "Das Konto wird dabei auch entsperrt. Geben Sie das Passwort dem Benutzer auf sicherem Weg weiter." %}</p>
+    <button class="btn btn-primary">{% trans "Speichern" %}</button>
+    <a class="btn btn-outline-secondary" href="{% url 'zugang_detail' zugang.pk %}">{% trans "Abbrechen" %}</a>
+  </form>
+</div></div></div></div>
+{% endblock %}
