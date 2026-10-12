@@ -3,15 +3,18 @@
 > Teil des [Handbuchs](HANDBUCH.md) – siehe dort Kapitel 11 für den Gesamtüberblick inkl. Corporate Design.
 
 ## Vereinslogo
+
 *Verwaltung › Verein / Einstellungen / Logo* → Feld **Vereinslogo** (PNG oder JPG). Das Logo steht danach oben rechts auf
 allen PDF-Dokumenten (Briefe, Serienbriefe, Rechnungen, Mahnungen, Leihscheine, Spendenquittungen) und im Word-Export und
 neben dem Vereinsnamen in der Kopfzeile. Wechsel: neue Datei hochladen. Entfernen: „Löschen“ ankreuzen.
 Für den Verein gibt es ein eigenes Logo. Die Zeilen **Unterschrift 1/2** füllen die Platzhalter `{unterschrift_1}` / `{unterschrift_2}`.
 
 ## Vorlagen (frei bearbeitbar)
+
 *Schriftverkehr › Vorlagen*. Mitgeliefert sind u. a.: Einladung Mitgliederversammlung / Vorstandssitzung / Veranstaltung,
 Protokoll Mitgliederversammlung / Vorstandssitzung, Mitgliederinformation, Information zum Mitgliedsbeitrag, Glückwunsch zum
 Jubiläum, Zugangsdaten OpenSlides, Brief allgemein. Jede Vorlage kann geändert, kopiert (neuer Name) oder neu angelegt werden.
+
 * **Art** bestimmt, wofür sie angeboten wird; **Standardvorlage** wird bei „Einladung/Protokoll erstellen“ in einer
   Veranstaltung verwendet.
 * Absätze durch eine **Leerzeile** trennen; einfache Zeilenumbrüche bleiben erhalten.
@@ -20,6 +23,7 @@ Jubiläum, Zugangsdaten OpenSlides, Brief allgemein. Jede Vorlage kann geändert
 * Bitte Einladungsfristen und Formvorschriften mit der **Satzung** abgleichen – die Mustertexte sind nur Vorschläge.
 
 ## Einzelne Schriftstücke (Einladung, Protokoll, Brief)
+
 * Aus einer **Veranstaltung**: Buttons „Einladung erstellen“ / „Protokoll erstellen“ – der Entwurf entsteht aus der
   Standardvorlage mit den Daten der Veranstaltung und der Tagesordnung.
 * Oder frei: *Schriftverkehr › Schriftstücke › Neu*, Vorlage wählen (Text wird übernommen und ist danach frei änderbar).
@@ -27,6 +31,7 @@ Jubiläum, Zugangsdaten OpenSlides, Brief allgemein. Jede Vorlage kann geändert
 * Nicht ersetzbare Platzhalter werden als Hinweis angezeigt.
 
 ## Serienbriefe
+
 1. *Schriftverkehr › Serienbriefe › Neu* (oder in einer Veranstaltung „Einladung an Mitglieder (Serienbrief)“).
 2. Vorlage wählen, Text anpassen, **Empfängerkreis** festlegen (Status, Mitgliedsart, Abteilung, Funktion, nur mit E-Mail).
 3. Detailseite: Empfängerzahl kontrollieren, **Vorschau** ansehen (erster Empfänger).
@@ -35,8 +40,10 @@ Jubiläum, Zugangsdaten OpenSlides, Brief allgemein. Jede Vorlage kann geändert
    Das Ergebnis (Anzahl versendet/Fehler/ohne Adresse) steht auf der Detailseite.
 
 ## Ablage
+
 *Schriftverkehr › Ablage* und *Ablage-Ordner*. Ordner-Struktur wird beim Anlegen des Vereins erzeugt
 (Protokolle, Einladungen, Serienbriefe, Satzung & Verträge, Belege, Sonstiges) und automatisch nach **Jahr** unterteilt.
+
 * Aus dem System erzeugte PDFs landen automatisch im passenden Ordner (Kategorie/Jahr).
 * **Externe Dokumente hochladen:** Die Ablage ist nicht auf in dieser Software erzeugte Dokumente beschränkt –
   über *Schriftverkehr › Ablage › „Neu“* lässt sich eine beliebige, extern erstellte Datei hochladen (PDF, Word,
@@ -48,6 +55,7 @@ Jubiläum, Zugangsdaten OpenSlides, Brief allgemein. Jede Vorlage kann geändert
   hat laut Datenschutzordnung Bearbeitungsrechte, siehe Handbuch Kapitel 2).
 
 ## Empfohlener Ablauf einer Mitgliederversammlung
+
 1. Veranstaltung anlegen (Art „Versammlung“), Tagesordnung erfassen (oder „Standard-Tagesordnung“).
 2. „Einladung erstellen“ → prüfen → PDF; „Einladung an Mitglieder (Serienbrief)“ → drucken/mailen. Fristen der Satzung beachten!
 3. Optional online/hybrid: „In OpenSlides anlegen“, Konten abgleichen, Zugangsdaten per Serienbrief verteilen.
