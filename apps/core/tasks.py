@@ -45,14 +45,6 @@ def datensicherung_faellig_task():
 
 
 @shared_task
-def lizenz_pruefen_task():
-    """Stuendlich von Celery Beat gestartet; fragt den Lizenzserver hoechstens alle 20 Stunden (siehe lizenz.py)."""
-    from . import lizenz
-    if lizenz.pruefung_faellig():
-        lizenz.pruefen()
-
-
-@shared_task
 def wiederherstellung_task(db_name, media_name="", benutzer=""):
     """Spielt eine Datenbank-Sicherung (und optional ein Medienarchiv) ein - siehe datensicherung.wiederherstellen."""
     from .datensicherung import wiederherstellen

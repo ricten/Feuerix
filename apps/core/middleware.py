@@ -119,31 +119,3 @@ class ZweiFaktorMiddleware:
                 elif zweifaktor.ist_pflicht(u):
                     return redirect("zf_einrichten")
         return self.get_response(request)
-
-
-class LizenzMiddleware:
-    """Verweigert den Zugriff, wenn die Installation nach der Probezeit nicht registriert ist oder der Betreiber die
-    Lizenz gesperrt hat (siehe lizenz.py). Frei bleiben Anmeldung/Abmeldung, die Lizenzseite und statische Dateien;
-    Superadmins werden zur Lizenzseite geleitet, alle anderen sehen einen Hinweis."""
-
-    ERLAUBT = ("login", "logout", "lizenz", "set_language", "zf_pruefen", "zf_einrichten")
-
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        from . import lizenz
-        if not lizenz.aktiv() or request.path.startswith(settings.STATIC_URL):
-            return self.get_response(request)
-        from django.shortcuts import redirect, render
-        from django.urls import Resolver404, resolve
-        try:
-            name = resolve(request.path_info).url_name
-        except Resolver404:
-            name = None
-        grund = lizenz.blockiert()
-        if grund and name not in self.ERLAUBT:
-            if request.user.is_authenticated and request.user.is_superuser:
-                return redirect("lizenz")
-            return render(request, "core/lizenz_gesperrt.html", {"grund": grund, "lizenz": lizenz.laden()}, status=403)
-        return self.get_response(request)

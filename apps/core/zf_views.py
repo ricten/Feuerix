@@ -83,34 +83,3 @@ def zf_verwalten(request):
                 return redirect("zf_einrichten")
     return render(request, "core/zf_verwalten.html", {"pflicht": pflicht, "codes_rest": len(zf.wiederherstellungscodes),
         "fuer_alle": se.zweifaktor_fuer_alle})
-
-
-@login_required
-@require_http_methods(["GET", "POST"])
-def lizenz_seite(request):
-    """Lizenzstatus und Registrierung (nur Superadmins) - bleibt auch bei abgelaufener Probezeit erreichbar."""
-    from django.core.exceptions import PermissionDenied
-    from django.core.validators import validate_email
-    from django.core.exceptions import ValidationError
-    from . import lizenz
-    if not request.user.is_superuser:
-        raise PermissionDenied
-    lz = lizenz.laden()
-    fehler = ""
-    if request.method == "POST" and lizenz.aktiv():
-        email = request.POST.get("email", "").strip()
-        try:
-            validate_email(email)
-            lz = lizenz.registrieren(email)
-            messages.success(request, _("Die Installation wurde registriert. Vielen Dank!"))
-            return redirect("lizenz")
-        except ValidationError:
-            fehler = _("Bitte eine gültige E-Mail-Adresse angeben.")
-        except lizenz.LizenzFehler as e:
-            fehler = str(e)
-    elif request.method == "POST":
-        fehler = _("Es ist kein Lizenzserver eingerichtet.")
-    return render(request, "core/lizenz.html", {
-        "lz": lz, "aktiv": lizenz.aktiv(), "registriert": lizenz.registriert(lz), "resttage": lizenz.tage_verbleibend(lz),
-        "gesperrt": lizenz.gesperrt(lz), "fehler": fehler, "vereine": lizenz.nutzdaten()["vereine"],
-        "server": lizenz.settings.LICENSE_SERVER_URL})

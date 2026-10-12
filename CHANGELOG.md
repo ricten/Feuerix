@@ -3,11 +3,6 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
-## 1.74.0
-- **Lizenzverwaltung** (kostenlos, unbegrenzt): Mit gesetzter `LICENSE_SERVER_URL` (Portalverwaltung) muss die Installation innerhalb von
-  30 Tagen registriert werden, sonst wird der Zugriff verweigert; übermittelt werden nur Vereinsnamen, Anzahl, Kontakt-E-Mail, Version, IP.
-  Tägliche automatische Meldung; vom Portal bereitgestellte Instanzen sind automatisch registriert. Ohne Adresse: keine Prüfung.
-
 ## 1.73.0
 - Haken „Zwei-Faktor-Anmeldung für alle Konten verpflichtend“ (2FA-Seite für Superadmins bzw. Django-Admin): dann müssen alle Benutzer 2FA einrichten.
 

@@ -4759,7 +4759,56 @@ msgstr "All shifts are open for self sign-up."
 msgid "Alle Schichten sind für den Selbsteintrag gesperrt."
 msgstr "All shifts are closed for self sign-up."
 
+#~ msgid "Zuständig"
+#~ msgstr "Assigned to"
+
+#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
+#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
+
+#~ msgid "Zuwendungsbestätigungen"
+#~ msgstr "Donation receipts"
+
+#~ msgid "Protokolle"
+#~ msgstr "Minutes"
+
+#~ msgid "Einladungen"
+#~ msgstr "Invitations"
+
+#~ msgid ""
+#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
+#~ "Die Bank-PIN wird nie gespeichert."
+#~ msgstr ""
+#~ "Experimental: this method has not yet been tested against a real bank. The "
+#~ "bank PIN is never stored."
+
+#~ msgid ""
+#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
+#~ "eintragen und speichern."
+#~ msgstr ""
+#~ "Enter and save the connection details here (bank code, user ID, the bank's "
+#~ "FinTS address)."
+
+#~ msgid ""
+#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
+#~ "nie gespeichert."
+#~ msgstr ""
+#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
+#~ "stored."
+
+#~ msgid ""
+#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
+#~ "abgefragt."
+#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
+
+#~ msgid ""
+#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
+#~ "übersprungen."
+#~ msgstr ""
+#~ "New transactions are created as bank transactions, duplicates are skipped "
+#~ "automatically."
+
 # Zwei-Faktor-Anmeldung
+
 msgid "Zu viele Fehlversuche - bitte in %(min)s Minuten erneut versuchen."
 msgstr "Too many failed attempts - please try again in %(min)s minutes."
 
@@ -4884,6 +4933,7 @@ msgid "Verbleibende Wiederherstellungscodes: %(codes_rest)s"
 msgstr "Remaining recovery codes: %(codes_rest)s"
 
 # 2FA fuer alle
+
 msgid "Einstellung gespeichert."
 msgstr "Setting saved."
 
@@ -4905,138 +4955,3 @@ msgid ""
 msgstr ""
 "All users are redirected to the setup at their next login and cannot disable"
 " it."
-
-#~ msgid "Zuständig"
-#~ msgstr "Assigned to"
-
-#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
-#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
-
-#~ msgid "Zuwendungsbestätigungen"
-#~ msgstr "Donation receipts"
-
-#~ msgid "Protokolle"
-#~ msgstr "Minutes"
-
-#~ msgid "Einladungen"
-#~ msgstr "Invitations"
-
-#~ msgid ""
-#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
-#~ "Die Bank-PIN wird nie gespeichert."
-#~ msgstr ""
-#~ "Experimental: this method has not yet been tested against a real bank. The "
-#~ "bank PIN is never stored."
-
-#~ msgid ""
-#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
-#~ "eintragen und speichern."
-#~ msgstr ""
-#~ "Enter and save the connection details here (bank code, user ID, the bank's "
-#~ "FinTS address)."
-
-#~ msgid ""
-#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
-#~ "nie gespeichert."
-#~ msgstr ""
-#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
-#~ "stored."
-
-#~ msgid ""
-#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
-#~ "abgefragt."
-#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
-
-#~ msgid ""
-#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
-#~ "übersprungen."
-#~ msgstr ""
-#~ "New transactions are created as bank transactions, duplicates are skipped "
-#~ "automatically."
-
-# Lizenz
-
-msgid "Die Installation wurde registriert. Vielen Dank!"
-msgstr "The installation has been registered. Thank you!"
-
-msgid "Bitte eine gültige E-Mail-Adresse angeben."
-msgstr "Please enter a valid email address."
-
-msgid "Es ist kein Lizenzserver eingerichtet."
-msgstr "No license server is configured."
-
-msgid "Kontakt-E-Mail"
-msgstr "Contact email"
-
-msgid "Lizenz"
-msgstr "License"
-
-msgid "Lizenzen"
-msgstr "Licenses"
-
-msgid "Die Lizenz dieser Installation wurde gesperrt."
-msgstr "The license of this installation has been blocked."
-
-msgid ""
-"Bitte registrieren Sie diese Installation (kostenlos). Verbleibende "
-"Probezeit: %(lizenz_resttage)s Tage."
-msgstr ""
-"Please register this installation (free of charge). Remaining trial period: "
-"%(lizenz_resttage)s days."
-
-msgid "Zur Lizenz"
-msgstr "To the license"
-
-msgid "Für diese Installation ist keine Lizenzprüfung eingerichtet."
-msgstr "No license check is configured for this installation."
-
-msgid "Registriert - kostenlos und unbegrenzt gültig."
-msgstr "Registered - free of charge and valid without time limit."
-
-msgid "Letzte Prüfung:"
-msgstr "Last check:"
-
-msgid ""
-"Die Probezeit ist abgelaufen. Bitte registrieren Sie diese Installation, um "
-"sie weiter zu nutzen."
-msgstr ""
-"The trial period has expired. Please register this installation to keep "
-"using it."
-
-msgid ""
-"Bitte registrieren Sie diese Installation (kostenlos und unbegrenzt). "
-"Verbleibende Probezeit: %(resttage)s Tage."
-msgstr ""
-"Please register this installation (free of charge, no time limit). Remaining"
-" trial period: %(resttage)s days."
-
-msgid "Registrieren"
-msgstr "Register"
-
-msgid ""
-"Übermittelt werden nur: Namen der Vereine, deren Anzahl, Kontakt-E-Mail, "
-"Versionsnummer und die IP-Adresse - keine Vereins- oder Mitgliederdaten. "
-"Empfänger:"
-msgstr ""
-"Only the following is transmitted: names of the clubs, their number, contact"
-" email, version number and IP address - no club or member data. Recipient:"
-
-msgid "Lizenz erforderlich"
-msgstr "License required"
-
-msgid ""
-"Die Probezeit dieser Installation ist abgelaufen und sie wurde noch nicht "
-"registriert."
-msgstr ""
-"The trial period of this installation has expired and it has not been "
-"registered yet."
-
-msgid ""
-"Bitte wenden Sie sich an die Administration. Ein Superadmin kann sich "
-"anmelden und die Installation registrieren."
-msgstr ""
-"Please contact the administration. A superadmin can log in and register the "
-"installation."
-
-msgid "Zur Anmeldung"
-msgstr "To login"
