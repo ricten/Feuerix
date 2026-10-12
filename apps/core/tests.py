@@ -872,3 +872,35 @@ class DashboardAnstehendeVerleiheTests(TestCase):
                                     bis=date.today() - timedelta(days=1), status="zurueckgegeben")
         r = self.client.get(reverse("dashboard"))
         self.assertContains(r, "Keine anstehenden Verleihe.")
+
+
+User = get_user_model()
+
+
+class EinstellungenReiterTests(TestCase):
+    """Die Vereinseinstellungen sind nach Themen in Reiter aufgeteilt; jedes Formularfeld steht in genau einem Reiter."""
+
+    def setUp(self):
+        self.verein = Verein.objects.create(name="Testverein", kuerzel="test")
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        self.client.force_login(self.admin)
+
+    def test_alle_felder_in_genau_einem_reiter(self):
+        r = self.client.get(reverse("verein_einstellungen"))
+        gruppen = r.context["gruppen"]
+        namen = [f.name for g in gruppen for f in g["felder"]]
+        self.assertCountEqual(namen, list(r.context["form"].fields))
+        self.assertEqual(len(namen), len(set(namen)))
+        self.assertEqual([g["titel"] for g in gruppen][:2], ["Stammdaten", "Bank"])
+        self.assertEqual(sum(1 for g in gruppen if g["aktiv"]), 1)
+        self.assertContains(r, 'data-bs-toggle="tab"')
+
+    def test_reiter_mit_fehler_ist_aktiv(self):
+        r = self.client.post(reverse("verein_einstellungen"), {"name": "Testverein", "zahlungsziel_tage": "abc"})
+        aktiv = next(g for g in r.context["gruppen"] if g["aktiv"])
+        self.assertGreater(aktiv["fehler"], 0)
+
+    def test_andere_formulare_bleiben_ohne_reiter(self):
+        r = self.client.get(reverse("verein_einstellungen"))
+        self.assertNotContains(self.client.get(reverse("rolle_add")), 'id="themen"')
+        self.assertContains(r, 'id="themen"')

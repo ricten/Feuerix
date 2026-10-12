@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.75.0)
+# Handbuch – Feuerix (Version 1.76.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -39,19 +39,24 @@ Navigation, für alle angemeldeten Benutzer sichtbar) abrufbar – keine separat
 
 ## 1. Anmeldung und Oberfläche
 
-**Zwei-Faktor-Anmeldung (2FA) und Kontosperre:** Über den Knopf „2FA“ oben rechts richtet jedes Konto eine
-Zwei-Faktor-Anmeldung per Authenticator-App (TOTP, z. B. FreeOTP, Aegis, Google/Microsoft Authenticator) ein: QR-Code scannen,
-den 6-stelligen Code bestätigen und die einmalig angezeigten **Wiederherstellungscodes** sicher aufbewahren. Danach fragt
-jede Anmeldung nach dem Code (alternativ nach einem Wiederherstellungscode). Für **Superadmins ist die 2FA verpflichtend** –
-sie werden bis zur Einrichtung auf die Einrichtungsseite geleitet und können sie nicht abschalten; für alle anderen ist sie
-optional – ein Superadmin kann sie über den Haken „Zwei-Faktor-Anmeldung für alle Konten verpflichtend“ auf der 2FA-Seite
-(oder im Django-Admin unter Systemeinstellungen) für **alle** Konten verpflichtend machen. Wird das Passwort **5-mal falsch** eingegeben und das Konto hat **keine aktive 2FA**, wird das **Konto gesperrt**
-(zusätzlich zur Sperre von Benutzername+IP für eine Stunde). Entsperren: `docker compose exec web python manage.py
-zweifaktor_zuruecksetzen <Benutzername>` (mit `--2fa-zuruecksetzen` wird zusätzlich die 2FA gelöscht, z. B. bei verlorenem
-Gerät und Codes) oder im Django-Admin unter „Zwei-Faktor-Anmeldungen“ per Aktion. Konten mit aktiver 2FA werden bei
-Passwort-Fehlversuchen nicht gesperrt; falsche 2FA-Codes bremsen sich selbst aus (15 Minuten Pause nach 5 Fehlversuchen).
-**Superadmins** können unter Verwaltung › Benutzer in der Detailseite eines Kontos dessen **Passwort neu setzen**, die **2FA
-zurücksetzen** und ein gesperrtes Konto **entsperren** (jeweils mit Eintrag im Änderungsprotokoll; nicht für das eigene Konto).
+**Zwei-Faktor-Anmeldung (2FA) und Kontosperre**
+
+- **Einrichten:** Über den Knopf „2FA“ oben rechts richtet jedes Konto eine Zwei-Faktor-Anmeldung per Authenticator-App
+  (TOTP, z. B. FreeOTP, Aegis, Google/Microsoft Authenticator) ein: QR-Code scannen, den 6-stelligen Code bestätigen und die
+  einmalig angezeigten **Wiederherstellungscodes** sicher aufbewahren. Danach fragt jede Anmeldung nach dem Code (alternativ
+  nach einem Wiederherstellungscode).
+- **Pflicht:** Für **Superadmins ist die 2FA verpflichtend** – sie werden bis zur Einrichtung auf die Einrichtungsseite geleitet
+  und können sie nicht abschalten. Für alle anderen ist sie optional; ein Superadmin kann sie über den Haken „Zwei-Faktor-Anmeldung
+  für alle Konten verpflichtend“ auf der 2FA-Seite (oder im Django-Admin unter Systemeinstellungen) für **alle** Konten
+  verpflichtend machen.
+- **Kontosperre:** Wird das Passwort **5-mal falsch** eingegeben und das Konto hat **keine aktive 2FA**, wird das **Konto
+  gesperrt** (zusätzlich zur Sperre von Benutzername+IP für eine Stunde). Konten mit aktiver 2FA werden bei
+  Passwort-Fehlversuchen nicht gesperrt; falsche 2FA-Codes bremsen sich selbst aus (15 Minuten Pause nach 5 Fehlversuchen).
+- **Entsperren/Zurücksetzen durch Superadmins:** In der Detailseite eines Kontos unter *Verwaltung › Benutzer* lassen sich das
+  **Passwort neu setzen**, die **2FA zurücksetzen** und ein gesperrtes Konto **entsperren** (jeweils mit Eintrag im
+  Änderungsprotokoll; nicht für das eigene Konto). Ist niemand mehr dazu in der Lage, geht es auf dem Server mit
+  `docker compose exec web python manage.py zweifaktor_zuruecksetzen <Benutzername>` (mit `--2fa-zuruecksetzen` wird zusätzlich
+  die 2FA gelöscht) oder im Django-Admin unter „Zwei-Faktor-Anmeldungen“.
 
 Nach der Anmeldung landen Mitarbeiter:innen mit einem Verwaltungszugang auf dem **Dashboard** – oben eine
 persönliche Begrüßung mit Datum, darunter Mitgliederzahlen, Beitragsstand des laufenden Jahres, anstehende
@@ -761,7 +766,9 @@ Vereinsname/-anschrift/-kontakt, Registereintrag, Bankverbindung inkl. Gläubige
 Angaben zum Gemeinnützigkeitsbescheid (für Spendenquittungen), Umsatzsteuerpflicht/USt-IdNr./Steuerhinweis
 (Kapitel 4, für nicht gemeinnützige Vereine bzw. den wirtschaftlichen Geschäftsbetrieb), Zahlungsziel und
 Rechnungstexte, die konfigurierbaren Freibeträge für Aufwandsentschädigungen, sowie Logo, Akzentfarbe(n) und die
-Unterschriftszeilen für den Briefkopf (Kapitel 11).
+Unterschriftszeilen für den Briefkopf (Kapitel 11). Die Seite ist nach Themen in **Reiter** aufgeteilt: *Stammdaten*, *Bank*,
+*Steuern & Gemeinnützigkeit*, *Rechnungen*, *Erscheinungsbild*, *Startseite & Impressum* und *Etiketten*; bei einem Eingabefehler
+öffnet sich automatisch der Reiter mit dem Fehler (rotes Zähler-Abzeichen), sonst der zuletzt benutzte.
 
 **Impressum**: Das Feld „Impressum“ enthält den vollständigen Text nach § 5 TMG/§ 18 MStV (verantwortliche
 Person, Anschrift, Kontakt, Vertretungsberechtigte, ggf. USt-IdNr.) und wird **ungeprüft** auf einer öffentlich

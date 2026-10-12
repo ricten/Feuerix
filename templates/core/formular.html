@@ -7,30 +7,50 @@
 <form method="post" enctype="multipart/form-data">{% csrf_token %}
   {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
   {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
-  {% for field in form %}
-    <div class="mb-3 {% if field.widget_type == 'checkbox' %}form-check{% endif %}">
-      {% if field.widget_type == 'checkbox' %}
-        {{ field }} <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
-      {% elif field.widget_type == 'checkboxselectmultiple' %}
-        <div class="form-label mb-1">{{ field.label }}</div>
-        <div class="d-flex flex-wrap gap-3">
-          {% for subwidget in field.subwidgets %}
-            <div class="form-check form-check-inline mb-0">
-              {{ subwidget.tag }}
-              <label class="form-check-label" for="{{ subwidget.id_for_label }}">{{ subwidget.choice_label }}</label>
-            </div>
-          {% endfor %}
-        </div>
-      {% else %}
-        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
-        {{ field }}
-      {% endif %}
-      {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-      {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+  {% if gruppen %}
+  {# Aufteilung nach Themen (Reiter); gruppen = [{id, titel, icon, felder: [BoundField], fehler}] #}
+  <ul class="nav nav-tabs mb-3 flex-wrap" id="themen" role="tablist">
+    {% for g in gruppen %}
+    <li class="nav-item" role="presentation">
+      <button type="button" class="nav-link {% if g.aktiv %}active{% endif %}" id="tab-{{ g.id }}" data-bs-toggle="tab"
+              data-bs-target="#pane-{{ g.id }}" role="tab" aria-controls="pane-{{ g.id }}">
+        {% if g.icon %}<i class="bi {{ g.icon }}"></i> {% endif %}{{ g.titel }}{% if g.fehler %} <span class="badge text-bg-danger">{{ g.fehler }}</span>{% endif %}
+      </button>
+    </li>
+    {% endfor %}
+  </ul>
+  <div class="tab-content">
+    {% for g in gruppen %}
+    <div class="tab-pane fade {% if g.aktiv %}show active{% endif %}" id="pane-{{ g.id }}" role="tabpanel" aria-labelledby="tab-{{ g.id }}">
+      {% if g.hinweis %}<p class="text-muted small">{{ g.hinweis }}</p>{% endif %}
+      {% for field in g.felder %}{% include "core/_formfeld.html" %}{% endfor %}
     </div>
-  {% endfor %}
+    {% endfor %}
+  </div>
+  <hr>
+  {% else %}
+  {% for field in form %}{% include "core/_formfeld.html" %}{% endfor %}
+  {% endif %}
   <button class="btn btn-primary"><i class="bi bi-check-lg"></i> {% trans "Speichern" %}</button>
   <a href="{{ abbrechen_url }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i> {% trans "Abbrechen" %}</a>
 </form>
 </div></div></div></div>
+{% if gruppen %}
+<script>
+(function () {
+  // zuletzt gewaehlten Reiter merken (nur Komfort - ohne Speicher einfach der erste bzw. der mit Fehlern)
+  var schluessel = "formular-reiter:" + location.pathname, fehler = {{ gruppen_hat_fehler|yesno:"true,false" }};
+  var tabs = document.querySelectorAll('#themen [data-bs-toggle="tab"]');
+  tabs.forEach(function (t) {
+    t.addEventListener("shown.bs.tab", function () { try { localStorage.setItem(schluessel, t.id); } catch (e) {} });
+  });
+  if (!fehler) {
+    try {
+      var id = localStorage.getItem(schluessel), t = id && document.getElementById(id);
+      if (t) bootstrap.Tab.getOrCreateInstance(t).show();
+    } catch (e) {}
+  }
+})();
+</script>
+{% endif %}
 {% endblock %}

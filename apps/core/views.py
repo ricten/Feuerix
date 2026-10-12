@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _lazy
 from django.views.decorators.http import require_POST
 
 from . import audit
@@ -192,6 +193,47 @@ def verein_logo(request):
     return FileResponse(verein.logo.open("rb"))
 
 
+# Aufteilung der Vereinseinstellungen nach Themen (Reiter): (id, Titel, Symbol, Hinweis, Felder). Felder, die hier nicht
+# vorkommen, landen im Reiter "Weitere", damit nach Modelländerungen nichts verschwindet.
+EINSTELLUNGS_GRUPPEN = [
+    ("stamm", _lazy("Stammdaten"), "bi-building", "",
+     ("name", "anschrift", "plz", "ort", "email", "vereinsregister")),
+    ("bank", _lazy("Bank"), "bi-bank", "", ("bankname", "iban", "bic", "glaeubiger_id")),
+    ("steuer", _lazy("Steuern & Gemeinnützigkeit"), "bi-percent",
+     _lazy("Steuerlich Relevantes bitte mit dem Steuerberater abstimmen."),
+     ("finanzamt", "steuernummer", "umsatzsteuerpflichtig", "ust_idnr", "rechnung_steuerhinweis", "bescheid_art",
+      "bescheid_datum", "bescheid_zeitraum", "beguenstigte_zwecke", "uebungsleiter_freibetrag", "ehrenamts_freibetrag")),
+    ("rechnung", _lazy("Rechnungen"), "bi-receipt", "", ("zahlungsziel_tage", "rechnung_kopftext", "rechnung_fusstext")),
+    ("design", _lazy("Erscheinungsbild"), "bi-palette", "",
+     ("logo", "akzentfarbe", "akzentfarbe_fuss", "akzentfarbe_web", "akzentfarbe_web_2", "akzentfarbe_web_3",
+      "unterschrift_1", "unterschrift_2")),
+    ("startseite", _lazy("Startseite & Impressum"), "bi-megaphone", "",
+     ("startseite_banner", "startseite_banner_art", "startseite_banner_bis", "impressum_text")),
+    ("etiketten", _lazy("Etiketten"), "bi-upc-scan", "",
+     ("etikett_breite_mm", "etikett_hoehe_mm", "etikett_spalten", "etikett_zeilen")),
+]
+
+
+def _einstellungs_gruppen(form):
+    """Teilt die Felder des Formulars in Reiter auf; der erste Reiter mit Fehlern (sonst der erste) ist aktiv."""
+    verteilt, gruppen = set(), []
+    for gid, titel, icon, hinweis, namen in EINSTELLUNGS_GRUPPEN:
+        felder = [form[n] for n in namen if n in form.fields]
+        verteilt.update(n for n in namen if n in form.fields)
+        gruppen.append({"id": gid, "titel": titel, "icon": icon, "hinweis": hinweis, "felder": felder})
+    rest = [form[n] for n in form.fields if n not in verteilt]
+    if rest:
+        gruppen.append({"id": "weitere", "titel": _lazy("Weitere"), "icon": "bi-three-dots", "hinweis": "", "felder": rest})
+    gruppen = [g for g in gruppen if g["felder"]]
+    for g in gruppen:
+        g["fehler"] = sum(len(f.errors) for f in g["felder"])
+        g["aktiv"] = False
+    erste = next((g for g in gruppen if g["fehler"]), gruppen[0] if gruppen else None)
+    if erste:
+        erste["aktiv"] = True
+    return gruppen
+
+
 @login_required
 def verein_einstellungen(request):
     if request.verein is None:
@@ -204,8 +246,10 @@ def verein_einstellungen(request):
         form.save()
         messages.success(request, "Vereinsdaten gespeichert.")
         return redirect("verein_einstellungen")
+    gruppen = _einstellungs_gruppen(form)
     return render(request, "core/formular.html", {"form": form, "titel": "Verein / Einstellungen",
-                                                  "abbrechen_url": "/"})
+                                                  "abbrechen_url": "/", "gruppen": gruppen,
+                                                  "gruppen_hat_fehler": any(g["fehler"] for g in gruppen)})
 
 
 @login_required

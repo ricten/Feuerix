@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.75.0)
+# Handbook – Feuerix (Version 1.76.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -39,18 +39,22 @@ This handbook and the detailed documents are also available directly in the web 
 
 ## 1. Login and interface
 
-**Two-factor authentication (2FA) and account lock:** Using the "2FA" button at the top right, every account can set up
-two-factor authentication with an authenticator app (TOTP, e.g. FreeOTP, Aegis, Google/Microsoft Authenticator): scan the QR
-code, confirm the 6-digit code and keep the **recovery codes** (shown only once) safe. From then on every login asks for the
-code (or alternatively a recovery code). **2FA is mandatory for superadmins** – they are redirected to the setup page until it
-is done and cannot disable it; for everybody else it is optional – a superadmin can make it mandatory for **all** accounts using the checkbox "Two-factor authentication mandatory
-for all accounts" on the 2FA page (or in the Django admin under system settings). If the password is entered **wrongly 5 times** and the
-account has **no active 2FA**, the **account is locked** (in addition to the one-hour lock of username+IP). To unlock:
-`docker compose exec web python manage.py zweifaktor_zuruecksetzen <username>` (with `--2fa-zuruecksetzen` the 2FA is deleted
-as well, e.g. after losing the device and codes) or via an action in the Django admin under "Two-factor authentications".
-Accounts with active 2FA are not locked by wrong passwords; wrong 2FA codes throttle themselves (15-minute pause after
-5 failed attempts). **Superadmins** can **set a new password**, **reset the 2FA** and **unlock** a locked account on the detail page
-of an account under Administration › Users (each recorded in the change log; not for their own account).
+**Two-factor authentication (2FA) and account lock**
+
+- **Setting up:** Using the "2FA" button at the top right, every account can set up two-factor authentication with an
+  authenticator app (TOTP, e.g. FreeOTP, Aegis, Google/Microsoft Authenticator): scan the QR code, confirm the 6-digit code and
+  keep the **recovery codes** (shown only once) safe. From then on every login asks for the code (or alternatively a recovery code).
+- **Mandatory:** **2FA is mandatory for superadmins** – they are redirected to the setup page until it is done and cannot disable
+  it. For everybody else it is optional; a superadmin can make it mandatory for **all** accounts using the checkbox "Two-factor
+  authentication mandatory for all accounts" on the 2FA page (or in the Django admin under system settings).
+- **Account lock:** If the password is entered **wrongly 5 times** and the account has **no active 2FA**, the **account is locked**
+  (in addition to the one-hour lock of username+IP). Accounts with active 2FA are not locked by wrong passwords; wrong 2FA codes
+  throttle themselves (15-minute pause after 5 failed attempts).
+- **Unlocking/resetting by superadmins:** On the detail page of an account under *Administration › Users* you can **set a new
+  password**, **reset the 2FA** and **unlock** a locked account (each recorded in the change log; not for your own account). If
+  nobody is able to do so any more, use `docker compose exec web python manage.py zweifaktor_zuruecksetzen <username>` on the
+  server (with `--2fa-zuruecksetzen` the 2FA is deleted as well) or the Django admin under "Two-factor authentications".
+
 
 After logging in, staff with an administration account land on the **dashboard** – a personal greeting with
 the date at the top, followed by member counts, this year's fee status, upcoming anniversaries/honours,
@@ -739,7 +743,9 @@ club name/address/contact, register entry, bank details including creditor ID, t
 details of the non-profit determination notice (for donation receipts), VAT liability/VAT ID/tax note
 (chapter 4, for non-charitable clubs or a taxable commercial operation), payment terms and invoice texts, the
 configurable tax-free allowances for expense allowances, as well as the logo, accent colour(s) and the
-signature lines for the letterhead (chapter 11).
+signature lines for the letterhead (chapter 11). The page is divided into **tabs** by topic: *Master data*, *Bank*,
+*Taxes & non-profit status*, *Invoices*, *Appearance*, *Start page & legal notice* and *Labels*; after an input error the tab
+containing the error opens automatically (red counter badge), otherwise the one used last.
 
 **Legal notice ("Impressum"):** the "Legal notice" field contains the full text required under § 5 TMG/§ 18
 MStV (the responsible person, address, contact, authorised representatives, VAT ID if applicable) and is

@@ -4906,56 +4906,7 @@ msgstr ""
 "All users are redirected to the setup at their next login and cannot disable"
 " it."
 
-#~ msgid "Zuständig"
-#~ msgstr "Assigned to"
-
-#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
-#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
-
-#~ msgid "Zuwendungsbestätigungen"
-#~ msgstr "Donation receipts"
-
-#~ msgid "Protokolle"
-#~ msgstr "Minutes"
-
-#~ msgid "Einladungen"
-#~ msgstr "Invitations"
-
-#~ msgid ""
-#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
-#~ "Die Bank-PIN wird nie gespeichert."
-#~ msgstr ""
-#~ "Experimental: this method has not yet been tested against a real bank. The "
-#~ "bank PIN is never stored."
-
-#~ msgid ""
-#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
-#~ "eintragen und speichern."
-#~ msgstr ""
-#~ "Enter and save the connection details here (bank code, user ID, the bank's "
-#~ "FinTS address)."
-
-#~ msgid ""
-#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
-#~ "nie gespeichert."
-#~ msgstr ""
-#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
-#~ "stored."
-
-#~ msgid ""
-#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
-#~ "abgefragt."
-#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
-
-#~ msgid ""
-#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
-#~ "übersprungen."
-#~ msgstr ""
-#~ "New transactions are created as bank transactions, duplicates are skipped "
-#~ "automatically."
-
 # Benutzer-Sicherheit
-
 msgid "Konto entsperren"
 msgstr "Unlock account"
 
@@ -5014,3 +4965,74 @@ msgid ""
 msgstr ""
 "The account is unlocked as well. Pass the password on to the user through a "
 "secure channel."
+
+#~ msgid "Zuständig"
+#~ msgstr "Assigned to"
+
+#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
+#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
+
+#~ msgid "Zuwendungsbestätigungen"
+#~ msgstr "Donation receipts"
+
+#~ msgid "Protokolle"
+#~ msgstr "Minutes"
+
+#~ msgid "Einladungen"
+#~ msgstr "Invitations"
+
+#~ msgid ""
+#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
+#~ "Die Bank-PIN wird nie gespeichert."
+#~ msgstr ""
+#~ "Experimental: this method has not yet been tested against a real bank. The "
+#~ "bank PIN is never stored."
+
+#~ msgid ""
+#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
+#~ "eintragen und speichern."
+#~ msgstr ""
+#~ "Enter and save the connection details here (bank code, user ID, the bank's "
+#~ "FinTS address)."
+
+#~ msgid ""
+#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
+#~ "nie gespeichert."
+#~ msgstr ""
+#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
+#~ "stored."
+
+#~ msgid ""
+#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
+#~ "abgefragt."
+#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
+
+#~ msgid ""
+#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
+#~ "übersprungen."
+#~ msgstr ""
+#~ "New transactions are created as bank transactions, duplicates are skipped "
+#~ "automatically."
+
+# Einstellungs-Reiter
+
+msgid "Stammdaten"
+msgstr "Master data"
+
+msgid "Steuern & Gemeinnützigkeit"
+msgstr "Taxes & non-profit status"
+
+msgid "Steuerlich Relevantes bitte mit dem Steuerberater abstimmen."
+msgstr "Please discuss anything tax-relevant with your tax advisor."
+
+msgid "Erscheinungsbild"
+msgstr "Appearance"
+
+msgid "Startseite & Impressum"
+msgstr "Start page & legal notice"
+
+msgid "Etiketten"
+msgstr "Labels"
+
+msgid "Weitere"
+msgstr "Other"

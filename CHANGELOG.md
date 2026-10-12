@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.76.0
+- **Vereinseinstellungen** nach Themen in Reiter aufgeteilt (Stammdaten, Bank, Steuern & Gemeinnützigkeit, Rechnungen, Erscheinungsbild,
+  Startseite & Impressum, Etiketten); bei Fehlern öffnet sich der betroffene Reiter. Handbuch: 2FA-Abschnitt übersichtlicher gegliedert.
+
 ## 1.75.0
 - Superadmins können in Verwaltung › Benutzer (Detailseite) das **Passwort neu setzen**, die **2FA zurücksetzen** und ein gesperrtes Konto **entsperren**;
   alles wird im Änderungsprotokoll festgehalten.
