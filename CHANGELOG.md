@@ -3,6 +3,9 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.74.1
+- Die in 1.74.0 eingeführte Lizenzverwaltung wurde vollständig wieder entfernt (Stand wie 1.73.0).
+
 ## 1.73.0
 - Haken „Zwei-Faktor-Anmeldung für alle Konten verpflichtend“ (2FA-Seite für Superadmins bzw. Django-Admin): dann müssen alle Benutzer 2FA einrichten.
 
