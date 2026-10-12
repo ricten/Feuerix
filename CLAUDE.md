@@ -21,6 +21,11 @@ verlinken.)
   (`ZWEIFAKTOR_PFLICHT`, bei `manage.py test` aus - Tests schalten sie per `override_settings` ein); Konto ohne aktive 2FA
   wird nach 5 falschen Passwörtern gesperrt (`is_active=False` + `ZweiFaktor.gesperrt`), Entsperren per
   `manage.py zweifaktor_zuruecksetzen`. Die Sperre greift auch in Tests (axes ist dort aus).
+* Lizenzverwaltung (`apps/core/lizenz.py`, `LizenzMiddleware`, Seite `/lizenz/`): kostenlos/unbegrenzt, nur Erfassung. Aktiv nur mit
+  `LICENSE_SERVER_URL` (Portalverwaltung ist der Lizenzserver, Gegenstück dort `apps/mandanten/lizenz.py`); 30 Tage Probezeit ab
+  erstem Start, danach Sperre bis zur Registrierung; übermittelt werden nur Vereinsnamen/Anzahl/E-Mail/Version/IP - bei neuen
+  Feldern Datensparsamkeit wahren und Handbuch (Kapitel 1) anpassen. Eine registrierte Installation wird nie durch einen
+  nicht erreichbaren Server blockiert, nur durch ausdrückliche Sperre.
 * Login-Brute-Force-Schutz über `django-axes` (5 Fehlversuche sperren Benutzername+IP für 1h); während
   `manage.py test` automatisch deaktiviert (`AXES_ENABLED = "test" not in sys.argv`), sonst sperren sich
   Tests mit absichtlich falschen Zugangsdaten gegenseitig aus.

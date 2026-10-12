@@ -124,6 +124,14 @@ def version(request):
             # Sprung direkt zum Abschnitt der neuen Version (GitHub-Anker: "## 1.71.2" -> #1712)
             ctx["update_changelog_url"] = (f"{settings.PRODUCT_CHANGELOG_URL}#{neu.replace('.', '')}"
                                            if settings.PRODUCT_CHANGELOG_URL else settings.PRODUCT_SOURCE_URL)
+        from . import lizenz
+        if lizenz.aktiv():
+            lz = lizenz.laden()
+            if lizenz.gesperrt(lz):
+                ctx["lizenz_hinweis"] = "gesperrt"
+            elif not lizenz.registriert(lz):
+                ctx["lizenz_hinweis"] = "registrieren"
+                ctx["lizenz_resttage"] = lizenz.tage_verbleibend(lz)
         if se.sicherung_aktiv and se.sicherung_letzter_lauf and not se.sicherung_letzter_ok:
             ctx["sicherung_fehler"] = se.sicherung_letzte_meldung
     return ctx

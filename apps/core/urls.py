@@ -17,6 +17,7 @@ urlpatterns = [
     path("", views.dashboard, name="dashboard"),
     path("dashboard/kacheln/", views.dashboard_kacheln_speichern, name="dashboard_kacheln_speichern"),
     path("nach-anmeldung/", views.nach_login, name="nach_login"),
+    path("lizenz/", zf_views.lizenz_seite, name="lizenz"),
     path("zwei-faktor/", zf_views.zf_verwalten, name="zf_verwalten"),
     path("zwei-faktor/einrichten/", zf_views.zf_einrichten, name="zf_einrichten"),
     path("zwei-faktor/pruefen/", zf_views.zf_pruefen, name="zf_pruefen"),

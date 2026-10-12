@@ -52,6 +52,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "apps.core.middleware.MandantMiddleware",
     "apps.core.middleware.ZweiFaktorMiddleware",
+    "apps.core.middleware.LizenzMiddleware",
     "apps.core.middleware.ZweiFaktorMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -150,6 +151,15 @@ AXES_RESET_ON_SUCCESS = True
 # sich gegenseitig sperren koennen.
 AXES_ENABLED = "test" not in sys.argv
 
+# Lizenzverwaltung (kostenlos, unbegrenzt - siehe apps/core/lizenz.py): Adresse des Lizenzservers (der Portalverwaltung).
+# Leer = keine Lizenzpruefung. LICENSE_ID/LICENSE_TOKEN tragen von der Portalverwaltung bereitgestellte Instanzen automatisch
+# in ihre .env ein; LICENSE_EMAIL registriert eine Installation ohne Formular.
+LICENSE_SERVER_URL = os.environ.get("LICENSE_SERVER_URL", "").strip()
+LICENSE_ID = os.environ.get("LICENSE_ID", "").strip()
+LICENSE_TOKEN = os.environ.get("LICENSE_TOKEN", "").strip()
+LICENSE_EMAIL = os.environ.get("LICENSE_EMAIL", "").strip()
+LICENSE_TRIAL_DAYS = 30
+
 # Zwei-Faktor-Pflicht fuer Superadmins (siehe apps/core/zweifaktor.py). Bei "manage.py test" aus, weil sonst jede
 # Anfrage eines Test-Superusers zur Einrichtung umgeleitet wuerde; die 2FA-Tests schalten sie gezielt ein.
 ZWEIFAKTOR_PFLICHT = "test" not in sys.argv
@@ -177,6 +187,7 @@ BACKUP_DIR = Path(os.environ.get("BACKUP_DIR", "/data/backups"))
 CELERY_BEAT_SCHEDULE = {
     "datensicherung-faellig": {"task": "apps.core.tasks.datensicherung_faellig_task",
                                "schedule": crontab(minute=5)},
+    "lizenz-pruefen": {"task": "apps.core.tasks.lizenz_pruefen_task", "schedule": crontab(minute=20)},
 }
 
 FINTS_PRODUCT_ID = os.environ.get("FINTS_PRODUCT_ID", "")

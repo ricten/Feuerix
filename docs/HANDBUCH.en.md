@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.73.0)
+# Handbook – Feuerix (Version 1.74.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -38,6 +38,16 @@ This handbook and the detailed documents are also available directly in the web 
 ---
 
 ## 1. Login and interface
+
+**License (free of charge, no time limit):** If a license server is entered in `.env` (`LICENSE_SERVER_URL`, usually the portal
+management), the installation must be registered within **30 days** – otherwise Feuerix denies access (only login and the license
+page stay reachable). Until then a superadmin sees a notice with the remaining time and registers via **"To the license"** with a
+contact email address. Only the **names of the clubs, their number, the contact email, the version number and the IP address** are
+transmitted – no club or member data; the license page shows what is sent. After that the installation reports to the license
+server by itself every day (current clubs, block status); if the server is temporarily unreachable, a registered installation stays
+usable – only an explicit block by the operator blocks it. Instances provisioned by the portal management are registered
+automatically; with `LICENSE_EMAIL` in `.env` it also works without the form. Without `LICENSE_SERVER_URL` there is no license
+check and nothing is transmitted.
 
 **Two-factor authentication (2FA) and account lock:** Using the "2FA" button at the top right, every account can set up
 two-factor authentication with an authenticator app (TOTP, e.g. FreeOTP, Aegis, Google/Microsoft Authenticator): scan the QR

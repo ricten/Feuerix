@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.73.0)
+# Handbuch – Feuerix (Version 1.74.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -38,6 +38,16 @@ Navigation, für alle angemeldeten Benutzer sichtbar) abrufbar – keine separat
 ---
 
 ## 1. Anmeldung und Oberfläche
+
+**Lizenz (kostenlos und unbegrenzt):** Ist in der `.env` ein Lizenzserver eingetragen (`LICENSE_SERVER_URL`, in der Regel die
+Portalverwaltung), muss die Installation innerhalb von **30 Tagen** registriert werden – sonst verweigert Feuerix den Zugriff
+(nur Anmeldung und die Lizenzseite bleiben erreichbar). Ein Superadmin sieht bis dahin oben einen Hinweis mit der Restzeit und
+registriert über **„Zur Lizenz“** mit einer Kontakt-E-Mail-Adresse. Übermittelt werden ausschließlich die **Namen der Vereine,
+deren Anzahl, die Kontakt-E-Mail, die Versionsnummer und die IP-Adresse** – keine Vereins- oder Mitgliederdaten; die Lizenzseite
+zeigt, was gesendet wird. Danach meldet sich die Installation täglich selbst beim Lizenzserver (aktuelle Vereine, Sperrstatus);
+ist der Server vorübergehend nicht erreichbar, bleibt eine registrierte Installation nutzbar – nur eine ausdrückliche Sperre durch
+den Betreiber blockiert. Von der Portalverwaltung bereitgestellte Instanzen sind automatisch registriert; mit `LICENSE_EMAIL` in der
+`.env` geht es auch ohne Formular. Ohne `LICENSE_SERVER_URL` findet keine Lizenzprüfung und keine Übermittlung statt.
 
 **Zwei-Faktor-Anmeldung (2FA) und Kontosperre:** Über den Knopf „2FA“ oben rechts richtet jedes Konto eine
 Zwei-Faktor-Anmeldung per Authenticator-App (TOTP, z. B. FreeOTP, Aegis, Google/Microsoft Authenticator) ein: QR-Code scannen,

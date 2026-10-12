@@ -3,6 +3,7 @@ import datetime
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from .fields import VerschluesseltesTextField
@@ -353,3 +354,24 @@ class ZweiFaktor(models.Model):
 
     def __str__(self):
         return f"2FA von {self.user}"
+
+
+class Lizenz(models.Model):
+    """Registrierung dieser Installation beim Lizenzserver (kostenlos, unbegrenzt) - genau ein Datensatz, Logik in
+    lizenz.py. Die Probezeit laeuft ab dem ersten Start (erster_start)."""
+    erster_start = models.DateTimeField(default=timezone.now, editable=False)
+    lizenz_id = models.UUIDField(null=True, blank=True, editable=False)
+    token = VerschluesseltesTextField(blank=True, editable=False)
+    kontakt_email = models.EmailField(_("Kontakt-E-Mail"), blank=True)
+    status = models.CharField(max_length=10, blank=True, editable=False)
+    meldung = models.CharField(max_length=200, blank=True, editable=False)
+    registriert_am = models.DateTimeField(null=True, blank=True, editable=False)
+    letzte_pruefung = models.DateTimeField(null=True, blank=True, editable=False)
+    letzter_fehler = models.CharField(max_length=300, blank=True, editable=False)
+
+    class Meta:
+        verbose_name = _("Lizenz")
+        verbose_name_plural = _("Lizenzen")
+
+    def __str__(self):
+        return "Lizenz"
