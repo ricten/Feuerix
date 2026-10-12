@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.76.4)
+# Handbook – Feuerix (Version 1.76.5)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -205,6 +205,7 @@ row and notes is available for download. "Full export (Excel)" on the member lis
 optionally including bank details (fee permission required).
 
 **On a member's detail page** (depending on your own permissions):
+
 - "Data request (JSON)" – a complete GDPR data request, including invoices, payments, donations, expenses,
   honours, documents.
 - "Anonymise" – irreversibly deletes personal data, photo and documents; invoices remain for tax record-
@@ -383,6 +384,7 @@ beside the QR code (at least about 7 mm): on the standard sheet large on the lef
 right; on very small labels the logo is omitted automatically and the QR code stays centred.
 
 **Starting a loan** works in two ways:
+
 - *Manually* via "Create loan/reservation" on an item (the full form, including adjusting the deposit/
   lending fee for this particular loan).
 - *By scanning*: scan the sticker with a phone (logged in to the system) – the item lands in the **lending

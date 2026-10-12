@@ -6,6 +6,7 @@ die nach dieser Konvention suchen - bitte beide Dateien zusammen pflegen oder nu
 verlinken.)
 
 ## Stand
+
 * Produktiv im Einsatz, Migrationen sind im Repository und werden inkrementell gepflegt (`python manage.py
   makemigrations <app>` nach Modelländerungen, Migration prüfen und einchecken). Bei einer unique/Default-
   kombinierten Feldänderung auf einer Tabelle mit Bestandsdaten **nicht** blind einem einzigen `AddField`
@@ -26,6 +27,7 @@ verlinken.)
   Tests mit absichtlich falschen Zugangsdaten gegenseitig aus.
 
 ## Aufbau
+
 * `apps/core`: Verein, Rollen/Rechte, Audit-Log, generische CRUD-Views (`crud.py`), PDF (`pdf.py`), Navigation (`context.py`).
 * Fachmodule: `members`, `honors`, `finance`, `accounting` (Kassenbuch/-bericht), `inventory`, `donations`, `allowances`,
   `events`, `documents` (Vorlagen, Serienbriefe, Ablage), `openslides`, `paperless` (Paperless-ngx-Anbindung).
@@ -40,6 +42,7 @@ verlinken.)
   ebenso einbinden.
 
 ## Befehle
+
 * Start: `cp .env.example .env` (Schlüssel setzen), `docker compose build && docker compose up -d`
 * Tests: `python manage.py test --parallel` (PostgreSQL nötig, `FIELD_ENCRYPTION_KEY`/`SECRET_KEY` gesetzt) –
   `--parallel` verteilt auf alle CPU-Kerne (~520 Tests: einige Minuten → wenige Sekunden); bei `manage.py
@@ -60,6 +63,7 @@ verlinken.)
   `#: ` ergänzen, ist kein Datenverlust.
 
 ## Regeln
+
 * Keine Zugangsdaten committen (`.env`, `openslides/secrets/` sind ignoriert).
 * Sensible Daten (IBAN) nur über `VerschluesseltesTextField`; nicht in Logs/Exports ohne Berechtigung.
 * Steuerlich/rechtlich Relevantes (Spendenquittung, Freibeträge, Sphären) nur als Vorschlag kennzeichnen; Texte gegen amtliche Muster prüfen lassen.
@@ -78,18 +82,23 @@ verlinken.)
   ist unverhältnismäßig aufwändig - siehe `apps/finance/erechnung.py` (an `factur-x` 7.x angepasst statt `<7.0`).
 
 ## Versionierung
+
 Die Datei `VERSION` folgt Semantic Versioning (`MAJOR.MINOR.PATCH`), bei jeder nennenswerten Änderung erhöhen:
+
 * **PATCH** (`1.0.0` → `1.0.1`): Bugfixes, kleine Korrekturen ohne neues Verhalten.
 * **MINOR** (`1.0.0` → `1.1.0`): Neue Funktionen/Module, abwärtskompatible Erweiterungen.
 * **MAJOR** (`1.0.0` → `2.0.0`): Große strukturelle Änderungen (z. B. Datenmodell-Umbau, Architekturwechsel).
+
 Bei jeder Version zusätzlich die Versionsnummer im Titel von `docs/HANDBUCH.md` **und** `docs/HANDBUCH.en.md`
 (jeweils Zeile 1) synchron halten.
 Außerdem bei jeder Versionserhöhung einen kurzen Stichpunkt ganz oben in `CHANGELOG.md` ergänzen (ein bis zwei
 Zeilen, kein Roman) - dafür sind keine Testläufe nötig.
 
 ## Commit, Tag und Push
+
 Ist eine Aufgabe fertig und getestet, wird sie **ohne Rückfrage** committet, getaggt und gepusht (ausdrücklich
 erlaubt vom Projektinhaber):
+
 * Direkt auf `main` committen (so wird das Repository geführt), Nachricht auf Deutsch mit der Version in
   Klammern, z. B. `Datensicherung mit externem Ziel (1.60.0)`.
 * Danach einen **annotierten Tag** mit der reinen Versionsnummer setzen (z. B. `1.60.0`, ohne `v`) und

@@ -55,8 +55,8 @@ Mitgliedsarten (Beispielbeträge!), Ehrungsarten und Jubiläumsregeln angelegt. 
 ## Design der Weboberfläche
 
 Navigation, Buttons, Kennzahlen-Karten und Kartenköpfe verwenden statt flacher Farben Farbverläufe aus einer
-**Hauptfarbe** und zwei **Akzentfarben** (*Verwaltung › Verein/Einstellungen*, Standard: Feuerwehrrot #AF2B1E
-+ automatisch abgeleitetes Dunkelrot + Leuchtgelb) – standardmäßig dieselbe Hauptfarbe wie auf Briefen/PDFs,
+**Hauptfarbe** und zwei **Akzentfarben** (*Verwaltung › Verein/Einstellungen*, Standard: Feuerwehrrot #AF2B1E,
+automatisch abgeleitetes Dunkelrot und Leuchtgelb) – standardmäßig dieselbe Hauptfarbe wie auf Briefen/PDFs,
 über separate Web-Farbfelder aber auch unabhängig davon einstellbar. Die Text-/Icon-Farbe auf jeder dieser
 Farben wird serverseitig automatisch für ausreichenden Kontrast berechnet (`apps/core/util.py::gemischte_farbe`/
 `lesbare_textfarbe`) – bleibt also auch bei sehr hellen Akzentfarben lesbar. Unter den Farbfeldern steht eine
