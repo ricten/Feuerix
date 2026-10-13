@@ -86,7 +86,7 @@ login, CSRF protection, language – no tracking cookies).
 ## Modules
 
 | Module | Core features |
-|---|---|
+| --- | --- |
 | Members | **Import** from Excel/CSV (dry run, updating existing members, error report, template file) and **full export** (Excel/CSV, bank details only with the fees permission, logged); record including encrypted IBAN, SEPA mandate, family/family payer, departments, roles, versioned documents, data request (JSON), anonymisation; **self-service** – members maintain their address/phone/email/bank details themselves online, see [docs/SELBSTDATENPFLEGE.en.md](docs/SELBSTDATENPFLEGE.en.md) |
 | Honours | Honour types, honours, configurable anniversary rules, anniversary list with direct creation |
 | Fees | Membership types, rules (age, family, validity years, priority), individual fees, fee years with an invoice run; amounts are frozen into the invoice |

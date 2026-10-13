@@ -28,7 +28,7 @@ Internet ──► Caddy (ports 80/443, automatic HTTPS)
 ## 1. Prerequisites
 
 | What | Recommendation |
-|---|---|
+| --- | --- |
 | Server | Linux (Ubuntu 24.04 LTS or Debian 12), **at least 1 CPU / 2 GB RAM** for Feuerix alone (a tight floor: 4 containers – Postgres, Redis, 3 Gunicorn workers, 1 Celery worker – already use roughly 700–900 MB at idle; for comfortable operation with headroom, e.g. during a larger fee run or mail-merge send, **4 GB is recommended**), 20 GB of space |
 | Domain | a name pointing at the server's IP (DNS A record): e.g. `verein.example.org` – **required** |
 | Additional domains | one more name each, only if needed: `versammlung.example.org` for OpenSlides (section 5), `paperless.example.org` for Paperless-ngx (section 9) |
@@ -401,7 +401,7 @@ separately).
 ## 14. Troubleshooting
 
 | Problem | Solution |
-|---|---|
+| --- | --- |
 | Feuerix doesn't start | `docker compose logs web` – often `SECRET_KEY`/`FIELD_ENCRYPTION_KEY` is missing in `.env` |
 | "CSRF verification failed" | check `CSRF_TRUSTED_ORIGINS` (with `https://`) and `ALLOWED_HOSTS` |
 | No emails | check `EMAIL_HOST…`; without `EMAIL_HOST`, emails are only written to the log (`docker compose logs worker`) |

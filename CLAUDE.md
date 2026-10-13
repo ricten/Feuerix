@@ -81,6 +81,13 @@ verlinken.)
   lieber den Code an die neue Bibliotheksversion anpassen als eine Obergrenze einzuziehen, außer eine Anpassung
   ist unverhältnismäßig aufwändig - siehe `apps/finance/erechnung.py` (an `factur-x` 7.x angepasst statt `<7.0`).
 
+* **Markdown ohne Linter-Warnungen:** Nach jeder Änderung an einer `*.md` (Doku, Handbuch, Changelog, README ...) vor dem Commit
+  `python scripts/markdown_aufraeumen.py` laufen lassen (behebt Leerzeilen um Überschriften/Listen, einheitliches Listenzeichen **je
+  Datei** - das der ersten Aufzählung -, Tabellen-Trennzeilen `| --- |`) und die Warnungen von VS Code prüfen (Diagnose-Werkzeug des
+  Editors, Dateien neu einlesen lassen - die Anzeige hinkt einige Sekunden hinterher). Keine fetten Einzelzeilen als Überschrift
+  (MD036): echte Überschrift (`###`) oder im Satz formulieren; Satzzeichen am Ende (`**Schritte:**`) ist erlaubt. Neue Abschnitte im
+  Stil der Datei schreiben (SCHRIFTVERKEHR/README/INSTALL/CLAUDE: `*`, HANDBUCH/CHANGELOG: `-`).
+
 ## Versionierung
 
 Die Datei `VERSION` folgt Semantic Versioning (`MAJOR.MINOR.PATCH`), bei jeder nennenswerten Änderung erhöhen:

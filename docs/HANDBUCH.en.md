@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.82.1)
+# Handbook – Feuerix (Version 1.82.2)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -124,7 +124,7 @@ there, per role and data area, **directly in the web interface**. The following 
 automatically for every club (permissions: see the permission matrix, also editable there):
 
 | Role | Typical use |
-|---|---|
+| --- | --- |
 | **Superadministrator** | Technical support; bypasses permission checks, does not appear in the permission matrix |
 | **1st Chair (DSO) / 2nd Chair (DSO)** | Chairing |
 | **Treasurer (DSO) / Deputy Treasurer (DSO)** | Managing the finances |
@@ -636,10 +636,10 @@ there is the button "Retrieve attendance, votes and elections from OpenSlides (a
 current state; when **PDF and Word** are generated, the results are then appended automatically as **appendices,
 each on its own page**, after the minutes text (with letterhead and page number):
 
-* **Appendix 1: Attendance list** – all persons present, alphabetically, marked member/guest, with the total.
-* **Appendix 2: Votes** – all votes on motions and topics summarised, one block per vote with submitter, motion text,
+- **Appendix 1: Attendance list** – all persons present, alphabetically, marked member/guest, with the total.
+- **Appendix 2: Votes** – all votes on motions and topics summarised, one block per vote with submitter, motion text,
   reason, result table and OpenSlides status, plus a tick line "adopted / rejected" for the chair.
-* **Appendix 3: Election results** – all elections summarised, one block per election (ballot) with the vote table
+- **Appendix 3: Election results** – all elections summarised, one block per election (ballot) with the vote table
   per candidate and a line "Elected: ____".
 
 Only appendices with data exist; numbering is consecutive. The minutes text itself is not changed; the placeholders

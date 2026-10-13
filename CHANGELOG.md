@@ -3,7 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.82.2
+
+- Neues Skript `scripts/markdown_aufraeumen.py` (Markdown-Warnungen automatisch beheben); Tabellen-Trennzeilen und Listenzeichen in README/INSTALL/
+  Handbuch (en) vereinheitlicht; Regel dazu in CLAUDE.md.
+
 ## 1.82.1
+
 - Doku: Listenzeichen in SCHRIFTVERKEHR (de/en) vereinheitlicht (Markdown-Warnungen).
 
 ## 1.82.0

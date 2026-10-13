@@ -83,7 +83,7 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
 ## Module
 
 | Modul | Kernfunktionen |
-|---|---|
+| --- | --- |
 | Mitglieder | **Import** aus Excel/CSV (Testlauf, Aktualisierung bestehender Mitglieder, Fehlerbericht, Vorlagendatei) und **Vollexport** (Excel/CSV, Bankdaten nur mit Beitragsrecht, protokolliert); Akte inkl. verschlüsselter IBAN, SEPA-Mandat, Familie/Familienzahler, Abteilungen, Funktionen, versionierte Dokumente, Datenauskunft (JSON), Anonymisierung; **Selbstdatenpflege** – Mitglieder pflegen Adresse/Telefon/E-Mail/Bankverbindung selbst online, siehe [docs/SELBSTDATENPFLEGE.md](docs/SELBSTDATENPFLEGE.md) |
 | Ehrungen | Ehrungsarten, Ehrungen, konfigurierbare Jubiläumsregeln, Jubiläumsliste mit Direktanlage |
 | Beiträge | Mitgliedsarten, Regeln (Alter, Familie, Gültigkeitsjahre, Priorität), individuelle Beiträge, Beitragsjahre mit Rechnungslauf; Beträge werden in der Rechnung eingefroren |
