@@ -15,6 +15,7 @@ from django.urls import reverse
 from apps.core.models import Rolle, Zugang
 
 from .models import Mitglied
+from django.utils.translation import gettext, gettext_lazy
 
 ALPHABET = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
@@ -24,7 +25,7 @@ def _passwort():
 
 
 class VerwaltungszugangForm(forms.Form):
-    rolle = forms.ModelChoiceField(label="Rolle", queryset=Rolle.objects.none())
+    rolle = forms.ModelChoiceField(label=gettext_lazy("Rolle"), queryset=Rolle.objects.none())
 
     def __init__(self, *args, verein=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -51,10 +52,10 @@ def verwaltungszugang_einrichten(request, pk):
         raise PermissionDenied
     m = get_object_or_404(Mitglied, pk=pk, verein=request.verein)
     if m.benutzer_id and Zugang.objects.filter(verein=request.verein, user_id=m.benutzer_id).exists():
-        messages.error(request, "Für dieses Mitglied besteht bereits ein Verwaltungszugang.")
+        messages.error(request, gettext("Für dieses Mitglied besteht bereits ein Verwaltungszugang."))
         return redirect("mitglied_detail", pk=m.pk)
     if not m.email:
-        messages.error(request, "Für einen Verwaltungszugang wird eine E-Mail-Adresse des Mitglieds benötigt.")
+        messages.error(request, gettext("Für einen Verwaltungszugang wird eine E-Mail-Adresse des Mitglieds benötigt."))
         return redirect("mitglied_detail", pk=m.pk)
 
     form = VerwaltungszugangForm(request.POST or None, verein=request.verein)
@@ -66,7 +67,7 @@ def verwaltungszugang_einrichten(request, pk):
             benutzer.is_active = True
         else:
             if User.objects.filter(username=m.email).exists():
-                messages.error(request, "Diese E-Mail-Adresse ist bereits einem Benutzerkonto zugeordnet.")
+                messages.error(request, gettext("Diese E-Mail-Adresse ist bereits einem Benutzerkonto zugeordnet."))
                 return redirect("mitglied_detail", pk=m.pk)
             benutzer = User(username=m.email, email=m.email, first_name=m.vorname, last_name=m.nachname)
         benutzer.set_password(passwort)
@@ -77,9 +78,9 @@ def verwaltungszugang_einrichten(request, pk):
         rolle = form.cleaned_data["rolle"]
         Zugang.objects.create(verein=request.verein, user=benutzer, rolle=rolle)
         _zugangsdaten_mailen(request, m, benutzer, rolle, passwort)
-        messages.success(request, f"Verwaltungszugang eingerichtet, Zugangsdaten an {m.email} gesendet.")
+        messages.success(request, gettext("Verwaltungszugang eingerichtet, Zugangsdaten an %(email)s gesendet.") % {"email": m.email})
         return redirect("mitglied_detail", pk=m.pk)
 
     return render(request, "core/formular.html", {
-        "form": form, "titel": f"Verwaltungszugang für {m.name} einrichten",
+        "form": form, "titel": gettext("Verwaltungszugang für %(name)s einrichten") % {"name": m.name},
         "abbrechen_url": reverse("mitglied_detail", args=[m.pk])})

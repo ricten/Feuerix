@@ -5,6 +5,7 @@ from apps.core.forms import RechteFelderMixin, TenantModelForm
 from apps.core.models import Rolle
 
 from .models import Mitglied, MitgliedTag
+from django.utils.translation import gettext, gettext_lazy
 
 
 class MitgliedForm(TenantModelForm):
@@ -36,9 +37,8 @@ class MitgliedTagForm(RechteFelderMixin, TenantModelForm):
     Hintergrund eine Rolle mit gleichem Namen angelegt bzw. aktualisiert) oder rein organisatorisch bleiben
     (z. B. Beisitzer: ohne weitere Rechte)."""
     rechte_vorhanden = forms.BooleanField(
-        label="Hat eigene Rechte in dieser Software", required=False,
-        help_text="Ohne Haken ist das Tag eine reine Kennzeichnung ohne Software-Rechte (z. B. Beisitzer). Die "
-                  "Rechte unten (je Modul) wirken nur, wenn dieser Haken gesetzt ist.")
+        label=gettext_lazy("Hat eigene Rechte in dieser Software"), required=False,
+        help_text=gettext_lazy("Ohne Haken ist das Tag eine reine Kennzeichnung ohne Software-Rechte (z. B. Beisitzer). Die Rechte unten (je Modul) wirken nur, wenn dieser Haken gesetzt ist."))
 
     class Meta:
         model = MitgliedTag
@@ -56,8 +56,7 @@ class MitgliedTagForm(RechteFelderMixin, TenantModelForm):
         if name and cleaned.get("rechte_vorhanden"):
             konflikt = Rolle.objects.filter(verein=self.verein, name=name).exclude(pk=self.instance.rolle_id or 0)
             if konflikt.exists():
-                self.add_error("name", f"Es gibt bereits eine Rolle „{name}“ - bitte einen anderen Namen wählen "
-                                       "oder das vorhandene Tag dafür bearbeiten.")
+                self.add_error("name", gettext("Es gibt bereits eine Rolle „%(name)s“ - bitte einen anderen Namen wählen oder das vorhandene Tag dafür bearbeiten.") % {"name": name})
         return cleaned
 
     def save(self, commit=True):

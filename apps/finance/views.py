@@ -18,6 +18,8 @@ from . import erechnung, fints_service, kontoauszug, sepa, services
 from .forms import FinTSPinForm, FinTSTanForm
 from .models import Bankumsatz, Beitragsjahr, FinTSZugang, Mahnung, Rechnung, SepaEinzug, SepaEinzugPosition, Zahlung, wirksame_summe
 from .pdf import mahnung_pdf, rechnung_pdf
+from django.utils.translation import gettext, gettext_lazy
+from django.utils.text import format_lazy
 
 
 def _pruefen(request, modul, aktion):
@@ -38,41 +40,41 @@ def rechnung_kontext(request, r):
     if rt.darf("rechnungen", "view"):
         aktionen.append(knopf("PDF", reverse("rechnung_pdf", args=[r.pk]), stil="primary"))
         if r.status != "entwurf":
-            aktionen.append(knopf("E-Rechnung (ZUGFeRD-PDF)", reverse("rechnung_erechnung", args=[r.pk])))
+            aktionen.append(knopf(gettext_lazy("E-Rechnung (ZUGFeRD-PDF)"), reverse("rechnung_erechnung", args=[r.pk])))
     if rt.darf("rechnungen", "change"):
         if r.status == "entwurf":
-            aktionen.append(knopf("Ausstellen (nicht mehr änderbar)", reverse("rechnung_ausstellen", args=[r.pk]),
+            aktionen.append(knopf(gettext_lazy("Ausstellen (nicht mehr änderbar)"), reverse("rechnung_ausstellen", args=[r.pk]),
                                   post=True, stil="success",
-                                  bestaetigung="Rechnung ausstellen? Danach ist sie unveränderbar und erhält eine Nummer."))
+                                  bestaetigung=gettext("Rechnung ausstellen? Danach ist sie unveränderbar und erhält eine Nummer.")))
         if r.status in ("offen", "teilbezahlt", "bezahlt") and r.typ in ("beitrag", "individuell", "sammel"):
-            aktionen.append(knopf("Per E-Mail senden", reverse("rechnung_mail", args=[r.pk]), post=True))
-            aktionen.append(knopf("Storno", reverse("rechnung_storno", args=[r.pk]), post=True, stil="outline-danger",
-                                  bestaetigung="Rechnung stornieren? Es wird eine Stornorechnung erzeugt."))
+            aktionen.append(knopf(gettext_lazy("Per E-Mail senden"), reverse("rechnung_mail", args=[r.pk]), post=True))
+            aktionen.append(knopf(gettext_lazy("Storno"), reverse("rechnung_storno", args=[r.pk]), post=True, stil="outline-danger",
+                                  bestaetigung=gettext("Rechnung stornieren? Es wird eine Stornorechnung erzeugt.")))
         if r.status in ("offen", "teilbezahlt"):
-            aktionen.append(knopf("Mahnung erzeugen", reverse("rechnung_mahnung", args=[r.pk]), post=True,
+            aktionen.append(knopf(gettext_lazy("Mahnung erzeugen"), reverse("rechnung_mahnung", args=[r.pk]), post=True,
                                   stil="outline-warning"))
     if rt.darf("zahlungen", "add"):
         if r.status in ("offen", "teilbezahlt"):
-            aktionen.append(knopf("Zahlung erfassen", reverse("zahlung_add") +
+            aktionen.append(knopf(gettext_lazy("Zahlung erfassen"), reverse("zahlung_add") +
                                   f"?rechnung={r.pk}&betrag={r.offen_betrag}"
                                   f"&next={reverse('rechnung_detail', args=[r.pk])}", stil="outline-primary"))
         elif r.rueckzahlung_noetig and r.rueckzahlung_offen > 0:
-            aktionen.append(knopf("Rückzahlung buchen", reverse("zahlung_add") +
+            aktionen.append(knopf(gettext_lazy("Rückzahlung buchen"), reverse("zahlung_add") +
                                   f"?rechnung={r.pk}&art=rueckzahlung&betrag={r.rueckzahlung_offen}"
                                   f"&next={reverse('rechnung_detail', args=[r.pk])}", stil="outline-primary"))
     abschnitte = [
-        abschnitt(request, "Positionen", r.positionen.all(),
+        abschnitt(request, gettext("Positionen"), r.positionen.all(),
                   ("text", "menge", "einzelpreis", "steuersatz", ("betrag", "Netto"), ("bruttobetrag", "Brutto")),
                   "rechnungsposition_add" if r.status == "entwurf" else None, {"rechnung": r.pk}),
-        abschnitt(request, "Zahlungen", r.zahlungen.all(), ("datum", "betrag", "art", "ruecklastschrift", "referenz")),
-        abschnitt(request, "Mahnungen", r.mahnungen.all(), ("stufe", "datum", "frist", "gebuehr")),
-        abschnitt(request, "Storno / Gutschriften", r.gegenbuchungen.all(), ("nummer", "typ", "betrag")),
+        abschnitt(request, gettext("Zahlungen"), r.zahlungen.all(), ("datum", "betrag", "art", "ruecklastschrift", "referenz")),
+        abschnitt(request, gettext("Mahnungen"), r.mahnungen.all(), ("stufe", "datum", "frist", "gebuehr")),
+        abschnitt(request, gettext("Storno / Gutschriften"), r.gegenbuchungen.all(), ("nummer", "typ", "betrag")),
     ]
-    hinweise = [f"Offener Betrag: {geld(r.offen_betrag)}"] if r.status in ("offen", "teilbezahlt") else []
+    hinweise = [gettext("Offener Betrag: %(betrag)s") % {"betrag": geld(r.offen_betrag)}] if r.status in ("offen", "teilbezahlt") else []
     if r.ueberfaellig:
-        hinweise.append("Die Rechnung ist überfällig.")
+        hinweise.append(gettext("Die Rechnung ist überfällig."))
     if r.rueckzahlung_noetig and r.rueckzahlung_offen > 0:
-        hinweise.append(f"Rückzahlung an den Zahler noch offen: {geld(r.rueckzahlung_offen)}.")
+        hinweise.append(gettext("Rückzahlung an den Zahler noch offen: %(betrag)s.") % {"betrag": geld(r.rueckzahlung_offen)})
     return {"aktionen": aktionen, "abschnitte": abschnitte, "hinweise": hinweise,
             "vorschau": pdf_vorschau(reverse("rechnung_pdf", args=[r.pk]))}
 
@@ -90,12 +92,12 @@ def rechnung_pdf_view(request, pk):
 def rechnung_erechnung_view(request, pk):
     r = _rechnung(request, pk, "view")
     if r.status == "entwurf":
-        messages.error(request, "Entwürfe haben noch keine Rechnungsnummer - bitte zuerst ausstellen.")
+        messages.error(request, gettext("Entwürfe haben noch keine Rechnungsnummer - bitte zuerst ausstellen."))
         return redirect("rechnung_detail", pk=r.pk)
     try:
         pdf_bytes = erechnung.zugferd_pdf(r)
     except Exception as e:
-        messages.error(request, f"E-Rechnung konnte nicht erzeugt werden: {e}")
+        messages.error(request, gettext("E-Rechnung konnte nicht erzeugt werden: %(e)s") % {"e": e})
         return redirect("rechnung_detail", pk=r.pk)
     resp = HttpResponse(pdf_bytes, content_type="application/pdf")
     resp["Content-Disposition"] = f'attachment; filename="{r.nummer}-zugferd.pdf"'
@@ -107,16 +109,16 @@ def rechnung_erechnung_view(request, pk):
 def rechnung_ausstellen(request, pk):
     r = _rechnung(request, pk)
     if r.status != "entwurf":
-        messages.error(request, "Nur Entwürfe können ausgestellt werden.")
+        messages.error(request, gettext("Nur Entwürfe können ausgestellt werden."))
     elif not r.positionen.exists():
-        messages.error(request, "Die Rechnung hat noch keine Positionen.")
+        messages.error(request, gettext("Die Rechnung hat noch keine Positionen."))
     else:
         r.neu_berechnen()
         r.refresh_from_db()
         r.status = "offen"
         r.save()
         services.rechnung_fertig(r)
-        messages.success(request, f"Rechnung {r.nummer} ausgestellt.")
+        messages.success(request, gettext("Rechnung %(nummer)s ausgestellt.") % {"nummer": r.nummer})
     return redirect("rechnung_detail", pk=r.pk)
 
 
@@ -142,9 +144,9 @@ def rechnung_mail(request, pk):
     r = _rechnung(request, pk)
     try:
         services.rechnung_mailen(r)
-        messages.success(request, "Rechnung per E-Mail versendet.")
+        messages.success(request, gettext("Rechnung per E-Mail versendet."))
     except Exception as e:  # SMTP- oder Adressfehler
-        messages.error(request, f"Versand fehlgeschlagen: {e}")
+        messages.error(request, gettext("Versand fehlgeschlagen: %(e)s") % {"e": e})
     return redirect("rechnung_detail", pk=r.pk)
 
 
@@ -153,7 +155,7 @@ def rechnung_mail(request, pk):
 def rechnung_mahnung(request, pk):
     r = _rechnung(request, pk)
     m = services.mahnung_erstellen(r)
-    messages.success(request, f"{m.get_stufe_display()} erstellt.")
+    messages.success(request, gettext("%(get_stufe_display)s erstellt.") % {"get_stufe_display": m.get_stufe_display()})
     return redirect("mahnung_detail", pk=m.pk)
 
 
@@ -179,15 +181,15 @@ def beitragsjahr_kontext(request, bj):
     ist = wirksame_summe(qs)
     aktionen = []
     if request.rechte.darf("rechnungen", "add"):
-        aktionen.append(knopf("Beitragsrechnungen erzeugen", reverse("beitragsjahr_abrechnen", args=[bj.pk]),
+        aktionen.append(knopf(gettext_lazy("Beitragsrechnungen erzeugen"), reverse("beitragsjahr_abrechnen", args=[bj.pk]),
                               post=True, stil="success",
-                              bestaetigung="Für alle beitragspflichtigen Mitglieder ohne Rechnung Beitragsrechnungen erzeugen?"))
+                              bestaetigung=gettext("Für alle beitragspflichtigen Mitglieder ohne Rechnung Beitragsrechnungen erzeugen?")))
     if request.rechte.darf("rechnungen", "change"):
-        aktionen.append(knopf("Offene Rechnungen per E-Mail versenden", reverse("beitragsjahr_mailen", args=[bj.pk]),
-                              post=True, bestaetigung="E-Mails an alle Mitglieder mit Adresse versenden?"))
-    aktionen.append(knopf("Rechnungen anzeigen", reverse("rechnung_list") + f"?jahr={bj.jahr}&typ=beitrag"))
+        aktionen.append(knopf(gettext_lazy("Offene Rechnungen per E-Mail versenden"), reverse("beitragsjahr_mailen", args=[bj.pk]),
+                              post=True, bestaetigung=gettext("E-Mails an alle Mitglieder mit Adresse versenden?")))
+    aktionen.append(knopf(gettext_lazy("Rechnungen anzeigen"), reverse("rechnung_list") + f"?jahr={bj.jahr}&typ=beitrag"))
     return {"aktionen": aktionen,
-            "hinweise": [f"{qs.count()} Rechnungen · Soll {geld(soll)} · bezahlt {geld(ist)} · offen {geld(soll - ist)}"]}
+            "hinweise": [gettext("%(anzahl)s Rechnungen · Soll %(betrag)s · bezahlt %(betrag_)s · offen %(betrag__)s") % {"anzahl": qs.count(), "betrag": geld(soll), "betrag_": geld(ist), "betrag__": geld(soll - ist)}]}
 
 
 @login_required
@@ -196,10 +198,10 @@ def beitragsjahr_abrechnen(request, pk):
     _pruefen(request, "rechnungen", "add")
     bj = get_object_or_404(Beitragsjahr, pk=pk, verein=request.verein)
     n, skip = services.beitragsjahr_abrechnen(bj)
-    messages.success(request, f"{n} Beitragsrechnungen erzeugt.")
+    messages.success(request, gettext("%(n)s Beitragsrechnungen erzeugt.") % {"n": n})
     if skip:
-        messages.warning(request, "Ohne Beitrag übersprungen (Mitgliedsart/Regel fehlt): "
-                         + ", ".join(f"{m.name}" for m, _ in skip[:15]) + (" …" if len(skip) > 15 else ""))
+        messages.warning(request, gettext("Ohne Beitrag übersprungen (Mitgliedsart/Regel fehlt): %(namen)s") % {
+            "namen": ", ".join(f"{m.name}" for m, _ in skip[:15]) + (" …" if len(skip) > 15 else "")})
     return redirect("beitragsjahr_detail", pk=bj.pk)
 
 
@@ -214,7 +216,7 @@ def beitragsjahr_mailen(request, pk):
                                      versendet_am__isnull=True, mitglied__email__gt=""):
         rechnung_mailen_task.delay(r.pk)
         n += 1
-    messages.success(request, f"{n} E-Mails werden im Hintergrund versendet.")
+    messages.success(request, gettext("%(n)s E-Mails werden im Hintergrund versendet.") % {"n": n})
     return redirect("beitragsjahr_detail", pk=bj.pk)
 
 
@@ -227,7 +229,7 @@ def bankumsatz_kontext(request, u):
     aktionen, abschnitte = [], []
     if request.rechte.darf("bank", "change") and u.status in ("neu", "manuell"):
         offen = Rechnung.objects.filter(verein=request.verein, status__in=["offen", "teilbezahlt"]).select_related("mitglied")[:300]
-        return {"aktionen": [knopf("Ignorieren", reverse("bankumsatz_ignorieren", args=[u.pk]), post=True)],
+        return {"aktionen": [knopf(gettext_lazy("Ignorieren"), reverse("bankumsatz_ignorieren", args=[u.pk]), post=True)],
                 "zuweisen": {"url": reverse("bankumsatz_zuweisen", args=[u.pk]), "rechnungen": offen}}
     return {"aktionen": aktionen, "abschnitte": abschnitte}
 
@@ -235,14 +237,14 @@ def bankumsatz_kontext(request, u):
 def bank_listen_aktionen(request):
     a = []
     if request.rechte.darf("bank", "add"):
-        a.append(knopf("Kontoauszug importieren", reverse("bank_import"), stil="primary"))
+        a.append(knopf(gettext_lazy("Kontoauszug importieren"), reverse("bank_import"), stil="primary"))
         if fints_service.produkt_id_vorhanden():
             for z in FinTSZugang.objects.filter(verein=request.verein):
-                a.append(knopf(f"Umsätze abrufen: {z.bezeichnung}", reverse("fints_abrufen", args=[z.pk]),
+                a.append(knopf(format_lazy(gettext_lazy("Umsätze abrufen: {bezeichnung}"), bezeichnung=z.bezeichnung), reverse("fints_abrufen", args=[z.pk]),
                                stil="success"))
-        a.append(knopf("FinTS-Zugänge", reverse("fintszugang_list")))
+        a.append(knopf(gettext_lazy("FinTS-Zugänge"), reverse("fintszugang_list")))
     if request.rechte.darf("bank", "change"):
-        a.append(knopf("Automatisch zuordnen", reverse("bank_zuordnen"), post=True, stil="success"))
+        a.append(knopf(gettext_lazy("Automatisch zuordnen"), reverse("bank_zuordnen"), post=True, stil="success"))
     return a
 
 
@@ -254,12 +256,11 @@ def bank_import(request):
         try:
             neu, doppelt, format_ = kontoauszug.importieren(request.verein, datei.name, datei.read())
             ok, manuell = services.zuordnen(request.verein)
-            messages.success(request, f"{format_}: {neu} Umsätze importiert ({doppelt} Duplikate übersprungen). "
-                                      f"Automatisch zugeordnet: {ok}, manuell erforderlich: {manuell}.")
+            messages.success(request, gettext("%(format)s: %(neu)s Umsätze importiert (%(doppelt)s Duplikate übersprungen). Automatisch zugeordnet: %(ok)s, manuell erforderlich: %(manuell)s.") % {"format": format_, "neu": neu, "doppelt": doppelt, "ok": ok, "manuell": manuell})
             return redirect("bankumsatz_list")
         except ValueError as e:
             messages.error(request, str(e))
-    return render(request, "finance/bank_import.html", {"titel": "Kontoauszug importieren"})
+    return render(request, "finance/bank_import.html", {"titel": gettext("Kontoauszug importieren")})
 
 
 @login_required
@@ -267,7 +268,7 @@ def bank_import(request):
 def bank_zuordnen(request):
     _pruefen(request, "bank", "change")
     ok, manuell = services.zuordnen(request.verein)
-    messages.success(request, f"Zugeordnet: {ok}, manuelle Zuordnung erforderlich: {manuell}.")
+    messages.success(request, gettext("Zugeordnet: %(ok)s, manuelle Zuordnung erforderlich: %(manuell)s.") % {"ok": ok, "manuell": manuell})
     return redirect("bankumsatz_list")
 
 
@@ -278,7 +279,7 @@ def bankumsatz_zuweisen(request, pk):
     u = get_object_or_404(Bankumsatz, pk=pk, verein=request.verein)
     r = get_object_or_404(Rechnung, pk=request.POST.get("rechnung"), verein=request.verein)
     if u.status == "zugeordnet":
-        messages.error(request, "Bereits zugeordnet.")
+        messages.error(request, gettext("Bereits zugeordnet."))
     else:
         try:
             z = Zahlung(verein=request.verein, rechnung=r, datum=u.buchungsdatum, betrag=abs(u.betrag),
@@ -288,7 +289,7 @@ def bankumsatz_zuweisen(request, pk):
             z.save()
             u.status = "zugeordnet"
             u.save(update_fields=["status", "geaendert"])
-            messages.success(request, f"Zahlung auf {r.nummer} gebucht.")
+            messages.success(request, gettext("Zahlung auf %(nummer)s gebucht.") % {"nummer": r.nummer})
         except Exception as e:
             messages.error(request, str(getattr(e, "messages", [e])[0]))
     return redirect("bankumsatz_detail", pk=u.pk)
@@ -307,25 +308,22 @@ def bankumsatz_ignorieren(request, pk):
 def fints_zugang_kontext(request, z):
     aktionen = []
     if request.rechte.darf("bank", "add") and fints_service.produkt_id_vorhanden():
-        aktionen.append(knopf("Kontodaten abrufen", reverse("fints_kontodaten", args=[z.pk])))
-        aktionen.append(knopf("Jetzt abrufen", reverse("fints_abrufen", args=[z.pk]), stil="success"))
+        aktionen.append(knopf(gettext_lazy("Kontodaten abrufen"), reverse("fints_kontodaten", args=[z.pk])))
+        aktionen.append(knopf(gettext_lazy("Jetzt abrufen"), reverse("fints_abrufen", args=[z.pk]), stil="success"))
     hinweise = []
     if z.abzurufende_ibans:
-        hinweise.append(f"Abruf ist auf {len(z.iban_liste)} Konto(en) beschränkt: {', '.join(z.iban_liste)}.")
+        hinweise.append(gettext("Abruf ist auf %(anzahl)s Konto(en) beschränkt: %(join)s.") % {"anzahl": len(z.iban_liste), "join": ', '.join(z.iban_liste)})
     if not fints_service.produkt_id_vorhanden():
-        hinweise.append("Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss zuerst eine "
-                        "kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft registrieren und entweder "
-                        "verschlüsselt unter /admin/ (Systemeinstellungen) oder als Umgebungsvariable "
-                        "FINTS_PRODUCT_ID hinterlegen, bevor ein Abruf möglich ist.")
+        hinweise.append(gettext("Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss zuerst eine kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft registrieren und entweder verschlüsselt unter /admin/ (Systemeinstellungen) oder als Umgebungsvariable FINTS_PRODUCT_ID hinterlegen, bevor ein Abruf möglich ist."))
     return {"aktionen": aktionen, "hinweise": hinweise,
-            "abschnitte": [abschnitt(request, "Verknüpfte Kassenbuch-Konten", z.konten.all(), ("name", "typ"))]}
+            "abschnitte": [abschnitt(request, gettext("Verknüpfte Kassenbuch-Konten"), z.konten.all(), ("name", "typ"))]}
 
 
 def _fints_abbrechen(request, zugang, fehler):
     fints_service.zustand_loeschen(request)
     zugang.letzte_meldung = f"Fehler: {fehler}"[:300]
     zugang.save(update_fields=["letzte_meldung", "geaendert"])
-    messages.error(request, f"FinTS-Abruf fehlgeschlagen: {fehler}")
+    messages.error(request, gettext("FinTS-Abruf fehlgeschlagen: %(fehler)s") % {"fehler": fehler})
     return redirect("fints_abrufen", pk=zugang.pk)
 
 
@@ -343,10 +341,7 @@ def fints_abrufen(request, pk):
     _pruefen(request, "bank", "add")
     zugang = get_object_or_404(FinTSZugang, pk=pk, verein=request.verein)
     if not fints_service.produkt_id_vorhanden():
-        messages.error(request, "Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss "
-                                "zuerst eine kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft registrieren "
-                                "und entweder verschlüsselt unter /admin/ (Systemeinstellungen) oder als "
-                                "Umgebungsvariable FINTS_PRODUCT_ID hinterlegen.")
+        messages.error(request, gettext("Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss zuerst eine kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft registrieren und entweder verschlüsselt unter /admin/ (Systemeinstellungen) oder als Umgebungsvariable FINTS_PRODUCT_ID hinterlegen."))
         return redirect("fintszugang_detail", pk=zugang.pk)
 
     zustand = fints_service.zustand_laden(request)
@@ -369,13 +364,13 @@ def fints_abrufen(request, pk):
                 if status == "tan":
                     fints_service.zustand_speichern(request, zugang, zustand["pin"], von, bis, client, wert, rest,
                                                     neue_dialog_data)
-                    messages.info(request, "Die Bank verlangt eine weitere TAN.")
+                    messages.info(request, gettext("Die Bank verlangt eine weitere TAN."))
                     return redirect("fints_abrufen", pk=zugang.pk)
                 return _fints_abschliessen(request, zugang, wert)
             except Exception as e:
                 return _fints_abbrechen(request, zugang, e)
         return render(request, "finance/fints_abrufen.html", {
-            "titel": "FinTS-Abruf – TAN erforderlich", "tan_form": tan_form, "zustand": zustand, "schritt": "tan"})
+            "titel": gettext("FinTS-Abruf – TAN erforderlich"), "tan_form": tan_form, "zustand": zustand, "schritt": "tan"})
 
     pin_form = FinTSPinForm(request.POST or None)
     if request.method == "POST" and pin_form.is_valid():
@@ -394,7 +389,7 @@ def fints_abrufen(request, pk):
         except Exception as e:
             return _fints_abbrechen(request, zugang, e)
     return render(request, "finance/fints_abrufen.html", {
-        "titel": "FinTS-Abruf", "pin_form": pin_form, "zugang": zugang, "schritt": "pin"})
+        "titel": gettext("FinTS-Abruf"), "pin_form": pin_form, "zugang": zugang, "schritt": "pin"})
 
 
 @login_required
@@ -404,10 +399,7 @@ def fints_kontodaten(request, pk):
     _pruefen(request, "bank", "add")
     zugang = get_object_or_404(FinTSZugang, pk=pk, verein=request.verein)
     if not fints_service.produkt_id_vorhanden():
-        messages.error(request, "Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss "
-                                "zuerst eine kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft registrieren "
-                                "und entweder verschlüsselt unter /admin/ (Systemeinstellungen) oder als "
-                                "Umgebungsvariable FINTS_PRODUCT_ID hinterlegen.")
+        messages.error(request, gettext("Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss zuerst eine kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft registrieren und entweder verschlüsselt unter /admin/ (Systemeinstellungen) oder als Umgebungsvariable FINTS_PRODUCT_ID hinterlegen."))
         return redirect("fintszugang_detail", pk=zugang.pk)
 
     zustand = fints_service.konten_zustand_laden(request)
@@ -428,17 +420,17 @@ def fints_kontodaten(request, pk):
                 if status == "tan":
                     fints_service.konten_zustand_speichern(request, zugang, zustand["pin"], client, wert, phase,
                                                            neue_dialog_data)
-                    messages.info(request, "Die Bank verlangt eine weitere TAN.")
+                    messages.info(request, gettext("Die Bank verlangt eine weitere TAN."))
                     return redirect("fints_kontodaten", pk=zugang.pk)
                 fints_service.konten_zustand_loeschen(request)
                 return render(request, "finance/fints_kontodaten.html", {
-                    "titel": "Kontodaten", "zugang": zugang, "schritt": "ergebnis", "konten": wert})
+                    "titel": gettext("Kontodaten"), "zugang": zugang, "schritt": "ergebnis", "konten": wert})
             except Exception as e:
                 fints_service.konten_zustand_loeschen(request)
-                messages.error(request, f"Kontodaten-Abruf fehlgeschlagen: {e}")
+                messages.error(request, gettext("Kontodaten-Abruf fehlgeschlagen: %(e)s") % {"e": e})
                 return redirect("fints_kontodaten", pk=zugang.pk)
         return render(request, "finance/fints_kontodaten.html", {
-            "titel": "Kontodaten – TAN erforderlich", "tan_form": tan_form, "zustand": zustand, "zugang": zugang,
+            "titel": gettext("Kontodaten – TAN erforderlich"), "tan_form": tan_form, "zustand": zustand, "zugang": zugang,
             "schritt": "tan"})
 
     pin_form = FinTSPinForm(request.POST or None)
@@ -454,12 +446,12 @@ def fints_kontodaten(request, pk):
                 fints_service.konten_zustand_speichern(request, zugang, pin, client, wert, phase, dialog_data)
                 return redirect("fints_kontodaten", pk=zugang.pk)
             return render(request, "finance/fints_kontodaten.html", {
-                "titel": "Kontodaten", "zugang": zugang, "schritt": "ergebnis", "konten": wert})
+                "titel": gettext("Kontodaten"), "zugang": zugang, "schritt": "ergebnis", "konten": wert})
         except Exception as e:
-            messages.error(request, f"Kontodaten-Abruf fehlgeschlagen: {e}")
+            messages.error(request, gettext("Kontodaten-Abruf fehlgeschlagen: %(e)s") % {"e": e})
             return redirect("fintszugang_detail", pk=zugang.pk)
     return render(request, "finance/fints_kontodaten.html", {
-        "titel": "Kontodaten abrufen", "pin_form": pin_form, "zugang": zugang, "schritt": "pin"})
+        "titel": gettext("Kontodaten abrufen"), "pin_form": pin_form, "zugang": zugang, "schritt": "pin"})
 
 
 @login_required
@@ -472,28 +464,28 @@ def fints_konten_auswahl(request, pk):
     if request.POST.get("alle"):
         zugang.abzurufende_ibans = ""
         zugang.save(update_fields=["abzurufende_ibans", "geaendert"])
-        messages.success(request, "Es werden wieder alle Konten dieses Zugangs abgerufen.")
+        messages.success(request, gettext("Es werden wieder alle Konten dieses Zugangs abgerufen."))
     else:
         ibans = [i for i in request.POST.getlist("ibans") if i]
         if not ibans:
-            messages.error(request, "Bitte mindestens ein Konto auswählen oder „Alle Konten abrufen“ wählen.")
+            messages.error(request, gettext("Bitte mindestens ein Konto auswählen oder „Alle Konten abrufen“ wählen."))
         else:
             zugang.abzurufende_ibans = ", ".join(ibans)
             zugang.save(update_fields=["abzurufende_ibans", "geaendert"])
-            messages.success(request, f"Abruf auf {len(ibans)} Konto(en) beschränkt.")
+            messages.success(request, gettext("Abruf auf %(anzahl)s Konto(en) beschränkt.") % {"anzahl": len(ibans)})
     return redirect("fintszugang_detail", pk=zugang.pk)
 
 
 # ---------------------------------------------------------------- SEPA-Einzug
 def sepa_einzug_kontext(request, e):
-    return {"abschnitte": [abschnitt(request, "Positionen", e.positionen.all(),
+    return {"abschnitte": [abschnitt(request, gettext("Positionen"), e.positionen.all(),
                                      ("mitglied", "rechnung", "betrag", "sequenztyp"))]}
 
 
 def sepa_einzuege_listen_aktionen(request):
     a = []
     if request.rechte.darf("zahlungen", "add"):
-        a.append(knopf("Neuen Einzug erstellen", reverse("sepa_einzug_neu"), stil="success"))
+        a.append(knopf(gettext_lazy("Neuen Einzug erstellen"), reverse("sepa_einzug_neu"), stil="success"))
     return a
 
 
@@ -507,22 +499,21 @@ def sepa_einzug_neu(request):
         try:
             faelligkeitsdatum = date.fromisoformat(request.POST.get("faelligkeitsdatum", ""))
         except ValueError:
-            messages.error(request, "Bitte ein gültiges Fälligkeitsdatum angeben.")
+            messages.error(request, gettext("Bitte ein gültiges Fälligkeitsdatum angeben."))
             return redirect("sepa_einzug_neu")
         ids = [int(pk) for pk in request.POST.getlist("rechnungen") if pk.isdigit()]
         if not ids:
-            messages.error(request, "Bitte mindestens eine Rechnung auswählen.")
+            messages.error(request, gettext("Bitte mindestens eine Rechnung auswählen."))
             return redirect("sepa_einzug_neu")
         try:
             e = sepa.einzug_erstellen(v, faelligkeitsdatum, ids)
         except ValueError as ex:
             messages.error(request, str(ex))
             return redirect("sepa_einzug_neu")
-        messages.success(request, f"SEPA-Einzug {e.nummer} mit {e.anzahl} Lastschrift(en) über {geld(e.summe)} "
-                                  "erstellt.")
+        messages.success(request, gettext("SEPA-Einzug %(nummer)s mit %(anzahl)s Lastschrift(en) über %(betrag)s erstellt.") % {"nummer": e.nummer, "anzahl": e.anzahl, "betrag": geld(e.summe)})
         return redirect("sepaeinzug_detail", pk=e.pk)
     zeilen = [{"r": r, "sequenztyp": "RCUR" if r.mitglied_id in bereits_eingezogen else "FRST"} for r in rechnungen]
     return render(request, "finance/sepa_einzug_neu.html", {
-        "titel": "Neuen SEPA-Einzug erstellen", "zeilen": zeilen,
+        "titel": gettext("Neuen SEPA-Einzug erstellen"), "zeilen": zeilen,
         "vorschlag_datum": date.today() + timedelta(days=6),
         "verein_unvollstaendig": not (v.iban and v.glaeubiger_id)})

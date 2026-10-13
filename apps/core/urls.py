@@ -4,12 +4,13 @@ from . import benutzer_sicherheit, hilfe, matrix_views, sicherung_views, views, 
 from .crud import abschnitt, crud
 from .forms import RolleForm, ZugangForm
 from .models import AuditLog, Rolle, Zugang
+from django.utils.translation import gettext, gettext_lazy
 
 
 def audit_kontext(request, obj):
     zeilen = [{"zellen": [feld, a if a is not None else "–", n if n is not None else "–"]}
               for feld, (a, n) in (obj.aenderungen or {}).items()]
-    return {"abschnitte": [{"titel": "Änderungen", "spalten": ["Feld", "Vorher", "Nachher"], "zeilen": zeilen,
+    return {"abschnitte": [{"titel": gettext("Änderungen"), "spalten": [gettext("Feld"), gettext("Vorher"), gettext("Nachher")], "zeilen": zeilen,
                             "add_url": None}]}
 
 
@@ -59,10 +60,8 @@ urlpatterns += crud("protokoll", AuditLog, "audit", add=False, edit=False, delet
                     suche=("objekt_repr", "user_name", "modell"), filter=("modell", "objekt_id", "aktion"),
                     ordering=("-zeit",), kontext=audit_kontext, detail_ausblenden=("aenderungen",))
 urlpatterns += crud("rollen", Rolle, "verwaltung", form=RolleForm, list_display=("name", "ist_superadmin",
-                    ("anzahl_rechte", "Anzahl Rechte")), ordering=("name",), zeilen_bearbeiten=True,
-                    hinweis="Für Fortgeschrittene / technische Betreuung: Rechte lassen sich für die meisten "
-                            "Fälle einfacher über Tags vergeben (Verwaltung › Funktionen: Tags – dort auch mit "
-                            "oder ohne eigene Rechte neu anlegbar) oder in der Berechtigungsmatrix anpassen.")
+                    ("anzahl_rechte", gettext_lazy("Anzahl Rechte"))), ordering=("name",), zeilen_bearbeiten=True,
+                    hinweis=gettext_lazy("Für Fortgeschrittene / technische Betreuung: Rechte lassen sich für die meisten Fälle einfacher über Tags vergeben (Verwaltung › Funktionen: Tags – dort auch mit oder ohne eigene Rechte neu anlegbar) oder in der Berechtigungsmatrix anpassen."))
 urlpatterns += crud("benutzer", Zugang, "verwaltung", form=ZugangForm,
-                    list_display=(("user", "Benutzer"), "rolle", "aktiv"), select_related=("user", "rolle"),
+                    list_display=(("user", gettext_lazy("Benutzer")), "rolle", "aktiv"), select_related=("user", "rolle"),
                     detail_ausblenden=("extra_rechte",), kontext=benutzer_kontext, zeilen_bearbeiten=True)

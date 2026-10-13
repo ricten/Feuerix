@@ -14,18 +14,16 @@ from apps.donations.models import Spende
 from apps.members.models import Mitglied
 
 from .models import Aufwandsentschaedigung, freibetrag_stand
+from django.utils.translation import gettext_lazy
 
 
 def nach_speichern(request, obj, neu):
     if obj.ist_pauschale and obj.status in ("genehmigt", "ausgezahlt"):
         summe, grenze = freibetrag_stand(request.verein, obj.empfaenger, obj.datum.year)[obj.art]
         if summe > grenze:
-            messages.warning(request, f"Achtung: Mit dieser Zahlung liegt die Summe {obj.datum.year} für "
-                                      f"{obj.empfaenger.name} bei {geld(summe)} und überschreitet den Freibetrag von "
-                                      f"{geld(grenze)}. Der übersteigende Betrag kann steuer- und "
-                                      "sozialversicherungspflichtig sein.")
+            messages.warning(request, _("Achtung: Mit dieser Zahlung liegt die Summe %(year)s für %(name)s bei %(betrag)s und überschreitet den Freibetrag von %(betrag_)s. Der übersteigende Betrag kann steuer- und sozialversicherungspflichtig sein.") % {"year": obj.datum.year, "name": obj.empfaenger.name, "betrag": geld(summe), "betrag_": geld(grenze)})
     if obj.ist_pauschale and not obj.freibetrag_erklaerung:
-        messages.info(request, "Hinweis: Es liegt noch keine Erklärung des Empfängers zur Freibetragsnutzung vor.")
+        messages.info(request, _("Hinweis: Es liegt noch keine Erklärung des Empfängers zur Freibetragsnutzung vor."))
 
 
 def aufwand_kontext(request, a):
@@ -33,26 +31,25 @@ def aufwand_kontext(request, a):
     rt = request.rechte
     if a.ist_pauschale:
         summe, grenze = freibetrag_stand(request.verein, a.empfaenger, a.datum.year)[a.art]
-        hinweise.append(f"Stand {a.datum.year} für {a.empfaenger.name}: {geld(summe)} von {geld(grenze)} Freibetrag "
-                        f"({a.get_art_display().split(' (')[0]}).")
+        hinweise.append(_("Stand %(year)s für %(name)s: %(betrag)s von %(betrag_)s Freibetrag (%(wert4)s).") % {"year": a.datum.year, "name": a.empfaenger.name, "betrag": geld(summe), "betrag_": geld(grenze), "wert4": a.get_art_display().split(' (')[0]})
     if rt.darf("aufwand", "change") and a.status == "beantragt":
-        aktionen.append(knopf("Genehmigen", reverse("aufwand_status", args=[a.pk]), post=True, stil="success",
+        aktionen.append(knopf(gettext_lazy("Genehmigen"), reverse("aufwand_status", args=[a.pk]), post=True, stil="success",
                               felder={"status": "genehmigt"}))
-        aktionen.append(knopf("Ablehnen", reverse("aufwand_status", args=[a.pk]), post=True, stil="outline-danger",
+        aktionen.append(knopf(gettext_lazy("Ablehnen"), reverse("aufwand_status", args=[a.pk]), post=True, stil="outline-danger",
                               felder={"status": "abgelehnt"}))
     if rt.darf("aufwand", "change") and a.status == "genehmigt":
-        aktionen.append(knopf("Als ausgezahlt markieren", reverse("aufwand_status", args=[a.pk]), post=True,
+        aktionen.append(knopf(gettext_lazy("Als ausgezahlt markieren"), reverse("aufwand_status", args=[a.pk]), post=True,
                               stil="primary", felder={"status": "ausgezahlt"}))
     if (rt.darf("aufwand", "change") and rt.darf("spenden", "add") and a.status == "genehmigt"
             and a.art == "aufwandsersatz"):
-        aktionen.append(knopf("Verzicht → Aufwandsspende", reverse("aufwand_verzicht", args=[a.pk]), post=True,
+        aktionen.append(knopf(gettext_lazy("Verzicht → Aufwandsspende"), reverse("aufwand_verzicht", args=[a.pk]), post=True,
                               stil="outline-secondary",
-                              bestaetigung="Empfänger verzichtet auf die Erstattung? Es wird eine Spende angelegt."))
+                              bestaetigung=_("Empfänger verzichtet auf die Erstattung? Es wird eine Spende angelegt.")))
     return {"aktionen": aktionen, "hinweise": hinweise}
 
 
 def listen_aktionen(request):
-    return [knopf("Jahresübersicht Freibeträge", reverse("aufwand_uebersicht"), stil="primary")]
+    return [knopf(gettext_lazy("Jahresübersicht Freibeträge"), reverse("aufwand_uebersicht"), stil="primary")]
 
 
 @login_required
@@ -86,7 +83,7 @@ def aufwand_verzicht(request, pk):
                           bemerkung="Verzicht auf genehmigten Aufwandsersatz")
     a.status = "verzichtet"
     a.save()
-    messages.success(request, "Aufwandsspende angelegt – eine Spendenquittung kann nun erstellt werden.")
+    messages.success(request, _("Aufwandsspende angelegt – eine Spendenquittung kann nun erstellt werden."))
     return redirect("aufwandsentschaedigung_detail", pk=a.pk)
 
 

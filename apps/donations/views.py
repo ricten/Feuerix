@@ -15,6 +15,8 @@ from apps.core.util import geld
 from . import services
 from .models import Spende, Zuwendungsbestaetigung
 from .pdf import zuwendungsbestaetigung_pdf
+from django.utils.translation import gettext, gettext_lazy
+from django.utils.text import format_lazy
 
 
 def _pruefen(request, aktion):
@@ -38,17 +40,17 @@ def bescheid_warnungen(v):
 def spende_kontext(request, s):
     aktionen = []
     if s.bestaetigung_id is None and request.rechte.darf("spenden", "add"):
-        aktionen.append(knopf("Einzelbestätigung erstellen", reverse("spende_einzelbestaetigung", args=[s.pk]),
+        aktionen.append(knopf(gettext_lazy("Einzelbestätigung erstellen"), reverse("spende_einzelbestaetigung", args=[s.pk]),
                               post=True, stil="primary"))
     if s.bestaetigung_id:
-        aktionen.append(knopf(f"Zur Bestätigung {s.bestaetigung}", reverse("zuwendungsbestaetigung_detail",
+        aktionen.append(knopf(format_lazy(gettext_lazy("Zur Bestätigung {bestaetigung}"), bestaetigung=s.bestaetigung), reverse("zuwendungsbestaetigung_detail",
                                                                             args=[s.bestaetigung_id])))
     return {"aktionen": aktionen}
 
 
 def spenden_listen_aktionen(request):
     if request.rechte.darf("spenden", "add"):
-        return [knopf("Sammelbestätigungen erstellen", reverse("quittung_sammel"), stil="primary")]
+        return [knopf(gettext_lazy("Sammelbestätigungen erstellen"), reverse("quittung_sammel"), stil="primary")]
     return []
 
 
@@ -58,7 +60,7 @@ def spende_einzelbestaetigung(request, pk):
     _pruefen(request, "add")
     s = get_object_or_404(Spende, pk=pk, verein=request.verein, bestaetigung__isnull=True)
     b = services.einzelbestaetigung(request.verein, s)
-    messages.success(request, "Entwurf erstellt. Bitte prüfen und ausstellen.")
+    messages.success(request, gettext("Entwurf erstellt. Bitte prüfen und ausstellen."))
     return redirect("zuwendungsbestaetigung_detail", pk=b.pk)
 
 
@@ -71,11 +73,11 @@ def quittung_sammel(request):
         jahr = date.today().year - 1
     if request.method == "POST":
         erstellt = services.sammelbestaetigungen(request.verein, jahr)
-        messages.success(request, f"{len(erstellt)} Sammelbestätigungen als Entwurf erstellt.")
+        messages.success(request, gettext("%(anzahl)s Sammelbestätigungen als Entwurf erstellt.") % {"anzahl": len(erstellt)})
         return redirect(reverse("zuwendungsbestaetigung_list") + "?status=entwurf")
     gruppen = services.offene_gruppen(request.verein, jahr)
     zeilen = [(g[0].name_des_spenders, len(g), geld(sum(s.betrag for s in g))) for g in gruppen]
-    return render(request, "donations/quittung_sammel.html", {"titel": "Sammelbestätigungen", "jahr": jahr,
+    return render(request, "donations/quittung_sammel.html", {"titel": gettext("Sammelbestätigungen"), "jahr": jahr,
                                                               "zeilen": zeilen})
 
 
@@ -83,14 +85,14 @@ def bestaetigung_kontext(request, b):
     aktionen, rt = [knopf("PDF", reverse("zuwendungsbestaetigung_pdf", args=[b.pk]), stil="primary")], request.rechte
     if rt.darf("spenden", "change"):
         if b.status == "entwurf":
-            aktionen.append(knopf("Ausstellen (Nummer vergeben, fixieren)",
+            aktionen.append(knopf(gettext_lazy("Ausstellen (Nummer vergeben, fixieren)"),
                                   reverse("zuwendungsbestaetigung_ausstellen", args=[b.pk]), post=True, stil="success",
-                                  bestaetigung="Bestätigung ausstellen? Sie ist danach nicht mehr änderbar."))
+                                  bestaetigung=gettext("Bestätigung ausstellen? Sie ist danach nicht mehr änderbar.")))
         if b.status == "ausgestellt":
-            aktionen.append(knopf("Stornieren", reverse("zuwendungsbestaetigung_stornieren", args=[b.pk]), post=True,
-                                  stil="outline-danger", bestaetigung="Bestätigung stornieren? Die Spenden werden wieder freigegeben."))
+            aktionen.append(knopf(gettext_lazy("Stornieren"), reverse("zuwendungsbestaetigung_stornieren", args=[b.pk]), post=True,
+                                  stil="outline-danger", bestaetigung=gettext("Bestätigung stornieren? Die Spenden werden wieder freigegeben.")))
     return {"aktionen": aktionen, "hinweise": bescheid_warnungen(request.verein) if b.status == "entwurf" else [],
-            "abschnitte": [abschnitt(request, "Enthaltene Spenden", b.spenden.all(), ("datum", "art", "betrag"))],
+            "abschnitte": [abschnitt(request, gettext("Enthaltene Spenden"), b.spenden.all(), ("datum", "art", "betrag"))],
             "vorschau": pdf_vorschau(reverse("zuwendungsbestaetigung_pdf", args=[b.pk]))}
 
 
@@ -116,7 +118,7 @@ def bestaetigung_ausstellen(request, pk):
             auto.fertiges_dokument("zuwendung", b.pk, b.verein)
         except Exception:
             pass
-        messages.success(request, f"Bestätigung {b.nummer} ausgestellt.")
+        messages.success(request, gettext("Bestätigung %(nummer)s ausgestellt.") % {"nummer": b.nummer})
     return redirect("zuwendungsbestaetigung_detail", pk=b.pk)
 
 
@@ -131,5 +133,5 @@ def bestaetigung_stornieren(request, pk):
         for s in b.spenden.all():
             s.bestaetigung = None
             s.save(update_fields=["bestaetigung", "geaendert"])
-        messages.success(request, "Storniert.")
+        messages.success(request, gettext("Storniert."))
     return redirect("zuwendungsbestaetigung_detail", pk=b.pk)

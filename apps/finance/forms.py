@@ -5,6 +5,7 @@ from django import forms
 from apps.core.forms import TenantModelForm, stilisieren_felder
 
 from .models import Rechnung, Rechnungsposition
+from django.utils.translation import gettext_lazy
 
 
 class RechnungForm(TenantModelForm):
@@ -32,7 +33,7 @@ class RechnungspositionForm(TenantModelForm):
 
 
 class FinTSPinForm(forms.Form):
-    pin = forms.CharField(label="Bank-PIN", widget=forms.PasswordInput(render_value=False))
+    pin = forms.CharField(label=gettext_lazy("Bank-PIN"), widget=forms.PasswordInput(render_value=False))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,7 +41,7 @@ class FinTSPinForm(forms.Form):
 
 
 class FinTSTanForm(forms.Form):
-    tan = forms.CharField(label="TAN", required=False)
+    tan = forms.CharField(label=gettext_lazy("TAN"), required=False)
 
     def __init__(self, *args, decoupled=False, **kwargs):
         super().__init__(*args, **kwargs)

@@ -5,6 +5,7 @@ from apps.events.models import Veranstaltung
 from apps.members.models import Mitglied
 
 from .models import Gegenstand, Verleih
+from django.utils.translation import gettext, gettext_lazy
 
 
 class VerleihForm(TenantModelForm):
@@ -23,21 +24,21 @@ class VerleihForm(TenantModelForm):
 
 class SammelverleihForm(forms.Form):
     """Mehrere Gegenstände in einem Vorgang an denselben Entleiher verleihen (statt Verleih für Verleih einzeln)."""
-    gegenstaende = forms.ModelMultipleChoiceField(queryset=Gegenstand.objects.none(), label="Gegenstände",
+    gegenstaende = forms.ModelMultipleChoiceField(queryset=Gegenstand.objects.none(), label=gettext_lazy("Gegenstände"),
                                                   widget=forms.CheckboxSelectMultiple)
-    entleiher = forms.ModelChoiceField(queryset=Mitglied.objects.none(), required=False, label="Entleiher (Mitglied)")
-    entleiher_name = forms.CharField(required=False, max_length=150, label="Entleiher (extern)")
-    entleiher_kontakt = forms.CharField(required=False, max_length=200, label="Kontakt (extern)")
+    entleiher = forms.ModelChoiceField(queryset=Mitglied.objects.none(), required=False, label=gettext_lazy("Entleiher (Mitglied)"))
+    entleiher_name = forms.CharField(required=False, max_length=150, label=gettext_lazy("Entleiher (extern)"))
+    entleiher_kontakt = forms.CharField(required=False, max_length=200, label=gettext_lazy("Kontakt (extern)"))
     entleiher_anschrift = forms.CharField(
-        required=False, label="Anschrift des Entleihers (manuell)",
-        help_text="Eine Zeile je Adresszeile - steht als Anschrift auf dem Leihschein (Vorrang vor Mitglied/Kontakt).",
+        required=False, label=gettext_lazy("Anschrift des Entleihers (manuell)"),
+        help_text=gettext_lazy("Eine Zeile je Adresszeile - steht als Anschrift auf dem Leihschein (Vorrang vor Mitglied/Kontakt)."),
         widget=forms.Textarea(attrs={"rows": 3, "placeholder": "Name\nStraße Nr.\nPLZ Ort"}))
     veranstaltung = forms.ModelChoiceField(queryset=Veranstaltung.objects.none(), required=False,
-                                           label="Für Veranstaltung")
-    von = forms.DateField(label="Von", widget=forms.DateInput(attrs={"type": "date"}))
-    bis = forms.DateField(label="Bis (geplante Rückgabe)", widget=forms.DateInput(attrs={"type": "date"}))
-    zweck = forms.CharField(required=False, max_length=200, label="Zweck")
-    notizen = forms.CharField(required=False, widget=forms.Textarea, label="Notizen")
+                                           label=gettext_lazy("Für Veranstaltung"))
+    von = forms.DateField(label=gettext_lazy("Von"), widget=forms.DateInput(attrs={"type": "date"}))
+    bis = forms.DateField(label=gettext_lazy("Bis (geplante Rückgabe)"), widget=forms.DateInput(attrs={"type": "date"}))
+    zweck = forms.CharField(required=False, max_length=200, label=gettext_lazy("Zweck"))
+    notizen = forms.CharField(required=False, widget=forms.Textarea, label=gettext_lazy("Notizen"))
 
     def __init__(self, *args, verein=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -51,9 +52,9 @@ class SammelverleihForm(forms.Form):
     def clean(self):
         cleaned = super().clean()
         if not cleaned.get("entleiher") and not cleaned.get("entleiher_name") and not cleaned.get("veranstaltung"):
-            raise forms.ValidationError("Bitte ein Mitglied, einen externen Entleiher oder eine Veranstaltung angeben.")
+            raise forms.ValidationError(gettext("Bitte ein Mitglied, einen externen Entleiher oder eine Veranstaltung angeben."))
         if cleaned.get("von") and cleaned.get("bis") and cleaned["bis"] < cleaned["von"]:
-            raise forms.ValidationError("Das Rückgabedatum liegt vor dem Beginn.")
+            raise forms.ValidationError(gettext("Das Rückgabedatum liegt vor dem Beginn."))
         if not cleaned.get("gegenstaende"):
-            raise forms.ValidationError("Bitte mindestens einen Gegenstand auswählen.")
+            raise forms.ValidationError(gettext("Bitte mindestens einen Gegenstand auswählen."))
         return cleaned

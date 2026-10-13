@@ -6,6 +6,8 @@ from apps.core.crud import crud, knopf
 from . import views
 from .forms import VerleihForm
 from .models import Gegenstand, Inventur, Kategorie, Lagerort, Verleih
+from django.utils.translation import gettext_lazy
+from django.utils.text import format_lazy
 
 urlpatterns = [
     path("verleih/<int:pk>/ausgeben/", views.verleih_ausgeben, name="verleih_ausgeben"),
@@ -44,7 +46,7 @@ def gegenstand_listen_aktionen(request):
     from django.urls import reverse
     a = []
     if request.rechte.darf("inventar", "view"):
-        a.append(knopf("Etiketten drucken (alle)", reverse("gegenstand_etiketten")))
+        a.append(knopf(gettext_lazy("Etiketten drucken (alle)"), reverse("gegenstand_etiketten")))
     return a
 
 
@@ -52,10 +54,10 @@ def verleih_listen_aktionen(request):
     from django.urls import reverse
     a = []
     if request.rechte.darf("verleih", "add"):
-        a.append(knopf("Mehrere Gegenstände verleihen", reverse("verleih_sammel_add"), stil="outline-primary"))
+        a.append(knopf(gettext_lazy("Mehrere Gegenstände verleihen"), reverse("verleih_sammel_add"), stil="outline-primary"))
         korb = request.session.get(f"verleih_warenkorb_{request.verein.pk}", []) if request.verein else []
         if korb:
-            a.append(knopf(f"Warenkorb ({len(korb)})", reverse("verleih_warenkorb")))
+            a.append(knopf(format_lazy(gettext_lazy("Warenkorb ({anzahl})"), anzahl=len(korb)), reverse("verleih_warenkorb")))
     return a
 
 
@@ -80,8 +82,8 @@ def verleih_zeilen_url(v):
 
 
 urlpatterns += crud("verleih", Verleih, "verleih", form=VerleihForm, gruppiert=verleih_gruppieren,
-                    zeilen_url=verleih_zeilen_url, list_display=(("uebersicht_gegenstand", "Gegenstand / Vorgang"),
-                    ("wer", "Entleiher"), "von", "bis", ("uebersicht_status", "Status"), "veranstaltung"), select_related=("gegenstand", "entleiher", "veranstaltung"),
+                    zeilen_url=verleih_zeilen_url, list_display=(("uebersicht_gegenstand", gettext_lazy("Gegenstand / Vorgang")),
+                    ("wer", gettext_lazy("Entleiher")), "von", "bis", ("uebersicht_status", gettext_lazy("Status")), "veranstaltung"), select_related=("gegenstand", "entleiher", "veranstaltung"),
                     filter=("status", "gegenstand", "entleiher", "veranstaltung"), kontext=views.verleih_kontext,
                     suche=("gegenstand__bezeichnung", "gegenstand__inventarnummer", "entleiher_name",
                            "entleiher__nachname"), ordering=("-von",),

@@ -9,6 +9,7 @@ from apps.core.forms import TenantModelForm
 from . import richtext
 from .models import Ablagedokument, Schriftstueck, Serienbrief, Vorlage
 from .platzhalter import OPENSLIDES_PLATZHALTER, PLATZHALTER
+from django.utils.translation import gettext
 
 
 class _TextMixin:
@@ -50,7 +51,7 @@ class VorlageFuellen(_TextMixin):
             if not d.get("betreff"):
                 d["betreff"] = v.betreff
         if not d.get("text"):
-            self.add_error("text", "Bitte einen Text eingeben oder eine Vorlage wählen.")
+            self.add_error("text", gettext("Bitte einen Text eingeben oder eine Vorlage wählen."))
         return d
 
 

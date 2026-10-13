@@ -14,6 +14,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from .models import Mitglied
+from django.utils.translation import gettext
 
 SELBSTDIENST_FELDER = ("strasse", "plz", "ort", "email", "telefon", "mobil", "zahlungsart", "kontoinhaber", "iban",
                        "bic")
@@ -67,10 +68,10 @@ def mein_konto(request):
     form = SelbstdienstForm(request.POST or None, instance=m)
     if request.method == "POST" and form.is_valid():
         form.save()
-        messages.success(request, "Ihre Daten wurden gespeichert.")
+        messages.success(request, gettext("Ihre Daten wurden gespeichert."))
         return redirect("mein_konto")
     return render(request, "core/formular.html", {
-        "form": form, "titel": "Meine Daten", "abbrechen_url": reverse("mein_konto")})
+        "form": form, "titel": gettext("Meine Daten"), "abbrechen_url": reverse("mein_konto")})
 
 
 @login_required
@@ -80,7 +81,7 @@ def zugang_einrichten(request, pk):
         raise PermissionDenied
     m = get_object_or_404(Mitglied, pk=pk, verein=request.verein)
     if not m.email:
-        messages.error(request, "Für die Selbstdatenpflege wird eine E-Mail-Adresse des Mitglieds benötigt.")
+        messages.error(request, gettext("Für die Selbstdatenpflege wird eine E-Mail-Adresse des Mitglieds benötigt."))
         return redirect("mitglied_detail", pk=m.pk)
     User = get_user_model()
     passwort = _passwort()
@@ -89,7 +90,7 @@ def zugang_einrichten(request, pk):
         benutzer.is_active = True
     else:
         if User.objects.filter(username=m.email).exists():
-            messages.error(request, "Diese E-Mail-Adresse ist bereits einem Benutzerkonto zugeordnet.")
+            messages.error(request, gettext("Diese E-Mail-Adresse ist bereits einem Benutzerkonto zugeordnet."))
             return redirect("mitglied_detail", pk=m.pk)
         benutzer = User(username=m.email, email=m.email, first_name=m.vorname, last_name=m.nachname)
     benutzer.set_password(passwort)
@@ -99,7 +100,7 @@ def zugang_einrichten(request, pk):
     m.save(update_fields=["benutzer", "selbstdienst_initialpasswort", "geaendert"])
     _zugangsdaten_mailen(request, m, passwort)
     _protokoll(request, m, "Zugangsdaten für Selbstdatenpflege versendet")
-    messages.success(request, f"Zugangsdaten an {m.email} gesendet.")
+    messages.success(request, gettext("Zugangsdaten an %(email)s gesendet.") % {"email": m.email})
     return redirect("mitglied_detail", pk=m.pk)
 
 
@@ -113,7 +114,7 @@ def zugang_sperren(request, pk):
         m.benutzer.is_active = False
         m.benutzer.save(update_fields=["is_active"])
         _protokoll(request, m, "Zugang zur Selbstdatenpflege gesperrt")
-        messages.success(request, "Zugang gesperrt.")
+        messages.success(request, gettext("Zugang gesperrt."))
     return redirect("mitglied_detail", pk=m.pk)
 
 
@@ -125,5 +126,5 @@ def startpasswort_loeschen(request, pk):
     m = get_object_or_404(Mitglied, pk=pk, verein=request.verein)
     m.selbstdienst_initialpasswort = ""
     m.save(update_fields=["selbstdienst_initialpasswort", "geaendert"])
-    messages.success(request, "Gespeichertes Startpasswort gelöscht.")
+    messages.success(request, gettext("Gespeichertes Startpasswort gelöscht."))
     return redirect("mitglied_detail", pk=m.pk)

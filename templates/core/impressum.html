@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% block content %}
 <div class="row justify-content-center"><div class="col-lg-7">
-<h3 class="mb-3">Impressum</h3>
+<h3 class="mb-3">{% trans "Impressum" %}</h3>
 <div class="card shadow-sm"><div class="card-body">
   <h5>{{ verein.name }}</h5>
   {% if verein.anschrift or verein.plz or verein.ort %}
@@ -17,7 +18,7 @@
     <div style="white-space: pre-line;">{{ verein.impressum_text }}</div>
   {% else %}
     <hr>
-    <p class="text-muted mb-0">Für diesen Verein wurde noch kein vollständiges Impressum hinterlegt.</p>
+    <p class="text-muted mb-0">{% trans "Für diesen Verein wurde noch kein vollständiges Impressum hinterlegt." %}</p>
   {% endif %}
 </div></div>
 </div></div>

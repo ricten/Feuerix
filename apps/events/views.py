@@ -21,6 +21,8 @@ from apps.core.util import geld
 from .models import Anmeldung, Aufgabe, Schicht, Schichteinsatz, Tagesordnungspunkt, Veranstaltung
 from .helfer import finde_mitglied
 from .pdf import schichtplan_pdf
+from django.utils.text import format_lazy
+from django.utils.translation import gettext_lazy
 
 STANDARD_TOP = [
     ("Begrüßung und Feststellung der ordnungsgemäßen Einladung und Beschlussfähigkeit", ""),
@@ -57,7 +59,7 @@ def packlisten_knoepfe(v):
         gesehen.add(schluessel)
         ziele.append((p, reverse("verleih_vorgang_packliste", args=[p.vorgang]) if p.vorgang
                       else reverse("verleih_packliste", args=[p.pk])))
-    return [knopf("Packliste drucken (PDF)" if len(ziele) == 1 else f"Packliste: {p.wer}", url, stil="outline-primary")
+    return [knopf(gettext_lazy("Packliste drucken (PDF)") if len(ziele) == 1 else format_lazy(gettext_lazy("Packliste: {wer}"), wer=p.wer), url, stil="outline-primary")
             for p, url in ziele[:4]]
 
 
@@ -65,58 +67,57 @@ def veranstaltung_kontext(request, v):
     r = request.rechte
     aktionen = []
     if r.darf("verleih", "add"):
-        aktionen.append(knopf("Inventar reservieren", reverse("verleih_sammel_add") + f"?veranstaltung={v.pk}"
+        aktionen.append(knopf(gettext_lazy("Inventar reservieren"), reverse("verleih_sammel_add") + f"?veranstaltung={v.pk}"
                               f"&von={timezone.localtime(v.beginn):%Y-%m-%d}"
                               f"&bis={timezone.localtime(v.ende or v.beginn):%Y-%m-%d}"))
     if r.darf("veranstaltungen", "view") and v.schichten.exists():
-        aktionen.append(knopf("Schichtplan drucken (PDF)", reverse("veranstaltung_schichtplan_pdf", args=[v.pk]),
+        aktionen.append(knopf(gettext_lazy("Schichtplan drucken (PDF)"), reverse("veranstaltung_schichtplan_pdf", args=[v.pk]),
                               stil="outline-primary"))
     if v.helfer_eintragung and v.schichten.exists() and r.darf("veranstaltungen", "change"):
-        aktionen.append(knopf("Alle Schichten für Selbsteintrag freigeben", reverse("veranstaltung_schichten_freigabe",
+        aktionen.append(knopf(gettext_lazy("Alle Schichten für Selbsteintrag freigeben"), reverse("veranstaltung_schichten_freigabe",
                               args=[v.pk, "alle"]), post=True, stil="outline-secondary"))
-        aktionen.append(knopf("Alle Schichten für Selbsteintrag sperren", reverse("veranstaltung_schichten_freigabe",
+        aktionen.append(knopf(gettext_lazy("Alle Schichten für Selbsteintrag sperren"), reverse("veranstaltung_schichten_freigabe",
                               args=[v.pk, "keine"]), post=True, stil="outline-secondary",
-                              bestaetigung="Alle Schichten für den Selbsteintrag sperren? Bereits eingetragene Helfer bleiben."))
+                              bestaetigung=_("Alle Schichten für den Selbsteintrag sperren? Bereits eingetragene Helfer bleiben.")))
     if r.darf("verleih", "view"):   # Packliste(n) des zur Veranstaltung verliehenen/reservierten Inventars
         aktionen += packlisten_knoepfe(v)
     if r.darf("schriftverkehr", "add"):
-        aktionen.append(knopf("Einladung erstellen", reverse("veranstaltung_schriftstueck", args=[v.pk, "einladung"]),
+        aktionen.append(knopf(gettext_lazy("Einladung erstellen"), reverse("veranstaltung_schriftstueck", args=[v.pk, "einladung"]),
                               post=True, stil="primary"))
-        aktionen.append(knopf("Einladung an Mitglieder (Serienbrief)",
+        aktionen.append(knopf(gettext_lazy("Einladung an Mitglieder (Serienbrief)"),
                               reverse("veranstaltung_schriftstueck", args=[v.pk, "serienbrief"]), post=True))
-        aktionen.append(knopf("Protokoll erstellen", reverse("veranstaltung_schriftstueck", args=[v.pk, "protokoll"]),
+        aktionen.append(knopf(gettext_lazy("Protokoll erstellen"), reverse("veranstaltung_schriftstueck", args=[v.pk, "protokoll"]),
                               post=True))
     if r.darf("veranstaltungen", "change") and v.hat_tagesordnung and not v.tagesordnung.exists():
-        aktionen.append(knopf("Standard-Tagesordnung (Mitgliederversammlung)", reverse("tagesordnung_standard", args=[v.pk]),
+        aktionen.append(knopf(gettext_lazy("Standard-Tagesordnung (Mitgliederversammlung)"), reverse("tagesordnung_standard", args=[v.pk]),
                               post=True, stil="outline-secondary"))
     if r.darf("openslides", "change") and (v.hat_tagesordnung or v.openslides_meeting_id):
         if anbindungen(request).openslides:
-            aktionen.append(knopf("Tagesordnung nach OpenSlides übertragen" if v.openslides_meeting_id
-                                  else "In OpenSlides anlegen", reverse("veranstaltung_openslides", args=[v.pk]), post=True,
+            aktionen.append(knopf(gettext_lazy("Tagesordnung nach OpenSlides übertragen") if v.openslides_meeting_id
+                                  else gettext_lazy("In OpenSlides anlegen"), reverse("veranstaltung_openslides", args=[v.pk]), post=True,
                                   stil="outline-success"))
             if v.openslides_meeting_id:
-                aktionen.append(knopf("Anwesenheit, Wahlen und Abstimmungen aus OpenSlides übernehmen",
+                aktionen.append(knopf(gettext_lazy("Anwesenheit, Wahlen und Abstimmungen aus OpenSlides übernehmen"),
                                       reverse("veranstaltung_wahlergebnisse", args=[v.pk]), post=True,
                                       stil="outline-success",
-                                      bestaetigung="Anwesenheit, Wahlen und Abstimmungen aus OpenSlides abrufen? Zuvor übernommene "
-                                                   "Ergebnisse dieser Veranstaltung werden dabei ersetzt."))
+                                      bestaetigung=_("Anwesenheit, Wahlen und Abstimmungen aus OpenSlides abrufen? Zuvor übernommene Ergebnisse dieser Veranstaltung werden dabei ersetzt.")))
     s = v.summen()
     hinweise = []
     # Weitergabe-Links: eigene Karte unter den Angaben (nicht mehr als Hinweiskasten ganz oben)
     links = []
     if v.anmeldung_erforderlich:
-        links.append({"label": "Rückmeldung (Zu-/Absage)", "url": request.build_absolute_uri(
+        links.append({"label": _("Rückmeldung (Zu-/Absage)"), "url": request.build_absolute_uri(
             reverse("veranstaltung_rueckmeldung", args=[v.rueckmeldung_code]))})
     if v.helfer_eintragung:
-        links.append({"label": "Helfer-Selbsteintrag in Schichten", "url": request.build_absolute_uri(
+        links.append({"label": _("Helfer-Selbsteintrag in Schichten"), "url": request.build_absolute_uri(
             reverse("veranstaltung_helfer", args=[v.rueckmeldung_code]))})
-    ab = [abschnitt(request, "Aufgaben", v.aufgaben.all(), ("titel", "zustaendig", "faellig", "status"),
+    ab = [abschnitt(request, _("Aufgaben"), v.aufgaben.all(), ("titel", "zustaendig", "faellig", "status"),
                     "aufgabe_add", {"veranstaltung": v.pk}),
-          abschnitt(request, "Schichtplan", v.schichten.all(),
+          abschnitt(request, _("Schichtplan"), v.schichten.all(),
                     ("bezeichnung", "beginn", "ende", ("besetzung", "Besetzung"), ("helfer", "Helfer"))
                     + ((("selbsteintrag", "Selbsteintrag"),) if v.helfer_eintragung else ()),
                     "schicht_add", {"veranstaltung": v.pk}),
-          abschnitt(request, "Budget", v.kosten.all(), ("art", "bezeichnung", "plan_betrag", "ist_betrag"),
+          abschnitt(request, _("Budget"), v.kosten.all(), ("art", "bezeichnung", "plan_betrag", "ist_betrag"),
                     "kostenposition_add", {"veranstaltung": v.pk})]
     # Zusammenfassungen gehoeren unter ihre Tabelle (Fusszeile des Abschnitts)
     offene_schichten = [sc for sc in v.schichten.all() if sc.einsaetze.count() < sc.benoetigt]
@@ -133,10 +134,10 @@ def veranstaltung_kontext(request, v):
                          f"Ergebnis {geld(s['ist_ein'] - s['ist_aus'])}"]
     top_spalten = ("position", "titel") + (("openslides_topic_id",) if anbindungen(request).openslides else ())
     if v.hat_tagesordnung:   # nur bei Versammlungen/Sitzungen (oder wenn schon Punkte erfasst sind)
-        ab.insert(0, abschnitt(request, "Tagesordnung", v.tagesordnung.all(), top_spalten,
+        ab.insert(0, abschnitt(request, _("Tagesordnung"), v.tagesordnung.all(), top_spalten,
                                "tagesordnungspunkt_add", {"veranstaltung": v.pk, "position": naechste_top_position(v)}))
     if r.darf("teilnehmer", "view"):
-        anmeldungen = abschnitt(request, "Anmeldungen", v.anmeldungen.all(), (("wer", "Name"), "personen", "status"),
+        anmeldungen = abschnitt(request, _("Anmeldungen"), v.anmeldungen.all(), (("wer", "Name"), "personen", "status"),
                                 "anmeldung_add", {"veranstaltung": v.pk})
         if v.anmeldungen.exists():
             zugesagt = sum(a.personen for a in v.anmeldungen.filter(status="zugesagt"))
@@ -144,27 +145,27 @@ def veranstaltung_kontext(request, v):
                                                                         if v.erwartete_teilnehmer else "")]
         ab.insert(2 if v.hat_tagesordnung else 1, anmeldungen)   # nach den Aufgaben
     if r.darf("teilnehmer", "view") and v.anwesenheiten.exists():
-        ab.append(abschnitt(request, "Anwesenheit (aus OpenSlides)", v.anwesenheiten.select_related("mitglied"),
+        ab.append(abschnitt(request, _("Anwesenheit (aus OpenSlides)"), v.anwesenheiten.select_related("mitglied"),
                             (("wer", "Name"),)))
     if v.wahlergebnisse.filter(art="abstimmung").exists():
-        ab.append(abschnitt(request, "Abstimmungen (aus OpenSlides)", v.wahlergebnisse.filter(art="abstimmung"),
+        ab.append(abschnitt(request, _("Abstimmungen (aus OpenSlides)"), v.wahlergebnisse.filter(art="abstimmung"),
                             ("amt", "wahlgang")))
     if v.wahlergebnisse.filter(art="wahl").exists():
-        ab.append(abschnitt(request, "Wahlergebnisse (aus OpenSlides)", v.wahlergebnisse.filter(art="wahl"),
+        ab.append(abschnitt(request, _("Wahlergebnisse (aus OpenSlides)"), v.wahlergebnisse.filter(art="wahl"),
                             ("amt", "wahlgang")))
     if r.darf("verleih", "view"):
-        ab.append(abschnitt(request, "Reserviertes Inventar", v.verleihe.all(), ("gegenstand", "von", "bis", "status")))
+        ab.append(abschnitt(request, _("Reserviertes Inventar"), v.verleihe.all(), ("gegenstand", "von", "bis", "status")))
     if r.darf("schriftverkehr", "view"):
-        ab.append(abschnitt(request, "Schriftstücke (Einladung, Protokoll …)", v.schriftstuecke.all(),
+        ab.append(abschnitt(request, _("Schriftstücke (Einladung, Protokoll …)"), v.schriftstuecke.all(),
                             ("datum", "titel", "art", "status")))
     if r.darf("rundschreiben", "view"):
-        ab.append(abschnitt(request, "Serienbriefe", v.serienbriefe.all(), ("datum", "titel", "versendet_am")))
+        ab.append(abschnitt(request, _("Serienbriefe"), v.serienbriefe.all(), ("datum", "titel", "versendet_am")))
     if r.darf("ablage", "view"):
-        ab.append(abschnitt(request, "Ablage zu dieser Veranstaltung", v.ablage.all(),
+        ab.append(abschnitt(request, _("Ablage zu dieser Veranstaltung"), v.ablage.all(),
                             ("datum", "titel", "kategorie", "version"), "ablagedokument_add",
                             {"veranstaltung": v.pk, "kategorie": "protokoll"}))
     if v.openslides_meeting_id and anbindungen(request).openslides:
-        hinweise.append(f"OpenSlides-Versammlung Nr. {v.openslides_meeting_id} ist verknüpft.")
+        hinweise.append(_("OpenSlides-Versammlung Nr. %(openslides_meeting_id)s ist verknüpft.") % {"openslides_meeting_id": v.openslides_meeting_id})
     return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": ab, "links": links}
 
 
@@ -204,14 +205,14 @@ def tagesordnung_standard(request, pk):
         for i, (titel, text) in enumerate(STANDARD_TOP, 1):
             Tagesordnungspunkt.objects.create(verein=request.verein, veranstaltung=v, position=i, titel=titel,
                                               beschreibung=text)
-        messages.success(request, "Standard-Tagesordnung angelegt – bitte anpassen.")
+        messages.success(request, _("Standard-Tagesordnung angelegt – bitte anpassen."))
     return redirect("veranstaltung_detail", pk=v.pk)
 
 
 def schicht_kontext(request, s):
     """Detailseite einer Schicht: alle Eingeteilten (Mitglieder und Gaeste, mit Kontakt) und die freien Plaetze."""
-    hinweise = [f"{s.freie_plaetze} von {s.benoetigt} Plätzen noch frei."] if s.freie_plaetze else []
-    return {"aktionen": [knopf("Schichtplan der Veranstaltung drucken (PDF)",
+    hinweise = [_("%(freie_plaetze)s von %(benoetigt)s Plätzen noch frei.") % {"freie_plaetze": s.freie_plaetze, "benoetigt": s.benoetigt}] if s.freie_plaetze else []
+    return {"aktionen": [knopf(gettext_lazy("Schichtplan der Veranstaltung drucken (PDF)"),
                                reverse("veranstaltung_schichtplan_pdf", args=[s.veranstaltung_id]), stil="outline-primary")],
             "hinweise": hinweise,
             "abschnitte": [_helfer_abschnitt(request, s)]}
@@ -222,7 +223,7 @@ def _helfer_abschnitt(request, s):
     wurde) sieht nur, wer Mitgliederdaten sehen darf."""
     mit_kontakt = request.rechte.darf("mitglieder", "view")
     darf_loeschen = request.rechte.darf("veranstaltungen", "delete")
-    abschnitt_ = abschnitt(request, "Eingeteilte Helfer", s.einsaetze.none(), ("id",), "schichteinsatz_add",
+    abschnitt_ = abschnitt(request, _("Eingeteilte Helfer"), s.einsaetze.none(), ("id",), "schichteinsatz_add",
                            {"schicht": s.pk, "next": request.get_full_path()})
     abschnitt_["spalten"] = ["Helfer", ""] + ["Zuordnung", "Kontakt", "Bemerkung", "Selbst eingetragen"]
     csrf = get_token(request)
@@ -251,7 +252,7 @@ def schichteinsatz_entfernen(request, pk):
     e = get_object_or_404(Schichteinsatz.objects.select_related("schicht", "mitglied"), pk=pk, verein=request.verein)
     schicht_id, wer = e.schicht_id, e.wer
     e.delete()   # delete() statt Queryset-Loeschen: bleibt im Aenderungsprotokoll
-    messages.success(request, f"{wer} wurde aus der Schicht entfernt.")
+    messages.success(request, _("%(wer)s wurde aus der Schicht entfernt.") % {"wer": wer})
     return redirect("schicht_detail", pk=schicht_id)
 
 
@@ -335,7 +336,7 @@ def helfer_anmeldung(request, code):
 
 
 def aufgabe_kontext(request, a):
-    ctx = {"abschnitte": [abschnitt(request, "Zwischennotizen (wie ein Ticket-Verlauf)", a.notizen.all(),
+    ctx = {"abschnitte": [abschnitt(request, _("Zwischennotizen (wie ein Ticket-Verlauf)"), a.notizen.all(),
                                    ("erstellt", "erstellt_von", "text"), "aufgabenotiz_add",
                                    {"aufgabe": a.pk, "next": request.get_full_path()})],
           "aufgabe_beobachten": {"url": reverse("aufgabe_beobachten", args=[a.pk]),
@@ -409,7 +410,7 @@ def veranstaltungen_ics(request):
 
 
 def listen_aktionen(request):
-    return [knopf("Kalender (.ics)", reverse("veranstaltungen_ics"))]
+    return [knopf(gettext_lazy("Kalender (.ics)"), reverse("veranstaltungen_ics"))]
 
 
 def wahlergebnis_kontext(request, w):
@@ -433,15 +434,15 @@ def wahlergebnis_kontext(request, w):
                 for bez, wert in eintraege]
 
     if w.art == "wahl":
-        return {"abschnitte": [{"titel": "Stimmen je Kandidat*in", "spalten": ["Kandidat*in", "Stimmen"],
+        return {"abschnitte": [{"titel": _("Stimmen je Kandidat*in"), "spalten": [_("Kandidat*in"), _("Stimmen")],
                                 "zeilen": zeilen(paare), "add_url": None}]}
     antrag = [(b, x) for b, x in paare if b in TEXTFELDER and b != "Status in OpenSlides"]
     ergebnis = [(b, x) for b, x in paare if b not in TEXTFELDER or b == "Status in OpenSlides"]
     abschnitte = []
     if antrag:
-        abschnitte.append({"titel": "Antrag" if w.amt.startswith("Antrag") else "Thema", "spalten": ["Angabe", "Inhalt"],
+        abschnitte.append({"titel": _("Antrag") if w.amt.startswith("Antrag") else _("Thema"), "spalten": [_("Angabe"), _("Inhalt")],
                            "zeilen": zeilen(antrag), "add_url": None})
     if ergebnis:
-        abschnitte.append({"titel": "Ergebnis", "spalten": ["Angabe", "Wert"], "zeilen": zeilen(ergebnis),
+        abschnitte.append({"titel": _("Ergebnis"), "spalten": [_("Angabe"), _("Wert")], "zeilen": zeilen(ergebnis),
                            "add_url": None})
     return {"abschnitte": abschnitte}

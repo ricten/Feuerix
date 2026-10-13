@@ -81,6 +81,13 @@ verlinken.)
   lieber den Code an die neue Bibliotheksversion anpassen als eine Obergrenze einzuziehen, außer eine Anpassung
   ist unverhältnismäßig aufwändig - siehe `apps/finance/erechnung.py` (an `factur-x` 7.x angepasst statt `<7.0`).
 
+* **Alle sichtbaren Texte übersetzbar:** Meldungen (`messages.*`), Knopf-Beschriftungen (`knopf(...)`), Hinweise, Seitentitel,
+  Tabellenköpfe, Formular-Beschriftungen und Fehlermeldungen immer mit `gettext(...)` (innerhalb von Funktionen) bzw.
+  `gettext_lazy(...)` (Modul-/Klassenebene) schreiben, Werte als `%(name)s`-Platzhalter (`gettext("%(n)s Zeilen") % {"n": n}`),
+  nie als f-String. **`knopf`-Beschriftungen immer lazy** (`knopf(gettext_lazy("Ausgeben"), ...)`, mit Werten
+  `format_lazy(gettext_lazy("Senden ({n})"), n=n)` aus `django.utils.text`): das Icon wird aus dem deutschen Text bestimmt.
+  Bewusst deutsch bleiben nur Dokumente an Empfänger (PDF, Word, E-Mails an Mitglieder, Vorlagen-Standardtexte) und Demodaten.
+  `apps/core/test_englisch.py` schlägt fehl, wenn ein `_()`-Text keine englische Übersetzung hat.
 * **Markdown ohne Linter-Warnungen:** Nach jeder Änderung an einer `*.md` (Doku, Handbuch, Changelog, README ...) vor dem Commit
   `python scripts/markdown_aufraeumen.py` laufen lassen (behebt Leerzeilen um Überschriften/Listen, einheitliches Listenzeichen **je
   Datei** - das der ersten Aufzählung -, Tabellen-Trennzeilen `| --- |`) und die Warnungen von VS Code prüfen (Diagnose-Werkzeug des

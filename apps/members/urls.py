@@ -6,6 +6,7 @@ from . import selbstdienst, verwaltungszugang, views
 from .forms import MitgliedForm, MitgliedTagForm
 from .models import (Abteilung, Dokument, Familie, Funktion, Mitglied, MitgliedFunktion, Mitgliedsart,
                      MitgliedTag)
+from django.utils.translation import gettext_lazy
 
 urlpatterns = [
     path("mitglieder/import/", views.mitglieder_import, name="mitglieder_import"),
@@ -27,9 +28,9 @@ def mitglieder_listen_aktionen(request):
     """Der Mitglieder-Import läuft in der Regel nur einmalig beim Einrichten des Vereins und liegt deshalb unter
     Verwaltung (Navigationsleiste), nicht als Aktion auf dieser laufend genutzten Liste."""
     from django.urls import reverse
-    a = [knopf("Vollexport (Excel)", reverse("mitglieder_export"))]
+    a = [knopf(gettext_lazy("Vollexport (Excel)"), reverse("mitglieder_export"))]
     if request.rechte.darf("bankdaten", "view"):
-        a.append(knopf("Vollexport mit Bankdaten", reverse("mitglieder_export") + "?bank=1"))
+        a.append(knopf(gettext_lazy("Vollexport mit Bankdaten"), reverse("mitglieder_export") + "?bank=1"))
     return a
 
 

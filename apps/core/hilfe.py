@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import render
 from django.utils.translation import get_language
+from django.utils.translation import gettext
 
 # slug -> {"de": (Dateiname, Titel), "en": (Dateiname, Titel)}. Nur die anwenderorientierten Dokumente -
 # README/INSTALL/GITHUB.md richten sich an Betreiber/Entwickler und gehoeren nicht hierher.
@@ -57,7 +58,7 @@ def hilfe(request):
     """Übersicht aller Hilfe-Dokumente."""
     sprache = _sprache()
     eintraege = [{"slug": slug, "titel": sprachen[sprache][1]} for slug, sprachen in DOKUMENTE.items()]
-    return render(request, "core/hilfe.html", {"titel": "Hilfe", "dokumente": eintraege})
+    return render(request, "core/hilfe.html", {"titel": gettext("Hilfe"), "dokumente": eintraege})
 
 
 @login_required

@@ -16,7 +16,7 @@ from django.forms import modelform_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import path, reverse
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 
@@ -24,6 +24,7 @@ from . import audit
 from .forms import TenantModelForm
 from .felder import anbindung_versteckt, feldstatus
 from .util import geld
+from django.utils.translation import gettext, gettext_lazy
 
 REGISTRY = {}  # Modell -> Rechte-Modul (fuer den geschuetzten Dateizugriff)
 
@@ -118,7 +119,8 @@ def _icon_fuer(label):
     """Errät ein passendes Bootstrap-Icon anhand von Schlüsselwörtern im Button-Label - so bekommen auch die
     vielen app-spezifischen Aktions-Buttons (Stornieren, Ausstellen, Import, ...) automatisch ein Icon,
     ohne dass jede einzelne knopf()-Stelle im Code angepasst werden muss."""
-    text = str(label).lower()
+    with translation.override("de"):      # die Stichwoerter sind deutsch - unabhaengig von der Anzeigesprache
+        text = str(label).lower()
     if len(text.strip(" ✓✗⚠→")) <= 2:
         return None
     for schluessel, icon in _ICON_REGELN:
@@ -382,16 +384,16 @@ class FormularMixin(MandantMixin):
         response = super().form_valid(form)
         if self.cfg.nach_speichern:
             self.cfg.nach_speichern(self.request, self.object, self.neu)
-        messages.success(self.request, f"{self.cfg.label} gespeichert.")
+        messages.success(self.request, gettext("%(label)s gespeichert.") % {"label": self.cfg.label})
         return response
 
     def get_context_data(self, **kw):
         ctx = super().get_context_data(**kw)
-        ctx.update(titel=(f"{self.cfg.label} anlegen" if self.neu else f"{self.cfg.label} bearbeiten"),
+        ctx.update(titel=(gettext("%(label)s anlegen") % {"label": self.cfg.label} if self.neu else gettext("%(label)s bearbeiten") % {"label": self.cfg.label}),
                    next=self._next() or "", abbrechen_url=self._next() or reverse(f"{self.cfg.name}_list"))
         if self.cfg.zeilen_bearbeiten and not self.neu and getattr(self, "object", None) is not None:
             o = self.object
-            aktionen = [knopf("Detailansicht", reverse(f"{self.cfg.name}_detail", args=[o.pk]))] if self.cfg.detail else []
+            aktionen = [knopf(gettext_lazy("Detailansicht"), reverse(f"{self.cfg.name}_detail", args=[o.pk]))] if self.cfg.detail else []
             if self.cfg.kontext:
                 aktionen += self.cfg.kontext(self.request, o).get("aktionen", [])
             ctx["form_aktionen"] = aktionen
@@ -417,7 +419,7 @@ class AendernView(FormularMixin, UpdateView):
     def get_object(self, queryset=None):
         o = super().get_object(queryset)
         if self.cfg.bearbeitbar and not self.cfg.bearbeitbar(o):
-            raise PermissionDenied("Dieser Datensatz ist nicht mehr änderbar.")
+            raise PermissionDenied(gettext("Dieser Datensatz ist nicht mehr änderbar."))
         return o
 
 
@@ -428,7 +430,7 @@ class LoeschenView(MandantMixin, DeleteView):
     def get_object(self, queryset=None):
         o = super().get_object(queryset)
         if self.cfg.loeschbar and not self.cfg.loeschbar(o):
-            raise PermissionDenied("Dieser Datensatz kann nicht gelöscht werden.")
+            raise PermissionDenied(gettext("Dieser Datensatz kann nicht gelöscht werden."))
         return o
 
     def get_context_data(self, **kw):
@@ -440,9 +442,9 @@ class LoeschenView(MandantMixin, DeleteView):
         try:
             self.object.delete()
         except (ProtectedError, RestrictedError):
-            messages.error(self.request, "Löschen nicht möglich: Der Datensatz wird noch von anderen Daten verwendet.")
+            messages.error(self.request, gettext("Löschen nicht möglich: Der Datensatz wird noch von anderen Daten verwendet."))
             return redirect(reverse(f"{self.cfg.name}_list"))
-        messages.success(self.request, f"{self.cfg.label} gelöscht.")
+        messages.success(self.request, gettext("%(label)s gelöscht.") % {"label": self.cfg.label})
         return redirect(reverse(f"{self.cfg.name}_list"))
 
 

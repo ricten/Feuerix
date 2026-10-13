@@ -3,12 +3,13 @@ from django import forms
 from apps.core.forms import TenantModelForm
 
 from .models import OpenSlidesVerbindung
+from django.utils.translation import gettext_lazy
 
 
 class VerbindungForm(TenantModelForm):
-    passwort = forms.CharField(label="Passwort des technischen Benutzers", required=False,
+    passwort = forms.CharField(label=gettext_lazy("Passwort des technischen Benutzers"), required=False,
                                widget=forms.PasswordInput(render_value=False),
-                               help_text="Leer lassen = gespeichertes Passwort behalten. Wird verschlüsselt gespeichert.")
+                               help_text=gettext_lazy("Leer lassen = gespeichertes Passwort behalten. Wird verschlüsselt gespeichert."))
 
     class Meta:
         model = OpenSlidesVerbindung

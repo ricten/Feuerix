@@ -5,15 +5,16 @@ from apps.core.crud import abschnitt, crud, knopf
 from . import views
 from .forms import AblageForm, SchriftstueckForm, SerienbriefForm, VorlageForm
 from .models import Ablagedokument, Ordner, Schriftstueck, Serienbrief, Vorlage
+from django.utils.translation import gettext, gettext_lazy
 
 
 def ablage_kontext(request, d):
     from apps.paperless.models import PaperlessVerbindung
     a = []
     if d.datei:
-        a.append(knopf("Herunterladen", reverse("datei", args=["documents", "ablagedokument", d.pk, "datei"]), stil="primary"))
+        a.append(knopf(gettext_lazy("Herunterladen"), reverse("datei", args=["documents", "ablagedokument", d.pk, "datei"]), stil="primary"))
     if request.rechte.darf("ablage", "add"):
-        a.append(knopf("Neue Version hochladen", reverse("ablagedokument_add") + f"?titel={d.titel}&kategorie={d.kategorie}"
+        a.append(knopf(gettext_lazy("Neue Version hochladen"), reverse("ablagedokument_add") + f"?titel={d.titel}&kategorie={d.kategorie}"
                        + (f"&ordner={d.ordner_id}" if d.ordner_id else "")
                        + (f"&veranstaltung={d.veranstaltung_id}" if d.veranstaltung_id else "")))
     verbindung = PaperlessVerbindung.objects.filter(verein=request.verein, aktiv=True).first()
@@ -21,18 +22,17 @@ def ablage_kontext(request, d):
         if d.paperless_status in ("wartet", "sendet", "uebergeben"):
             pass  # Übergabe läuft - keine Doppelklicks; der Status wird live angezeigt
         elif not d.paperless_uebergeben:
-            a.append(knopf("An Paperless senden", reverse("ablagedokument_paperless_senden", args=[d.pk]), post=True))
+            a.append(knopf(gettext_lazy("An Paperless senden"), reverse("ablagedokument_paperless_senden", args=[d.pk]), post=True))
         else:
-            a.append(knopf("Erneut an Paperless senden", reverse("ablagedokument_paperless_senden", args=[d.pk]),
+            a.append(knopf(gettext_lazy("Erneut an Paperless senden"), reverse("ablagedokument_paperless_senden", args=[d.pk]),
                            post=True, felder={"erneut": "1"},
-                           bestaetigung="Diese Datei wurde bereits übergeben. Wirklich erneut senden? "
-                                        "Paperless kann Duplikate ablehnen."))
+                           bestaetigung=gettext("Diese Datei wurde bereits übergeben. Wirklich erneut senden? Paperless kann Duplikate ablehnen.")))
     frueher = Ablagedokument.objects.filter(verein=request.verein, ordner=d.ordner, titel=d.titel).exclude(pk=d.pk)
     live = reverse("ablagedokument_paperless_status", args=[d.pk]) if (
         d.paperless_status or (d.paperless_gesendet_am and not d.paperless_fehler)) else ""
     art = views.vorschau_art(d.dateiname) if d.datei else None
     vorschau = {"url": reverse("ablagedokument_vorschau", args=[d.pk]), "art": art} if art else None
-    return {"aktionen": a, "live_status_url": live, "vorschau": vorschau, "abschnitte": [abschnitt(request, "Weitere Versionen", frueher.order_by("-version"),
+    return {"aktionen": a, "live_status_url": live, "vorschau": vorschau, "abschnitte": [abschnitt(request, gettext("Weitere Versionen"), frueher.order_by("-version"),
                                                     ("titel", "version", "datum"))] if frueher.exists() else []}
 
 
@@ -41,7 +41,7 @@ def ablage_listen_aktionen(request):
     a = []
     if request.rechte.darf("ablage", "change") and PaperlessVerbindung.objects.filter(
             verein=request.verein, aktiv=True).exists():
-        a.append(knopf("Sammelversand an Paperless", reverse("ablage_paperless_sammelversand")))
+        a.append(knopf(gettext_lazy("Sammelversand an Paperless"), reverse("ablage_paperless_sammelversand")))
     return a
 
 
@@ -71,13 +71,11 @@ urlpatterns += crud("vorlagen", Vorlage, "schriftverkehr", form=VorlageForm,
                     listen_aktionen=views.vorlagen_listen_aktionen, ordering=("art", "name"), kontext=views.vorlage_kontext,
                     detail_ausblenden=("text",))
 urlpatterns += crud("ablage", Ablagedokument, "ablage", form=AblageForm,
-                    list_display=("datum", "titel", "kategorie", "tags", "ordner", "version", ("dateiname", "Datei"),
-                                 ("paperless_uebergeben", "Paperless")),
+                    list_display=("datum", "titel", "kategorie", "tags", "ordner", "version", ("dateiname", gettext_lazy("Datei")),
+                                 ("paperless_uebergeben", gettext_lazy("Paperless"))),
                     select_related=("ordner",), suche=("titel", "beschreibung"), filter=("kategorie", "ordner", "veranstaltung"),
                     kontext=ablage_kontext, listen_aktionen=ablage_listen_aktionen, ordering=("-datum", "-id"),
                     detail_ausblenden=("paperless_task_id", "paperless_status"),
-                    hinweis="Über „Neu“ lässt sich eine beliebige, extern erstellte Datei (PDF, Word, Bild, …) "
-                           "hochladen und der Ablage zuordnen - z. B. ein eingescanntes Dokument oder eine "
-                           "Vorstandssitzung-Unterlage, die nicht in dieser Software erstellt wurde.")
-urlpatterns += crud("ablage-ordner", Ordner, "ablage", list_display=(("pfad", "Ordner"),), select_related=("uebergeordnet",),
+                    hinweis=gettext_lazy("Über „Neu“ lässt sich eine beliebige, extern erstellte Datei (PDF, Word, Bild, …) hochladen und der Ablage zuordnen - z. B. ein eingescanntes Dokument oder eine Vorstandssitzung-Unterlage, die nicht in dieser Software erstellt wurde."))
+urlpatterns += crud("ablage-ordner", Ordner, "ablage", list_display=(("pfad", gettext_lazy("Ordner")),), select_related=("uebergeordnet",),
                     ordering=("name",))

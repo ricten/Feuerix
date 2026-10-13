@@ -253,10 +253,10 @@ def verein_einstellungen(request):
     if request.method == "POST" and form.is_valid():
         audit.kontext_setzen(grund=form.cleaned_data.get("aenderungsgrund"))
         form.save()
-        messages.success(request, "Vereinsdaten gespeichert.")
+        messages.success(request, _("Vereinsdaten gespeichert."))
         return redirect("verein_einstellungen")
     gruppen = _einstellungs_gruppen(form)
-    return render(request, "core/formular.html", {"form": form, "titel": "Verein / Einstellungen",
+    return render(request, "core/formular.html", {"form": form, "titel": _("Verein / Einstellungen"),
                                                   "abbrechen_url": "/", "gruppen": gruppen,
                                                   "gruppen_hat_fehler": any(g["fehler"] for g in gruppen)})
 
@@ -341,7 +341,7 @@ def auswertungen(request):
 def impressum(request, kuerzel):
     """Öffentlich erreichbar (Pflichtangabe nach § 5 TMG) - bewusst ohne @login_required."""
     verein = get_object_or_404(Verein, kuerzel=kuerzel, aktiv=True)
-    return render(request, "core/impressum.html", {"verein": verein, "titel": f"Impressum – {verein.name}"})
+    return render(request, "core/impressum.html", {"verein": verein, "titel": _("Impressum – %(name)s") % {"name": verein.name}})
 
 
 def oeffentliche_dokumente(request, kuerzel):
@@ -350,7 +350,7 @@ def oeffentliche_dokumente(request, kuerzel):
     verein = get_object_or_404(Verein, kuerzel=kuerzel, aktiv=True)
     dokumente = Ablagedokument.objects.filter(verein=verein, oeffentlich=True).order_by("kategorie", "titel")
     return render(request, "core/oeffentliche_dokumente.html",
-                 {"verein": verein, "dokumente": dokumente, "titel": f"Downloads – {verein.name}"})
+                 {"verein": verein, "dokumente": dokumente, "titel": _("Downloads – %(name)s") % {"name": verein.name}})
 
 
 def oeffentliches_dokument_download(request, kuerzel, pk):

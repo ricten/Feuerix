@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 
 from .models import Rolle, Systemeinstellung, Verein, Zugang
 from .rechte import AKTIONEN, MODULE
+from django.utils.translation import gettext, gettext_lazy
 
 
 def stilisieren_felder(fields):
@@ -30,7 +31,7 @@ def stilisieren_felder(fields):
 
 class TenantModelForm(forms.ModelForm):
     """Basisformular: Bootstrap-Klassen, Datumsfelder, Auswahllisten nur aus dem aktiven Verein."""
-    aenderungsgrund = forms.CharField(label="Grund der Änderung (für das Protokoll)", required=False, max_length=200)
+    aenderungsgrund = forms.CharField(label=gettext_lazy("Grund der Änderung (für das Protokoll)"), required=False, max_length=200)
 
     def __init__(self, *args, verein=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -106,11 +107,11 @@ class RolleForm(RechteFelderMixin, TenantModelForm):
 
 
 class ZugangForm(RechteFelderMixin, TenantModelForm):
-    username = forms.CharField(label="Benutzername", max_length=150)
-    vorname = forms.CharField(label="Vorname", required=False, max_length=150)
-    nachname = forms.CharField(label="Nachname", required=False, max_length=150)
-    email = forms.EmailField(label="E-Mail", required=False)
-    passwort = forms.CharField(label="Passwort (bei neuen Benutzern Pflicht)", required=False,
+    username = forms.CharField(label=gettext_lazy("Benutzername"), max_length=150)
+    vorname = forms.CharField(label=gettext_lazy("Vorname"), required=False, max_length=150)
+    nachname = forms.CharField(label=gettext_lazy("Nachname"), required=False, max_length=150)
+    email = forms.EmailField(label=gettext_lazy("E-Mail"), required=False)
+    passwort = forms.CharField(label=gettext_lazy("Passwort (bei neuen Benutzern Pflicht)"), required=False,
                                widget=forms.PasswordInput(render_value=False))
 
     class Meta:
@@ -136,9 +137,9 @@ class ZugangForm(RechteFelderMixin, TenantModelForm):
         User = get_user_model()
         u = User.objects.filter(username=d.get("username")).first()
         if u is None and not d.get("passwort"):
-            self.add_error("passwort", "Für neue Benutzer ist ein Passwort erforderlich.")
+            self.add_error("passwort", gettext("Für neue Benutzer ist ein Passwort erforderlich."))
         if u is not None and Zugang.objects.filter(verein=self.verein, user=u).exists():
-            self.add_error("username", "Dieser Benutzer hat bereits Zugang zu diesem Verein.")
+            self.add_error("username", gettext("Dieser Benutzer hat bereits Zugang zu diesem Verein."))
         if u is None and d.get("passwort"):
             try:
                 validate_password(d["passwort"])
@@ -174,7 +175,7 @@ class SicherungForm(forms.ModelForm):
     leer lassen = gespeicherten Wert behalten."""
     ziel_passwort = forms.CharField(label=Systemeinstellung._meta.get_field("ziel_passwort").verbose_name,
                                     required=False, widget=forms.PasswordInput(render_value=False),
-                                    help_text="Leer lassen = gespeichertes Passwort behalten. Wird verschlüsselt gespeichert.")
+                                    help_text=gettext_lazy("Leer lassen = gespeichertes Passwort behalten. Wird verschlüsselt gespeichert."))
     ziel_schluessel = forms.CharField(label=Systemeinstellung._meta.get_field("ziel_schluessel").verbose_name,
                                       required=False, widget=forms.Textarea(attrs={"rows": 4}),
                                       help_text=Systemeinstellung._meta.get_field("ziel_schluessel").help_text)

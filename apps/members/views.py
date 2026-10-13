@@ -14,6 +14,8 @@ from apps.core.crud import abschnitt, knopf, wert
 from apps.core.models import AuditLog, Zugang
 
 from .models import Familie, Mitglied
+from django.utils.translation import gettext, gettext_lazy
+from django.utils.text import format_lazy
 
 
 def mitglied_kontext(request, m):
@@ -26,38 +28,36 @@ def mitglied_kontext(request, m):
     r = request.rechte
     aktionen, abschnitte = [], []
     if r.darf("mitglieder", "view"):
-        aktionen.append(knopf("Datenauskunft (JSON)", reverse("mitglied_export", args=[m.pk])))
+        aktionen.append(knopf(gettext_lazy("Datenauskunft (JSON)"), reverse("mitglied_export", args=[m.pk])))
     if r.darf("selbstdienst", "change"):
         if not m.benutzer_id or not m.benutzer.is_active:
-            aktionen.append(knopf("Zugangsdaten für Selbstdatenpflege senden", reverse("mitglied_zugang_einrichten", args=[m.pk]),
+            aktionen.append(knopf(gettext_lazy("Zugangsdaten für Selbstdatenpflege senden"), reverse("mitglied_zugang_einrichten", args=[m.pk]),
                                   post=True, stil="outline-primary",
-                                  bestaetigung=f"Zugangsdaten per E-Mail an {m.email or '(keine E-Mail-Adresse hinterlegt!)'} senden?"))
+                                  bestaetigung=gettext("Zugangsdaten per E-Mail an %(wert0)s senden?") % {"wert0": m.email or '(keine E-Mail-Adresse hinterlegt!)'}))
         else:
-            aktionen.append(knopf("Zugang zur Selbstdatenpflege sperren", reverse("mitglied_zugang_sperren", args=[m.pk]),
-                                  post=True, stil="outline-danger", bestaetigung="Zugang sperren?"))
+            aktionen.append(knopf(gettext_lazy("Zugang zur Selbstdatenpflege sperren"), reverse("mitglied_zugang_sperren", args=[m.pk]),
+                                  post=True, stil="outline-danger", bestaetigung=gettext("Zugang sperren?")))
         if m.selbstdienst_initialpasswort:
-            aktionen.append(knopf("Gespeichertes Startpasswort löschen", reverse("mitglied_startpasswort_loeschen", args=[m.pk]),
+            aktionen.append(knopf(gettext_lazy("Gespeichertes Startpasswort löschen"), reverse("mitglied_startpasswort_loeschen", args=[m.pk]),
                                   post=True))
     verwaltungszugang = (Zugang.objects.filter(verein=request.verein, user_id=m.benutzer_id).select_related("rolle").first()
                         if m.benutzer_id else None)
     if verwaltungszugang and r.darf("verwaltung", "change"):
         status = "" if verwaltungszugang.aktiv else ", gesperrt"
-        aktionen.append(knopf(f"Verwaltungszugang ({verwaltungszugang.rolle}{status}) bearbeiten",
+        aktionen.append(knopf(format_lazy(gettext_lazy("Verwaltungszugang ({rolle}{status}) bearbeiten"), rolle=verwaltungszugang.rolle, status=status),
                               reverse("zugang_edit", args=[verwaltungszugang.pk])))
     elif not verwaltungszugang and r.darf("verwaltung", "add"):
-        aktionen.append(knopf("Verwaltungszugang einrichten", reverse("mitglied_verwaltungszugang_einrichten", args=[m.pk]),
+        aktionen.append(knopf(gettext_lazy("Verwaltungszugang einrichten"), reverse("mitglied_verwaltungszugang_einrichten", args=[m.pk]),
                               stil="outline-primary"))
     hinweise = []
     if not verwaltungszugang:
         namen = list(m.tags.filter(verein=request.verein, rolle__isnull=False).values_list("name", flat=True))
         if namen:
-            hinweise.append(f"Dieses Mitglied trägt eine Funktion mit Rolle ({', '.join(namen)}), hat aber noch "
-                            "keinen Verwaltungszugang - bitte einrichten.")
+            hinweise.append(gettext("Dieses Mitglied trägt eine Funktion mit Rolle (%(join)s), hat aber noch keinen Verwaltungszugang - bitte einrichten.") % {"join": ', '.join(namen)})
     if r.darf("mitglieder", "delete") and m.status != "verstorben" and m.vorname != "Anonymisiert":
-        aktionen.append(knopf("Anonymisieren (DSGVO)", reverse("mitglied_anonymisieren", args=[m.pk]), post=True,
+        aktionen.append(knopf(gettext_lazy("Anonymisieren (DSGVO)"), reverse("mitglied_anonymisieren", args=[m.pk]), post=True,
                               stil="outline-danger",
-                              bestaetigung="Persönliche Daten unwiderruflich löschen? Rechnungen bleiben aus "
-                                           "steuerlichen Gründen erhalten."))
+                              bestaetigung=gettext("Persönliche Daten unwiderruflich löschen? Rechnungen bleiben aus steuerlichen Gründen erhalten.")))
     if r.darf("beitraege", "view") or r.darf("rechnungen", "view"):
         zeilen = []
         for re_ in Rechnung.objects.filter(verein=request.verein, mitglied=m, typ__in=["beitrag", "individuell"]) \
@@ -65,33 +65,33 @@ def mitglied_kontext(request, m):
             zeilen.append({"url": reverse("rechnung_detail", args=[re_.pk]), "zellen": [
                 re_.jahr or re_.datum.year, wert(re_, "betrag"), re_.nummer, wert(re_, "bezahlt_summe"),
                 re_.get_status_display()]})
-        abschnitte.append({"titel": "Beiträge & Zahlungen", "spalten": ["Jahr", "Beitrag", "Rechnung", "Bezahlt",
-                                                                       "Status"], "zeilen": zeilen, "add_url": None})
-    abschnitte.append(abschnitt(request, "Funktionen", m.funktionen.all(), (("anzeige", "Funktion"),),
+        abschnitte.append({"titel": gettext("Beiträge & Zahlungen"), "spalten": [gettext("Jahr"), gettext("Beitrag"), gettext("Rechnung"), gettext("Bezahlt"),
+                                                                       gettext("Status")], "zeilen": zeilen, "add_url": None})
+    abschnitte.append(abschnitt(request, gettext("Funktionen"), m.funktionen.all(), (("anzeige", "Funktion"),),
                                 "mitgliedfunktion_add", {"mitglied": m.pk}))
     if r.darf("mitglieder", "view"):
         a = anbindungen(request)
         tag_spalten = ("name", "rolle") + (("paperless_gruppe",) if a.paperless else ()) + \
             (("openslides_gruppe",) if a.openslides else ())
-        abschnitte.append(abschnitt(request, "Funktionen (Tags/Zugriffsrechte)", m.tags.all(), tag_spalten))
+        abschnitte.append(abschnitt(request, gettext("Funktionen (Tags/Zugriffsrechte)"), m.tags.all(), tag_spalten))
     if r.darf("ehrungen", "view"):
-        abschnitte.append(abschnitt(request, "Ehrungen", Ehrung.objects.filter(mitglied=m),
+        abschnitte.append(abschnitt(request, gettext("Ehrungen"), Ehrung.objects.filter(mitglied=m),
                                     ("art", "datum", "anlass"), "ehrung_add", {"mitglied": m.pk}))
     if r.darf("dokumente", "view"):
-        abschnitte.append(abschnitt(request, "Dokumente", m.dokumente.all(),
+        abschnitte.append(abschnitt(request, gettext("Dokumente"), m.dokumente.all(),
                                     ("titel", "version", "kategorie", "erstellt"), "dokument_add", {"mitglied": m.pk}))
     if r.darf("verleih", "view"):
-        abschnitte.append(abschnitt(request, "Verleih", Verleih.objects.filter(entleiher=m),
+        abschnitte.append(abschnitt(request, gettext("Verleih"), Verleih.objects.filter(entleiher=m),
                                     ("gegenstand", "von", "bis", "status")))
     if r.darf("spenden", "view"):
-        abschnitte.append(abschnitt(request, "Spenden", Spende.objects.filter(spender=m),
+        abschnitte.append(abschnitt(request, gettext("Spenden"), Spende.objects.filter(spender=m),
                                     ("datum", "art", "betrag")))
     if r.darf("aufwand", "view"):
-        abschnitte.append(abschnitt(request, "Aufwandsentschädigungen",
+        abschnitte.append(abschnitt(request, gettext("Aufwandsentschädigungen"),
                                     Aufwandsentschaedigung.objects.filter(empfaenger=m),
                                     ("datum", "art", "betrag", "status")))
     if r.darf("audit", "view"):
-        abschnitte.append(abschnitt(request, "Änderungshistorie", AuditLog.objects.filter(
+        abschnitte.append(abschnitt(request, gettext("Änderungshistorie"), AuditLog.objects.filter(
             verein=request.verein, modell="Mitglied", objekt_id=str(m.pk))[:20],
             ("zeit", "user_name", "aktion")))
     return {"aktionen": aktionen, "abschnitte": abschnitte, "hinweise": hinweise}
@@ -103,7 +103,7 @@ def familie_kontext(request, f):
     normalen Mitglied-Anlegeformular mit vorbelegter Familie (fuer ganz neue Mitglieder)."""
     r = request.rechte
     abschnitte = [abschnitt(
-        request, "Mitglieder dieser Familie",
+        request, gettext("Mitglieder dieser Familie"),
         Mitglied.objects.filter(verein=request.verein, familie=f).order_by("nachname", "vorname"),
         ("name", "mitgliedsart", "ist_familienzahler"), "mitglied_add", {"familie": f.pk})]
     ctx = {"abschnitte": abschnitte}
@@ -128,9 +128,9 @@ def familie_mitglieder_hinzufuegen(request, pk):
         m.save(update_fields=["familie", "geaendert"])
         n += 1
     if n:
-        messages.success(request, f"{n} Mitglied(er) zur Familie „{f}“ hinzugefügt.")
+        messages.success(request, gettext("%(n)s Mitglied(er) zur Familie „%(f)s“ hinzugefügt.") % {"n": n, "f": f})
     else:
-        messages.error(request, "Bitte mindestens ein Mitglied auswählen.")
+        messages.error(request, gettext("Bitte mindestens ein Mitglied auswählen."))
     return redirect("familie_detail", pk=f.pk)
 
 
@@ -187,11 +187,9 @@ def mitglied_anonymisieren(request, pk):
             try:
                 os_services.mitglied_anonymisieren(v, m)
             except OpenSlidesFehler as e:
-                messages.warning(request, f"OpenSlides-Konto konnte nicht angepasst werden ({e}) - bitte dort "
-                                          "Name/E-Mail manuell prüfen und löschen.")
+                messages.warning(request, gettext("OpenSlides-Konto konnte nicht angepasst werden (%(e)s) - bitte dort Name/E-Mail manuell prüfen und löschen.") % {"e": e})
         else:
-            messages.warning(request, "Mitglied hat ein OpenSlides-Konto, die Anbindung ist aber nicht "
-                                      "eingerichtet - bitte Name/E-Mail dort manuell prüfen und löschen.")
+            messages.warning(request, gettext("Mitglied hat ein OpenSlides-Konto, die Anbindung ist aber nicht eingerichtet - bitte Name/E-Mail dort manuell prüfen und löschen."))
         m.openslides_username, m.openslides_initialpasswort = "", ""
     if hasattr(m, "paperless_benutzer"):
         from apps.paperless import services as pl_services
@@ -203,8 +201,7 @@ def mitglied_anonymisieren(request, pk):
                 raise PaperlessFehler("Anbindung nicht aktiv")
             pl_services.mitglied_anonymisieren(pv, m)
         except PaperlessFehler as e:
-            messages.warning(request, f"Paperless-Konto konnte nicht angepasst werden ({e}) - bitte dort "
-                                      "Name/E-Mail manuell prüfen und das Konto deaktivieren.")
+            messages.warning(request, gettext("Paperless-Konto konnte nicht angepasst werden (%(e)s) - bitte dort Name/E-Mail manuell prüfen und das Konto deaktivieren.") % {"e": e})
             m.paperless_benutzer.delete()
     m.tags.clear()   # Vorstandsmitglied wird daraus abgeleitet; entzieht nebenbei auch evtl. zugewiesene Rollen
     m.vorname, m.nachname = "Anonymisiert", f"#{m.mitgliedsnummer}"
@@ -219,7 +216,7 @@ def mitglied_anonymisieren(request, pk):
         m.status, m.austrittsdatum = "ausgetreten", m.austrittsdatum or date.today()
     m.save()
     m.dokumente.all().delete()
-    messages.success(request, "Mitglied anonymisiert.")
+    messages.success(request, gettext("Mitglied anonymisiert."))
     return redirect("mitglied_detail", pk=m.pk)
 
 
@@ -243,7 +240,7 @@ def mitglieder_import(request):
     if request.method == "POST":
         datei = request.FILES.get("datei")
         if not datei:
-            messages.error(request, "Bitte eine Datei auswählen.")
+            messages.error(request, gettext("Bitte eine Datei auswählen."))
         else:
             try:
                 bericht = importer.importieren(
@@ -255,7 +252,7 @@ def mitglieder_import(request):
                                                 f"{len(bericht['fehler'])} Fehler")
             except ValueError as e:
                 messages.error(request, str(e))
-    return render(request, "members/import.html", {"titel": "Mitglieder importieren", "bericht": bericht,
+    return render(request, "members/import.html", {"titel": gettext("Mitglieder importieren"), "bericht": bericht,
                                                    "post": request.POST if request.method == "POST" else {}})
 
 

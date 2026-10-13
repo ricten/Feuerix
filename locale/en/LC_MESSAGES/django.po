@@ -5270,8 +5270,1237 @@ msgstr "Online meetings: connection, accounts, groups"
 msgid "Dokumentenarchiv: Verbindung und Übergabe"
 msgstr "Document archive: connection and transfer"
 
-#~ msgid "Zuständig"
-#~ msgstr "Assigned to"
+msgid "Zuständig"
+msgstr "Assigned to"
+
+# Uebersicht Vereinseinstellungen
+msgid "Vereinsdaten"
+msgstr "Club data"
+
+msgid "Name, Anschrift, Kontakt, Registereintrag"
+msgstr "Name, address, contact, register entry"
+
+msgid "Vereinslogo, Akzentfarben für Briefe/PDFs und Weboberfläche"
+msgstr "Club logo, accent colours for letters/PDFs and the web interface"
+
+msgid "Briefe: Unterschriften"
+msgstr "Letters: signatures"
+
+msgid "Unterschriftszeilen im Briefkopf und in Briefen"
+msgstr "Signature lines in the letterhead and in letters"
+
+msgid "Größe und Anordnung der Inventar-Etiketten"
+msgstr "Size and arrangement of the inventory labels"
+
+msgid "Banner auf der Startseite, Impressumstext"
+msgstr "Start page banner, legal notice text"
+
+msgid "Bankverbindung"
+msgstr "Bank details"
+
+msgid "Bank, IBAN, BIC, Gläubiger-ID (SEPA)"
+msgstr "Bank, IBAN, BIC, creditor ID (SEPA)"
+
+msgid ""
+"Finanzamt, Steuernummer, Umsatzsteuer, Gemeinnützigkeitsbescheid, "
+"Freibeträge"
+msgstr "Tax office, tax number, VAT, non-profit notice, allowances"
+
+msgid "Zahlungsziel, Rechnungstexte oben und unten"
+msgstr "Payment terms, invoice texts above and below"
+
+# Fusszeile ohne Vereinsnamen
+msgid "Vereinsangaben ohne Vereinsnamen und Seitenzahl"
+msgstr "Club details without club name, and page number"
+
+# Detailseite: Links
+msgid "Links zum Weitergeben"
+msgstr "Links to share"
+
+msgid "Link kopieren"
+msgstr "Copy link"
+
+msgid "Seite öffnen"
+msgstr "Open page"
+
+# Meldungen, Knoepfe und Hinweise in Ansichten
+msgid ""
+"%(anzahl)s Briefe in der Ablage gespeichert (%(ordner)s, Version "
+"%(version)s)."
+msgstr ""
+"%(anzahl)s letters saved in the archive (%(ordner)s, version %(version)s)."
+
+msgid ""
+"%(anzahl)s Dokument(e) werden an Paperless gesendet – Ergebnis erscheint in "
+"Kürze in der Ablage (ggf. neu laden)."
+msgstr ""
+"%(anzahl)s document(s) are being sent to Paperless – the result will appear "
+"in the archive shortly (reload if necessary)."
+
+msgid "%(anzahl)s Gegenstände als Vorgang angelegt."
+msgstr "%(anzahl)s items created as a transaction."
+
+msgid ""
+"%(anzahl)s Gegenstände zum bestehenden Vorgang dieser Veranstaltung "
+"hinzugefügt."
+msgstr "%(anzahl)s items added to the existing transaction of this event."
+
+msgid ""
+"%(anzahl)s Rechnungen · Soll %(betrag)s · bezahlt %(betrag_)s · offen "
+"%(betrag__)s"
+msgstr ""
+"%(anzahl)s invoices · due %(betrag)s · paid %(betrag_)s · open %(betrag__)s"
+
+msgid "%(anzahl)s Sammelbestätigungen als Entwurf erstellt."
+msgstr "%(anzahl)s collective receipts created as drafts."
+
+msgid "%(ergebnis_meldung)s Dem Protokoll werden angehängt: %(titel)s."
+msgstr ""
+"%(ergebnis_meldung)s The following will be appended to the minutes: "
+"%(titel)s."
+
+msgid ""
+"%(format)s eingelesen – bitte Angaben prüfen, Kategorie/Konto kontrollieren "
+"und speichern."
+msgstr ""
+"%(format)s read in – please check the details, check category/account and "
+"save."
+
+msgid ""
+"%(format)s: %(neu)s Umsätze importiert (%(doppelt)s Duplikate übersprungen)."
+" Automatisch zugeordnet: %(ok)s, manuell erforderlich: %(manuell)s."
+msgstr ""
+"%(format)s: %(neu)s transactions imported (%(doppelt)s duplicates skipped). "
+"Assigned automatically: %(ok)s, manual action required: %(manuell)s."
+
+msgid "%(freie_plaetze)s von %(benoetigt)s Plätzen noch frei."
+msgstr "%(freie_plaetze)s of %(benoetigt)s places still free."
+
+msgid ""
+"%(gesamt)s Buchungen übernommen (Zahlungen %(zahlung)s, Spenden %(spende)s, "
+"Aufwandsentschädigungen %(aufwand)s, Veranstaltungen %(kosten)s)."
+msgstr ""
+"%(gesamt)s bookings carried over (payments %(zahlung)s, donations "
+"%(spende)s, expense allowances %(aufwand)s, events %(kosten)s)."
+
+msgid ""
+"%(gesamt)s Gegenstände · ✓ %(gefunden)s gefunden · ⚠ %(nicht_gefunden)s "
+"nicht gefunden · ⚠ %(beschaedigt)s beschädigt · offen %(offen)s"
+msgstr ""
+"%(gesamt)s items · ✓ %(gefunden)s found · ⚠ %(nicht_gefunden)s not found · ⚠"
+" %(beschaedigt)s damaged · open %(offen)s"
+
+msgid ""
+"%(gesperrt)s Buchungen liegen in abgeschlossenen Zeiträumen und wurden nicht"
+" gebucht."
+msgstr "%(gesperrt)s bookings are in closed periods and were not booked."
+
+msgid "%(get_stufe_display)s erstellt."
+msgstr "%(get_stufe_display)s created."
+
+msgid "%(label)s anlegen"
+msgstr "Create %(label)s"
+
+msgid "%(label)s bearbeiten"
+msgstr "Edit %(label)s"
+
+msgid "%(label)s gelöscht."
+msgstr "%(label)s deleted."
+
+msgid "%(label)s gespeichert."
+msgstr "%(label)s saved."
+
+msgid "%(n)s Beitragsrechnungen erzeugt."
+msgstr "%(n)s fee invoices generated."
+
+msgid "%(n)s E-Mails werden im Hintergrund versendet."
+msgstr "%(n)s emails are being sent in the background."
+
+msgid ""
+"%(n)s Empfänger, davon %(mit_mail)s mit E-Mail-Adresse. Versand: "
+"%(get_versandart_display)s."
+msgstr ""
+"%(n)s recipients, of which %(mit_mail)s have an email address. Dispatch: "
+"%(get_versandart_display)s."
+
+msgid "%(n)s Kautionen als zurückgezahlt markiert."
+msgstr "%(n)s deposits marked as refunded."
+
+msgid "%(n)s Mitglied(er) zur Familie „%(f)s“ hinzugefügt."
+msgstr "%(n)s member(s) added to the family \"%(f)s\"."
+
+msgid "%(n)s fehlende Standardvorlagen angelegt."
+msgstr "%(n)s missing standard templates created."
+
+msgid "%(n)s gespeicherte Startpasswörter gelöscht."
+msgstr "%(n)s stored initial passwords deleted."
+
+msgid "%(n)s neue Tagesordnungspunkte nach OpenSlides übertragen. %(rechte)s"
+msgstr "%(n)s new agenda items transferred to OpenSlides. %(rechte)s"
+
+msgid "%(n)s von %(anzahl)s Gegenständen ausgegeben."
+msgstr "%(n)s of %(anzahl)s items issued."
+
+msgid "%(n_post)s Briefe als PDF erzeugen und in der Ablage speichern?"
+msgstr "Generate %(n_post)s letters as PDF and save them in the archive?"
+
+msgid ""
+"%(ohne_beleg)s manuelle Buchungen ohne hochgeladenen Beleg (für die "
+"Kassenprüfung ggf. ergänzen)."
+msgstr ""
+"%(ohne_beleg)s manual bookings without an uploaded receipt (add them for the"
+" cash audit if necessary)."
+
+msgid ""
+"%(vor_eroeffnung)s Buchungen liegen vor der Kontoeröffnung und wurden nicht "
+"gebucht."
+msgstr ""
+"%(vor_eroeffnung)s bookings are dated before the account was opened and were"
+" not booked."
+
+msgid "%(wer)s wurde aus der Schicht entfernt."
+msgstr "%(wer)s was removed from the shift."
+
+msgid "Ablage zu dieser Veranstaltung"
+msgstr "Archive for this event"
+
+msgid "Ablehnen"
+msgstr "Reject"
+
+msgid "Abruf auf %(anzahl)s Konto(en) beschränkt."
+msgstr "Retrieval limited to %(anzahl)s account(s)."
+
+msgid "Abruf ist auf %(anzahl)s Konto(en) beschränkt: %(join)s."
+msgstr "Retrieval is limited to %(anzahl)s account(s): %(join)s."
+
+msgid "Abschließen (sperrt den Zeitraum, PDF in Ablage)"
+msgstr "Close (locks the period, PDF in archive)"
+
+msgid "Abstimmungen (aus OpenSlides)"
+msgstr "Votes (from OpenSlides)"
+
+msgid ""
+"Achtung: Differenz %(name)s: %(betrag)s zwischen Buchbestand und Ist-"
+"Bestand!"
+msgstr ""
+"Attention: difference %(name)s: %(betrag)s between book balance and actual "
+"balance!"
+
+msgid ""
+"Achtung: Mit dieser Zahlung liegt die Summe %(year)s für %(name)s bei "
+"%(betrag)s und überschreitet den Freibetrag von %(betrag_)s. Der "
+"übersteigende Betrag kann steuer- und sozialversicherungspflichtig sein."
+msgstr ""
+"Attention: with this payment the total %(year)s for %(name)s is %(betrag)s "
+"and exceeds the allowance of %(betrag_)s. The excess amount may be subject "
+"to tax and social security contributions."
+
+msgid "Aktuell verliehen an %(wer)s bis %(bis)s."
+msgstr "Currently on loan to %(wer)s until %(bis)s."
+
+msgid "Alle Kautionen zurückgezahlt"
+msgstr "All deposits refunded"
+
+msgid "Alle Schichten für Selbsteintrag freigeben"
+msgstr "Open all shifts for self sign-up"
+
+msgid "Alle Schichten für Selbsteintrag sperren"
+msgstr "Close all shifts for self sign-up"
+
+msgid ""
+"Alle Schichten für den Selbsteintrag sperren? Bereits eingetragene Helfer "
+"bleiben."
+msgstr ""
+"Close all shifts for self sign-up? Helpers who have already signed up "
+"remain."
+
+msgid "Alle Standardvorlagen sind vorhanden."
+msgstr "All standard templates are present."
+
+msgid "Alle ausgeben"
+msgstr "Issue all"
+
+msgid "Als PDF in Ablage speichern"
+msgstr "Save as PDF in archive"
+
+msgid "Als ausgezahlt markieren"
+msgstr "Mark as paid out"
+
+msgid "An Paperless senden"
+msgstr "Send to Paperless"
+
+msgid "Anfangsbestand"
+msgstr "Opening balance"
+
+msgid ""
+"Anfangsbestand %(betrag)s + Einnahmen %(betrag_)s − Ausgaben %(betrag__)s = "
+"Endbestand %(betrag___)s  (%(anzahl)s Buchungen)"
+msgstr ""
+"Opening balance %(betrag)s + income %(betrag_)s − expenses %(betrag__)s = "
+"closing balance %(betrag___)s  (%(anzahl)s bookings)"
+
+msgid "Angabe"
+msgstr "Detail"
+
+msgid "Anonymisieren (DSGVO)"
+msgstr "Anonymise (GDPR)"
+
+msgid "Antrag"
+msgstr "Motion"
+
+msgid "Anwesenheit (aus OpenSlides)"
+msgstr "Attendance (from OpenSlides)"
+
+msgid ""
+"Anwesenheit, Abstimmungen und Wahlen aus OpenSlides abrufen (als Anlagen)"
+msgstr ""
+"Retrieve attendance, votes and elections from OpenSlides (as appendices)"
+
+msgid ""
+"Anwesenheit, Wahlen und Abstimmungen aus OpenSlides abrufen? Zuvor "
+"übernommene Ergebnisse dieser Veranstaltung werden dabei ersetzt."
+msgstr ""
+"Retrieve attendance, elections and votes from OpenSlides? Results previously"
+" imported for this event will be replaced."
+
+msgid "Anwesenheit, Wahlen und Abstimmungen aus OpenSlides übernehmen"
+msgstr "Import attendance, elections and votes from OpenSlides"
+
+msgid "Anzahl Rechte"
+msgstr "Number of permissions"
+
+msgid ""
+"Aufwandsspende angelegt – eine Spendenquittung kann nun erstellt werden."
+msgstr "Expense donation created – a donation receipt can now be issued."
+
+msgid "Aus Zahlungen/Spenden/Veranstaltungen übernehmen"
+msgstr "Import from payments/donations/events"
+
+msgid "Ausgaben"
+msgstr "Expenses"
+
+msgid "Ausgeben"
+msgstr "Issue"
+
+msgid "Ausgegeben."
+msgstr "Issued."
+
+msgid "Ausstellen (Nummer vergeben, fixieren)"
+msgstr "Issue (assign number, finalise)"
+
+msgid "Ausstellen (nicht mehr änderbar)"
+msgstr "Issue (no longer editable)"
+
+msgid "Automatisch zuordnen"
+msgstr "Assign automatically"
+
+msgid "Bank-PIN"
+msgstr "Bank PIN"
+
+msgid "Beitrag"
+msgstr "Fee"
+
+msgid "Beitragsrechnungen erzeugen"
+msgstr "Generate fee invoices"
+
+msgid "Beiträge & Zahlungen"
+msgstr "Fees & payments"
+
+msgid "Beleg in Ablage gespeichert: %(ablage)s"
+msgstr "Receipt saved in archive: %(ablage)s"
+
+msgid "Beleg in Ablage übernehmen"
+msgstr "Take receipt into the archive"
+
+msgid "Beleg in der Ablage abgelegt."
+msgstr "Receipt filed in the archive."
+
+msgid "Berechtigungen gespeichert für: %(namen)s"
+msgstr "Permissions saved for: %(namen)s"
+
+msgid "Bereits zugeordnet."
+msgstr "Already assigned."
+
+msgid "Besetzung"
+msgstr "Staffing"
+
+msgid "Bestätigung %(nummer)s ausgestellt."
+msgstr "Receipt %(nummer)s issued."
+
+msgid "Bestätigung ausstellen? Sie ist danach nicht mehr änderbar."
+msgstr "Issue the receipt? It can no longer be changed afterwards."
+
+msgid "Bestätigung stornieren? Die Spenden werden wieder freigegeben."
+msgstr "Cancel the receipt? The donations will be released again."
+
+msgid "Betrag"
+msgstr "Amount"
+
+msgid "Bitte ein gültiges Fälligkeitsdatum angeben."
+msgstr "Please enter a valid due date."
+
+msgid "Bitte eine Datei auswählen."
+msgstr "Please select a file."
+
+msgid "Bitte einen Text eingeben oder eine Vorlage wählen."
+msgstr "Please enter a text or choose a template."
+
+msgid "Bitte gültige Daten angeben."
+msgstr "Please enter valid data."
+
+msgid "Bitte mindestens ein Dokument auswählen."
+msgstr "Please select at least one document."
+
+msgid ""
+"Bitte mindestens ein Konto auswählen oder „Alle Konten abrufen“ wählen."
+msgstr "Please select at least one account or choose \"Retrieve all accounts\"."
+
+msgid "Bitte mindestens ein Mitglied auswählen."
+msgstr "Please select at least one member."
+
+msgid "Bitte mindestens eine Rechnung auswählen."
+msgstr "Please select at least one invoice."
+
+msgid "Bitte mindestens einen Gegenstand auswählen."
+msgstr "Please select at least one item."
+
+msgid "Bitte zuerst Adresse und API-Token speichern."
+msgstr "Please save the address and API token first."
+
+msgid "Bitte zuerst unter Kasse › Konten mindestens ein Konto anlegen."
+msgstr "Please create at least one account under Cash book › Accounts first."
+
+msgid "Briefe erzeugen & in Ablage speichern"
+msgstr "Generate letters & save to archive"
+
+msgid "Briefe für den Postversand als PDF ({n_post})"
+msgstr "Letters for postal dispatch as PDF ({n_post})"
+
+msgid "Budget"
+msgstr "Budget"
+
+msgid ""
+"Datei enthält keine lesbare E-Rechnung (XRechnung/ZUGFeRD) – Beleg wurde "
+"trotzdem angehängt, bitte Angaben manuell eintragen."
+msgstr ""
+"The file does not contain a readable e-invoice (XRechnung/ZUGFeRD) – the "
+"receipt was attached anyway, please enter the details manually."
+
+msgid "Datenauskunft (JSON)"
+msgstr "Data request (JSON)"
+
+msgid ""
+"Datenschutzordnung: %(rollen)s Rolle(n) und %(tags)s Tag(s) angelegt "
+"(vorhandene bleiben unverändert)."
+msgstr ""
+"Data protection policy: %(rollen)s role(s) and %(tags)s tag(s) created "
+"(existing ones remain unchanged)."
+
+msgid ""
+"Der Abgleich läuft im Hintergrund. Das Ergebnis erscheint auf dieser Seite "
+"(ggf. neu laden)."
+msgstr ""
+"The comparison is running in the background. The result will appear on this "
+"page (reload if necessary)."
+
+msgid "Der Beleg wurde bereits in der Ablage abgelegt."
+msgstr "The receipt has already been filed in the archive."
+
+msgid ""
+"Der Versand läuft im Hintergrund. Das Ergebnis erscheint hier nach kurzer "
+"Zeit."
+msgstr ""
+"Sending is running in the background. The result will appear here shortly."
+
+msgid "Detailansicht"
+msgstr "Detail view"
+
+msgid "Die Bank verlangt eine weitere TAN."
+msgstr "The bank requires another TAN."
+
+msgid "Die Rechnung hat noch keine Positionen."
+msgstr "The invoice has no line items yet."
+
+msgid "Die Rechnung ist überfällig."
+msgstr "The invoice is overdue."
+
+msgid "Diese Buchung hat keinen Beleg."
+msgstr "This booking has no receipt."
+
+msgid ""
+"Diese Datei wurde bereits übergeben. Wirklich erneut senden? Paperless kann "
+"Duplikate ablehnen."
+msgstr ""
+"This file has already been transferred. Really send it again? Paperless may "
+"reject duplicates."
+
+msgid "Diese E-Mail-Adresse ist bereits einem Benutzerkonto zugeordnet."
+msgstr "This email address is already assigned to a user account."
+
+msgid "Dieser Benutzer hat bereits Zugang zu diesem Verein."
+msgstr "This user already has access to this club."
+
+msgid "Dieser Datensatz ist nicht mehr änderbar."
+msgstr "This record can no longer be changed."
+
+msgid "Dieser Datensatz kann nicht gelöscht werden."
+msgstr "This record cannot be deleted."
+
+msgid ""
+"Dieser Gegenstand ist nicht als verleihbar markiert bzw. "
+"defekt/ausgesondert."
+msgstr "This item is not marked as lendable or is defective/discarded."
+
+msgid "Dieses Dokument hat keine Datei."
+msgstr "This document has no file."
+
+msgid ""
+"Dieses Mitglied trägt eine Funktion mit Rolle (%(join)s), hat aber noch "
+"keinen Verwaltungszugang - bitte einrichten."
+msgstr ""
+"This member holds a function with a role (%(join)s) but does not have an "
+"administration account yet - please set one up."
+
+msgid "Downloads – %(name)s"
+msgstr "Downloads – %(name)s"
+
+msgid "E-Mail mit PDF-Anhang an %(n_mail)s Mitglieder senden?"
+msgstr "Send email with PDF attachment to %(n_mail)s members?"
+
+msgid "E-Mail-Versand: %(versand_info)s"
+msgstr "Email dispatch: %(versand_info)s"
+
+msgid "E-Mails an alle Mitglieder mit Adresse versenden?"
+msgstr "Send emails to all members with an address?"
+
+msgid "E-Rechnung (ZUGFeRD-PDF)"
+msgstr "E-invoice (ZUGFeRD PDF)"
+
+msgid "E-Rechnung konnte nicht erzeugt werden: %(e)s"
+msgstr "The e-invoice could not be generated: %(e)s"
+
+msgid ""
+"Eine Zeile je Adresszeile - steht als Anschrift auf dem Leihschein (Vorrang "
+"vor Mitglied/Kontakt)."
+msgstr ""
+"One line per address line - used as the address on the loan slip (takes "
+"precedence over member/contact)."
+
+msgid "Eingeteilte Helfer"
+msgstr "Assigned helpers"
+
+msgid "Einladung %(titel)s"
+msgstr "Invitation %(titel)s"
+
+msgid "Einladung an Mitglieder (Serienbrief)"
+msgstr "Invitation to members (mail merge)"
+
+msgid "Einladung erstellen"
+msgstr "Create invitation"
+
+msgid "Einnahmen"
+msgstr "Income"
+
+msgid "Einzelbestätigung erstellen"
+msgstr "Create individual receipt"
+
+msgid "Empfänger verzichtet auf die Erstattung? Es wird eine Spende angelegt."
+msgstr ""
+"Does the recipient waive the reimbursement? A donation will be created."
+
+msgid "Empfängerliste (erste 50 von %(n)s)"
+msgstr "Recipient list (first 50 of %(n)s)"
+
+msgid "Endbestand"
+msgstr "Closing balance"
+
+msgid "Enthaltene Spenden"
+msgstr "Included donations"
+
+msgid "Entleiher"
+msgstr "Borrower"
+
+msgid "Entwurf aus Vorlage erstellt – Text bei Bedarf anpassen."
+msgstr "Draft created from template – adjust the text if necessary."
+
+msgid "Entwurf erstellt. Bitte prüfen und ausstellen."
+msgstr "Draft created. Please check and issue."
+
+msgid "Entwürfe haben noch keine Rechnungsnummer - bitte zuerst ausstellen."
+msgstr "Drafts do not have an invoice number yet - please issue them first."
+
+msgid "Ergebnis nach Sphären"
+msgstr "Result by tax sphere"
+
+msgid "Erneut an Paperless senden"
+msgstr "Send to Paperless again"
+
+msgid ""
+"Es gibt bereits eine Rolle „%(name)s“ - bitte einen anderen Namen wählen "
+"oder das vorhandene Tag dafür bearbeiten."
+msgstr ""
+"A role \"%(name)s\" already exists - please choose a different name or edit "
+"the existing tag for it."
+
+msgid "Es werden wieder alle Konten dieses Zugangs abgerufen."
+msgstr "All accounts of this access will be retrieved again."
+
+msgid "Etikett drucken"
+msgstr "Print label"
+
+msgid "Etiketten drucken (alle)"
+msgstr "Print labels (all)"
+
+msgid "Feld"
+msgstr "Field"
+
+msgid "FinTS-Abruf fehlgeschlagen: %(fehler)s"
+msgstr "FinTS retrieval failed: %(fehler)s"
+
+msgid "FinTS-Abruf – TAN erforderlich"
+msgstr "FinTS retrieval – TAN required"
+
+msgid "Funktionen (Tags/Zugriffsrechte)"
+msgstr "Functions (tags/access rights)"
+
+msgid ""
+"Für Fortgeschrittene / technische Betreuung: Rechte lassen sich für die "
+"meisten Fälle einfacher über Tags vergeben (Verwaltung › Funktionen: Tags – "
+"dort auch mit oder ohne eigene Rechte neu anlegbar) oder in der "
+"Berechtigungsmatrix anpassen."
+msgstr ""
+"For advanced users / technical support: for most cases permissions are "
+"easier to assign via tags (Administration › Functions: Tags – can also be "
+"created there with or without their own permissions) or adjusted in the "
+"permission matrix."
+
+msgid ""
+"Für alle beitragspflichtigen Mitglieder ohne Rechnung Beitragsrechnungen "
+"erzeugen?"
+msgstr ""
+"Generate fee invoices for all members liable to pay fees who have no invoice"
+" yet?"
+
+msgid ""
+"Für die Selbstdatenpflege wird eine E-Mail-Adresse des Mitglieds benötigt."
+msgstr ""
+"An email address of the member is required for self-service data "
+"maintenance."
+
+msgid ""
+"Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss"
+" zuerst eine kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft "
+"registrieren und entweder verschlüsselt unter /admin/ (Systemeinstellungen) "
+"oder als Umgebungsvariable FINTS_PRODUCT_ID hinterlegen, bevor ein Abruf "
+"möglich ist."
+msgstr ""
+"No FinTS product ID is available for this server yet - the operator must "
+"first register a free product ID with the Deutsche Kreditwirtschaft and "
+"store it either encrypted under /admin/ (system settings) or as the "
+"environment variable FINTS_PRODUCT_ID before retrieval is possible."
+
+msgid ""
+"Für diesen Server liegt noch keine FinTS-Produkt-ID vor - der Betreiber muss"
+" zuerst eine kostenlose Produkt-ID bei der Deutschen Kreditwirtschaft "
+"registrieren und entweder verschlüsselt unter /admin/ (Systemeinstellungen) "
+"oder als Umgebungsvariable FINTS_PRODUCT_ID hinterlegen."
+msgstr ""
+"No FinTS product ID is available for this server yet - the operator must "
+"first register a free product ID with the Deutsche Kreditwirtschaft and "
+"store it either encrypted under /admin/ (system settings) or as the "
+"environment variable FINTS_PRODUCT_ID."
+
+msgid "Für dieses Mitglied besteht bereits ein Verwaltungszugang."
+msgstr "This member already has an administration account."
+
+msgid ""
+"Für einen Verwaltungszugang wird eine E-Mail-Adresse des Mitglieds benötigt."
+msgstr ""
+"An email address of the member is required for an administration account."
+
+msgid "Für neue Benutzer ist ein Passwort erforderlich."
+msgstr "A password is required for new users."
+
+msgid "Garantie abgelaufen."
+msgstr "Warranty expired."
+
+msgid "Gegenstand / Vorgang"
+msgstr "Item / transaction"
+
+msgid "Gegenstand ist defekt bzw. ausgesondert."
+msgstr "The item is defective or discarded."
+
+msgid "Genehmigen"
+msgstr "Approve"
+
+msgid "Gespeichertes Startpasswort gelöscht."
+msgstr "Stored initial password deleted."
+
+msgid "Gespeichertes Startpasswort löschen"
+msgstr "Delete stored initial password"
+
+msgid "Grund der Änderung (für das Protokoll)"
+msgstr "Reason for the change (for the log)"
+
+msgid "Hat eigene Rechte in dieser Software"
+msgstr "Has its own permissions in this software"
+
+msgid "Helfer-Selbsteintrag in Schichten"
+msgstr "Helper self sign-up for shifts"
+
+msgid "Herunterladen"
+msgstr "Download"
+
+msgid ""
+"Hinweis: Es liegt noch keine Erklärung des Empfängers zur Freibetragsnutzung"
+" vor."
+msgstr ""
+"Note: no declaration of the recipient on using the allowance is on file yet."
+
+msgid "Ignorieren"
+msgstr "Ignore"
+
+msgid "Ihre Daten wurden gespeichert."
+msgstr "Your data has been saved."
+
+msgid "Impressum – %(name)s"
+msgstr "Legal notice – %(name)s"
+
+msgid "In Ablage gespeichert: %(ablage)s"
+msgstr "Saved in archive: %(ablage)s"
+
+msgid "In Ablage gespeichert: %(ordner)s · Version %(version)s."
+msgstr "Saved in archive: %(ordner)s · version %(version)s."
+
+msgid "In OpenSlides anlegen"
+msgstr "Create in OpenSlides"
+
+msgid "Inhalt"
+msgstr "Content"
+
+msgid "Inventar reservieren"
+msgstr "Reserve inventory"
+
+msgid "Inventur abgeschlossen."
+msgstr "Inventory completed."
+
+msgid "Inventur abschließen"
+msgstr "Complete inventory"
+
+msgid "Inventur abschließen? Danach sind die Ergebnisse fixiert."
+msgstr "Complete the inventory? The results will be fixed afterwards."
+
+msgid "Jahresübersicht Freibeträge"
+msgstr "Annual overview of allowances"
+
+msgid "Jetzt abrufen"
+msgstr "Retrieve now"
+
+msgid "Kalender (.ics)"
+msgstr "Calendar (.ics)"
+
+msgid "Kandidat*in"
+msgstr "Candidate"
+
+msgid "Kassenbericht abgeschlossen und als PDF in der Ablage gespeichert."
+msgstr "Cash report completed and saved as PDF in the archive."
+
+msgid ""
+"Kassenbericht abschließen? Buchungen im Zeitraum sind danach nicht mehr "
+"änderbar."
+msgstr ""
+"Close the cash report? Bookings in the period can no longer be changed "
+"afterwards."
+
+msgid ""
+"Kassenbericht wieder geöffnet. Der Zeitraum ist für Buchungen entsperrt."
+msgstr "Cash report reopened. The period is unlocked for bookings."
+
+msgid ""
+"Kassenbericht wieder öffnen? Der Zeitraum wird für Buchungen entsperrt."
+msgstr "Reopen the cash report? The period will be unlocked for bookings."
+
+msgid "Kaution (%(kaution)s €) einbehalten und in Rechnung gestellt."
+msgstr "Deposit (%(kaution)s €) retained and invoiced."
+
+msgid "Kaution (%(kaution)s €) noch nicht als zurückgezahlt markiert."
+msgstr "Deposit (%(kaution)s €) not yet marked as refunded."
+
+msgid "Kaution als zurückgezahlt markiert."
+msgstr "Deposit marked as refunded."
+
+msgid "Kein Inventar vorhanden."
+msgstr "No inventory available."
+
+msgid "Keine Empfänger für den Postversand gefunden."
+msgstr "No recipients found for postal dispatch."
+
+msgid ""
+"Keine abgeschlossenen Wahlen oder Abstimmungen und keine Anwesenden "
+"gefunden."
+msgstr "No completed elections or votes and no attendees found."
+
+msgid "Keine ausgegebenen Gegenstände in diesem Vorgang."
+msgstr "No issued items in this transaction."
+
+msgid ""
+"Keine passende Vorlage vorhanden (Schriftverkehr › Vorlagen › "
+"Standardvorlagen nachladen)."
+msgstr ""
+"No suitable template available (Correspondence › Templates › Reload standard"
+" templates)."
+
+msgid "Keine Änderungen."
+msgstr "No changes."
+
+msgid "Kontenübersicht"
+msgstr "Account overview"
+
+msgid "Kontodaten – TAN erforderlich"
+msgstr "Account details – TAN required"
+
+msgid "Kontodaten-Abruf fehlgeschlagen: %(e)s"
+msgstr "Account details retrieval failed: %(e)s"
+
+msgid "Layout-Vorschau (PDF)"
+msgstr "Layout preview (PDF)"
+
+msgid ""
+"Leer lassen = gespeicherten Token behalten. Wird verschlüsselt gespeichert."
+msgstr "Leave empty = keep the stored token. It is stored encrypted."
+
+msgid ""
+"Leer lassen = gespeichertes Passwort behalten. Wird verschlüsselt "
+"gespeichert."
+msgstr "Leave empty = keep the stored password. It is stored encrypted."
+
+msgid "Leihschein (PDF)"
+msgstr "Loan slip (PDF)"
+
+msgid "Leihschein (PDF, alle Positionen)"
+msgstr "Loan slip (PDF, all items)"
+
+msgid ""
+"Löschen nicht möglich: Der Datensatz wird noch von anderen Daten verwendet."
+msgstr "Deleting is not possible: the record is still used by other data."
+
+msgid "Mahnung erzeugen"
+msgstr "Create reminder"
+
+msgid "Mehrere Gegenstände verleihen"
+msgstr "Lend several items"
+
+msgid "Meine Daten"
+msgstr "My data"
+
+msgid "Mitglied anonymisiert."
+msgstr "Member anonymised."
+
+msgid ""
+"Mitglied hat ein OpenSlides-Konto, die Anbindung ist aber nicht eingerichtet"
+" - bitte Name/E-Mail dort manuell prüfen und löschen."
+msgstr ""
+"The member has an OpenSlides account but the integration is not set up - "
+"please check and delete name/email there manually."
+
+msgid "Mitglieder dieser Familie"
+msgstr "Members of this family"
+
+msgid "Nachher"
+msgstr "After"
+
+msgid "Neue Version hochladen"
+msgstr "Upload new version"
+
+msgid "Neuen Einzug erstellen"
+msgstr "Create new collection"
+
+msgid "Nicht ersetzbare Platzhalter (fehlender Bezug): %(platzhalter)s"
+msgstr ""
+"Placeholders that cannot be replaced (missing reference): %(platzhalter)s"
+
+msgid "Nicht ersetzbare Platzhalter: %(platzhalter)s"
+msgstr "Placeholders that cannot be replaced: %(platzhalter)s"
+
+msgid "Nr."
+msgstr "No."
+
+msgid "Nur Entwürfe können ausgestellt werden."
+msgstr "Only drafts can be issued."
+
+msgid "Nur Reservierungen können ausgegeben werden."
+msgstr "Only reservations can be issued."
+
+msgid "Nur ausgegebene Gegenstände können zurückgenommen werden."
+msgstr "Only issued items can be taken back."
+
+msgid ""
+"Nur für Protokolle einer Veranstaltung, die mit einer OpenSlides-Versammlung"
+" verknüpft ist."
+msgstr "Only for minutes of an event that is linked to an OpenSlides meeting."
+
+msgid "Offene Rechnungen per E-Mail versenden"
+msgstr "Send open invoices by email"
+
+msgid "Offener Betrag: %(betrag)s"
+msgstr "Open amount: %(betrag)s"
+
+msgid "Ohne Beitrag übersprungen (Mitgliedsart/Regel fehlt): %(namen)s"
+msgstr "Skipped without fee (membership type/rule missing): %(namen)s"
+
+msgid ""
+"Ohne Haken ist das Tag eine reine Kennzeichnung ohne Software-Rechte (z. B. "
+"Beisitzer). Die Rechte unten (je Modul) wirken nur, wenn dieser Haken "
+"gesetzt ist."
+msgstr ""
+"Without the checkmark the tag is just a label without software permissions "
+"(e.g. assessor). The permissions below (per module) only take effect if this"
+" checkmark is set."
+
+msgid ""
+"OpenSlides-Konto konnte nicht angepasst werden (%(e)s) - bitte dort "
+"Name/E-Mail manuell prüfen und löschen."
+msgstr ""
+"The OpenSlides account could not be adjusted (%(e)s) - please check and "
+"delete name/email there manually."
+
+msgid "OpenSlides-Versammlung Nr. %(openslides_meeting_id)s ist verknüpft."
+msgstr "OpenSlides meeting no. %(openslides_meeting_id)s is linked."
+
+msgid "OpenSlides: %(e)s"
+msgstr "OpenSlides: %(e)s"
+
+msgid "OpenSlides: %(hinweis)s"
+msgstr "OpenSlides: %(hinweis)s"
+
+msgid "PDF ansehen"
+msgstr "View PDF"
+
+msgid "Packliste drucken (PDF)"
+msgstr "Print packing list (PDF)"
+
+msgid "Packliste: {wer}"
+msgstr "Packing list: {wer}"
+
+msgid "Paperless"
+msgstr "Paperless"
+
+msgid ""
+"Paperless-Konto konnte nicht angepasst werden (%(e)s) - bitte dort "
+"Name/E-Mail manuell prüfen und das Konto deaktivieren."
+msgstr ""
+"The Paperless account could not be adjusted (%(e)s) - please check "
+"name/email there manually and deactivate the account."
+
+msgid "Passwort (bei neuen Benutzern Pflicht)"
+msgstr "Password (required for new users)"
+
+msgid "Per E-Mail senden"
+msgstr "Send by email"
+
+msgid "Per E-Mail senden ({n_mail})"
+msgstr "Send by email ({n_mail})"
+
+msgid "Per E-Mail: %(n_mail)s · Per Post (Brief-PDF): %(n_post)s."
+msgstr "By email: %(n_mail)s · By post (letter PDF): %(n_post)s."
+
+msgid ""
+"Persönliche Daten unwiderruflich löschen? Rechnungen bleiben aus "
+"steuerlichen Gründen erhalten."
+msgstr ""
+"Delete personal data irrevocably? Invoices are retained for tax reasons."
+
+msgid "Platzhalter"
+msgstr "Placeholders"
+
+msgid "Positionen"
+msgstr "Items"
+
+msgid "Positionen (Filter: %(filter)s)"
+msgstr "Items (filter: %(filter)s)"
+
+msgid "Protokoll erstellen"
+msgstr "Create minutes"
+
+msgid "Rechnung %(nummer)s ausgestellt."
+msgstr "Invoice %(nummer)s issued."
+
+msgid "Rechnung ansehen"
+msgstr "View invoice"
+
+msgid ""
+"Rechnung ausstellen? Danach ist sie unveränderbar und erhält eine Nummer."
+msgstr ""
+"Issue the invoice? Afterwards it cannot be changed and receives a number."
+
+msgid "Rechnung per E-Mail versendet."
+msgstr "Invoice sent by email."
+
+msgid "Rechnung stornieren? Es wird eine Stornorechnung erzeugt."
+msgstr "Cancel the invoice? A cancellation invoice will be generated."
+
+msgid "Rechnung {nummer} ansehen"
+msgstr "View invoice {nummer}"
+
+msgid "Rechnungen anzeigen"
+msgstr "Show invoices"
+
+msgid "Reserviertes Inventar"
+msgstr "Reserved inventory"
+
+msgid "Reservierung stornieren"
+msgstr "Cancel reservation"
+
+msgid "Reservierung stornieren?"
+msgstr "Cancel reservation?"
+
+msgid "Rückgabe erfassen"
+msgstr "Record return"
+
+msgid "Rückgabe prüfen: %(bezeichnung)s (%(wer)s)"
+msgstr "Check return: %(bezeichnung)s (%(wer)s)"
+
+msgid "Rückgabe überfällig!"
+msgstr "Return overdue!"
+
+msgid "Rückgabe – %(gegenstand)s"
+msgstr "Return – %(gegenstand)s"
+
+msgid "Rückmeldung (Zu-/Absage)"
+msgstr "Response (accept/decline)"
+
+msgid "Rückzahlung an den Zahler noch offen: %(betrag)s."
+msgstr "Refund to the payer still open: %(betrag)s."
+
+msgid "Rückzahlung buchen"
+msgstr "Book refund"
+
+msgid ""
+"SEPA-Einzug %(nummer)s mit %(anzahl)s Lastschrift(en) über %(betrag)s "
+"erstellt."
+msgstr ""
+"SEPA collection %(nummer)s with %(anzahl)s direct debit(s) totalling "
+"%(betrag)s created."
+
+msgid "Sammelbestätigungen erstellen"
+msgstr "Create collective receipts"
+
+msgid "Schichtplan"
+msgstr "Shift plan"
+
+msgid "Schichtplan der Veranstaltung drucken (PDF)"
+msgstr "Print the event's shift plan (PDF)"
+
+msgid "Schichtplan drucken (PDF)"
+msgstr "Print shift plan (PDF)"
+
+msgid "Selbsteintrag"
+msgstr "Self sign-up"
+
+msgid "Sphäre"
+msgstr "Tax sphere"
+
+msgid ""
+"Stand %(year)s für %(name)s: %(betrag)s von %(betrag_)s Freibetrag "
+"(%(wert4)s)."
+msgstr ""
+"Status %(year)s for %(name)s: %(betrag)s of %(betrag_)s allowance "
+"(%(wert4)s)."
+
+msgid "Standard-Tagesordnung (Mitgliederversammlung)"
+msgstr "Standard agenda (general meeting)"
+
+msgid "Standard-Tagesordnung angelegt – bitte anpassen."
+msgstr "Standard agenda created - please adjust it."
+
+msgid "Standardvorlagen nachladen"
+msgstr "Reload standard templates"
+
+msgid "Stimmen"
+msgstr "Votes"
+
+msgid "Stimmen je Kandidat*in"
+msgstr "Votes per candidate"
+
+msgid "Stornieren"
+msgstr "Cancel"
+
+msgid "Storniert."
+msgstr "Cancelled."
+
+msgid "Storno / Gutschriften"
+msgstr "Cancellations / credit notes"
+
+msgid "TAN"
+msgstr "TAN"
+
+msgid "Tagesordnung nach OpenSlides übertragen"
+msgstr "Transfer agenda to OpenSlides"
+
+msgid "Thema"
+msgstr "Topic"
+
+msgid "Umsätze abrufen: {bezeichnung}"
+msgstr "Retrieve transactions: {bezeichnung}"
+
+msgid "Ungültiger Zustand."
+msgstr "Invalid state."
+
+msgid "Verbindung erfolgreich: Anmeldung an OpenSlides funktioniert."
+msgstr "Connection successful: login to OpenSlides works."
+
+msgid "Verbindung erfolgreich: Paperless ist erreichbar."
+msgstr "Connection successful: Paperless is reachable."
+
+msgid "Verbindung fehlgeschlagen: %(e)s"
+msgstr "Connection failed: %(e)s"
+
+msgid "Verein / Einstellungen"
+msgstr "Club / Settings"
+
+msgid "Vereinsdaten gespeichert."
+msgstr "Club data saved."
+
+msgid "Verknüpfte Kassenbuch-Konten"
+msgstr "Linked cash book accounts"
+
+msgid "Verleih / Reservierung anlegen"
+msgstr "Create loan / reservation"
+
+msgid "Verleih-Vorgang – %(wer)s"
+msgstr "Loan transaction – %(wer)s"
+
+msgid "Verleih-Warenkorb"
+msgstr "Loan cart"
+
+msgid "Verleihhistorie"
+msgstr "Loan history"
+
+msgid ""
+"Versammlung in OpenSlides angelegt (ID %(mid)s), %(n)s Tagesordnungspunkte "
+"übertragen. %(rechte)s Weitere Teilnehmer bitte in OpenSlides hinzufügen."
+msgstr ""
+"Meeting created in OpenSlides (ID %(mid)s), %(n)s agenda items transferred. "
+"%(rechte)s Please add further participants in OpenSlides."
+
+msgid "Versand fehlgeschlagen: %(e)s"
+msgstr "Sending failed: %(e)s"
+
+msgid "Verwaltungszugang ({rolle}{status}) bearbeiten"
+msgstr "Edit administration account ({rolle}{status})"
+
+msgid "Verwaltungszugang eingerichtet, Zugangsdaten an %(email)s gesendet."
+msgstr "Administration account set up, login details sent to %(email)s."
+
+msgid "Verwaltungszugang einrichten"
+msgstr "Set up administration account"
+
+msgid "Verwaltungszugang für %(name)s einrichten"
+msgstr "Set up administration account for %(name)s"
+
+msgid "Verzicht → Aufwandsspende"
+msgstr "Waiver → expense donation"
+
+msgid "Vollexport (Excel)"
+msgstr "Full export (Excel)"
+
+msgid "Vollexport mit Bankdaten"
+msgstr "Full export with bank details"
+
+msgid "Vorher"
+msgstr "Before"
+
+msgid "Vorjahr"
+msgstr "Previous year"
+
+msgid "Vorschau (erster Empfänger)"
+msgstr "Preview (first recipient)"
+
+msgid "Wahlergebnisse (aus OpenSlides)"
+msgstr "Election results (from OpenSlides)"
+
+msgid "Warenkorb ({anzahl})"
+msgstr "Cart ({anzahl})"
+
+msgid "Weitere Versionen"
+msgstr "Further versions"
+
+msgid "Wert"
+msgstr "Value"
+
+msgid "Wieder öffnen"
+msgstr "Reopen"
+
+msgid ""
+"Wird an Paperless gesendet – Ergebnis erscheint in Kürze auf dieser Seite "
+"(ggf. neu laden)."
+msgstr ""
+"Being sent to Paperless – the result will appear on this page shortly "
+"(reload if necessary)."
+
+msgid "Word (.docx)"
+msgstr "Word (.docx)"
+
+msgid "Zahlung auf %(nummer)s gebucht."
+msgstr "Payment booked on %(nummer)s."
+
+msgid "Zahlung erfassen"
+msgstr "Record payment"
+
+msgid "Zugang gesperrt."
+msgstr "Access locked."
+
+msgid "Zugang sperren?"
+msgstr "Lock access?"
+
+msgid "Zugang zur Selbstdatenpflege sperren"
+msgstr "Lock access to self-service data maintenance"
+
+msgid "Zugangsdaten an %(email)s gesendet."
+msgstr "Login details sent to %(email)s."
+
+msgid "Zugangsdaten für Selbstdatenpflege senden"
+msgstr "Send login details for self-service data maintenance"
+
+msgid "Zugangsdaten per E-Mail an %(wert0)s senden?"
+msgstr "Send login details by email to %(wert0)s?"
+
+msgid "Zugeordnet: %(ok)s, manuelle Zuordnung erforderlich: %(manuell)s."
+msgstr "Assigned: %(ok)s, manual assignment required: %(manuell)s."
+
+msgid "Zuletzt abgelegt als %(ablage)s."
+msgstr "Last saved as %(ablage)s."
+
+msgid "Zum gesamten Vorgang"
+msgstr "To the whole transaction"
+
+msgid "Zuordnung"
+msgstr "Assignment"
+
+msgid "Zur Bestätigung {bestaetigung}"
+msgstr "To confirm: {bestaetigung}"
+
+msgid "Zwischennotizen (wie ein Ticket-Verlauf)"
+msgstr "Interim notes (like a ticket history)"
+
+msgid "Änderungshistorie"
+msgstr "Change history"
+
+msgid ""
+"Über „Neu“ lässt sich eine beliebige, extern erstellte Datei (PDF, Word, "
+"Bild, …) hochladen und der Ablage zuordnen - z. B. ein eingescanntes "
+"Dokument oder eine Vorstandssitzung-Unterlage, die nicht in dieser Software "
+"erstellt wurde."
+msgstr ""
+"Via \"New\" any externally created file (PDF, Word, image, …) can be "
+"uploaded and assigned to the archive - e.g. a scanned document or a board "
+"meeting document that was not created in this software."
+
+msgid "„%(g)s“ ist schon im Warenkorb."
+msgstr "\"%(g)s\" is already in the cart."
+
+msgid "„%(g)s“ zum Verleih-Warenkorb hinzugefügt."
+msgstr "\"%(g)s\" added to the loan cart."
 
 #~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
 #~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
@@ -5318,55 +6547,10 @@ msgstr "Document archive: connection and transfer"
 #~ "New transactions are created as bank transactions, duplicates are skipped "
 #~ "automatically."
 
-# Uebersicht Vereinseinstellungen
+# Oeffentliche Seiten
 
-msgid "Vereinsdaten"
-msgstr "Club data"
+msgid "Für diesen Verein wurde noch kein vollständiges Impressum hinterlegt."
+msgstr "No complete legal notice has been stored for this club yet."
 
-msgid "Name, Anschrift, Kontakt, Registereintrag"
-msgstr "Name, address, contact, register entry"
-
-msgid "Vereinslogo, Akzentfarben für Briefe/PDFs und Weboberfläche"
-msgstr "Club logo, accent colours for letters/PDFs and the web interface"
-
-msgid "Briefe: Unterschriften"
-msgstr "Letters: signatures"
-
-msgid "Unterschriftszeilen im Briefkopf und in Briefen"
-msgstr "Signature lines in the letterhead and in letters"
-
-msgid "Größe und Anordnung der Inventar-Etiketten"
-msgstr "Size and arrangement of the inventory labels"
-
-msgid "Banner auf der Startseite, Impressumstext"
-msgstr "Start page banner, legal notice text"
-
-msgid "Bankverbindung"
-msgstr "Bank details"
-
-msgid "Bank, IBAN, BIC, Gläubiger-ID (SEPA)"
-msgstr "Bank, IBAN, BIC, creditor ID (SEPA)"
-
-msgid ""
-"Finanzamt, Steuernummer, Umsatzsteuer, Gemeinnützigkeitsbescheid, "
-"Freibeträge"
-msgstr "Tax office, tax number, VAT, non-profit notice, allowances"
-
-msgid "Zahlungsziel, Rechnungstexte oben und unten"
-msgstr "Payment terms, invoice texts above and below"
-
-# Fusszeile ohne Vereinsnamen
-
-msgid "Vereinsangaben ohne Vereinsnamen und Seitenzahl"
-msgstr "Club details without club name, and page number"
-
-# Detailseite: Links
-
-msgid "Links zum Weitergeben"
-msgstr "Links to share"
-
-msgid "Link kopieren"
-msgstr "Copy link"
-
-msgid "Seite öffnen"
-msgstr "Open page"
+msgid "Aktuell sind keine öffentlichen Dokumente hinterlegt."
+msgstr "There are currently no public documents."

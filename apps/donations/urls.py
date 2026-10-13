@@ -4,6 +4,7 @@ from apps.core.crud import crud
 
 from . import views
 from .models import Spende, Zuwendungsbestaetigung
+from django.utils.translation import gettext_lazy
 
 urlpatterns = [
     path("spenden/sammelbestaetigungen/", views.quittung_sammel, name="quittung_sammel"),
@@ -12,7 +13,7 @@ urlpatterns = [
     path("spendenquittungen/<int:pk>/ausstellen/", views.bestaetigung_ausstellen, name="zuwendungsbestaetigung_ausstellen"),
     path("spendenquittungen/<int:pk>/stornieren/", views.bestaetigung_stornieren, name="zuwendungsbestaetigung_stornieren"),
 ]
-urlpatterns += crud("spenden", Spende, "spenden", list_display=("datum", ("name_des_spenders", "Spender"), "art",
+urlpatterns += crud("spenden", Spende, "spenden", list_display=("datum", ("name_des_spenders", gettext_lazy("Spender")), "art",
                     "betrag", "bestaetigung"), suche=("spender_name", "spender__nachname", "zweck"),
                     filter=("art", "spender"), select_related=("spender", "bestaetigung"), kontext=views.spende_kontext,
                     listen_aktionen=views.spenden_listen_aktionen, ordering=("-datum", "-id"),

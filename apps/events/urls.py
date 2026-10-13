@@ -6,6 +6,7 @@ from . import views
 from .forms import AufgabeForm
 from .models import (Anmeldung, Anwesenheit, Aufgabe, AufgabeNotiz, Kostenposition, Schicht, Schichteinsatz, Tagesordnungspunkt,
                      Veranstaltung, Wahlergebnis)
+from django.utils.translation import gettext_lazy
 
 
 def _aufgabe_zeile_klasse(a):
@@ -25,11 +26,11 @@ urlpatterns = [
          name="veranstaltung_schichten_freigabe"),
 ]
 urlpatterns += crud("veranstaltungen", Veranstaltung, "veranstaltungen",
-                    list_display=("beginn", "titel", "art", "ort", "status", ("verantwortlich", "Verantwortlich")),
+                    list_display=("beginn", "titel", "art", "ort", "status", ("verantwortlich", gettext_lazy("Verantwortlich"))),
                     suche=("titel", "ort"), filter=("status", "art"), select_related=("verantwortlich",),
                     kontext=views.veranstaltung_kontext, listen_aktionen=views.listen_aktionen, ordering=("-beginn",))
 urlpatterns += crud("aufgaben", Aufgabe, "veranstaltungen", form=AufgabeForm, list_display=("titel", "veranstaltung",
-                    ("wer_zustaendig", "Zuständig"), "faellig", "status"),
+                    ("wer_zustaendig", gettext_lazy("Zuständig")), "faellig", "status"),
                     select_related=("veranstaltung", "zustaendig", "zustaendig_benutzer"),
                     filter=("veranstaltung", "status", "zustaendig"), kontext=views.aufgabe_kontext,
                     ordering=("titel",), zeile_klasse=_aufgabe_zeile_klasse)
@@ -37,11 +38,11 @@ urlpatterns += crud("aufgabenotizen", AufgabeNotiz, "veranstaltungen", list_disp
                     "erstellt_von", "text"), select_related=("aufgabe",), filter=("aufgabe",), edit=False,
                     nach_speichern=views.notiz_nach_speichern)
 urlpatterns += crud("schichten", Schicht, "veranstaltungen", list_display=("veranstaltung", "bezeichnung", "beginn",
-                    "ende", ("besetzung", "Besetzung"), ("selbsteintrag", "Selbsteintrag")), select_related=("veranstaltung",), filter=("veranstaltung",),
+                    "ende", ("besetzung", gettext_lazy("Besetzung")), ("selbsteintrag", gettext_lazy("Selbsteintrag"))), select_related=("veranstaltung",), filter=("veranstaltung",),
                     kontext=views.schicht_kontext)
-urlpatterns += crud("schichteinsaetze", Schichteinsatz, "veranstaltungen", list_display=("schicht", ("wer", "Helfer"), ("zuordnung", "Zuordnung"), "kontakt"),
+urlpatterns += crud("schichteinsaetze", Schichteinsatz, "veranstaltungen", list_display=("schicht", ("wer", gettext_lazy("Helfer")), ("zuordnung", gettext_lazy("Zuordnung")), "kontakt"),
                     select_related=("schicht", "mitglied", "schicht__veranstaltung"), filter=("schicht",))
-urlpatterns += crud("anmeldungen", Anmeldung, "teilnehmer", list_display=("veranstaltung", ("wer", "Name"),
+urlpatterns += crud("anmeldungen", Anmeldung, "teilnehmer", list_display=("veranstaltung", ("wer", gettext_lazy("Name")),
                     "personen", "status"), select_related=("veranstaltung", "mitglied"), filter=("veranstaltung",
                     "status"))
 urlpatterns += crud("kostenpositionen", Kostenposition, "veranstaltungen", list_display=("veranstaltung", "art",
@@ -54,5 +55,5 @@ urlpatterns += crud("wahlergebnisse", Wahlergebnis, "veranstaltungen", list_disp
                     select_related=("veranstaltung",), filter=("veranstaltung",), add=False, edit=False,
                     detail_ausblenden=("details", "ergebnis", "openslides_poll_id"),
                     kontext=views.wahlergebnis_kontext)
-urlpatterns += crud("anwesenheit", Anwesenheit, "teilnehmer", list_display=("veranstaltung", ("wer", "Name")),
+urlpatterns += crud("anwesenheit", Anwesenheit, "teilnehmer", list_display=("veranstaltung", ("wer", gettext_lazy("Name"))),
                     select_related=("veranstaltung", "mitglied"), filter=("veranstaltung",), add=False, edit=False)

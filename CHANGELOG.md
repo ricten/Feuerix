@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.87.0
+
+- **Englische Oberfläche durchgängig:** Rund 330 bisher nur deutsche Meldungen, Knopf-Beschriftungen, Hinweise, Seitentitel und Tabellenköpfe in den
+  Ansichten sind jetzt übersetzbar und ins Englische übersetzt (Knopf-Icons bleiben unverändert). Neuer Test, der fehlende Übersetzungen meldet;
+  PDF/Word/E-Mails an Empfänger bleiben bewusst deutsch.
+
 ## 1.86.1
 
 - Englischer Katalog: drei fehlende Übersetzungen der Detailseite („Links zum Weitergeben“, „Link kopieren“, „Seite öffnen“) ergänzt.

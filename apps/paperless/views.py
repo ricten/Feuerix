@@ -13,6 +13,7 @@ from apps.documents.models import Ablagedokument
 from .client import PaperlessFehler
 from .forms import VerbindungForm
 from .models import PaperlessVerbindung
+from django.utils.translation import gettext
 
 
 def _pruefen(request, aktion):
@@ -39,12 +40,12 @@ def einstellungen(request):
         if form.is_valid():
             form.instance.verein = request.verein
             form.save()
-            messages.success(request, "Einstellungen gespeichert.")
+            messages.success(request, gettext("Einstellungen gespeichert."))
             return redirect("paperless_einstellungen")
     from .models import PaperlessBenutzer
     konten = PaperlessBenutzer.objects.filter(verein=request.verein).select_related("mitglied")
     return render(request, "paperless/einstellungen.html", {
-        "titel": "Paperless-Anbindung", "form": form, "inst": inst if inst.pk else None, "kann": kann,
+        "titel": gettext("Paperless-Anbindung"), "form": form, "inst": inst if inst.pk else None, "kann": kann,
         "konten": konten, "mit_pw": konten.exclude(initialpasswort="").count()})
 
 
@@ -55,15 +56,15 @@ def test(request):
     from . import services
     v = PaperlessVerbindung.objects.filter(verein=request.verein).first()
     if v is None:
-        messages.error(request, "Bitte zuerst Adresse und API-Token speichern.")
+        messages.error(request, gettext("Bitte zuerst Adresse und API-Token speichern."))
         return redirect("paperless_einstellungen")
     try:
         services.verbindung_testen(v)
-        messages.success(request, "Verbindung erfolgreich: Paperless ist erreichbar.")
+        messages.success(request, gettext("Verbindung erfolgreich: Paperless ist erreichbar."))
     except PaperlessFehler as e:
         v.letzter_test = f"Fehler: {e}"[:300]
         v.save(update_fields=["letzter_test", "geaendert"])
-        messages.error(request, f"Verbindung fehlgeschlagen: {e}")
+        messages.error(request, gettext("Verbindung fehlgeschlagen: %(e)s") % {"e": e})
     return redirect("paperless_einstellungen")
 
 
@@ -78,13 +79,12 @@ def dokument_senden(request, pk):
         messages.error(request, str(e))
         return redirect("ablagedokument_detail", pk=d.pk)
     if not d.datei:
-        messages.error(request, "Dieses Dokument hat keine Datei.")
+        messages.error(request, gettext("Dieses Dokument hat keine Datei."))
         return redirect("ablagedokument_detail", pk=d.pk)
     from .tasks import senden_task
     _wartet_markieren(Ablagedokument.objects.filter(pk=d.pk))
     senden_task.delay(v.pk, d.pk, request.POST.get("erneut") == "1")
-    messages.success(request, "Wird an Paperless gesendet – Ergebnis erscheint in Kürze auf dieser Seite "
-                              "(ggf. neu laden).")
+    messages.success(request, gettext("Wird an Paperless gesendet – Ergebnis erscheint in Kürze auf dieser Seite (ggf. neu laden)."))
     return redirect("ablagedokument_detail", pk=d.pk)
 
 
@@ -151,15 +151,14 @@ def sammelversand(request):
         ids = [int(pk) for pk in request.POST.getlist("dokumente") if pk.isdigit()]
         ids = list(qs.filter(pk__in=ids).values_list("pk", flat=True))
         if not ids:
-            messages.error(request, "Bitte mindestens ein Dokument auswählen.")
+            messages.error(request, gettext("Bitte mindestens ein Dokument auswählen."))
             return redirect("ablage_paperless_sammelversand")
         from .tasks import sammel_senden_task
         _wartet_markieren(qs.filter(pk__in=ids))
         sammel_senden_task.delay(v.pk, ids, request.POST.get("erneut") == "1")
-        messages.success(request, f"{len(ids)} Dokument(e) werden an Paperless gesendet – Ergebnis erscheint "
-                                  "in Kürze in der Ablage (ggf. neu laden).")
+        messages.success(request, gettext("%(anzahl)s Dokument(e) werden an Paperless gesendet – Ergebnis erscheint in Kürze in der Ablage (ggf. neu laden).") % {"anzahl": len(ids)})
         return redirect("ablage_paperless_sammelversand")
-    return render(request, "paperless/sammelversand.html", {"titel": "Sammelversand an Paperless", "dokumente": qs})
+    return render(request, "paperless/sammelversand.html", {"titel": gettext("Sammelversand an Paperless"), "dokumente": qs})
 
 
 @login_required
@@ -173,7 +172,7 @@ def vorstand_abgleich(request):
         return redirect("paperless_einstellungen")
     from .tasks import vorstand_abgleich_task
     vorstand_abgleich_task.delay(v.pk)
-    messages.success(request, "Der Abgleich läuft im Hintergrund. Das Ergebnis erscheint auf dieser Seite (ggf. neu laden).")
+    messages.success(request, gettext("Der Abgleich läuft im Hintergrund. Das Ergebnis erscheint auf dieser Seite (ggf. neu laden)."))
     return redirect("paperless_einstellungen")
 
 
@@ -183,5 +182,5 @@ def vorstand_passwoerter_loeschen(request):
     _pruefen(request, "change")
     from .models import PaperlessBenutzer
     n = PaperlessBenutzer.objects.filter(verein=request.verein).exclude(initialpasswort="").update(initialpasswort="")
-    messages.success(request, f"{n} gespeicherte Startpasswörter gelöscht.")
+    messages.success(request, gettext("%(n)s gespeicherte Startpasswörter gelöscht.") % {"n": n})
     return redirect("paperless_einstellungen")

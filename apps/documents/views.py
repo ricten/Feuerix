@@ -21,6 +21,8 @@ from .docx_export import schriftstueck_docx
 from .models import Ablagedokument, Schriftstueck, Serienbrief, Vorlage
 from .pdf import absaetze, schriftstueck_pdf, serienbrief_pdf
 from .platzhalter import OPENSLIDES_PLATZHALTER, PLATZHALTER, ersetzen, kontext, offene
+from django.utils.translation import gettext, gettext_lazy
+from django.utils.text import format_lazy
 
 
 def _pruefen(request, modul, aktion):
@@ -71,24 +73,25 @@ def _pdf_antwort(inhalt, name, inline=True):
 # ---------------------------------------------------------------- Schriftstück
 def schriftstueck_kontext(request, s):
     rt, aktionen = request.rechte, [
-        knopf("PDF ansehen", reverse("schriftstueck_pdf", args=[s.pk]), stil="primary"),
-        knopf("Word (.docx)", reverse("schriftstueck_docx", args=[s.pk]))]
+        knopf(gettext_lazy("PDF ansehen"), reverse("schriftstueck_pdf", args=[s.pk]), stil="primary"),
+        knopf(gettext_lazy("Word (.docx)"), reverse("schriftstueck_docx", args=[s.pk]))]
     if rt.darf("ablage", "add"):
-        aktionen.append(knopf("Als PDF in Ablage speichern", reverse("schriftstueck_ablegen", args=[s.pk]), post=True,
+        aktionen.append(knopf(gettext_lazy("Als PDF in Ablage speichern"), reverse("schriftstueck_ablegen", args=[s.pk]), post=True,
                               stil="success"))
     if s.veranstaltung_id:
-        aktionen.append(knopf("Zur Veranstaltung", reverse("veranstaltung_detail", args=[s.veranstaltung_id])))
+        aktionen.append(knopf(gettext_lazy("Zur Veranstaltung"), reverse("veranstaltung_detail", args=[s.veranstaltung_id])))
         if (s.art == "protokoll" and s.veranstaltung.openslides_meeting_id and rt.darf("schriftverkehr", "change")
                 and rt.darf("openslides", "change") and anbindungen(request).openslides):
-            aktionen.append(knopf("Anwesenheit, Abstimmungen und Wahlen aus OpenSlides abrufen (als Anlagen)",
+            aktionen.append(knopf(gettext_lazy("Anwesenheit, Abstimmungen und Wahlen aus OpenSlides abrufen (als Anlagen)"),
                                   reverse("schriftstueck_abstimmungen", args=[s.pk]), post=True,
                                   stil="outline-success"))
     hinweise = []
     fehlend = offene(s.text + " " + s.betreff, s.kontext())
     if fehlend:
-        hinweise.append("Nicht ersetzbare Platzhalter (fehlender Bezug): " + ", ".join("{" + f + "}" for f in fehlend))
+        hinweise.append(gettext("Nicht ersetzbare Platzhalter (fehlender Bezug): %(platzhalter)s") % {
+            "platzhalter": ", ".join("{" + f + "}" for f in fehlend)})
     if s.ablage_id:
-        hinweise.append(f"Zuletzt abgelegt als {s.ablage}.")
+        hinweise.append(gettext("Zuletzt abgelegt als %(ablage)s.") % {"ablage": s.ablage})
     return {"aktionen": aktionen, "hinweise": hinweise,
             "vorschau": pdf_vorschau(reverse("schriftstueck_pdf", args=[s.pk]))}
 
@@ -125,13 +128,13 @@ def schriftstueck_ablegen(request, pk):
     s.save(update_fields=["ablage", "geaendert"])
     if s.status == "final":
         _auto_uebergeben(d)
-    messages.success(request, f"In Ablage gespeichert: {d.ordner} · Version {d.version}.")
+    messages.success(request, gettext("In Ablage gespeichert: %(ordner)s · Version %(version)s.") % {"ordner": d.ordner, "version": d.version})
     return redirect("schriftstueck_detail", pk=s.pk)
 
 
 # ---------------------------------------------------------------- Vorlage
 def vorlage_kontext(request, v):
-    return {"aktionen": [knopf("Layout-Vorschau (PDF)", reverse("vorlage_vorschau", args=[v.pk]), stil="primary")],
+    return {"aktionen": [knopf(gettext_lazy("Layout-Vorschau (PDF)"), reverse("vorlage_vorschau", args=[v.pk]), stil="primary")],
             "vorschau": pdf_vorschau(reverse("vorlage_vorschau", args=[v.pk]))}
 
 
@@ -170,28 +173,29 @@ def serienbrief_kontext(request, sb):
     mit_mail = empf.exclude(email="").count()
     n_mail = sb.mail_empfaenger().count()
     n_post = sb.post_empfaenger().count()
-    aktionen = [knopf("Vorschau (erster Empfänger)", reverse("serienbrief_pdf", args=[sb.pk]), stil="primary")]
+    aktionen = [knopf(gettext_lazy("Vorschau (erster Empfänger)"), reverse("serienbrief_pdf", args=[sb.pk]), stil="primary")]
     if n_post:
-        aktionen.append(knopf(f"Briefe für den Postversand als PDF ({n_post})",
+        aktionen.append(knopf(format_lazy(gettext_lazy("Briefe für den Postversand als PDF ({n_post})"), n_post=n_post),
                               reverse("serienbrief_pdf", args=[sb.pk]) + "?alle=1"))
         if rt.darf("ablage", "add"):
-            aktionen.append(knopf("Briefe erzeugen & in Ablage speichern", reverse("serienbrief_ablegen", args=[sb.pk]),
+            aktionen.append(knopf(gettext_lazy("Briefe erzeugen & in Ablage speichern"), reverse("serienbrief_ablegen", args=[sb.pk]),
                                   post=True, stil="success",
-                                  bestaetigung=f"{n_post} Briefe als PDF erzeugen und in der Ablage speichern?"))
+                                  bestaetigung=gettext("%(n_post)s Briefe als PDF erzeugen und in der Ablage speichern?") % {"n_post": n_post}))
     if rt.darf("rundschreiben", "change") and n_mail:
-        aktionen.append(knopf(f"Per E-Mail senden ({n_mail})", reverse("serienbrief_mailen", args=[sb.pk]), post=True,
+        aktionen.append(knopf(format_lazy(gettext_lazy("Per E-Mail senden ({n_mail})"), n_mail=n_mail), reverse("serienbrief_mailen", args=[sb.pk]), post=True,
                               stil="outline-primary",
-                              bestaetigung=f"E-Mail mit PDF-Anhang an {n_mail} Mitglieder senden?"))
-    hinweise = [f"{n} Empfänger, davon {mit_mail} mit E-Mail-Adresse. Versand: {sb.get_versandart_display()}.",
-                f"Per E-Mail: {n_mail} · Per Post (Brief-PDF): {n_post}."]
+                              bestaetigung=gettext("E-Mail mit PDF-Anhang an %(n_mail)s Mitglieder senden?") % {"n_mail": n_mail}))
+    hinweise = [gettext("%(n)s Empfänger, davon %(mit_mail)s mit E-Mail-Adresse. Versand: %(get_versandart_display)s.") % {"n": n, "mit_mail": mit_mail, "get_versandart_display": sb.get_versandart_display()},
+                gettext("Per E-Mail: %(n_mail)s · Per Post (Brief-PDF): %(n_post)s.") % {"n_mail": n_mail, "n_post": n_post}]
     fehlend = offene(sb.text + " " + sb.betreff, kontext(sb.verein, mitglied=empf.first(), veranstaltung=sb.veranstaltung))
     if fehlend:
-        hinweise.append("Nicht ersetzbare Platzhalter: " + ", ".join("{" + f + "}" for f in fehlend))
+        hinweise.append(gettext("Nicht ersetzbare Platzhalter: %(platzhalter)s") % {
+            "platzhalter": ", ".join("{" + f + "}" for f in fehlend)})
     if sb.versand_info:
-        hinweise.append(f"E-Mail-Versand: {sb.versand_info}")
+        hinweise.append(gettext("E-Mail-Versand: %(versand_info)s") % {"versand_info": sb.versand_info})
     return {"aktionen": aktionen, "hinweise": hinweise,
-            "abschnitte": [{"titel": f"Empfängerliste (erste 50 von {n})",
-                            "spalten": ["Mitglied", "E-Mail", "Ort", "Versand"],
+            "abschnitte": [{"titel": gettext("Empfängerliste (erste 50 von %(n)s)") % {"n": n},
+                            "spalten": [gettext("Mitglied"), gettext("E-Mail"), gettext("Ort"), gettext("Versand")],
                             "zeilen": [{"url": None, "zellen": [m.name, m.email or "–", m.ort or "–", _versandweg(sb, m)]}
                                        for m in empf[:50]],
                             "add_url": None}],
@@ -218,7 +222,7 @@ def serienbrief_ablegen(request, pk):
     sb = get_object_or_404(Serienbrief, pk=pk, verein=request.verein)
     empf = list(sb.post_empfaenger())
     if not empf:
-        messages.error(request, "Keine Empfänger für den Postversand gefunden.")
+        messages.error(request, gettext("Keine Empfänger für den Postversand gefunden."))
         return redirect("serienbrief_detail", pk=sb.pk)
     d = services.ablegen(request.verein, sb.titel, "serienbrief", f"{sb.titel[:60]}.pdf", serienbrief_pdf(sb, empf),
                          datum=sb.datum, veranstaltung=sb.veranstaltung,
@@ -227,7 +231,7 @@ def serienbrief_ablegen(request, pk):
     sb.ablage = d
     sb.save(update_fields=["ablage", "geaendert"])
     _auto_uebergeben(d)
-    messages.success(request, f"{len(empf)} Briefe in der Ablage gespeichert ({d.ordner}, Version {d.version}).")
+    messages.success(request, gettext("%(anzahl)s Briefe in der Ablage gespeichert (%(ordner)s, Version %(version)s).") % {"anzahl": len(empf), "ordner": d.ordner, "version": d.version})
     return redirect("ablagedokument_detail", pk=d.pk)
 
 
@@ -238,7 +242,7 @@ def serienbrief_mailen(request, pk):
     from .tasks import serienbrief_mailen_task
     sb = get_object_or_404(Serienbrief, pk=pk, verein=request.verein)
     serienbrief_mailen_task.delay(sb.pk)
-    messages.success(request, "Der Versand läuft im Hintergrund. Das Ergebnis erscheint hier nach kurzer Zeit.")
+    messages.success(request, gettext("Der Versand läuft im Hintergrund. Das Ergebnis erscheint hier nach kurzer Zeit."))
     return redirect("serienbrief_detail", pk=sb.pk)
 
 
@@ -246,7 +250,7 @@ def serienbrief_mailen(request, pk):
 def vorlagen_listen_aktionen(request):
     a = []
     if request.rechte.darf("schriftverkehr", "add"):
-        a.append(knopf("Standardvorlagen nachladen", reverse("vorlagen_standard"), post=True))
+        a.append(knopf(gettext_lazy("Standardvorlagen nachladen"), reverse("vorlagen_standard"), post=True))
     return a
 
 
@@ -255,7 +259,7 @@ def vorlagen_listen_aktionen(request):
 def vorlagen_standard(request):
     _pruefen(request, "schriftverkehr", "add")
     n = services.standardvorlagen_anlegen(request.verein)
-    messages.success(request, f"{n} fehlende Standardvorlagen angelegt." if n else "Alle Standardvorlagen sind vorhanden.")
+    messages.success(request, gettext("%(n)s fehlende Standardvorlagen angelegt.") % {"n": n} if n else gettext("Alle Standardvorlagen sind vorhanden."))
     return redirect("vorlage_list")
 
 
@@ -266,7 +270,7 @@ def platzhalter_hilfe(request):
     if not anbindungen(request).openslides:   # ohne OpenSlides-Anbindung keine OpenSlides-Platzhalter anbieten
         gruppen = [(titel, [e for e in eintraege if e[0] not in OPENSLIDES_PLATZHALTER])
                    for titel, eintraege in PLATZHALTER if not titel.startswith("OpenSlides")]
-    return render(request, "documents/platzhalter.html", {"gruppen": gruppen, "titel": "Platzhalter"})
+    return render(request, "documents/platzhalter.html", {"gruppen": gruppen, "titel": gettext("Platzhalter")})
 
 
 # ---------------------------------------------------------------- aus Veranstaltung
@@ -279,15 +283,15 @@ def aus_veranstaltung(request, pk, art):
     vorlagenart = "protokoll" if art == "protokoll" else "einladung"
     vl = (Vorlage.objects.filter(verein=request.verein, art=vorlagenart, aktiv=True).order_by("-ist_standard", "name").first())
     if vl is None:
-        messages.error(request, "Keine passende Vorlage vorhanden (Schriftverkehr › Vorlagen › Standardvorlagen nachladen).")
+        messages.error(request, gettext("Keine passende Vorlage vorhanden (Schriftverkehr › Vorlagen › Standardvorlagen nachladen)."))
         return redirect("veranstaltung_detail", pk=v.pk)
     if art == "serienbrief":
-        obj = Serienbrief.objects.create(verein=request.verein, titel=f"Einladung {v.titel}", vorlage=vl, veranstaltung=v,
+        obj = Serienbrief.objects.create(verein=request.verein, titel=gettext("Einladung %(titel)s") % {"titel": v.titel}, vorlage=vl, veranstaltung=v,
                                          betreff=vl.betreff, text=vl.text, datum=date.today(),
                                          versandart="mail_post")
         return redirect("serienbrief_detail", pk=obj.pk)
     obj = Schriftstueck.objects.create(verein=request.verein, titel=f"{'Protokoll' if art == 'protokoll' else 'Einladung'} "
                                        f"{v.titel}", art=vorlagenart, vorlage=vl, veranstaltung=v, betreff=vl.betreff,
                                        text=vl.text, datum=date.today())
-    messages.success(request, "Entwurf aus Vorlage erstellt – Text bei Bedarf anpassen.")
+    messages.success(request, gettext("Entwurf aus Vorlage erstellt – Text bei Bedarf anpassen."))
     return redirect("schriftstueck_detail", pk=obj.pk)

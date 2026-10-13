@@ -13,6 +13,7 @@ from . import services
 from .client import OpenSlidesFehler
 from .forms import VerbindungForm
 from .models import OpenSlidesVerbindung
+from django.utils.translation import gettext
 
 
 def _pruefen(request, aktion):
@@ -40,11 +41,11 @@ def einstellungen(request):
             audit.kontext_setzen(grund=form.cleaned_data.get("aenderungsgrund"))
             form.instance.verein = request.verein
             form.save()
-            messages.success(request, "Einstellungen gespeichert.")
+            messages.success(request, gettext("Einstellungen gespeichert."))
             return redirect("openslides_einstellungen")
     ohne_pw = Mitglied.objects.filter(verein=request.verein, openslides_user_id__isnull=False).count()
     return render(request, "openslides/einstellungen.html", {
-        "titel": "OpenSlides-Anbindung", "form": form, "inst": inst if inst.pk else None, "kann": kann,
+        "titel": gettext("OpenSlides-Anbindung"), "form": form, "inst": inst if inst.pk else None, "kann": kann,
         "verknuepft": ohne_pw, "mit_pw": Mitglied.objects.filter(
             verein=request.verein, openslides_user_id__isnull=False).exclude(openslides_initialpasswort="").count()})
 
@@ -56,12 +57,12 @@ def test(request):
     try:
         v = _verbindung(request)
         v.letzter_test = services.verbindung_testen(v)
-        messages.success(request, "Verbindung erfolgreich: Anmeldung an OpenSlides funktioniert.")
+        messages.success(request, gettext("Verbindung erfolgreich: Anmeldung an OpenSlides funktioniert."))
     except OpenSlidesFehler as e:
         v = OpenSlidesVerbindung.objects.filter(verein=request.verein).first()
         if v:
             v.letzter_test = f"Fehler: {e}"[:300]
-        messages.error(request, f"Verbindung fehlgeschlagen: {e}")
+        messages.error(request, gettext("Verbindung fehlgeschlagen: %(e)s") % {"e": e})
     if v:
         v.save(update_fields=["letzter_test", "geaendert"])
     return redirect("openslides_einstellungen")
@@ -78,7 +79,7 @@ def abgleich(request):
         return redirect("openslides_einstellungen")
     from .tasks import abgleich_task
     abgleich_task.delay(v.pk)
-    messages.success(request, "Der Abgleich läuft im Hintergrund. Das Ergebnis erscheint auf dieser Seite (ggf. neu laden).")
+    messages.success(request, gettext("Der Abgleich läuft im Hintergrund. Das Ergebnis erscheint auf dieser Seite (ggf. neu laden)."))
     return redirect("openslides_einstellungen")
 
 
@@ -88,7 +89,7 @@ def passwoerter_loeschen(request):
     _pruefen(request, "change")
     n = Mitglied.objects.filter(verein=request.verein).exclude(openslides_initialpasswort="").update(
         openslides_initialpasswort="")
-    messages.success(request, f"{n} gespeicherte Startpasswörter gelöscht.")
+    messages.success(request, gettext("%(n)s gespeicherte Startpasswörter gelöscht.") % {"n": n})
     return redirect("openslides_einstellungen")
 
 
@@ -110,14 +111,13 @@ def veranstaltung_meeting(request, pk):
         if ver.openslides_meeting_id:
             n = services.tagesordnung_uebertragen(v, ver)
             rechte = _rechte_zuweisen(v, ver)
-            messages.success(request, f"{n} neue Tagesordnungspunkte nach OpenSlides übertragen. {rechte}")
+            messages.success(request, gettext("%(n)s neue Tagesordnungspunkte nach OpenSlides übertragen. %(rechte)s") % {"n": n, "rechte": rechte})
         else:
             mid, n = services.meeting_anlegen(v, ver)
             rechte = _rechte_zuweisen(v, ver)
-            messages.success(request, f"Versammlung in OpenSlides angelegt (ID {mid}), {n} Tagesordnungspunkte "
-                                      f"übertragen. {rechte} Weitere Teilnehmer bitte in OpenSlides hinzufügen.")
+            messages.success(request, gettext("Versammlung in OpenSlides angelegt (ID %(mid)s), %(n)s Tagesordnungspunkte übertragen. %(rechte)s Weitere Teilnehmer bitte in OpenSlides hinzufügen.") % {"mid": mid, "n": n, "rechte": rechte})
     except OpenSlidesFehler as e:
-        messages.error(request, f"OpenSlides: {e}")
+        messages.error(request, gettext("OpenSlides: %(e)s") % {"e": e})
     return redirect("veranstaltung_detail", pk=ver.pk)
 
 
@@ -130,13 +130,13 @@ def veranstaltung_wahlergebnisse(request, pk):
         v = _verbindung(request)
         n = services.wahlergebnisse_abrufen(v, ver) + services.anwesenheit_abrufen(v, ver)
         for hinweis in getattr(ver, "abruf_hinweise", []):
-            messages.warning(request, f"OpenSlides: {hinweis}")
+            messages.warning(request, gettext("OpenSlides: %(hinweis)s") % {"hinweis": hinweis})
         if n:
             messages.success(request, _ergebnis_meldung(ver))
         else:
-            messages.warning(request, "Keine abgeschlossenen Wahlen oder Abstimmungen und keine Anwesenden gefunden.")
+            messages.warning(request, gettext("Keine abgeschlossenen Wahlen oder Abstimmungen und keine Anwesenden gefunden."))
     except OpenSlidesFehler as e:
-        messages.error(request, f"OpenSlides: {e}")
+        messages.error(request, gettext("OpenSlides: %(e)s") % {"e": e})
     return redirect("veranstaltung_detail", pk=ver.pk)
 
 
@@ -161,21 +161,20 @@ def schriftstueck_abstimmungen(request, pk):
     s = get_object_or_404(Schriftstueck, pk=pk, verein=request.verein)
     ver = s.veranstaltung
     if s.art != "protokoll" or ver is None or not ver.openslides_meeting_id:
-        messages.error(request, "Nur für Protokolle einer Veranstaltung, die mit einer OpenSlides-Versammlung "
-                                "verknüpft ist.")
+        messages.error(request, gettext("Nur für Protokolle einer Veranstaltung, die mit einer OpenSlides-Versammlung verknüpft ist."))
         return redirect("schriftstueck_detail", pk=s.pk)
     try:
         v = _verbindung(request)
         n = services.wahlergebnisse_abrufen(v, ver) + services.anwesenheit_abrufen(v, ver)
         for hinweis in getattr(ver, "abruf_hinweise", []):
-            messages.warning(request, f"OpenSlides: {hinweis}")
+            messages.warning(request, gettext("OpenSlides: %(hinweis)s") % {"hinweis": hinweis})
     except OpenSlidesFehler as e:
-        messages.error(request, f"OpenSlides: {e}")
+        messages.error(request, gettext("OpenSlides: %(e)s") % {"e": e})
         return redirect("schriftstueck_detail", pk=s.pk)
     if not n:
-        messages.warning(request, "Keine abgeschlossenen Wahlen oder Abstimmungen und keine Anwesenden gefunden.")
+        messages.warning(request, gettext("Keine abgeschlossenen Wahlen oder Abstimmungen und keine Anwesenden gefunden."))
         return redirect("schriftstueck_detail", pk=s.pk)
     from apps.documents.anlagen import anlagen
     titel = ", ".join(a["titel"] for a in anlagen(ver))
-    messages.success(request, f"{_ergebnis_meldung(ver)} Dem Protokoll werden angehängt: {titel}.")
+    messages.success(request, gettext("%(ergebnis_meldung)s Dem Protokoll werden angehängt: %(titel)s.") % {"ergebnis_meldung": _ergebnis_meldung(ver), "titel": titel})
     return redirect("schriftstueck_detail", pk=s.pk)

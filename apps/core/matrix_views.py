@@ -6,6 +6,7 @@ from django.views.decorators.http import require_POST
 
 from . import matrix as mx
 from .models import Rolle
+from django.utils.translation import gettext
 
 
 def _pruefen(request, aktion):
@@ -43,9 +44,9 @@ def berechtigungsmatrix(request):
                 r.save()
                 geaendert.append(r.name)
         if geaendert:
-            messages.success(request, "Berechtigungen gespeichert für: " + ", ".join(geaendert))
+            messages.success(request, gettext("Berechtigungen gespeichert für: %(namen)s") % {"namen": ", ".join(geaendert)})
         else:
-            messages.info(request, "Keine Änderungen.")
+            messages.info(request, gettext("Keine Änderungen."))
         return redirect("berechtigungsmatrix")
     def zeile(schluessel, label):
         return {"key": schluessel, "label": label,
@@ -58,7 +59,7 @@ def berechtigungsmatrix(request):
         zeilen += [{"trenner": True}] + weitere
     dso_fehlt = [n for n in list(mx.DSO_ROLLEN) + [mx.ADMINISTRATOR] if not any(r.name == n for r in rollen)]
     return render(request, "core/matrix.html", {
-        "titel": "Berechtigungsmatrix", "rollen": rollen, "zeilen": zeilen, "kann": kann,
+        "titel": gettext("Berechtigungsmatrix"), "rollen": rollen, "zeilen": zeilen, "kann": kann,
         "spalten": len(rollen) + 1, "hinweise": mx.dso_pruefung(request.verein),
         "dso_fehlt": dso_fehlt})
 
@@ -68,6 +69,5 @@ def berechtigungsmatrix(request):
 def berechtigungsmatrix_dso(request):
     _pruefen(request, "change")
     rollen, tags = mx.dso_anlegen(request.verein)
-    messages.success(request, f"Datenschutzordnung: {rollen} Rolle(n) und {tags} Tag(s) angelegt "
-                              "(vorhandene bleiben unverändert).")
+    messages.success(request, gettext("Datenschutzordnung: %(rollen)s Rolle(n) und %(tags)s Tag(s) angelegt (vorhandene bleiben unverändert).") % {"rollen": rollen, "tags": tags})
     return redirect("berechtigungsmatrix")

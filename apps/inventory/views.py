@@ -20,6 +20,8 @@ from apps.finance import services as finance_services
 from .forms import SammelverleihForm
 from .models import Gegenstand, Inventur, Inventurposition, Lagerort, Verleih
 from .pdf import etiketten_pdf, leihschein_pdf, leihschein_sammel_pdf, packliste_pdf
+from django.utils.translation import gettext, gettext_lazy
+from django.utils.text import format_lazy
 
 
 def _pruefen(request, modul, aktion):
@@ -31,49 +33,49 @@ def _pruefen(request, modul, aktion):
 def gegenstand_kontext(request, g):
     aktionen = []
     if request.rechte.darf("inventar", "view"):
-        aktionen.append(knopf("Etikett drucken", reverse("gegenstand_etikett", args=[g.pk])))
+        aktionen.append(knopf(gettext_lazy("Etikett drucken"), reverse("gegenstand_etikett", args=[g.pk])))
     if request.rechte.darf("verleih", "add") and g.verleihbar:
-        aktionen.append(knopf("Verleih / Reservierung anlegen", reverse("verleih_add") + f"?gegenstand={g.pk}",
+        aktionen.append(knopf(gettext_lazy("Verleih / Reservierung anlegen"), reverse("verleih_add") + f"?gegenstand={g.pk}",
                               stil="primary"))
     hinweise = []
     akt = g.aktuell_verliehen
     if akt:
-        hinweise.append(f"Aktuell verliehen an {akt.wer} bis {akt.bis:%d.%m.%Y}.")
+        hinweise.append(gettext("Aktuell verliehen an %(wer)s bis %(bis)s.") % {"wer": akt.wer, "bis": format(akt.bis, "%d.%m.%Y")})
     if g.garantie_bis and g.garantie_bis < date.today():
-        hinweise.append("Garantie abgelaufen.")
+        hinweise.append(gettext("Garantie abgelaufen."))
     abschnitte = []
     if request.rechte.darf("verleih", "view"):
-        abschnitte.append(abschnitt(request, "Verleihhistorie", g.verleihe.all(),
+        abschnitte.append(abschnitt(request, gettext("Verleihhistorie"), g.verleihe.all(),
                                     ("von", "bis", ("wer", "Entleiher"), "status", "veranstaltung")))
     return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": abschnitte}
 
 
 # ---------------------------------------------------------------- Verleih
 def verleih_kontext(request, v):
-    rt, aktionen = request.rechte, [knopf("Leihschein (PDF)", reverse("verleih_leihschein", args=[v.pk])),
-                                    knopf("Packliste drucken (PDF)", reverse("verleih_packliste", args=[v.pk]))]
+    rt, aktionen = request.rechte, [knopf(gettext_lazy("Leihschein (PDF)"), reverse("verleih_leihschein", args=[v.pk])),
+                                    knopf(gettext_lazy("Packliste drucken (PDF)"), reverse("verleih_packliste", args=[v.pk]))]
     if v.vorgang:
-        aktionen.append(knopf("Zum gesamten Vorgang", reverse("verleih_vorgang_detail", args=[v.vorgang])))
+        aktionen.append(knopf(gettext_lazy("Zum gesamten Vorgang"), reverse("verleih_vorgang_detail", args=[v.vorgang])))
     if rt.darf("verleih", "change"):
         if v.status == "reserviert":
-            aktionen.append(knopf("Ausgeben", reverse("verleih_ausgeben", args=[v.pk]), post=True, stil="success"))
-            aktionen.append(knopf("Reservierung stornieren", reverse("verleih_stornieren", args=[v.pk]), post=True,
-                                  stil="outline-danger", bestaetigung="Reservierung stornieren?"))
+            aktionen.append(knopf(gettext_lazy("Ausgeben"), reverse("verleih_ausgeben", args=[v.pk]), post=True, stil="success"))
+            aktionen.append(knopf(gettext_lazy("Reservierung stornieren"), reverse("verleih_stornieren", args=[v.pk]), post=True,
+                                  stil="outline-danger", bestaetigung=gettext("Reservierung stornieren?")))
         if v.status == "ausgegeben":
-            aktionen.append(knopf("Rückgabe erfassen", reverse("verleih_rueckgabe", args=[v.pk]), stil="success"))
+            aktionen.append(knopf(gettext_lazy("Rückgabe erfassen"), reverse("verleih_rueckgabe", args=[v.pk]), stil="success"))
         if v.status == "zurueckgegeben" and v.kaution and not v.kaution_zurueckgezahlt and not v.kaution_einbehalten:
-            aktionen.append(knopf("Kaution zurückgezahlt", reverse("verleih_kaution_zurueckgezahlt", args=[v.pk]),
+            aktionen.append(knopf(gettext_lazy("Kaution zurückgezahlt"), reverse("verleih_kaution_zurueckgezahlt", args=[v.pk]),
                                   post=True, stil="success"))
     if v.rechnung_id and rt.darf("rechnungen", "view"):
-        aktionen.append(knopf("Rechnung ansehen", reverse("rechnung_detail", args=[v.rechnung_id])))
+        aktionen.append(knopf(gettext_lazy("Rechnung ansehen"), reverse("rechnung_detail", args=[v.rechnung_id])))
     hinweise = []
     if v.ueberfaellig:
-        hinweise.append("Rückgabe überfällig!")
+        hinweise.append(gettext("Rückgabe überfällig!"))
     if v.status == "zurueckgegeben" and v.kaution:
         if v.kaution_einbehalten:
-            hinweise.append(f"Kaution ({v.kaution} €) einbehalten und in Rechnung gestellt.")
+            hinweise.append(gettext("Kaution (%(kaution)s €) einbehalten und in Rechnung gestellt.") % {"kaution": v.kaution})
         elif not v.kaution_zurueckgezahlt:
-            hinweise.append(f"Kaution ({v.kaution} €) noch nicht als zurückgezahlt markiert.")
+            hinweise.append(gettext("Kaution (%(kaution)s €) noch nicht als zurückgezahlt markiert.") % {"kaution": v.kaution})
     return {"aktionen": aktionen, "hinweise": hinweise}
 
 
@@ -104,7 +106,7 @@ def _rueckgabe_aufgabe_anlegen(v, user):
     jederzeit an jemand anderen umgehängt werden)."""
     from apps.events.models import Aufgabe
     aufgabe = Aufgabe.objects.create(
-        verein=v.verein, titel=f"Rückgabe prüfen: {v.gegenstand.bezeichnung} ({v.wer})", faellig=v.bis,
+        verein=v.verein, titel=gettext("Rückgabe prüfen: %(bezeichnung)s (%(wer)s)") % {"bezeichnung": v.gegenstand.bezeichnung, "wer": v.wer}, faellig=v.bis,
         zustaendig_benutzer=user,
         beschreibung=f"Automatisch angelegt beim Ausgeben des Gegenstands \"{v.gegenstand.bezeichnung}\" "
                     f"an {v.wer}.")
@@ -202,11 +204,11 @@ def _rechnung_fuer_rueckgabe(verein, positionen):
 def verleih_ausgeben(request, pk):
     v = _verleih(request, pk)
     if v.status != "reserviert":
-        messages.error(request, "Nur Reservierungen können ausgegeben werden.")
+        messages.error(request, gettext("Nur Reservierungen können ausgegeben werden."))
     elif v.gegenstand.zustand in ("defekt", "ausgesondert"):
-        messages.error(request, "Gegenstand ist defekt bzw. ausgesondert.")
+        messages.error(request, gettext("Gegenstand ist defekt bzw. ausgesondert."))
     elif _ausgeben(v, request.user):
-        messages.success(request, "Ausgegeben.")
+        messages.success(request, gettext("Ausgegeben."))
     return redirect("verleih_detail", pk=v.pk)
 
 
@@ -214,13 +216,13 @@ def verleih_ausgeben(request, pk):
 def verleih_rueckgabe(request, pk):
     v = _verleih(request, pk)
     if v.status != "ausgegeben":
-        messages.error(request, "Nur ausgegebene Gegenstände können zurückgenommen werden.")
+        messages.error(request, gettext("Nur ausgegebene Gegenstände können zurückgenommen werden."))
         return redirect("verleih_detail", pk=v.pk)
     if request.method == "POST":
         zustand = request.POST.get(f"zustand_{v.pk}", "")
         kaution_einbehalten = request.POST.get(f"kaution_{v.pk}") == "einbehalten"
         if zustand not in dict(Gegenstand.ZUSTAND):
-            messages.error(request, "Ungültiger Zustand.")
+            messages.error(request, gettext("Ungültiger Zustand."))
         elif _rueckgabe(v, zustand, kaution_einbehalten):
             rechnung = _rechnung_fuer_rueckgabe(request.verein, [v])
             text = "Rückgabe gebucht."
@@ -231,7 +233,7 @@ def verleih_rueckgabe(request, pk):
             messages.success(request, text)
         return redirect("verleih_detail", pk=v.pk)
     return render(request, "inventory/rueckgabe.html", {
-        "titel": f"Rückgabe – {v.gegenstand}", "positionen": [v], "zustand_choices": Gegenstand.ZUSTAND,
+        "titel": gettext("Rückgabe – %(gegenstand)s") % {"gegenstand": v.gegenstand}, "positionen": [v], "zustand_choices": Gegenstand.ZUSTAND,
         "abbrechen_url": reverse("verleih_detail", args=[pk])})
 
 
@@ -242,7 +244,7 @@ def verleih_kaution_zurueckgezahlt(request, pk):
     if v.status == "zurueckgegeben" and v.kaution and not v.kaution_zurueckgezahlt and not v.kaution_einbehalten:
         v.kaution_zurueckgezahlt = True
         v.save(update_fields=["kaution_zurueckgezahlt", "geaendert"])
-        messages.success(request, "Kaution als zurückgezahlt markiert.")
+        messages.success(request, gettext("Kaution als zurückgezahlt markiert."))
     return redirect("verleih_detail", pk=v.pk)
 
 
@@ -294,9 +296,9 @@ def verleih_sammel_add(request):
                     fehler.append(f"{g}: {'; '.join(getattr(e, 'messages', [str(e)]))}")
             if angelegt:
                 zu_bestehendem = Verleih.objects.filter(verein=request.verein, vorgang=vorgang).count() > angelegt
-                messages.success(request, f"{angelegt} Gegenstände " + (
-                    "zum bestehenden Vorgang dieser Veranstaltung hinzugefügt." if zu_bestehendem
-                    else "als Vorgang angelegt."))
+                messages.success(request, (
+                    gettext("%(anzahl)s Gegenstände zum bestehenden Vorgang dieser Veranstaltung hinzugefügt.") if zu_bestehendem
+                    else gettext("%(anzahl)s Gegenstände als Vorgang angelegt.")) % {"anzahl": angelegt})
                 request.session.pop(_warenkorb_key(request), None)
             for f in fehler:
                 messages.warning(request, f)
@@ -309,7 +311,7 @@ def verleih_sammel_add(request):
             if request.GET.get(feld):
                 initial[feld] = request.GET[feld]
         form = SammelverleihForm(verein=request.verein, initial=initial or None)
-    return render(request, "core/formular.html", {"form": form, "titel": "Mehrere Gegenstände verleihen",
+    return render(request, "core/formular.html", {"form": form, "titel": gettext("Mehrere Gegenstände verleihen"),
                                                   "abbrechen_url": reverse("verleih_list")})
 
 
@@ -320,21 +322,21 @@ def verleih_vorgang_detail(request, vorgang):
     rt, aktionen = request.rechte, []
     if rt.darf("verleih", "change"):
         if any(p.status == "reserviert" for p in positionen):
-            aktionen.append(knopf("Alle ausgeben", reverse("verleih_vorgang_ausgeben", args=[vorgang]), post=True,
+            aktionen.append(knopf(gettext_lazy("Alle ausgeben"), reverse("verleih_vorgang_ausgeben", args=[vorgang]), post=True,
                                   stil="success"))
         if any(p.status == "ausgegeben" for p in positionen):
-            aktionen.append(knopf("Rückgabe erfassen", reverse("verleih_vorgang_rueckgabe", args=[vorgang]),
+            aktionen.append(knopf(gettext_lazy("Rückgabe erfassen"), reverse("verleih_vorgang_rueckgabe", args=[vorgang]),
                                   stil="success"))
         if any(p.status == "zurueckgegeben" and p.kaution and not p.kaution_zurueckgezahlt and not p.kaution_einbehalten
               for p in positionen):
-            aktionen.append(knopf("Alle Kautionen zurückgezahlt", reverse("verleih_vorgang_kaution_zurueckgezahlt",
+            aktionen.append(knopf(gettext_lazy("Alle Kautionen zurückgezahlt"), reverse("verleih_vorgang_kaution_zurueckgezahlt",
                                   args=[vorgang]), post=True, stil="success"))
-    aktionen.append(knopf("Packliste drucken (PDF)", reverse("verleih_vorgang_packliste", args=[vorgang]),
+    aktionen.append(knopf(gettext_lazy("Packliste drucken (PDF)"), reverse("verleih_vorgang_packliste", args=[vorgang]),
                           stil="outline-primary"))
-    aktionen.append(knopf("Leihschein (PDF, alle Positionen)", reverse("verleih_vorgang_leihschein", args=[vorgang])))
+    aktionen.append(knopf(gettext_lazy("Leihschein (PDF, alle Positionen)"), reverse("verleih_vorgang_leihschein", args=[vorgang])))
     if any(p.rechnung_id for p in positionen) and rt.darf("rechnungen", "view"):
         for r in {p.rechnung_id: p.rechnung for p in positionen if p.rechnung_id}.values():
-            aktionen.append(knopf(f"Rechnung {r.nummer} ansehen", reverse("rechnung_detail", args=[r.pk])))
+            aktionen.append(knopf(format_lazy(gettext_lazy("Rechnung {nummer} ansehen"), nummer=r.nummer), reverse("rechnung_detail", args=[r.pk])))
     p0 = positionen[0]
     gebuehr = sum((p.leihgebuehr or 0 for p in positionen), Decimal("0"))
     kaution = sum((p.kaution or 0 for p in positionen), Decimal("0"))
@@ -350,7 +352,7 @@ def verleih_vorgang_detail(request, vorgang):
     if kaution:
         kopf.append(("Kaution gesamt", geld(kaution)))
     return render(request, "inventory/vorgang.html", {
-        "titel": f"Verleih-Vorgang – {p0.wer}", "positionen": positionen, "aktionen": aktionen, "kopf": kopf})
+        "titel": gettext("Verleih-Vorgang – %(wer)s") % {"wer": p0.wer}, "positionen": positionen, "aktionen": aktionen, "kopf": kopf})
 
 
 @login_required
@@ -359,7 +361,7 @@ def verleih_vorgang_ausgeben(request, vorgang):
     _pruefen(request, "verleih", "change")
     positionen = _vorgang_positionen(request, vorgang)
     n = sum(_ausgeben(v, request.user) for v in positionen)
-    messages.success(request, f"{n} von {len(positionen)} Gegenständen ausgegeben.")
+    messages.success(request, gettext("%(n)s von %(anzahl)s Gegenständen ausgegeben.") % {"n": n, "anzahl": len(positionen)})
     return redirect("verleih_vorgang_detail", vorgang=vorgang)
 
 
@@ -369,7 +371,7 @@ def verleih_vorgang_rueckgabe(request, vorgang):
     positionen = _vorgang_positionen(request, vorgang)
     offene = [p for p in positionen if p.status == "ausgegeben"]
     if not offene:
-        messages.error(request, "Keine ausgegebenen Gegenstände in diesem Vorgang.")
+        messages.error(request, gettext("Keine ausgegebenen Gegenstände in diesem Vorgang."))
         return redirect("verleih_vorgang_detail", vorgang=vorgang)
     if request.method == "POST":
         zurueckgenommen = []
@@ -387,7 +389,7 @@ def verleih_vorgang_rueckgabe(request, vorgang):
         messages.success(request, text)
         return redirect("verleih_vorgang_detail", vorgang=vorgang)
     return render(request, "inventory/rueckgabe.html", {
-        "titel": "Rückgabe erfassen", "positionen": offene, "zustand_choices": Gegenstand.ZUSTAND,
+        "titel": gettext("Rückgabe erfassen"), "positionen": offene, "zustand_choices": Gegenstand.ZUSTAND,
         "abbrechen_url": reverse("verleih_vorgang_detail", args=[vorgang])})
 
 
@@ -402,7 +404,7 @@ def verleih_vorgang_kaution_zurueckgezahlt(request, vorgang):
             v.kaution_zurueckgezahlt = True
             v.save(update_fields=["kaution_zurueckgezahlt", "geaendert"])
             n += 1
-    messages.success(request, f"{n} Kautionen als zurückgezahlt markiert.")
+    messages.success(request, gettext("%(n)s Kautionen als zurückgezahlt markiert.") % {"n": n})
     return redirect("verleih_vorgang_detail", vorgang=vorgang)
 
 
@@ -439,11 +441,10 @@ def inventur_kontext(request, inv):
     z = inv.zaehlung()
     aktionen = []
     if request.rechte.darf("inventur", "change") and inv.status == "laufend":
-        aktionen.append(knopf("Inventur abschließen", reverse("inventur_abschliessen", args=[inv.pk]), post=True,
-                              stil="success", bestaetigung="Inventur abschließen? Danach sind die Ergebnisse fixiert."))
+        aktionen.append(knopf(gettext_lazy("Inventur abschließen"), reverse("inventur_abschliessen", args=[inv.pk]), post=True,
+                              stil="success", bestaetigung=gettext("Inventur abschließen? Danach sind die Ergebnisse fixiert.")))
     gesamt = sum(z.values())
-    hinweise = [f"{gesamt} Gegenstände · ✓ {z['gefunden']} gefunden · ⚠ {z['nicht_gefunden']} nicht gefunden · "
-                f"⚠ {z['beschaedigt']} beschädigt · offen {z['offen']}"]
+    hinweise = [gettext("%(gesamt)s Gegenstände · ✓ %(gefunden)s gefunden · ⚠ %(nicht_gefunden)s nicht gefunden · ⚠ %(beschaedigt)s beschädigt · offen %(offen)s") % {"gesamt": gesamt, "gefunden": z['gefunden'], "nicht_gefunden": z['nicht_gefunden'], "beschaedigt": z['beschaedigt'], "offen": z['offen']}]
     zeilen = []
     kann = request.rechte.darf("inventur", "change") and inv.status == "laufend"
     filt = request.GET.get("zeige", "")
@@ -453,18 +454,18 @@ def inventur_kontext(request, inv):
             continue
         akt = []
         if kann:
-            akt = [{"label": "✓", "wert": "gefunden", "stil": "success", "titel": "Gefunden"},
-                  {"label": "✗", "wert": "nicht_gefunden", "stil": "danger", "titel": "Nicht gefunden"},
-                  {"label": "⚠", "wert": "beschaedigt", "stil": "warning", "titel": "Beschädigt"}]
+            akt = [{"label": "✓", "wert": "gefunden", "stil": "success", "titel": gettext("Gefunden")},
+                  {"label": "✗", "wert": "nicht_gefunden", "stil": "danger", "titel": gettext("Nicht gefunden")},
+                  {"label": "⚠", "wert": "beschaedigt", "stil": "warning", "titel": gettext("Beschädigt")}]
         zeilen.append({"id": f"position-{p.pk}", "url": None,
                        "zellen": [p.inventarnummer, p.bezeichnung, p.lagerort_text, p.get_ergebnis_display()],
                        "aktionen": akt, "setzen_url": reverse("inventurposition_setzen", args=[p.pk]),
                        "lagerort_ist_id": p.lagerort_ist_id,
                        "lagerort_ist_name": str(p.lagerort_ist) if p.lagerort_ist_id else ""})
     return {"aktionen": aktionen, "hinweise": hinweise, "abschnitte": [
-        {"titel": "Positionen" + (f" (Filter: {filt})" if filt else ""),
-         "spalten": ["Nr.", "Bezeichnung", "Lagerort (Soll)", "Ergebnis"], "zeilen": zeilen, "add_url": None,
-         "mit_aktionen": True, "aktionen_titel": "Lagerort (Ist)", "lagerorte": lagerorte,
+        {"titel": (gettext("Positionen (Filter: %(filter)s)") % {"filter": filt}) if filt else gettext("Positionen"),
+         "spalten": [gettext("Nr."), gettext("Bezeichnung"), gettext("Lagerort (Soll)"), gettext("Ergebnis")], "zeilen": zeilen, "add_url": None,
+         "mit_aktionen": True, "aktionen_titel": gettext("Lagerort (Ist)"), "lagerorte": lagerorte,
          "zeile_vorlage": "inventory/_inventur_zeile_aktionen.html"}]}
 
 
@@ -499,7 +500,7 @@ def inventur_abschliessen(request, pk):
     if inv.status == "laufend":
         inv.status, inv.abgeschlossen_am = "abgeschlossen", date.today()
         inv.save()
-        messages.success(request, "Inventur abgeschlossen.")
+        messages.success(request, gettext("Inventur abgeschlossen."))
     return redirect("inventur_detail", pk=inv.pk)
 
 
@@ -515,7 +516,7 @@ def gegenstand_import(request):
     if request.method == "POST":
         datei = request.FILES.get("datei")
         if not datei:
-            messages.error(request, "Bitte eine Datei auswählen.")
+            messages.error(request, gettext("Bitte eine Datei auswählen."))
         else:
             try:
                 bericht = importer.importieren(
@@ -523,7 +524,7 @@ def gegenstand_import(request):
                     aktualisieren=bool(request.POST.get("aktualisieren")), neu_anlegen=bool(request.POST.get("neu_anlegen")))
             except ValueError as e:
                 messages.error(request, str(e))
-    return render(request, "inventory/import.html", {"titel": "Inventar importieren", "bericht": bericht,
+    return render(request, "inventory/import.html", {"titel": gettext("Inventar importieren"), "bericht": bericht,
                                                       "post": request.POST if request.method == "POST" else {}})
 
 
@@ -588,7 +589,7 @@ def gegenstand_etiketten(request):
     qs = (Gegenstand.objects.filter(verein=request.verein).exclude(zustand="ausgesondert")
          .select_related("lagerort").order_by("inventarnummer"))
     if not qs.exists():
-        messages.info(request, "Kein Inventar vorhanden.")
+        messages.info(request, gettext("Kein Inventar vorhanden."))
         return redirect("gegenstand_list")
     pdf = etiketten_pdf(qs, _scan_url(request), request.verein)
     r = HttpResponse(pdf, content_type="application/pdf")
@@ -611,18 +612,18 @@ def gegenstand_scan(request, inventarnummer):
     if not request.rechte.darf("inventar", "view"):
         raise PermissionDenied
     if not g.verleihbar or g.zustand in ("defekt", "ausgesondert"):
-        messages.warning(request, "Dieser Gegenstand ist nicht als verleihbar markiert bzw. defekt/ausgesondert.")
+        messages.warning(request, gettext("Dieser Gegenstand ist nicht als verleihbar markiert bzw. defekt/ausgesondert."))
         return redirect("gegenstand_detail", pk=g.pk)
     if not request.rechte.darf("verleih", "add"):
         return redirect("gegenstand_detail", pk=g.pk)
     key = _warenkorb_key(request)
     korb = set(request.session.get(key, []))
     if g.pk in korb:
-        messages.info(request, f"„{g}“ ist schon im Warenkorb.")
+        messages.info(request, gettext("„%(g)s“ ist schon im Warenkorb.") % {"g": g})
     else:
         korb.add(g.pk)
         request.session[key] = list(korb)
-        messages.success(request, f"„{g}“ zum Verleih-Warenkorb hinzugefügt.")
+        messages.success(request, gettext("„%(g)s“ zum Verleih-Warenkorb hinzugefügt.") % {"g": g})
     return redirect("verleih_warenkorb")
 
 
@@ -631,7 +632,7 @@ def verleih_warenkorb(request):
     _pruefen(request, "verleih", "add")
     pks = request.session.get(_warenkorb_key(request), [])
     gegenstaende = list(Gegenstand.objects.filter(verein=request.verein, pk__in=pks).order_by("bezeichnung"))
-    return render(request, "inventory/warenkorb.html", {"titel": "Verleih-Warenkorb", "gegenstaende": gegenstaende})
+    return render(request, "inventory/warenkorb.html", {"titel": gettext("Verleih-Warenkorb"), "gegenstaende": gegenstaende})
 
 
 @login_required
