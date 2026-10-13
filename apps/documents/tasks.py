@@ -1,8 +1,9 @@
 from celery import shared_task
 from django.conf import settings
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.utils import timezone
 
+from . import richtext
 from .models import Serienbrief
 from .pdf import absaetze, serienbrief_einzel
 from .platzhalter import ersetzen, kontext
@@ -16,9 +17,11 @@ def serienbrief_mailen_task(serienbrief_id):
     for m in sb.mail_empfaenger():
         ctx = kontext(sb.verein, mitglied=m, veranstaltung=sb.veranstaltung, datum=sb.datum)
         try:
-            mail = EmailMessage(subject=ersetzen(sb.betreff or sb.titel, ctx),
-                                body=ersetzen(sb.text, ctx), from_email=settings.DEFAULT_FROM_EMAIL, to=[m.email],
-                                reply_to=[sb.verein.email] if sb.verein.email else None)
+            html = richtext.text_ersetzt(sb.text, ctx)
+            mail = EmailMultiAlternatives(subject=ersetzen(sb.betreff or sb.titel, ctx),
+                                          body=richtext.zu_text(html), from_email=settings.DEFAULT_FROM_EMAIL, to=[m.email],
+                                          reply_to=[sb.verein.email] if sb.verein.email else None)
+            mail.attach_alternative(html, "text/html")
             mail.attach(f"{sb.titel[:40]}.pdf", serienbrief_einzel(sb, m), "application/pdf")
             mail.send()
             ok += 1

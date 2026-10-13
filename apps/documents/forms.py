@@ -1,15 +1,41 @@
+import json
+
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
+from apps.core.anbindungen import Anbindungen
 from apps.core.forms import TenantModelForm
 
+from . import richtext
 from .models import Ablagedokument, Schriftstueck, Serienbrief, Vorlage
+from .platzhalter import OPENSLIDES_PLATZHALTER, PLATZHALTER
 
 
 class _TextMixin:
+    """Textfeld als formatierter Text (TinyMCE, siehe richtext.py): Platzhalterliste fuer den Editor, alte Klartexte werden
+    beim Bearbeiten in HTML gewandelt, beim Speichern wird das HTML bereinigt."""
+    use_required_attribute = False      # das echte Feld ist im Editor versteckt - Pflicht prueft der Server
+    mit_editor = False
+
     def textfeld(self):
-        if "text" in self.fields:
-            self.fields["text"].widget = forms.Textarea(attrs={"rows": 22, "class": "form-control font-monospace"})
+        if "text" not in self.fields:
+            return
+        gruppen = PLATZHALTER
+        verein = getattr(self, "verein", None)
+        if verein is None or not Anbindungen(verein).openslides:    # OpenSlides-Platzhalter nur mit Anbindung anbieten
+            gruppen = [(t, [e for e in es if e[0] not in OPENSLIDES_PLATZHALTER])
+                       for t, es in PLATZHALTER if not t.startswith("OpenSlides")]
+        self.fields["text"].widget = forms.Textarea(attrs={
+            "rows": 22, "class": "tinymce-editor", "data-platzhalter": json.dumps(gruppen, ensure_ascii=False)})
+        self.mit_editor = True
+        if not self.is_bound and self.instance is not None and self.instance.pk and self.instance.text \
+                and not richtext.ist_html(self.instance.text):
+            self.initial["text"] = richtext.aus_text(self.instance.text)
+
+    def clean_text(self):
+        t = self.cleaned_data.get("text") or ""
+        h = richtext.als_html(t) if t.strip() else ""
+        return "" if richtext.ist_leer(h) else h
 
 
 class VorlageFuellen(_TextMixin):

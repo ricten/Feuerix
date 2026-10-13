@@ -177,7 +177,7 @@ login, CSRF protection, language – no tracking cookies).
   Since FinTS implementations can vary between banks, a first test fetch with your own bank is still
   recommended before going live. Several TANs requested in a row are supported; a single fetch processes
   every account held at that bank.
-* **Operations:** put it behind a reverse proxy with HTTPS and enable `HTTPS=1` in `.env`. Bootstrap/HTMX are
+* **Operations:** put it behind a reverse proxy with HTTPS and enable `HTTPS=1` in `.env`. Bootstrap/HTMX and the text editor TinyMCE are
   bundled locally at build time (no external CDNs).
 
 ## Development
@@ -213,3 +213,7 @@ modified) is operated as a network service, the source code of that version must
 users (§ 13 AGPL). Feuerix already ships a license notice with a source-code link in the footer of every page
 for this (`PRODUCT_SOURCE_URL`) – if you make your own changes, please point that address to your own,
 actually matching source code location, otherwise the AGPL obligation is not met.
+
+**Third-party components:** The text editor [TinyMCE](https://github.com/tinymce/tinymce) 7 (GPL-2.0-or-later, compatible with the
+AGPL-3.0) is fetched from npm at build time and served locally (license text: `static/vendor/tinymce/license.md`, contained in the
+Docker image); Bootstrap, Bootstrap Icons and HTMX are MIT-licensed.

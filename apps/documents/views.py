@@ -16,7 +16,7 @@ from apps.core.crud import abschnitt, knopf, pdf_vorschau
 from apps.core.pdf import Layout, seiten_pdf
 from apps.events.models import Veranstaltung
 
-from . import services
+from . import richtext, services
 from .docx_export import schriftstueck_docx
 from .models import Ablagedokument, Schriftstueck, Serienbrief, Vorlage
 from .pdf import absaetze, schriftstueck_pdf, serienbrief_pdf
@@ -144,7 +144,9 @@ def vorlage_vorschau(request, pk):
     ctx = kontext(request.verein)
     seite = {"empfaenger": ["Max Mustermann", "Musterstraße 1", "12345 Musterstadt"],
              "betreff": ersetzen(v.betreff, ctx) or v.name, "datum": f"Datum: {ctx['datum']}",
-             "vor": absaetze(ersetzen(v.text, ctx)), "wasserzeichen": "VORSCHAU – Beispielempfänger"}
+             "vor": [lambda stile, layout, breite, h=richtext.text_ersetzt(v.text, ctx):
+                     richtext.flowables(h, stile, layout, breite)],
+             "wasserzeichen": "VORSCHAU – Beispielempfänger"}
     pdf = seiten_pdf(request.verein, [seite], titel=v.name, layout=Layout.von_vorlage(v))
     return _pdf_antwort(pdf, f"Vorschau {v.name[:40]}.pdf")
 

@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.80.0
+
+- **Texteditor (TinyMCE) für Vorlagen, Schriftstücke und Serienbriefe:** formatierter Text (Überschriften, fett/kursiv/unterstrichen, Ausrichtung,
+  Listen, Tabellen, Links) mit Platzhalter-Menü; kommt im PDF, Word-Export und in der E-Mail (Text + HTML) an. Der Text wird beim Speichern
+  bereinigt; alte Klartext-Vorlagen funktionieren unverändert. TinyMCE wird beim Docker-Build lokal eingebunden (GPL-2.0-or-later).
+
 ## 1.79.0
 
 - **Layout je Vorlage:** Briefkopf (Name/Logo/ohne für Briefpapier, Logo links/rechts), Absenderzeile, Datumsposition, Fußzeile, Schriftart/-größe

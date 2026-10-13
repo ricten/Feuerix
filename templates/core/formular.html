@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n static %}
 {% block content %}
 <div class="row justify-content-center"><div class="{% if gruppen %}col-xl-10{% else %}col-xl-8{% endif %}">
 <h3 class="mb-3">{% if aktive_icon %}<i class="bi {{ aktive_icon }}" style="color: var(--bs-primary);"></i> {% endif %}{{ titel }}</h3>
@@ -58,6 +58,10 @@
   {% endif %}
 </form>
 </div></div>
+{% if form.mit_editor %}
+<script src="{% static 'vendor/tinymce/tinymce.min.js' %}"></script>
+<script src="{% static 'tinymce_init.js' %}"></script>
+{% endif %}
 {% if gruppen %}
 <script>
 (function () {

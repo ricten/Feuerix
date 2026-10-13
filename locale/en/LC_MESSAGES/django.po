@@ -5261,3 +5261,12 @@ msgstr "Layout: letterhead and page"
 
 msgid "Layout: Schrift und Ränder"
 msgstr "Layout: font and margins"
+
+# Formatierter Text
+
+msgid ""
+"Formatierter Text. Platzhalter wie {vorname} lassen sich über die "
+"Schaltfläche „Platzhalter“ einfügen (Übersicht: Seite 'Platzhalter-Hilfe')."
+msgstr ""
+"Formatted text. Placeholders such as {vorname} can be inserted with the "
+"\"Platzhalter\" (placeholder) button (overview: page 'Platzhalter-Hilfe')."

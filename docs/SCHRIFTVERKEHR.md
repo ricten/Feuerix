@@ -30,6 +30,20 @@ Jubiläum, Zugangsdaten OpenSlides, Brief allgemein. Jede Vorlage kann geändert
 * Auf der Detailseite: **PDF ansehen**, **Word (.docx)** zum Weiterbearbeiten, **Als PDF in Ablage speichern**.
 * Nicht ersetzbare Platzhalter werden als Hinweis angezeigt.
 
+## Formatierter Text (Editor)
+
+Der Text von Vorlagen, Schriftstücken und Serienbriefen wird in einem **Editor** (TinyMCE) bearbeitet – wie in einem Textprogramm:
+Absatz/Überschrift 1–3, **fett**, *kursiv*, unterstrichen, links/zentriert/rechts/Blocksatz, Aufzählungen und nummerierte Listen,
+Einrücken, **Tabellen**, Links, Sonderzeichen und „Formatierung entfernen“. Über **„{ } Platzhalter“** in der Leiste lassen sich
+Platzhalter wie `{vorname}` aus einer nach Themen gegliederten Liste einfügen (siehe Seite *Platzhalter-Hilfe*).
+
+- Es werden nur Formatierungen angeboten, die auch im **PDF**, im **Word-Export** und in der **E-Mail** ankommen (Serienbrief-E-Mails
+  enthalten den Text als Klartext und zusätzlich formatiert als HTML-Teil). Schriftart und -größe bestimmt das Layout der Vorlage.
+- **Alte Vorlagen und Texte** (reiner Text mit Leerzeilen) funktionieren unverändert; beim Öffnen im Editor werden sie in Absätze
+  umgewandelt und erst beim Speichern in der neuen Form abgelegt.
+- Der eingegebene Text wird beim Speichern **bereinigt** (nur die genannten Formatierungen und sichere Links bleiben).
+- Der Editor ist lokal eingebunden (kein Cloud-Dienst); TinyMCE steht unter der GPL (siehe README).
+
 ## Layout einer Vorlage
 
 Jede Vorlage hat im Formular zwei Abschnitte **„Layout“**, die bestimmen, wie die daraus erzeugten PDFs aussehen (Schriftstücke und

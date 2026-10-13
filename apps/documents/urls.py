@@ -61,14 +61,15 @@ urlpatterns = [
 urlpatterns += crud("schriftstuecke", Schriftstueck, "schriftverkehr", form=SchriftstueckForm,
                     list_display=("datum", "titel", "art", "veranstaltung", "status"), select_related=("veranstaltung",),
                     suche=("titel", "betreff"), filter=("art", "status", "veranstaltung"), kontext=views.schriftstueck_kontext,
-                    ordering=("-datum", "-id"), detail_ausblenden=())
+                    ordering=("-datum", "-id"), detail_ausblenden=("text",))
 urlpatterns += crud("serienbriefe", Serienbrief, "rundschreiben", form=SerienbriefForm,
                     list_display=("datum", "titel", "status_filter", "veranstaltung", "versendet_am"),
                     select_related=("veranstaltung",), suche=("titel",), kontext=views.serienbrief_kontext,
-                    ordering=("-datum", "-id"))
+                    ordering=("-datum", "-id"), detail_ausblenden=("text",))
 urlpatterns += crud("vorlagen", Vorlage, "schriftverkehr", form=VorlageForm,
                     list_display=("name", "art", "ist_standard", "aktiv"), suche=("name", "betreff"), filter=("art",),
-                    listen_aktionen=views.vorlagen_listen_aktionen, ordering=("art", "name"), kontext=views.vorlage_kontext)
+                    listen_aktionen=views.vorlagen_listen_aktionen, ordering=("art", "name"), kontext=views.vorlage_kontext,
+                    detail_ausblenden=("text",))
 urlpatterns += crud("ablage", Ablagedokument, "ablage", form=AblageForm,
                     list_display=("datum", "titel", "kategorie", "tags", "ordner", "version", ("dateiname", "Datei"),
                                  ("paperless_uebergeben", "Paperless")),

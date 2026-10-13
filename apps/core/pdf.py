@@ -255,7 +255,10 @@ def _seite(verein, s, stile, layout=None):
     if s.get("wasserzeichen"):
         story.append(Paragraph(f"<font color='red'><b>{escape(s['wasserzeichen'])}</b></font>", normal))
     for a in s.get("vor", ()):
-        story += [_p(a, normal), Spacer(1, 3 * mm)]
+        if callable(a):      # formatierter Text (documents.richtext): erzeugt seine Bausteine passend zum Layout
+            story += a(stile, layout, A4[0] - layout.rand_links - layout.rand_rechts)
+        else:
+            story += [_p(a, normal), Spacer(1, 3 * mm)]
     tabellen = list(s.get("tabellen", []))
     if s.get("tabelle"):
         tabellen.insert(0, {"zeilen": s["tabelle"]})

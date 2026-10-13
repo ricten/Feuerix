@@ -130,8 +130,8 @@ class Vorlage(TenantModel):
     name = models.CharField(_("Name der Vorlage"), max_length=150)
     art = models.CharField(_("Art"), max_length=12, choices=ART, default="brief")
     betreff = models.CharField(_("Betreff / Titel"), max_length=250, blank=True)
-    text = models.TextField(_("Text"), help_text=_("Absätze durch Leerzeile trennen. Platzhalter wie {vorname} siehe "
-                                              "Seite 'Platzhalter-Hilfe'."))
+    text = models.TextField(_("Text"), help_text=_("Formatierter Text. Platzhalter wie {vorname} lassen sich über die Schaltfläche "
+                                              "„Platzhalter“ einfügen (Übersicht: Seite 'Platzhalter-Hilfe')."))
     ist_standard = models.BooleanField(_("Standardvorlage dieser Art"), default=False,
                                        help_text=_("Wird bei 'Einladung/Protokoll erstellen' in Veranstaltungen verwendet."))
     aktiv = models.BooleanField(_("Aktiv"), default=True)

@@ -5,6 +5,7 @@ in Word beim Bearbeiten störende Rahmen-/Gitternetzlinien), Trennlinie in der A
 Vertretungsberechtigtem und Bankverbindung."""
 from io import BytesIO
 
+from . import richtext
 from .pdf import absaetze
 from .platzhalter import ersetzen
 
@@ -232,8 +233,7 @@ def schriftstueck_docx(s):
     d = doc.add_paragraph(f"Datum: {ctx['datum']}")
     d.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     doc.add_heading(ersetzen(s.betreff or s.titel, ctx), level=2)
-    for a in absaetze(ersetzen(s.text, ctx)):
-        doc.add_paragraph(a)
+    richtext.in_docx(doc, richtext.text_ersetzt(s.text, ctx))
     if s.art == "protokoll" and s.veranstaltung_id:   # Teilnehmerliste/Abstimmungen/Wahlen als Anlagen (eigene Seiten)
         _anlagen(doc, s.veranstaltung, ctx.get("veranstaltung_datum", ""))
 

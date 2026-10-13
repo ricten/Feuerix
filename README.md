@@ -172,7 +172,7 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
   erster Testabruf mit der eigenen Bank vor dem produktiven Einsatz. Werden mehrere TANs hintereinander verlangt, wird das
   unterstützt; ein einzelner Abruf verarbeitet dabei alle beim jeweiligen Kreditinstitut hinterlegten Konten.
 * **Betrieb:** Hinter einen Reverse Proxy mit HTTPS setzen und `HTTPS=1` in der `.env` aktivieren.
-  Bootstrap/HTMX werden beim Build lokal eingebunden (keine externen CDNs).
+  Bootstrap/HTMX und der Texteditor TinyMCE werden beim Build lokal eingebunden (keine externen CDNs).
 
 ## Entwicklung
 
@@ -205,3 +205,7 @@ verändert) als Netzwerkdienst betrieben, muss der Quellcode dieser Version den 
 werden (§ 13 AGPL). Feuerix bringt dafür bereits einen Lizenzhinweis mit Quellcode-Link im Footer jeder Seite
 mit (`PRODUCT_SOURCE_URL`) – bei eigenen Änderungen bitte diese Adresse auf die eigene, tatsächlich passende
 Quellcode-Ablage umstellen, sonst ist die AGPL-Pflicht nicht erfüllt.
+
+**Drittkomponenten:** Der Texteditor [TinyMCE](https://github.com/tinymce/tinymce) 7 (GPL-2.0-or-later, mit der AGPL-3.0 vereinbar) wird beim
+Build von npm geladen und lokal ausgeliefert (Lizenztext: `static/vendor/tinymce/license.md`, im Docker-Image enthalten); Bootstrap,
+Bootstrap Icons und HTMX stehen unter der MIT-Lizenz.

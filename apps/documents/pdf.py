@@ -2,7 +2,7 @@ import re
 
 from apps.core.pdf import Layout, brief_pdf, seiten_pdf
 
-from . import anlagen
+from . import anlagen, richtext
 from .platzhalter import ersetzen, kontext
 
 
@@ -16,7 +16,8 @@ def _seite(verein, betreff, text, mitglied, datum, ctx, mit_empfaenger=True, was
         "empfaenger": mitglied.anschrift_zeilen() if (mitglied is not None and mit_empfaenger) else [],
         "betreff": ersetzen(betreff, ctx) or "Schreiben",
         "datum": f"Datum: {ctx['datum']}",
-        "vor": absaetze(ersetzen(text, ctx)),
+        "vor": [lambda stile, layout, breite, h=richtext.text_ersetzt(text, ctx):
+                richtext.flowables(h, stile, layout, breite)],
         "wasserzeichen": wasserzeichen,
     }
 

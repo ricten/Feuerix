@@ -34,6 +34,20 @@ new name), or created from scratch.
 * On the detail page: **view PDF**, **Word (.docx)** for further editing, **save as PDF to the archive**.
 * Placeholders that could not be replaced are shown as a notice.
 
+## Formatted text (editor)
+
+The text of templates, documents and mail merges is edited in an **editor** (TinyMCE) – like in a word processor: paragraph/heading 1–3,
+**bold**, *italic*, underline, left/centre/right/justified, bulleted and numbered lists, indent, **tables**, links, special characters
+and "clear formatting". With **"{ } Platzhalter"** in the toolbar you can insert placeholders such as `{vorname}` from a list grouped by
+topic (see page *Platzhalter-Hilfe*).
+
+- Only formatting that also arrives in the **PDF**, the **Word export** and the **email** is offered (mail-merge emails contain the text
+  as plain text and additionally formatted as an HTML part). Font and size are determined by the template's layout.
+- **Old templates and texts** (plain text with blank lines) keep working unchanged; when opened in the editor they are converted into
+  paragraphs and only stored in the new form on saving.
+- The entered text is **sanitised** on saving (only the formatting mentioned and safe links remain).
+- The editor is included locally (no cloud service); TinyMCE is licensed under the GPL (see README).
+
 ## Layout of a template
 
 Every template has two sections **"Layout"** in its form that determine how the PDFs created from it look (documents and mail merges
