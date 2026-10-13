@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.82.0
+
+- **Manuelle Anschrift auch bei Mahnungen und Leihscheinen:** Mahnung mit abweichender Empfängeranschrift; Verleih/Sammelverleih mit
+  „Anschrift des Entleihers (manuell)“ (Vorrang vor Mitglied/Kontakt, geht auch in die Leihgebühren-Rechnung).
+
 ## 1.81.0
 
 - **Schriftstücke: Empfängeranschrift manuell eintragbar** (auch ohne Mitglied, hat Vorrang vor der Mitgliedsanschrift; PDF und Word; neutrale Anrede

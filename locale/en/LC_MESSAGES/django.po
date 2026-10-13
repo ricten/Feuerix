@@ -5284,3 +5284,24 @@ msgstr ""
 "One line per address line (name, street, postcode city). If something is "
 "entered here, it is used as the address in the letter - even without a "
 "member; it takes precedence over the member's address."
+
+# Manuelle Anschrift Leihschein/Mahnung
+
+msgid "Anschrift des Entleihers (manuell)"
+msgstr "Borrower's address (manual)"
+
+msgid ""
+"Eine Zeile je Adresszeile (Name, Straße, PLZ Ort). Ist hier etwas "
+"eingetragen, steht es als Anschrift auf dem Leihschein; es hat Vorrang vor "
+"der Anschrift des Mitglieds bzw. dem Kontakt."
+msgstr ""
+"One line per address line (name, street, postcode city). If something is "
+"entered here, it is used as the address on the loan slip; it takes "
+"precedence over the member's address or the contact."
+
+msgid ""
+"Nur ausfüllen, wenn die Mahnung an eine andere Anschrift als die der "
+"Rechnung gehen soll (eine Zeile je Adresszeile, erste Zeile = Name)."
+msgstr ""
+"Only fill in if the reminder is to go to a different address than the "
+"invoice's (one line per address line, first line = name)."

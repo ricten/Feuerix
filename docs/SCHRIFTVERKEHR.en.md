@@ -39,8 +39,10 @@ new name), or created from scratch.
 Every document (letter) has the field **"Recipient address (manual)"**: one line per address line (name, street, postcode city). If it
 is filled in, this text is used as the address in the letter (PDF and Word) – **even without a member** (e.g. for authorities, companies,
 guests) – and takes precedence over the address of a selected member. Without a member, the placeholder `{briefanrede}` becomes "Sehr
-geehrte Damen und Herren,". Minutes have no address. For invoices and donation receipts the recipient can also be entered manually
-("Recipient/Address" or "Address if not a member").
+geehrte Damen und Herren,". Minutes have no address. The same applies to the other letters: **reminders** (field "Recipient address (manual)", only needed for a deviating address – otherwise
+the invoice's address is used), **loan slips** (field "Borrower's address (manual)" in the loan or bundled loan, takes precedence over member and
+contact and is also carried over to the lending-fee invoice), **invoices** ("Recipient/Address") and **donation receipts** ("Address if not a
+member").
 
 ## Formatted text (editor)
 

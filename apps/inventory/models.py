@@ -103,6 +103,10 @@ class Verleih(TenantModel):
                                   related_name="+", verbose_name=_("Entleiher (Mitglied)"))
     entleiher_name = models.CharField(_("Entleiher (extern)"), max_length=150, blank=True)
     entleiher_kontakt = models.CharField(_("Kontakt (extern)"), max_length=200, blank=True)
+    entleiher_anschrift = models.TextField(
+        _("Anschrift des Entleihers (manuell)"), blank=True,
+        help_text=_("Eine Zeile je Adresszeile (Name, Straße, PLZ Ort). Ist hier etwas eingetragen, steht es als Anschrift "
+                  "auf dem Leihschein; es hat Vorrang vor der Anschrift des Mitglieds bzw. dem Kontakt."))
     veranstaltung = models.ForeignKey("events.Veranstaltung", on_delete=models.SET_NULL, null=True, blank=True,
                                       related_name="verleihe", verbose_name=_("Für Veranstaltung"))
     status = models.CharField(_("Status"), max_length=15, choices=STATUS, default="reserviert")
@@ -155,6 +159,15 @@ class Verleih(TenantModel):
             return [self]
         return list(Verleih.objects.filter(verein_id=self.verein_id, vorgang=self.vorgang)
                     .select_related("gegenstand").order_by("gegenstand__bezeichnung", "id"))
+
+    def anschrift_zeilen(self):
+        """Anschrift auf dem Leihschein: manuell eingetragene Zeilen, sonst die des Mitglieds, sonst Name und Kontakt."""
+        manuell = [z.strip() for z in (self.entleiher_anschrift or "").splitlines() if z.strip()]
+        if manuell:
+            return manuell
+        if self.entleiher_id:
+            return self.entleiher.anschrift_zeilen()
+        return [self.wer] + ([self.entleiher_kontakt] if self.entleiher_kontakt else [])
 
     @property
     def uebersicht_gegenstand(self):

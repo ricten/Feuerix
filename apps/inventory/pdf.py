@@ -141,11 +141,7 @@ def etiketten_pdf(gegenstaende, scan_url, verein=None):
 
 def leihschein_pdf(v):
     g, verein = v.gegenstand, v.verein
-    emp = [v.wer]
-    if v.entleiher_id:
-        emp = v.entleiher.anschrift_zeilen()
-    elif v.entleiher_kontakt:
-        emp.append(v.entleiher_kontakt)
+    emp = v.anschrift_zeilen()
     tab = [["Gegenstand", "Inventarnr.", "Zeitraum"],
            [f"{g.bezeichnung} {g.hersteller} {g.modell}".strip(), g.inventarnummer,
             f"{v.von:%d.%m.%Y} – {v.bis:%d.%m.%Y}"]]
@@ -166,11 +162,7 @@ def leihschein_pdf(v):
 def leihschein_sammel_pdf(positionen):
     """Ein gemeinsamer Leihschein für mehrere gleichzeitig verliehene Gegenstände (Verleih-Vorgang)."""
     v0, verein = positionen[0], positionen[0].verein
-    emp = [v0.wer]
-    if v0.entleiher_id:
-        emp = v0.entleiher.anschrift_zeilen()
-    elif v0.entleiher_kontakt:
-        emp.append(v0.entleiher_kontakt)
+    emp = v0.anschrift_zeilen()
     tab = [["Gegenstand", "Inventarnr.", "Zeitraum"]]
     gebuehr_gesamt = kaution_gesamt = Decimal("0")
     for v in positionen:

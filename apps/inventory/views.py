@@ -188,7 +188,7 @@ def _rechnung_fuer_rueckgabe(verein, positionen):
             rechnung = finance_services.rechnung_erstellen(verein, alle_zeilen, mitglied=v0.entleiher)
         else:
             rechnung = finance_services.rechnung_erstellen(verein, alle_zeilen, empfaenger_name=v0.entleiher_name,
-                                                           empfaenger_anschrift=v0.entleiher_kontakt)
+                                                           empfaenger_anschrift=v0.entleiher_anschrift or v0.entleiher_kontakt)
     else:
         finance_services.rechnung_positionen_hinzufuegen(rechnung, alle_zeilen)
     for v, _ in kandidaten:

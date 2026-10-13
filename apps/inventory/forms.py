@@ -14,6 +14,12 @@ class VerleihForm(TenantModelForm):
         model = Verleih
         exclude = ("verein", "status")
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "entleiher_anschrift" in self.fields:
+            self.fields["entleiher_anschrift"].widget = forms.Textarea(attrs={
+                "rows": 3, "class": "form-control", "placeholder": "Name\nStraße Nr.\nPLZ Ort"})
+
 
 class SammelverleihForm(forms.Form):
     """Mehrere Gegenstände in einem Vorgang an denselben Entleiher verleihen (statt Verleih für Verleih einzeln)."""
@@ -22,6 +28,10 @@ class SammelverleihForm(forms.Form):
     entleiher = forms.ModelChoiceField(queryset=Mitglied.objects.none(), required=False, label="Entleiher (Mitglied)")
     entleiher_name = forms.CharField(required=False, max_length=150, label="Entleiher (extern)")
     entleiher_kontakt = forms.CharField(required=False, max_length=200, label="Kontakt (extern)")
+    entleiher_anschrift = forms.CharField(
+        required=False, label="Anschrift des Entleihers (manuell)",
+        help_text="Eine Zeile je Adresszeile - steht als Anschrift auf dem Leihschein (Vorrang vor Mitglied/Kontakt).",
+        widget=forms.Textarea(attrs={"rows": 3, "placeholder": "Name\nStraße Nr.\nPLZ Ort"}))
     veranstaltung = forms.ModelChoiceField(queryset=Veranstaltung.objects.none(), required=False,
                                            label="Für Veranstaltung")
     von = forms.DateField(label="Von", widget=forms.DateInput(attrs={"type": "date"}))

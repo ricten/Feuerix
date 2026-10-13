@@ -63,5 +63,6 @@ def mahnung_pdf(mahn):
         text.append(f"Konto: {v.iban}{(' / ' + v.bic) if v.bic else ''}, Verwendungszweck: {r.nummer}")
     text.append("Sollte sich Ihre Zahlung mit diesem Schreiben überschnitten haben, betrachten Sie es bitte als "
                 "gegenstandslos.")
-    return brief_pdf(v, _empfaenger(r), mahn.get_stufe_display(),
+    manuell = [z.strip() for z in (mahn.empfaenger_anschrift or "").splitlines() if z.strip()]
+    return brief_pdf(v, manuell or _empfaenger(r), mahn.get_stufe_display(),
                      meta=[("Datum", f"{mahn.datum:%d.%m.%Y}"), ("Rechnung", r.nummer)], vor=text)

@@ -402,6 +402,10 @@ class Mahnung(TenantModel):
     frist = models.DateField(_("Neue Zahlungsfrist"))
     gebuehr = models.DecimalField(_("Mahngebühr (€)"), max_digits=8, decimal_places=2, default=0,
                                   validators=[MinValueValidator(Decimal("0"))])
+    empfaenger_anschrift = models.TextField(
+        _("Empfängeranschrift (manuell)"), blank=True,
+        help_text=_("Nur ausfüllen, wenn die Mahnung an eine andere Anschrift als die der Rechnung gehen soll (eine Zeile je "
+                  "Adresszeile, erste Zeile = Name)."))
 
     class Meta:
         verbose_name = _("Mahnung")

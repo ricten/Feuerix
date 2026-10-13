@@ -35,8 +35,10 @@ Jubiläum, Zugangsdaten OpenSlides, Brief allgemein. Jede Vorlage kann geändert
 Jedes Schriftstück (Anschreiben) hat das Feld **„Empfängeranschrift (manuell)“**: eine Zeile je Adresszeile (Name, Straße, PLZ Ort). Ist
 es ausgefüllt, steht dieser Text als Anschrift im Brief (PDF und Word) – **auch ohne Mitglied** (z. B. für Behörden, Firmen, Gäste) – und hat
 Vorrang vor der Anschrift eines gewählten Mitglieds. Ohne Mitglied lautet die Anrede-Platzhalter `{briefanrede}` dann „Sehr geehrte Damen
-und Herren,“. Protokolle haben keine Anschrift. Bei Rechnungen und Spendenquittungen lässt sich der Empfänger ebenfalls manuell eintragen
-(„Empfänger/Anschrift“ bzw. „Anschrift falls kein Mitglied“).
+und Herren,“. Protokolle haben keine Anschrift. Dasselbe gilt für die übrigen Schreiben: **Mahnungen** (Feld „Empfängeranschrift (manuell)“, nur nötig bei abweichender Anschrift – sonst
+gilt die der Rechnung), **Leihscheine** (Feld „Anschrift des Entleihers (manuell)“ im Verleih bzw. Sammelverleih, hat Vorrang vor Mitglied und
+Kontakt und wird auch in die Leihgebühren-Rechnung übernommen), **Rechnungen** („Empfänger/Anschrift“) und **Spendenquittungen** („Anschrift
+falls kein Mitglied“).
 
 ## Formatierter Text (Editor)
 
