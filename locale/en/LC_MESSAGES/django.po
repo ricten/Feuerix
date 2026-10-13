@@ -6554,3 +6554,21 @@ msgstr "No complete legal notice has been stored for this club yet."
 
 msgid "Aktuell sind keine öffentlichen Dokumente hinterlegt."
 msgstr "There are currently no public documents."
+
+# Titel/Spalten (Nachtrag)
+
+msgid "%(label)s löschen"
+msgstr "Delete %(label)s"
+
+msgid "Rechte aus Tags konnten nicht vergeben werden: %(fehler)s."
+msgstr "Permissions from tags could not be assigned: %(fehler)s."
+
+msgid ""
+"%(wahlen)s Wahlergebnis(se), %(abstimmungen)s Abstimmung(en) und "
+"%(anwesende)s Anwesende aus OpenSlides übernommen."
+msgstr ""
+"%(wahlen)s election result(s), %(abstimmungen)s vote(s) and %(anwesende)s "
+"attendee(s) imported from OpenSlides."
+
+msgid "Kontakt"
+msgstr "Contact"

@@ -63,6 +63,32 @@ class EnglischeOberflaecheTests(TestCase):
         r = self.client.post(reverse("verein_waehlen"), {"verein": self.verein.pk}, follow=True)
         self.assertEqual(r.status_code, 200)
 
+    def test_listenueberschriften_und_modellnamen_auf_englisch(self):
+        """Die Seitenüberschrift einer Liste kommt aus dem Modellnamen - sie darf nicht beim Start auf Deutsch festgelegt sein."""
+        erwartet = {"schriftstueck_list": ("Documents", "Schriftstücke"), "rechnung_list": ("Invoices", "Rechnungen"),
+                    "veranstaltung_list": ("Events", "Veranstaltungen"), "mitglied_list": ("Members", "Mitglieder")}
+        for name, (englisch, deutsch) in erwartet.items():
+            html = self.client.get(reverse(name)).content.decode()
+            h3 = html[html.index("<h3"):html.index("</h3>")]
+            self.assertIn(englisch, h3, name)
+            self.assertNotIn(deutsch, h3, name)
+
+    def test_alle_modellnamen_haben_englische_uebersetzung(self):
+        from django.urls import get_resolver
+        from apps.core.crud import REGISTRY
+        get_resolver().url_patterns          # laedt alle URL-Konfigurationen und damit die crud()-Registrierungen
+        gleich = []
+        for m in REGISTRY:
+            for attr in ("verbose_name", "verbose_name_plural"):
+                name = getattr(m._meta, attr)
+                with translation.override("de"):
+                    de = str(name)
+                with translation.override("en"):
+                    en = str(name)
+                if de == en and de not in GLEICH:
+                    gleich.append((m.__name__, attr, de))
+        self.assertEqual(gleich, [])
+
     def test_einstellungen_auf_englisch(self):
         html = self.client.get(reverse("einstellungen")).content.decode()
         self.assertIn("Settings", html)

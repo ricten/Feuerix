@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.87.1
+
+- Englische Oberfläche: Die Seitenüberschriften der Listen (z. B. „Schriftstücke“, „Rechnungen“, „Veranstaltungen“) standen auf Englisch weiter auf
+  Deutsch, weil der Modellname beim Start fest in Text umgewandelt wurde; außerdem „Löschen“-Titel, Helferliste und OpenSlides-Meldungen übersetzt.
+  Tests prüfen jetzt Überschriften und alle Modellnamen.
+
 ## 1.87.0
 
 - **Englische Oberfläche durchgängig:** Rund 330 bisher nur deutsche Meldungen, Knopf-Beschriftungen, Hinweise, Seitentitel und Tabellenköpfe in den

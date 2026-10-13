@@ -435,7 +435,7 @@ class LoeschenView(MandantMixin, DeleteView):
 
     def get_context_data(self, **kw):
         ctx = super().get_context_data(**kw)
-        ctx["titel"] = f"{self.cfg.label} löschen"
+        ctx["titel"] = gettext("%(label)s löschen") % {"label": self.cfg.label}
         return ctx
 
     def form_valid(self, form):
@@ -469,8 +469,8 @@ def crud(prefix, model, modul, *, form=None, list_display=None, suche=(), filter
     cfg = Cfg(model=model, name=name, modul=modul, form=form, list_display=list_display or ("__str__",),
               suche=suche, filter=filter, ordering=ordering, select_related=select_related, add=add, edit=edit,
               delete=delete, detail=detail, kontext=kontext, nach_speichern=nach_speichern, bearbeitbar=bearbeitbar,
-              loeschbar=loeschbar, label=label or str(model._meta.verbose_name),
-              label_plural=str(model._meta.verbose_name_plural), detail_ausblenden=detail_ausblenden,
+              loeschbar=loeschbar, label=label or model._meta.verbose_name,
+              label_plural=model._meta.verbose_name_plural, detail_ausblenden=detail_ausblenden,
               paginate=paginate, listen_aktionen=listen_aktionen, hinweis=hinweis, zeile_klasse=zeile_klasse,
               gruppiert=gruppiert, zeilen_url=zeilen_url, zeilen_bearbeiten=zeilen_bearbeiten)
     if cfg.list_display == ("__str__",):

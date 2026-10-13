@@ -98,7 +98,7 @@ def _rechte_zuweisen(v, ver):
     try:
         return services.versammlungsrechte_zuweisen(v, ver)
     except OpenSlidesFehler as e:
-        return f"Rechte aus Tags konnten nicht vergeben werden: {e}."
+        return gettext("Rechte aus Tags konnten nicht vergeben werden: %(fehler)s.") % {"fehler": e}
 
 
 @login_required
@@ -143,8 +143,8 @@ def veranstaltung_wahlergebnisse(request, pk):
 def _ergebnis_meldung(ver):
     wahlen = ver.wahlergebnisse.filter(art="wahl").count()
     abstimmungen = ver.wahlergebnisse.filter(art="abstimmung").count()
-    return (f"{wahlen} Wahlergebnis(se), {abstimmungen} Abstimmung(en) und {ver.anwesenheiten.count()} Anwesende "
-            f"aus OpenSlides übernommen.")
+    return gettext("%(wahlen)s Wahlergebnis(se), %(abstimmungen)s Abstimmung(en) und %(anwesende)s Anwesende aus OpenSlides übernommen.") % {
+        "wahlen": wahlen, "abstimmungen": abstimmungen, "anwesende": ver.anwesenheiten.count()}
 
 
 @login_required

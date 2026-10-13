@@ -225,7 +225,7 @@ def _helfer_abschnitt(request, s):
     darf_loeschen = request.rechte.darf("veranstaltungen", "delete")
     abschnitt_ = abschnitt(request, _("Eingeteilte Helfer"), s.einsaetze.none(), ("id",), "schichteinsatz_add",
                            {"schicht": s.pk, "next": request.get_full_path()})
-    abschnitt_["spalten"] = ["Helfer", ""] + ["Zuordnung", "Kontakt", "Bemerkung", "Selbst eingetragen"]
+    abschnitt_["spalten"] = [_("Helfer"), ""] + [_("Zuordnung"), _("Kontakt"), _("Bemerkung"), _("Selbst eingetragen")]
     csrf = get_token(request)
     zeilen = []
     for e in sorted(s.einsaetze.select_related("mitglied"), key=lambda e: e.wer.casefold()):
