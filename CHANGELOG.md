@@ -3,6 +3,9 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.82.1
+- Doku: Listenzeichen in SCHRIFTVERKEHR (de/en) vereinheitlicht (Markdown-Warnungen).
+
 ## 1.82.0
 
 - **Manuelle Anschrift auch bei Mahnungen und Leihscheinen:** Mahnung mit abweichender Empfängeranschrift; Verleih/Sammelverleih mit

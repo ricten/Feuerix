@@ -47,23 +47,23 @@ Absatz/Überschrift 1–3, **fett**, *kursiv*, unterstrichen, links/zentriert/re
 Einrücken, **Tabellen**, Links, Sonderzeichen und „Formatierung entfernen“. Über **„{ } Platzhalter“** in der Leiste lassen sich
 Platzhalter wie `{vorname}` aus einer nach Themen gegliederten Liste einfügen (siehe Seite *Platzhalter-Hilfe*).
 
-- Es werden nur Formatierungen angeboten, die auch im **PDF**, im **Word-Export** und in der **E-Mail** ankommen (Serienbrief-E-Mails
+* Es werden nur Formatierungen angeboten, die auch im **PDF**, im **Word-Export** und in der **E-Mail** ankommen (Serienbrief-E-Mails
   enthalten den Text als Klartext und zusätzlich formatiert als HTML-Teil). Schriftart und -größe bestimmt das Layout der Vorlage.
-- **Alte Vorlagen und Texte** (reiner Text mit Leerzeilen) funktionieren unverändert; beim Öffnen im Editor werden sie in Absätze
+* **Alte Vorlagen und Texte** (reiner Text mit Leerzeilen) funktionieren unverändert; beim Öffnen im Editor werden sie in Absätze
   umgewandelt und erst beim Speichern in der neuen Form abgelegt.
-- Der eingegebene Text wird beim Speichern **bereinigt** (nur die genannten Formatierungen und sichere Links bleiben).
-- Der Editor ist lokal eingebunden (kein Cloud-Dienst); TinyMCE steht unter der GPL (siehe README).
+* Der eingegebene Text wird beim Speichern **bereinigt** (nur die genannten Formatierungen und sichere Links bleiben).
+* Der Editor ist lokal eingebunden (kein Cloud-Dienst); TinyMCE steht unter der GPL (siehe README).
 
 ## Layout einer Vorlage
 
 Jede Vorlage hat im Formular zwei Abschnitte **„Layout“**, die bestimmen, wie die daraus erzeugten PDFs aussehen (Schriftstücke und
 Serienbriefe, die mit dieser Vorlage angelegt wurden; Rechnungen, Mahnungen usw. behalten ihr festes Aussehen):
 
-- **Briefkopf:** Name und Logo mit Trennlinie (Standard), nur Name, nur Logo oder **kein Briefkopf** für vorgedrucktes Briefpapier –
+* **Briefkopf:** Name und Logo mit Trennlinie (Standard), nur Name, nur Logo oder **kein Briefkopf** für vorgedrucktes Briefpapier –
   dann bleibt auf der ersten Seite der Rand oben (Standard 45 mm) frei. **Logo links oder rechts.**
-- **Absenderzeile** (kleine Rücksendeangabe über der Anschrift, für Fensterumschläge) an/aus, **Datum** links oder rechts, **Fußzeile**
+* **Absenderzeile** (kleine Rücksendeangabe über der Anschrift, für Fensterumschläge) an/aus, **Datum** links oder rechts, **Fußzeile**
   mit Vereinsangaben, nur Seitenzahl oder keine.
-- **Schrift:** Helvetica, Times oder Courier, Größe 8 bis 14 pt. **Ränder** links, rechts, unten (und oben bei „kein Briefkopf“) in mm.
+* **Schrift:** Helvetica, Times oder Courier, Größe 8 bis 14 pt. **Ränder** links, rechts, unten (und oben bei „kein Briefkopf“) in mm.
 
 Auf der Vorlagen-Detailseite zeigt **„Layout-Vorschau (PDF)“** ein Beispiel-PDF mit Beispielempfänger. Die Standardwerte entsprechen dem
 bisherigen Aussehen. Der Word-Export (.docx) übernimmt das Layout nicht.

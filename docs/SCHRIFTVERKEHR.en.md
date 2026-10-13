@@ -51,23 +51,23 @@ The text of templates, documents and mail merges is edited in an **editor** (Tin
 and "clear formatting". With **"{ } Platzhalter"** in the toolbar you can insert placeholders such as `{vorname}` from a list grouped by
 topic (see page *Platzhalter-Hilfe*).
 
-- Only formatting that also arrives in the **PDF**, the **Word export** and the **email** is offered (mail-merge emails contain the text
+* Only formatting that also arrives in the **PDF**, the **Word export** and the **email** is offered (mail-merge emails contain the text
   as plain text and additionally formatted as an HTML part). Font and size are determined by the template's layout.
-- **Old templates and texts** (plain text with blank lines) keep working unchanged; when opened in the editor they are converted into
+* **Old templates and texts** (plain text with blank lines) keep working unchanged; when opened in the editor they are converted into
   paragraphs and only stored in the new form on saving.
-- The entered text is **sanitised** on saving (only the formatting mentioned and safe links remain).
-- The editor is included locally (no cloud service); TinyMCE is licensed under the GPL (see README).
+* The entered text is **sanitised** on saving (only the formatting mentioned and safe links remain).
+* The editor is included locally (no cloud service); TinyMCE is licensed under the GPL (see README).
 
 ## Layout of a template
 
 Every template has two sections **"Layout"** in its form that determine how the PDFs created from it look (documents and mail merges
 created with this template; invoices, reminders etc. keep their fixed look):
 
-- **Letterhead:** name and logo with divider line (default), name only, logo only or **no letterhead** for pre-printed letter paper –
+* **Letterhead:** name and logo with divider line (default), name only, logo only or **no letterhead** for pre-printed letter paper –
   the top margin (default 45 mm) is then left free on the first page. **Logo left or right.**
-- **Sender line** (small return address above the address, for window envelopes) on/off, **date** left or right, **footer** with
+* **Sender line** (small return address above the address, for window envelopes) on/off, **date** left or right, **footer** with
   club details, page number only or none.
-- **Font:** Helvetica, Times or Courier, size 8 to 14 pt. **Margins** left, right, bottom (and top with "no letterhead") in mm.
+* **Font:** Helvetica, Times or Courier, size 8 to 14 pt. **Margins** left, right, bottom (and top with "no letterhead") in mm.
 
 On the template's detail page, **"Layout preview (PDF)"** shows a sample PDF with a sample recipient. The default values match the
 previous look. The Word export (.docx) does not adopt the layout.
