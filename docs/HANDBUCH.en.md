@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.87.1)
+# Handbook – Feuerix (Version 1.88.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -649,6 +649,17 @@ only insert a reference such as "Abstimmungen: siehe Anlage 2" there – and sta
 heading) when there is nothing. Fetching again fully replaces previously imported results and the attendance for
 that event.
 
+**Administrator access and password synchronisation (superadmins only):** In the settings of the integration you can store the
+**administrator** (user and password) assigned during installation. The password is stored encrypted and only used for display; it
+never appears in the form. With **"Show"** a superadmin sees it after **entering their own Feuerix password again** (viewing is
+recorded in the change log, the password itself is not). With the switch **"Synchronise passwords with Feuerix"** (default: off) a
+password set in Feuerix – own change, new password set by a superadmin, creating a user with a password or setting up an
+administration account – is additionally set in the same person's OpenSlides account; stored initial passwords of that account are
+deleted in the process. This only works at the moment of setting (afterwards Feuerix only knows the hash); existing accounts keep
+their initial password until then. On an error the password change in Feuerix stands and a notice appears. **Security:** a stolen
+password then opens all synchronised systems; changes made directly in OpenSlides are not transferred back to Feuerix.
+
+
 ## 13. Paperless-ngx integration
 
 Under *Administration › External integrations › Paperless-ngx* (after connecting also directly as the menu item "Paperless integration"), the connection to an existing Paperless-ngx instance is
@@ -729,6 +740,17 @@ does "Resend to Paperless" appear.
 Under the data protection bylaws, all six DSO roles (row "Club software / Administration" of the permission
 matrix) as well as the Superadministrator and Administrator may set up the Paperless integration; the send
 button itself can be used by any role with archive edit rights (e.g. the Secretary).
+
+**Administrator access and password synchronisation (superadmins only):** In the settings of the integration you can store the
+**administrator** (user and password) assigned during installation. The password is stored encrypted and only used for display; it
+never appears in the form. With **"Show"** a superadmin sees it after **entering their own Feuerix password again** (viewing is
+recorded in the change log, the password itself is not). With the switch **"Synchronise passwords with Feuerix"** (default: off) a
+password set in Feuerix – own change, new password set by a superadmin, creating a user with a password or setting up an
+administration account – is additionally set in the same person's Paperless account; stored initial passwords of that account are
+deleted in the process. This only works at the moment of setting (afterwards Feuerix only knows the hash); existing accounts keep
+their initial password until then. On an error the password change in Feuerix stands and a notice appears. **Security:** a stolen
+password then opens all synchronised systems; changes made directly in Paperless are not transferred back to Feuerix.
+
 
 ## 14. Reports and audit trail
 

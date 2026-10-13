@@ -162,6 +162,7 @@ class ZugangForm(RechteFelderMixin, TenantModelForm):
             user.first_name, user.last_name, user.email = d.get("vorname", ""), d.get("nachname", ""), d.get("email", "")
             if d.get("passwort"):
                 user.set_password(d["passwort"])
+                self._neues_passwort = d["passwort"]       # fuer den Passwort-Abgleich nach dem Speichern (crud.form_valid)
             elif neu:
                 user.set_unusable_password()
             user.save()

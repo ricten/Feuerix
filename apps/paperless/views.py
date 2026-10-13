@@ -34,6 +34,9 @@ def einstellungen(request):
     inst = PaperlessVerbindung.objects.filter(verein=request.verein).first() or PaperlessVerbindung(verein=request.verein)
     kann = request.rechte.darf("paperless", "change")
     form = VerbindungForm(request.POST or None, instance=inst, verein=request.verein)
+    if not request.user.is_superuser:        # Administrator-Zugang und Passwort-Abgleich nur fuer Superadmins
+        for f in VerbindungForm.NUR_SUPERADMIN:
+            form.fields.pop(f, None)
     if request.method == "POST":
         if not kann:
             raise PermissionDenied
@@ -47,6 +50,15 @@ def einstellungen(request):
     return render(request, "paperless/einstellungen.html", {
         "titel": gettext("Paperless-Anbindung"), "form": form, "inst": inst if inst.pk else None, "kann": kann,
         "konten": konten, "mit_pw": konten.exclude(initialpasswort="").count()})
+
+
+@login_required
+@require_POST
+def admin_anzeigen(request):
+    from apps.core import zugangsdaten
+    _pruefen(request, "view")
+    v = PaperlessVerbindung.objects.filter(verein=request.verein).first()
+    return zugangsdaten.anzeigen(request, v, gettext("Paperless-Administrator"), "paperless_einstellungen")
 
 
 @login_required

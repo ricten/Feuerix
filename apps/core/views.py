@@ -6,6 +6,7 @@ from datetime import date, timedelta
 from django.apps import apps as django_apps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordChangeView
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Sum
 from django.http import FileResponse, Http404, HttpResponseBadRequest, JsonResponse
@@ -16,7 +17,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _lazy
 from django.views.decorators.http import require_POST
 
-from . import audit
+from . import audit, passwortabgleich
 from .crud import REGISTRY, wert
 from .forms import VereinForm
 from .models import DashboardEinstellung, Verein, Zugang
@@ -29,6 +30,15 @@ def _vorbereiten(request):
     if request.verein is None:
         return redirect("verein_waehlen")
     return None
+
+
+class PasswortAendernView(PasswordChangeView):
+    """Eigenes Passwort aendern; bei eingeschaltetem Passwort-Abgleich wird es auch in Paperless/OpenSlides gesetzt."""
+
+    def form_valid(self, form):
+        antwort = super().form_valid(form)
+        passwortabgleich.melden(self.request, passwortabgleich.abgleichen(self.request.user, form.cleaned_data["new_password1"]))
+        return antwort
 
 
 @login_required

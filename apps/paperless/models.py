@@ -39,8 +39,19 @@ class PaperlessVerbindung(TenantModel):
                                       help_text=_("Nur zum Testen mit selbstsigniertem Zertifikat abschalten"))
     aktiv = models.BooleanField(_("Anbindung aktiv"), default=False)
     letzter_test = models.CharField(_("Letzter Verbindungstest"), max_length=300, blank=True, editable=False)
+    admin_benutzer = models.CharField(
+        _("Administrator-Benutzer (nur Anzeige)"), max_length=150, blank=True,
+        help_text=_("Der bei der Installation vergebene Administrator der Paperless-Instanz. Nur für Superadmins sichtbar."))
+    admin_passwort = VerschluesseltesTextField(
+        _("Administrator-Passwort (nur Anzeige)"), blank=True,
+        help_text=_("Wird verschlüsselt gespeichert und kann von Superadmins nach erneuter Passworteingabe angezeigt werden. "
+                  "Es wird nicht für die Anbindung verwendet."))
+    passwoerter_abgleichen = models.BooleanField(
+        _("Passwörter mit Feuerix abgleichen"), default=False,
+        help_text=_("Ändert jemand sein Passwort in Feuerix (oder setzt ein Superadmin es neu), wird dasselbe Passwort im "
+                  "Paperless-Konto der Person gesetzt. Ein abgegriffenes Passwort öffnet dann beide Systeme."))
 
-    AUDIT_MASK = ("api_token",)
+    AUDIT_MASK = ("api_token", "admin_passwort")
 
     class Meta:
         verbose_name = _("Paperless-Verbindung")

@@ -34,6 +34,9 @@ def einstellungen(request):
     inst = OpenSlidesVerbindung.objects.filter(verein=request.verein).first() or OpenSlidesVerbindung(verein=request.verein)
     kann = request.rechte.darf("openslides", "change")
     form = VerbindungForm(request.POST or None, instance=inst, verein=request.verein)
+    if not request.user.is_superuser:        # Administrator-Zugang und Passwort-Abgleich nur fuer Superadmins
+        for f in VerbindungForm.NUR_SUPERADMIN:
+            form.fields.pop(f, None)
     if request.method == "POST":
         if not kann:
             raise PermissionDenied
@@ -48,6 +51,15 @@ def einstellungen(request):
         "titel": gettext("OpenSlides-Anbindung"), "form": form, "inst": inst if inst.pk else None, "kann": kann,
         "verknuepft": ohne_pw, "mit_pw": Mitglied.objects.filter(
             verein=request.verein, openslides_user_id__isnull=False).exclude(openslides_initialpasswort="").count()})
+
+
+@login_required
+@require_POST
+def admin_anzeigen(request):
+    from apps.core import zugangsdaten
+    _pruefen(request, "view")
+    v = OpenSlidesVerbindung.objects.filter(verein=request.verein).first()
+    return zugangsdaten.anzeigen(request, v, gettext("OpenSlides-Administrator"), "openslides_einstellungen")
 
 
 @login_required

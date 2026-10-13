@@ -12,6 +12,7 @@ from django.core.mail import EmailMessage
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
+from apps.core import passwortabgleich
 from apps.core.models import Rolle, Zugang
 
 from .models import Mitglied
@@ -77,6 +78,7 @@ def verwaltungszugang_einrichten(request, pk):
             m.save(update_fields=["benutzer", "geaendert"])
         rolle = form.cleaned_data["rolle"]
         Zugang.objects.create(verein=request.verein, user=benutzer, rolle=rolle)
+        passwortabgleich.melden(request, passwortabgleich.abgleichen(benutzer, passwort))
         _zugangsdaten_mailen(request, m, benutzer, rolle, passwort)
         messages.success(request, gettext("Verwaltungszugang eingerichtet, Zugangsdaten an %(email)s gesendet.") % {"email": m.email})
         return redirect("mitglied_detail", pk=m.pk)

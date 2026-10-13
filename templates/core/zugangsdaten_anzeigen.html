@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-6"><div class="card shadow-sm"><div class="card-body">
+  <h4 class="mb-3"><i class="bi bi-key me-1"></i>{{ titel }}</h4>
+  <div class="alert alert-warning small">{% trans "Diese Seite wird nicht zwischengespeichert. Geben Sie das Passwort nicht weiter und schließen Sie die Seite danach." %}</div>
+  <dl class="mb-3">
+    {% if adresse %}<dt>{% trans "Adresse" %}</dt><dd><a href="{{ adresse }}" target="_blank" rel="noopener">{{ adresse }}</a></dd>{% endif %}
+    <dt>{% trans "Benutzer" %}</dt><dd><code class="user-select-all">{{ benutzer|default:"–" }}</code></dd>
+    <dt>{% trans "Passwort" %}</dt><dd><code class="user-select-all fs-5">{{ passwort }}</code></dd>
+  </dl>
+  <a class="btn btn-outline-secondary" href="{% url zurueck %}"><i class="bi bi-arrow-left"></i> {% trans "Zurück" %}</a>
+</div></div></div></div>
+{% endblock %}

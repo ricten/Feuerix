@@ -3,6 +3,13 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.88.0
+
+- **Administrator-Zugang anzeigen:** In der Paperless- und OpenSlides-Anbindung lässt sich der bei der Installation vergebene Administrator hinterlegen
+  (verschlüsselt); Superadmins sehen das Passwort nach erneuter Eingabe ihres Feuerix-Passworts (Anzeige wird protokolliert).
+- **Passwort-Abgleich** (Schalter je Anbindung, Standard aus): Ein in Feuerix gesetztes Passwort wird auch im Paperless- bzw. OpenSlides-Konto derselben Person
+  gesetzt (eigene Änderung, Superadmin setzt neu, Benutzer mit Passwort anlegen, Verwaltungszugang einrichten).
+
 ## 1.87.1
 
 - Englische Oberfläche: Die Seitenüberschriften der Listen (z. B. „Schriftstücke“, „Rechnungen“, „Veranstaltungen“) standen auf Englisch weiter auf

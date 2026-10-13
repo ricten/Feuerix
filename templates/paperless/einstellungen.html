@@ -24,6 +24,16 @@
       <h6>{% trans "Status" %}</h6>
       {% trans "noch nicht durchgeführt" as noch_nicht %}
       <p class="mb-2">{% trans "Letzter Verbindungstest:" %} <strong>{{ inst.letzter_test|default:noch_nicht }}</strong></p>
+      {% if user.is_superuser and inst and inst.admin_passwort %}
+      <hr>
+      <h6>{% trans "Administrator-Zugang" %}</h6>
+      <p class="small text-muted mb-2">{% trans "Zur Sicherheit erst nach erneuter Eingabe Ihres eigenen Feuerix-Passworts sichtbar. Die Anzeige wird protokolliert." %}</p>
+      <form method="post" action="{% url 'paperless_admin_anzeigen' %}" class="d-flex gap-2">{% csrf_token %}
+        <input type="password" name="passwort" class="form-control form-control-sm" placeholder="{% trans 'Ihr Feuerix-Passwort' %}" autocomplete="current-password" required>
+        <button class="btn btn-sm btn-outline-secondary text-nowrap"><i class="bi bi-eye"></i> {% trans "Anzeigen" %}</button>
+      </form>
+      <hr>
+      {% endif %}
       {% if kann and inst %}
       <div class="d-flex flex-wrap gap-2 mt-2">
         <form method="post" action="{% url 'paperless_test' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-primary"><i class="bi bi-plug"></i> {% trans "Verbindung testen" %}</button></form>

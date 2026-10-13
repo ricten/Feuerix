@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.87.1)
+# Handbuch – Feuerix (Version 1.88.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -674,6 +674,18 @@ Mitgliederversammlung“ enthalten) setzen dort nur einen Verweis wie „Abstimm
 und bleiben **ganz leer** (auch ohne Überschrift), wenn es nichts gibt. Ein erneuter Abruf ersetzt zuvor übernommene
 Ergebnisse und die Anwesenheit dieser Veranstaltung vollständig.
 
+**Administrator-Zugang und Passwort-Abgleich (nur Superadmins):** In den Einstellungen der Anbindung lässt sich der bei der
+Installation vergebene **Administrator** (Benutzer und Passwort) hinterlegen. Das Passwort wird verschlüsselt gespeichert und nur
+für die Anzeige verwendet; es erscheint nie im Formular. Mit **„Anzeigen“** sieht ein Superadmin es nach **erneuter Eingabe des
+eigenen Feuerix-Passworts** (die Anzeige wird im Änderungsprotokoll festgehalten, das Passwort selbst nicht). Mit dem Schalter
+**„Passwörter mit Feuerix abgleichen“** (Standard: aus) wird ein in Feuerix gesetztes Passwort – eigene Änderung, neues Passwort
+durch einen Superadmin, Benutzer mit Passwort anlegen oder Verwaltungszugang einrichten – zusätzlich im OpenSlides-Konto derselben
+Person gesetzt; gespeicherte Startpasswörter dieses Kontos werden dabei gelöscht. Das geht nur im Moment des Setzens (danach kennt
+Feuerix nur den Hash); bestehende Konten haben bis dahin ihr Startpasswort. Bei einem Fehler bleibt die Passwortänderung in Feuerix
+bestehen, es erscheint ein Hinweis. **Sicherheit:** Ein abgegriffenes Passwort öffnet dann alle abgeglichenen Systeme; Änderungen
+direkt in OpenSlides werden nicht zurück nach Feuerix übertragen.
+
+
 ## 13. Paperless-ngx-Anbindung
 
 Unter *Verwaltung › Externe Anbindungen › Paperless-ngx* (nach dem Anbinden auch direkt als Menüpunkt „Paperless-Anbindung“) wird einmal pro Verein die Verbindung zu einer bestehenden
@@ -753,6 +765,18 @@ dann erscheint „Erneut an Paperless senden“.
 Die Paperless-Anbindung einrichten können laut Datenschutzordnung alle sechs DSO-Rollen (Zeile „Vereinssoftware /
 Verwaltung“ der Berechtigungsmatrix) sowie der Superadministrator und Administrator; den Versandknopf selbst
 können alle Rollen mit Ablage-Bearbeitungsrecht nutzen (z. B. Schriftführer).
+
+**Administrator-Zugang und Passwort-Abgleich (nur Superadmins):** In den Einstellungen der Anbindung lässt sich der bei der
+Installation vergebene **Administrator** (Benutzer und Passwort) hinterlegen. Das Passwort wird verschlüsselt gespeichert und nur
+für die Anzeige verwendet; es erscheint nie im Formular. Mit **„Anzeigen“** sieht ein Superadmin es nach **erneuter Eingabe des
+eigenen Feuerix-Passworts** (die Anzeige wird im Änderungsprotokoll festgehalten, das Passwort selbst nicht). Mit dem Schalter
+**„Passwörter mit Feuerix abgleichen“** (Standard: aus) wird ein in Feuerix gesetztes Passwort – eigene Änderung, neues Passwort
+durch einen Superadmin, Benutzer mit Passwort anlegen oder Verwaltungszugang einrichten – zusätzlich im Paperless-Konto derselben
+Person gesetzt; gespeicherte Startpasswörter dieses Kontos werden dabei gelöscht. Das geht nur im Moment des Setzens (danach kennt
+Feuerix nur den Hash); bestehende Konten haben bis dahin ihr Startpasswort. Bei einem Fehler bleibt die Passwortänderung in Feuerix
+bestehen, es erscheint ein Hinweis. **Sicherheit:** Ein abgegriffenes Passwort öffnet dann alle abgeglichenen Systeme; Änderungen
+direkt in Paperless werden nicht zurück nach Feuerix übertragen.
+
 
 ## 14. Auswertungen und Änderungsprotokoll
 

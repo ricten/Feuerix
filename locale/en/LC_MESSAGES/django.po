@@ -6572,3 +6572,103 @@ msgstr ""
 
 msgid "Kontakt"
 msgstr "Contact"
+
+# Administrator-Zugang und Passwort-Abgleich
+
+msgid "Administrator-Benutzer (nur Anzeige)"
+msgstr "Administrator user (display only)"
+
+msgid "Administrator-Passwort (nur Anzeige)"
+msgstr "Administrator password (display only)"
+
+msgid "Das Passwort wurde auch gesetzt in: %(konten)s."
+msgstr "The password was also set in: %(konten)s."
+
+msgid ""
+"Der bei der Installation vergebene Administrator der Paperless-Instanz. Nur "
+"für Superadmins sichtbar."
+msgstr ""
+"The administrator of the Paperless instance assigned during installation. "
+"Only visible to superadmins."
+
+msgid ""
+"Der bei der Installation vergebene Superadmin der OpenSlides-Instanz. Nur "
+"für Superadmins sichtbar."
+msgstr ""
+"The superadmin of the OpenSlides instance assigned during installation. Only"
+" visible to superadmins."
+
+msgid "Es ist noch kein Administrator-Zugang gespeichert."
+msgstr "No administrator access has been stored yet."
+
+msgid ""
+"Leer lassen = gespeichertes Passwort behalten. Wird verschlüsselt "
+"gespeichert und kann von Superadmins nach erneuter Passworteingabe angezeigt"
+" werden. Wird nicht für die Anbindung verwendet."
+msgstr ""
+"Leave empty = keep the stored password. It is stored encrypted and can be "
+"shown to superadmins after entering their password again. It is not used for"
+" the integration."
+
+msgid "OpenSlides-Administrator"
+msgstr "OpenSlides administrator"
+
+msgid "Paperless-Administrator"
+msgstr "Paperless administrator"
+
+msgid "Passwort-Abgleich fehlgeschlagen - %(fehler)s"
+msgstr "Password synchronisation failed - %(fehler)s"
+
+msgid "Passwörter mit Feuerix abgleichen"
+msgstr "Synchronise passwords with Feuerix"
+
+msgid ""
+"Wird verschlüsselt gespeichert und kann von Superadmins nach erneuter "
+"Passworteingabe angezeigt werden. Es wird nicht für die Anbindung verwendet."
+msgstr ""
+"It is stored encrypted and can be shown to superadmins after entering their "
+"password again. It is not used for the integration."
+
+msgid ""
+"Ändert jemand sein Passwort in Feuerix (oder setzt ein Superadmin es neu), "
+"wird dasselbe Passwort im OpenSlides-Konto der Person gesetzt. Ein "
+"abgegriffenes Passwort öffnet dann beide Systeme."
+msgstr ""
+"If someone changes their password in Feuerix (or a superadmin sets a new "
+"one), the same password is set in the person's OpenSlides account. A stolen "
+"password then opens both systems."
+
+msgid ""
+"Ändert jemand sein Passwort in Feuerix (oder setzt ein Superadmin es neu), "
+"wird dasselbe Passwort im Paperless-Konto der Person gesetzt. Ein "
+"abgegriffenes Passwort öffnet dann beide Systeme."
+msgstr ""
+"If someone changes their password in Feuerix (or a superadmin sets a new "
+"one), the same password is set in the person's Paperless account. A stolen "
+"password then opens both systems."
+
+msgid ""
+"Diese Seite wird nicht zwischengespeichert. Geben Sie das Passwort nicht "
+"weiter und schließen Sie die Seite danach."
+msgstr ""
+"This page is not cached. Do not share the password and close the page "
+"afterwards."
+
+msgid "Adresse"
+msgstr "Address"
+
+msgid "Zurück"
+msgstr "Back"
+
+msgid "Administrator-Zugang"
+msgstr "Administrator access"
+
+msgid ""
+"Zur Sicherheit erst nach erneuter Eingabe Ihres eigenen Feuerix-Passworts "
+"sichtbar. Die Anzeige wird protokolliert."
+msgstr ""
+"For security only visible after entering your own Feuerix password again. "
+"Viewing is logged."
+
+msgid "Ihr Feuerix-Passwort"
+msgstr "Your Feuerix password"

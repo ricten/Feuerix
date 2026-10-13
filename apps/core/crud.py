@@ -382,6 +382,10 @@ class FormularMixin(MandantMixin):
         audit.kontext_setzen(grund=form.cleaned_data.get("aenderungsgrund"))
         form.instance.verein = self.request.verein
         response = super().form_valid(form)
+        pw = getattr(form, "_neues_passwort", None)
+        if pw and getattr(self.object, "user", None) is not None:        # Benutzerverwaltung: Passwort auch in Paperless/OpenSlides
+            from . import passwortabgleich
+            passwortabgleich.melden(self.request, passwortabgleich.abgleichen(self.object.user, pw))
         if self.cfg.nach_speichern:
             self.cfg.nach_speichern(self.request, self.object, self.neu)
         messages.success(self.request, gettext("%(label)s gespeichert.") % {"label": self.cfg.label})

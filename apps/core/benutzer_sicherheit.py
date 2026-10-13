@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods, require_POST
 
-from . import audit, zweifaktor
+from . import audit, passwortabgleich, zweifaktor
 from .crud import knopf
 from .models import Zugang
 
@@ -88,5 +88,6 @@ def benutzer_passwort(request, pk):
             zweifaktor.entsperren(z.user)     # ein neues Passwort hebt auch eine Sperre wegen Fehlversuchen auf
             _protokoll(request, z, "Passwort neu gesetzt")
             messages.success(request, _("Das Passwort von %(name)s wurde neu gesetzt.") % {"name": z.user.get_username()})
+            passwortabgleich.melden(request, passwortabgleich.abgleichen(z.user, pw))
             return redirect("zugang_detail", pk=z.pk)
     return render(request, "core/benutzer_passwort.html", {"zugang": z, "fehler": fehler})

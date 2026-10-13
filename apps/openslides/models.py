@@ -27,8 +27,19 @@ class OpenSlidesVerbindung(TenantModel):
     letzter_test = models.CharField(_("Letzter Verbindungstest"), max_length=300, blank=True, editable=False)
     letzter_abgleich_am = models.DateTimeField(_("Letzter Abgleich"), null=True, blank=True, editable=False)
     letzter_abgleich_info = models.TextField(_("Ergebnis des letzten Abgleichs"), blank=True, editable=False)
+    admin_benutzer = models.CharField(
+        _("Administrator-Benutzer (nur Anzeige)"), max_length=150, blank=True,
+        help_text=_("Der bei der Installation vergebene Superadmin der OpenSlides-Instanz. Nur für Superadmins sichtbar."))
+    admin_passwort = VerschluesseltesTextField(
+        _("Administrator-Passwort (nur Anzeige)"), blank=True,
+        help_text=_("Wird verschlüsselt gespeichert und kann von Superadmins nach erneuter Passworteingabe angezeigt werden. "
+                  "Es wird nicht für die Anbindung verwendet."))
+    passwoerter_abgleichen = models.BooleanField(
+        _("Passwörter mit Feuerix abgleichen"), default=False,
+        help_text=_("Ändert jemand sein Passwort in Feuerix (oder setzt ein Superadmin es neu), wird dasselbe Passwort im "
+                  "OpenSlides-Konto der Person gesetzt. Ein abgegriffenes Passwort öffnet dann beide Systeme."))
 
-    AUDIT_MASK = ("passwort",)
+    AUDIT_MASK = ("passwort", "admin_passwort")
 
     class Meta:
         verbose_name = _("OpenSlides-Verbindung")
