@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.85.1)
+# Handbook – Feuerix (Version 1.86.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -55,7 +55,8 @@ selected.
 **Preview:** the detail pages of invoices, reminders, donation receipts, cash reports, documents and mail
 merges (there, the first letter) show the generated PDF right on the page; in the archive this applies to
 PDF and image files. The preview only appears for logged-in users with read permission and can only be
-embedded within Feuerix itself.
+embedded within Feuerix itself. On wide screens the preview sits **to the right of the fields** and scrolls along (page width, no side
+panel, window height); on narrow screens it appears above the fields.
 
 **Permissions under the data protection bylaws (permission matrix):** under *Administration › Permission
 matrix*, access rights are displayed exactly as in the data protection bylaws' permission matrix and are

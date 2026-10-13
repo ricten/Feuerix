@@ -178,3 +178,43 @@ class VorlagenLayoutTests(TestCase):
         s["verein_id"] = self.verein.pk
         s.save()
         self.assertEqual(self.client.get(reverse("vorlage_vorschau", args=[fremd.pk])).status_code, 404)
+
+
+class DetailMitVorschauTests(TestCase):
+    """Detailseiten mit PDF-Vorschau: Vorschau rechts neben den Feldern, seitenbreit und ohne Seitenleiste."""
+
+    def setUp(self):
+        self.verein = Verein.objects.create(name="Beispielverein e.V.", kuerzel="test")
+        admin = get_user_model().objects.create_superuser("admin", password=PW)
+        Zugang.objects.create(verein=self.verein, user=admin,
+                              rolle=Rolle.objects.get(verein=self.verein, name="Superadministrator"))
+        self.client.force_login(admin)
+
+    def test_schriftstueck_detail_mit_nebeneinander_layout(self):
+        s = Schriftstueck.objects.create(verein=self.verein, titel="Mein Brief", betreff="B", text="<p>x</p>")
+        html = self.client.get(reverse("schriftstueck_detail", args=[s.pk])).content.decode()
+        self.assertIn("vorschau-sticky", html)
+        self.assertIn('class="vorschau-pdf"', html)
+        self.assertIn("#view=FitH&amp;navpanes=0", html)
+        self.assertIn("col-xl-5", html)
+        self.assertIn("Mein Brief", html)                         # Felder stehen links
+        self.assertLess(html.index("Mein Brief"), html.index("vorschau-pdf"))
+        self.assertEqual(html.count("<iframe"), 1)
+
+    def test_serienbrief_detail_zeigt_empfaengerliste_links_neben_der_vorschau(self):
+        from apps.members.models import Mitglied
+        Mitglied.objects.create(verein=self.verein, vorname="A", nachname="B", status="aktiv")
+        sb = Serienbrief.objects.create(verein=self.verein, titel="Rundbrief", betreff="B", text="<p>x</p>")
+        html = self.client.get(reverse("serienbrief_detail", args=[sb.pk])).content.decode()
+        self.assertIn("Empfängerliste", html)
+        self.assertLess(html.index("Empfängerliste"), html.index("vorschau-pdf"))
+
+    def test_seiten_ohne_vorschau_behalten_das_alte_layout(self):
+        v = Vorlage.objects.create(verein=self.verein, name="V", text="<p>x</p>")
+        html = self.client.get(reverse("vorlage_detail", args=[v.pk])).content.decode()
+        self.assertIn("vorschau-pdf", html)                        # Vorlage hat die Layout-Vorschau
+        from apps.members.models import Abteilung
+        a = Abteilung.objects.create(verein=self.verein, name="Zug 1")
+        html = self.client.get(reverse("abteilung_detail", args=[a.pk])).content.decode()
+        self.assertNotIn("vorschau-pdf", html)
+        self.assertIn("col-xl-4", html)

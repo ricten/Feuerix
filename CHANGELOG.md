@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.86.0
+
+- **Detailseiten mit Vorschau besser genutzt:** Die PDF-/Bildvorschau steht auf breiten Bildschirmen rechts neben den Feldern und Tabellen, läuft beim
+  Scrollen mit, nutzt die Fensterhöhe und öffnet das PDF seitenbreit ohne Seitenleiste (vorher winzig auf 40 % in einer großen Fläche).
+
 ## 1.85.1
 
 - Briefe/PDFs: Die kleine Absenderzeile über der Anschrift entfällt, wenn sie nur den Vereinsnamen wiederholen würde (Verein ohne hinterlegte Anschrift).

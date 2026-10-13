@@ -205,3 +205,8 @@ body { padding-bottom: 4.5rem; }   /* Rueckfall ohne JavaScript */
 .menue-spalten { column-count: 3; column-gap: 1.5rem; }
 .menue-block { break-inside: avoid; margin-bottom: .75rem; }
 @media (max-width: 991.98px) { .menue-mega { min-width: 0; } .menue-spalten { column-count: 1; } }
+
+/* Detailseiten mit Vorschau: Vorschau rechts neben den Feldern, laeuft beim Scrollen mit und nutzt die Fensterhoehe */
+.vorschau-sticky { position: sticky; top: .75rem; }
+.vorschau-pdf { width: 100%; height: calc(100vh - 8rem); min-height: 480px; border: 0; }
+@media (max-width: 1199.98px) { .vorschau-sticky { position: static; } .vorschau-pdf { height: 75vh; } }

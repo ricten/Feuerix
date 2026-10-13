@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.85.1)
+# Handbuch – Feuerix (Version 1.86.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -55,7 +55,8 @@ Benutzerkonto gespeichert, unabhängig vom gerade gewählten Verein.
 **Vorschau:** Die Detailseiten von Rechnungen, Mahnungen, Zuwendungsbestätigungen, Kassenberichten,
 Schriftstücken und Serienbriefen (dort der erste Brief) zeigen das erzeugte PDF direkt auf der Seite an; in der
 Ablage gilt das für PDF- und Bilddateien. Die Vorschau erscheint nur für angemeldete Benutzer mit
-Leserecht und ist ausschließlich innerhalb von Feuerix einbettbar.
+Leserecht und ist ausschließlich innerhalb von Feuerix einbettbar. Auf breiten Bildschirmen steht die Vorschau **rechts neben den Feldern**
+und läuft beim Scrollen mit (seitenbreit, ohne Seitenleiste, in Fensterhöhe); auf schmalen Bildschirmen erscheint sie über den Feldern.
 
 **Rechte nach der Datenschutzordnung (Berechtigungsmatrix):** Unter *Verwaltung › Berechtigungsmatrix* werden die
 Zugriffsrechte wie in der Berechtigungsmatrix der Datenschutzordnung angezeigt und sind **per Auswahl je Zelle
