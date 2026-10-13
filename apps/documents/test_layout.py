@@ -64,6 +64,23 @@ class LayoutPdfTests(TestCase):
         self.assertIn("Seite 1", nur_seite)
         self.assertNotIn("info@example.org", nur_seite)
 
+    def test_fusszeile_ohne_vereinsnamen(self):
+        kopf_aus = dict(kopf="ohne", absenderzeile=False)
+        mit = text(self.pdf(fuss="voll", **kopf_aus))
+        ohne = text(self.pdf(fuss="ohne_name", **kopf_aus))
+        self.assertIn("Beispielverein", mit)
+        self.assertNotIn("Beispielverein", ohne)           # Vereinsname fehlt in der Fusszeile
+        self.assertIn("info@example.org", ohne)             # uebrige Angaben bleiben
+        self.assertIn("Seite 1", ohne)
+
+    def test_fusszeile_ohne_name_und_ohne_weitere_angaben_zeigt_nur_seitenzahl(self):
+        v = Verein.objects.create(name="Demo e.V.", kuerzel="demo")
+        pdf = seiten_pdf(v, [SEITE], layout=Layout(kopf="ohne", absenderzeile=False, fuss="ohne_name"))
+        t = text(pdf)
+        self.assertNotIn("Demo e.V.", t)
+        self.assertIn("Seite 1", t)
+        self.assertIn("Demo e.V.", text(seiten_pdf(v, [SEITE], layout=Layout(kopf="ohne", absenderzeile=False))))
+
     def test_schriftart_und_groesse(self):
         self.assertIn(b"Times-Roman", self.pdf(schriftart="Times-Roman"))
         self.assertIn(b"Courier", self.pdf(schriftart="Courier"))

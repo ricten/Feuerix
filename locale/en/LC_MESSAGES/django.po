@@ -5354,3 +5354,8 @@ msgstr "Tax office, tax number, VAT, non-profit notice, allowances"
 
 msgid "Zahlungsziel, Rechnungstexte oben und unten"
 msgstr "Payment terms, invoice texts above and below"
+
+# Fusszeile ohne Vereinsnamen
+
+msgid "Vereinsangaben ohne Vereinsnamen und Seitenzahl"
+msgstr "Club details without club name, and page number"

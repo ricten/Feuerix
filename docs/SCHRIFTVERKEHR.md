@@ -62,7 +62,7 @@ Serienbriefe, die mit dieser Vorlage angelegt wurden; Rechnungen, Mahnungen usw.
 * **Briefkopf:** Name und Logo mit Trennlinie (Standard), nur Name, nur Logo oder **kein Briefkopf** für vorgedrucktes Briefpapier –
   dann bleibt auf der ersten Seite der Rand oben (Standard 45 mm) frei. **Logo links oder rechts.**
 * **Absenderzeile** (kleine Rücksendeangabe über der Anschrift, für Fensterumschläge) an/aus, **Datum** links oder rechts, **Fußzeile**
-  mit Vereinsangaben, nur Seitenzahl oder keine.
+  mit Vereinsangaben, mit Vereinsangaben **ohne Vereinsnamen** (er steht schon im Briefkopf), nur Seitenzahl oder keine.
 * **Schrift:** Helvetica, Times oder Courier, Größe 8 bis 14 pt. **Ränder** links, rechts, unten (und oben bei „kein Briefkopf“) in mm.
 
 Auf der Vorlagen-Detailseite zeigt **„Layout-Vorschau (PDF)“** ein Beispiel-PDF mit Beispielempfänger. Die Standardwerte entsprechen dem

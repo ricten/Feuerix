@@ -145,8 +145,9 @@ class Vorlage(TenantModel):
     LAYOUT_SEITE = [("rechts", _("Rechts")), ("links", _("Links"))]
     LAYOUT_SCHRIFT = [("Helvetica", _("Helvetica (serifenlos)")), ("Times-Roman", _("Times (mit Serifen)")),
                       ("Courier", _("Courier (Schreibmaschine)"))]
-    LAYOUT_FUSS = [("voll", _("Vereinsangaben und Seitenzahl")), ("seitenzahl", _("Nur Seitenzahl")),
-                   ("ohne", _("Keine Fußzeile"))]
+    LAYOUT_FUSS = [("voll", _("Vereinsangaben und Seitenzahl")),
+                   ("ohne_name", _("Vereinsangaben ohne Vereinsnamen und Seitenzahl")),
+                   ("seitenzahl", _("Nur Seitenzahl")), ("ohne", _("Keine Fußzeile"))]
     layout_kopf = models.CharField(_("Briefkopf"), max_length=6, choices=LAYOUT_KOPF, default="voll")
     layout_logo_position = models.CharField(_("Logo-Position"), max_length=6, choices=LAYOUT_SEITE, default="rechts")
     layout_absenderzeile = models.BooleanField(

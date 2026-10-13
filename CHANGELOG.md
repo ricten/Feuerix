@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.85.0
+
+- **Fußzeile ohne Vereinsnamen** als Layout-Option je Vorlage („Vereinsangaben ohne Vereinsnamen und Seitenzahl“): der Name steht schon im Briefkopf;
+  gibt es sonst keine Vereinsangaben, bleibt nur die Seitenzahl.
+
 ## 1.84.0
 
 - **Unterthemen der Vereinseinstellungen in der Übersicht:** Vereinsdaten, Logo & Farben, Briefe: Unterschriften, Etiketten, Startseite & Impressum,

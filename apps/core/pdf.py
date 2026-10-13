@@ -38,6 +38,13 @@ class Layout:
         self.rand_oben_ohne_kopf, self.rand_unten = rand_oben_mm * mm, rand_unten_mm * mm
         self.fuss, self.absenderzeile, self.datum_position = fuss, bool(absenderzeile), datum_position
 
+    def kopie_mit(self, **aenderungen):
+        """Dasselbe Layout mit einzelnen geaenderten Werten (Objekt bleibt unveraendert)."""
+        neu = Layout.__new__(Layout)
+        neu.__dict__.update(self.__dict__)
+        neu.__dict__.update(aenderungen)
+        return neu
+
     @classmethod
     def von_vorlage(cls, vorlage):
         """Layout einer Vorlage (documents.Vorlage) - ohne Vorlage das Standardlayout."""
@@ -160,14 +167,20 @@ def _fuss(canvas, verein, seitenzahl, doc, layout=None):
             canvas.drawRightString(A4[0] - layout.rand_rechts, 8 * mm, f"Seite {doc.page}")
         canvas.restoreState()
         return
+    mit_name = layout.fuss != "ohne_name"      # Vereinsname steht schon im Briefkopf - Fusszeile ohne ihn moeglich
+    vertretung = ", ".join(x for x in (verein.unterschrift_1, verein.adresszeile) if x)
+    erste_zeile = " | ".join(x for x in ((verein.name if mit_name else ""), verein.vereinsregister, verein.email) if x)
+    if not mit_name and not (erste_zeile or vertretung or verein.bankname or verein.iban or verein.bic
+                             or verein.steuernummer):
+        canvas.restoreState()
+        return _fuss(canvas, verein, seitenzahl, doc, layout.kopie_mit(fuss="seitenzahl"))     # nichts anzuzeigen
     canvas.setStrokeColor(_akzentfarbe_fuss(verein))
     canvas.setLineWidth(0.4)
     canvas.line(layout.rand_links, 23 * mm, A4[0] - layout.rand_rechts, 23 * mm)
     canvas.setFont("Helvetica", 8.5)
     canvas.setFillColor(colors.HexColor(BRIEFKOPF_TEXTFARBE))
-    vertretung = ", ".join(x for x in (verein.unterschrift_1, verein.adresszeile) if x)
     zeilen = [
-        " | ".join(x for x in (verein.name, verein.vereinsregister, verein.email) if x),
+        erste_zeile,
         vertretung,
         " | ".join(x for x in (
             f"Bank: {verein.bankname}" if verein.bankname else "",
