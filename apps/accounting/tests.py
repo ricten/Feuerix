@@ -232,7 +232,7 @@ class BelegAblageTests(TestCase):
         doc = self.Ablagedokument.objects.get(pk=self.b.ablage_id)
         self.assertEqual(doc.kategorie, "beleg")
         self.assertEqual(doc.datum, date(2026, 3, 1))
-        self.assertTrue(doc.datei.name.endswith("quittung.pdf"))
+        self.assertTrue(doc.dateiname.startswith("2026-03-01_Beleg_") and doc.dateiname.endswith(".pdf"), doc.dateiname)
         self.assertContains(r, "Beleg in der Ablage abgelegt")
         self.assertContains(r, "Beleg in Ablage gespeichert")
 

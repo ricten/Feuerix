@@ -1,0 +1,14 @@
+{% load i18n %}
+<nav class="einstellungen-nav card shadow-sm" aria-label="{% trans 'Einstellungen' %}">
+  <a class="card-header fw-semibold text-decoration-none" href="{% url 'einstellungen' %}"><i class="bi bi-gear me-1"></i>{% trans "Einstellungen" %}</a>
+  {% for thema, icon, offen, punkte in seitenleiste %}
+  <details {% if offen %}open{% endif %}>
+    <summary><i class="bi {{ icon }} me-1"></i>{{ thema }}</summary>
+    <div class="list-group list-group-flush">
+      {% for label, url, anker, aktiv in punkte %}
+      <a class="list-group-item list-group-item-action{% if aktiv %} active{% endif %}" href="{{ url }}"{% if anker %} data-anker="{{ anker }}"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </div>
+  </details>
+  {% endfor %}
+</nav>

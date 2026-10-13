@@ -3,6 +3,8 @@ from datetime import timedelta
 
 from django.utils import timezone
 
+from apps.documents.services import ablage_dateiname
+
 from .client import PaperlessClient, PaperlessFehler
 
 
@@ -81,7 +83,7 @@ def dokument_senden(v, dokument, erneut=False):
             return None
     tags = tags_fuer(v, dokument)
     try:
-        task_id = c.dokument_senden(dokument.dateiname, inhalt, titel=dokument.titel, erstellt=dokument.datum,
+        task_id = c.dokument_senden(ablage_dateiname(dokument.titel, dokument.kategorie, dokument.datum, dokument.dateiname), inhalt, titel=dokument.titel, erstellt=dokument.datum,
                                     korrespondent=v.korrespondent, dokumenttyp=dokumenttyp_fuer(v, dokument),
                                     tags=tags)
     except PaperlessFehler as e:

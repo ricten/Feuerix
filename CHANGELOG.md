@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.90.0
+
+- **Einstellungen neu geordnet:** Verwaltungsmenü mit Untermenü je Thema (Verein, Mitglieder & Beiträge, Finanzen & Kasse, Inventar, Benutzer & Sicherheit, Anbindungen, System);
+  auf allen Einstellungsseiten steht links dieselbe Navigation, Konten und Buchungskategorien nur noch unter Einstellungen.
+- **Dateinamen für Paperless:** Ablage und Übergabe `JJJJ-MM-TT_Art_Titel.pdf` (Rechnungen bleiben `Rechnungsnummer_Typ_Empfänger.pdf`).
+
 ## 1.89.0
 
 - **Rechnungs-Dateinamen:** `Rechnungsnummer_Typ_Empfänger.pdf` (Download, Mailanhang, Ablage, Paperless); gespeicherte Dateien tragen keine Zufallskennung mehr im Namen (ältere werden ohne angezeigt).

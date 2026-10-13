@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.89.0)
+# Handbuch – Feuerix (Version 1.90.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -306,7 +306,7 @@ bestehen. Voraussetzung ist außerdem eine kostenlose FinTS-Produkt-ID, die der 
 der Deutschen Kreditwirtschaft registriert (wird nicht mit der Software mitgeliefert) und entweder als
 Umgebungsvariable oder – verschlüsselt und ohne Serverzugriff änderbar – unter `/admin/` › Systemeinstellungen
 hinterlegt (nur für technische Administratoren, nicht Teil der normalen Vereinsverwaltung). Jedes Kassenbuch-Konto
-(*Kasse › Konten*) kann optional einem dieser Zugänge zugeordnet werden – Konten ohne Zuordnung laufen
+(*Verwaltung › Finanzen & Kasse › Konten*) kann optional einem dieser Zugänge zugeordnet werden – Konten ohne Zuordnung laufen
 unverändert über den manuellen Kontoauszug-Import weiter.
 Auf der Detailseite eines Zugangs steht „Kontodaten abrufen“ (zeigt IBAN/BIC der beim Kreditinstitut hinterlegten
 Konten – nützlich, um die Verbindung zu prüfen und die richtige Zuordnung zum Kassenbuch-Konto zu finden, ohne
@@ -723,6 +723,12 @@ bestätigt.
 überschreiben. Nur bei „Sonstiges“ gilt der Standard-Dokumenttyp der Anbindung. Fehlende Typen legt Paperless
 automatisch an.
 
+**Dateinamen für Paperless:** Abgelegte und an Paperless übergebene Dokumente heißen `JJJJ-MM-TT_Art_Titel.pdf`, z. B.
+`2026-03-07_Protokoll_Jahreshauptversammlung.pdf` (Datum des Dokuments zuerst, ISO-Schreibweise; die Art entfällt, wenn der Titel
+schon damit beginnt). **Rechnungen** behalten `Rechnungsnummer_Typ_Empfänger.pdf`. Damit Paperless das Datum aus dem Dateinamen liest,
+in der Paperless-Konfiguration `PAPERLESS_FILENAME_DATE_ORDER=YMD` setzen; Zuordnungen nach Art/Titel sind über einen Paperless-Workflow
+mit Dateinamen-Muster (z. B. `*_Protokoll_*`) möglich. Feuerix setzt Datum, Dokumenttyp und Tags ohnehin schon beim Hochladen selbst.
+
 **Automatische Übergabe:** Ist in der Anbindung „Fertiggestellte Dokumente automatisch übergeben“ aktiv (Standard),
 werden folgende Dokumente ohne weiteren Klick übergeben, sobald sie fertig sind – inkl. Ablage, Tags, Dokumenttyp
 und Live-Status:
@@ -803,9 +809,11 @@ Rechnungen) stehen auch **einzeln** in der Einstellungs-Übersicht und im Menü 
 
 Alle weiteren Verwaltungs- und Stammdatenseiten (Mitgliedsarten, Beitragsregeln, FinTS-Zugänge, Konten, Abteilungen, Funktionen,
 Tags, Ehrungsarten, Inventar-Kategorien und -Lagerorte, Importe, Rollen, Berechtigungsmatrix, Datensicherung …) stehen **nach Themen
-geordnet** unter *Verwaltung › Einstellungen (Übersicht)* **und** im Menü *Verwaltung*, das als mehrspaltiges Menü mit Themenblöcken
-(Verein & Erscheinungsbild, Finanzen, Mitglieder & Ehrungen, Inventar, Zugriff & Sicherheit, Externe Anbindungen, System) alle
-Einstellungen zeigt – für die externen Anbindungen gibt es dort **einen** Punkt (die Übersicht verlinkt zusätzlich die OpenSlides- und
+geordnet** unter *Verwaltung › Einstellungen (Übersicht)* **und** im Menü *Verwaltung*, das je Thema ein **Untermenü** hat
+(Verein, Mitglieder & Beiträge, Finanzen & Kasse, Inventar, Benutzer & Sicherheit, Externe Anbindungen, System; die Reihenfolge
+entspricht dem Einrichten eines Vereins). Auf **jeder Einstellungsseite** steht links dieselbe **Navigation** mit allen Themen: das Thema der
+aktuellen Seite ist aufgeklappt, die aktuelle Seite hervorgehoben – so wechselt man ohne Umweg zwischen den Einstellungen. Die
+externen Anbindungen haben im Menü **einen** Punkt (die Übersicht und die Navigation verlinken zusätzlich die OpenSlides- und
 Paperless-Einstellungen direkt). Jeder sieht nur, wofür die eigene Rolle Rechte hat. In den Einstellungs-Listen (Benutzer, Rollen,
 Tags, Abteilungen, Funktionen, Mitgliedsarten, Beitragsregeln, Ehrungsarten, Jubiläumsregeln, Konten, Buchungskategorien,
 Inventar-Kategorien und -Lagerorte) öffnet ein Klick auf eine Zeile **direkt das Bearbeiten** (mit Änderungsrecht; sonst die

@@ -917,13 +917,27 @@ class EinstellungsUebersichtTests(TestCase):
     def test_uebersicht_zeigt_themen_und_links(self):
         r = self.client.get(reverse("einstellungen"))
         self.assertEqual(r.status_code, 200)
-        for thema in ("Verein &amp; Erscheinungsbild", "Finanzen", "Mitglieder &amp; Ehrungen", "Inventar",
-                      "Zugriff &amp; Sicherheit", "Externe Anbindungen", "System"):
+        for thema in ("Verein", "Mitglieder &amp; Beiträge", "Finanzen &amp; Kasse", "Inventar",
+                      "Benutzer &amp; Sicherheit", "Externe Anbindungen", "System"):
             self.assertContains(r, thema)
         for name in ("fintszugang_list", "abteilung_list", "kategorie_list", "zugang_list", "rolle_list",
                      "mitgliedtag_list", "berechtigungsmatrix", "anbindungen", "openslides_einstellungen",
                      "paperless_einstellungen", "datensicherung"):
             self.assertContains(r, 'href="%s"' % reverse(name))
+
+    def test_seitenleiste_auf_einstellungsseiten(self):
+        """Jede Einstellungsseite zeigt links die Navigation mit allen Themen; das Thema der Seite ist aufgeklappt."""
+        for name in ("mitgliedsart_list", "konto_list", "kategorie_list", "zugang_list", "verein_einstellungen", "datensicherung"):
+            r = self.client.get(reverse(name))
+            self.assertContains(r, "einstellungen-nav", msg_prefix=name)
+        r = self.client.get(reverse("abteilung_list"), follow=True)
+        self.assertContains(r, "einstellungen-nav")
+        self.assertContains(r, 'class="list-group-item list-group-item-action active" href="%s"' % reverse("abteilung_list"))
+        self.assertContains(r, "<details open>")
+
+    def test_keine_seitenleiste_ausserhalb_der_einstellungen(self):
+        for name in ("dashboard", "einstellungen", "mitglied_list"):
+            self.assertNotContains(self.client.get(reverse(name)), "einstellungen-nav", msg_prefix=name)
 
     def test_unterthemen_der_vereinseinstellungen_stehen_in_der_uebersicht_und_sind_sprungziele(self):
         ziele = ("stamm", "design-logo", "design-briefe", "design-etiketten", "startseite", "finanzen-bank",
@@ -951,12 +965,12 @@ class EinstellungsUebersichtTests(TestCase):
 
     def test_menue_verwaltung_zeigt_themenbloecke(self):
         r = self.client.get(reverse("dashboard"))
-        self.assertContains(r, "menue-mega")
+        self.assertContains(r, "dropdown-submenu")
         for name in ("einstellungen", "zugang_list", "rolle_list", "mitgliedtag_list", "abteilung_list", "kategorie_list",
                      "fintszugang_list", "berechtigungsmatrix", "anbindungen", "datensicherung"):
-            self.assertContains(r, 'class="dropdown-item rounded" href="%s' % reverse(name), msg_prefix=name)
+            self.assertContains(r, 'class="dropdown-item" href="%s' % reverse(name), msg_prefix=name)
         for name in ("openslides_einstellungen", "paperless_einstellungen"):    # nur ein Menuepunkt fuer die Anbindungen
-            self.assertNotContains(r, 'class="dropdown-item rounded" href="%s"' % reverse(name))
+            self.assertNotContains(r, 'class="dropdown-item" href="%s"' % reverse(name))
 
     def test_nur_sichtbare_eintraege_je_rolle(self):
         rolle = Rolle.objects.create(verein=self.verein, name="Nur Inventar", rechte=["inventar.view"])

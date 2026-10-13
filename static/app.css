@@ -200,11 +200,26 @@ dl.felder dt { font-weight: 500; color: #555; }
 body { padding-bottom: 4.5rem; }   /* Rueckfall ohne JavaScript */
 @media print { #seitenfuss { position: static; } body { padding-bottom: 0 !important; } }
 
-/* Menue "Verwaltung": Themenbloecke in mehreren Spalten */
-.menue-mega { min-width: min(46rem, 92vw); }
-.menue-spalten { column-count: 3; column-gap: 1.5rem; }
-.menue-block { break-inside: avoid; margin-bottom: .75rem; }
-@media (max-width: 991.98px) { .menue-mega { min-width: 0; } .menue-spalten { column-count: 1; } }
+/* Menue "Verwaltung": ein Untermenue je Thema */
+.menue-unter { min-width: 15rem; }
+.dropdown-submenu { position: relative; }
+.dropdown-submenu > .dropdown-toggle::after { border: 0; content: "\203A"; float: right; vertical-align: baseline; line-height: 1; font-size: 1.1rem; }
+.dropdown-submenu > .dropdown-menu { top: 0; left: 100%; margin-top: -.5rem; min-width: 16rem; }
+@media (min-width: 992px) { .dropdown-submenu:hover > .dropdown-menu { display: block; } }
+@media (max-width: 991.98px) {
+  .dropdown-submenu > .dropdown-menu { position: static; margin: 0 0 0 .75rem; border: 0; box-shadow: none; }
+}
+
+/* Navigation links auf allen Einstellungsseiten */
+.einstellungen-nav { position: sticky; top: .75rem; max-height: calc(100vh - 6rem); overflow-y: auto; }
+.einstellungen-nav summary { cursor: pointer; padding: .55rem .9rem; font-weight: 600; list-style: none; }
+.einstellungen-nav summary::-webkit-details-marker { display: none; }
+.einstellungen-nav summary::after { content: "\25B8"; float: right; opacity: .6; transition: transform .15s; }
+.einstellungen-nav details[open] > summary::after { transform: rotate(90deg); }
+.einstellungen-nav details + details { border-top: 1px solid rgba(20, 20, 40, .08); }
+.einstellungen-nav .list-group-item { border: 0; padding: .3rem .9rem .3rem 2.1rem; font-size: .92rem; }
+.einstellungen-nav .list-group-item.active { background: var(--bs-primary); color: #fff; }
+@media (max-width: 991.98px) { .einstellungen-nav { position: static; max-height: none; } }
 
 /* Detailseiten mit Vorschau: Vorschau rechts neben den Feldern, laeuft beim Scrollen mit und nutzt die Fensterhoehe */
 .vorschau-sticky { position: sticky; top: .75rem; }

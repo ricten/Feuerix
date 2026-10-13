@@ -85,14 +85,20 @@
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi {{ icon }} me-1"></i>{{ gruppe }}</a>
           {% if bloecke %}
-          {# Menü mit Themenblöcken (Verwaltung): mehrere Spalten, jeder Block mit Überschrift #}
-          <div class="dropdown-menu menue-mega p-3"><div class="menue-spalten">
+          {# Menü mit Untermenüs (Verwaltung): je Thema ein Untermenü, ein einzelner Punkt steht direkt #}
+          <ul class="dropdown-menu menue-unter">
             {% for thema, eintraege in bloecke %}
-            <div class="menue-block"><h6 class="dropdown-header px-2">{{ thema }}</h6>
-              {% for label, url in eintraege %}<a class="dropdown-item rounded" href="{{ url }}">{{ label }}</a>{% endfor %}
-            </div>
+            {% if eintraege|length == 1 %}
+            {% for label, url in eintraege %}<li><a class="dropdown-item" href="{{ url }}">{{ label }}</a></li>{% endfor %}
+            {% else %}
+            <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#" data-untermenue>{{ thema }}</a>
+              <ul class="dropdown-menu">
+                {% for label, url in eintraege %}<li><a class="dropdown-item" href="{{ url }}">{{ label }}</a></li>{% endfor %}
+              </ul>
+            </li>
+            {% endif %}
             {% endfor %}
-          </div></div>
+          </ul>
           {% else %}
           <ul class="dropdown-menu">
             {% for label, url in punkte %}<li><a class="dropdown-item" href="{{ url }}">{{ label }}</a></li>{% endfor %}
@@ -135,7 +141,9 @@
   {% for m in messages %}
   <div class="alert alert-{% if m.level_tag == 'error' %}danger{% else %}{{ m.level_tag }}{% endif %} alert-dismissible fade show">{{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
   {% endfor %}
+  {% if seitenleiste %}<div class="row g-3"><div class="col-lg-3 col-xxl-2">{% include "core/_einstellungen_seitenleiste.html" %}</div><div class="col-lg-9 col-xxl-10">{% endif %}
   {% block content %}{% endblock %}
+  {% if seitenleiste %}</div></div>{% endif %}
 </main>
 <footer id="seitenfuss" class="text-center text-muted small py-2">
   © {% now "Y" %} {{ verein.name|default:product_name|default:"Feuerix" }}{% if app_version %} · {% trans "Version" %} {{ app_version }}{% endif %}
@@ -153,6 +161,17 @@
   <span class="small">{% blocktrans %}Diese Seite verwendet ausschließlich technisch notwendige Cookies (Anmeldung, Sicherheit, Spracheinstellung) – keine Tracking- oder Marketing-Cookies.{% endblocktrans %}</span>
   <button type="button" id="cookie-hinweis-ok" class="btn btn-sm btn-light flex-shrink-0">{% trans "Verstanden" %}</button>
 </div>
+<script>
+// Untermenues im Menue "Verwaltung": per Klick auf-/zuklappen (am Computer zusaetzlich beim Darueberfahren, siehe app.css)
+document.addEventListener("click", function (e) {
+  var a = e.target.closest("[data-untermenue]");
+  if (!a) return;
+  e.preventDefault(); e.stopPropagation();
+  var menue = a.nextElementSibling, offen = menue.classList.contains("show");
+  a.closest(".menue-unter").querySelectorAll(".dropdown-submenu > .dropdown-menu.show").forEach(function (m) { m.classList.remove("show"); });
+  if (!offen) menue.classList.add("show");
+});
+</script>
 <script>
 // Fusszeile ist am unteren Bildschirmrand fixiert: Seitenende um ihre (je nach Zeilenumbruch wechselnde) Hoehe
 // freihalten, damit sie nie Inhalt verdeckt.

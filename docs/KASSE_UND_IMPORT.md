@@ -5,9 +5,9 @@
 
 ## Kassenbuch einrichten (einmalig)
 
-1. **Kasse › Konten:** „Bankkonto“ und „Barkasse“ sind angelegt. **Eröffnungsbestand** und **Eröffnungsdatum** eintragen
+1. **Verwaltung › Finanzen & Kasse › Konten:** „Bankkonto“ und „Barkasse“ sind angelegt. **Eröffnungsbestand** und **Eröffnungsdatum** eintragen
    (Kontostand bzw. Kassenbestand zum Startdatum der Buchführung im System, z. B. 01.01.).
-2. **Kasse › Buchungskategorien:** Vorschläge prüfen; jede Kategorie hat eine **steuerliche Sphäre** (Ideeller Bereich,
+2. **Verwaltung › Finanzen & Kasse › Buchungskategorien:** Vorschläge prüfen; jede Kategorie hat eine **steuerliche Sphäre** (Ideeller Bereich,
    Vermögensverwaltung, Zweckbetrieb, Wirtschaftlicher Geschäftsbetrieb). Die Zuordnung (z. B. Vereinsfest) bitte mit
    Steuerberater/Finanzamt abstimmen.
 

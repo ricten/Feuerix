@@ -118,3 +118,33 @@ class AblageDateinameTests(TestCase):
             fertiges_dokument_task("rechnung", r.pk)
         d = Ablagedokument.objects.get(titel__contains=r.nummer)
         self.assertEqual(d.dateiname, rechnung_dateiname(r))
+
+
+class PaperlessDateinameTests(TestCase):
+    """Ablage und Paperless: JJJJ-MM-TT_Art_Titel.ext - Rechnungen behalten ihren Namen."""
+
+    def setUp(self):
+        self.verein = Verein.objects.create(name="Testverein", kuerzel="test")
+
+    def test_schema(self):
+        from datetime import date
+
+        from apps.documents.services import ablage_dateiname
+        d = date(2026, 3, 7)
+        self.assertEqual(ablage_dateiname("Jahreshauptversammlung", "protokoll", d, "x.PDF"), "2026-03-07_Protokoll_Jahreshauptversammlung.pdf")
+        self.assertEqual(ablage_dateiname("Protokoll Vorstandssitzung", "protokoll", d, "x.pdf"), "2026-03-07_Protokoll_Vorstandssitzung.pdf")
+        self.assertEqual(ablage_dateiname('Müller / "Test"', "sonstiges", d, "scan.jpg"), "2026-03-07_Sonstiges_Müller_Test.jpg")
+        self.assertEqual(ablage_dateiname("Rechnung A", "rechnung", d, "RE-1_Rechnung_Max.pdf"), "RE-1_Rechnung_Max.pdf")
+
+    def test_ablegen_und_senden_nutzen_das_schema(self):
+        from datetime import date
+        d = ablegen(self.verein, "Sitzung", "protokoll", "egal.pdf", b"%PDF-1.4", datum=date(2026, 3, 7))
+        self.assertEqual(d.dateiname, "2026-03-07_Protokoll_Sitzung.pdf")
+        from apps.paperless.models import PaperlessVerbindung
+        from apps.paperless.services import dokument_senden
+        v = PaperlessVerbindung.objects.create(verein=self.verein, url="https://paperless.example.org", api_token="x", aktiv=True)
+        with patch("apps.paperless.services.PaperlessClient") as C:
+            C.return_value.dokument_finden.return_value = None
+            C.return_value.dokument_senden.return_value = "task"
+            dokument_senden(v, d)
+        self.assertEqual(C.return_value.dokument_senden.call_args[0][0], "2026-03-07_Protokoll_Sitzung.pdf")

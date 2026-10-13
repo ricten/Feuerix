@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.89.0)
+# Handbook – Feuerix (Version 1.90.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -299,7 +299,7 @@ different banks. This also requires a free FinTS product ID, which the operator 
 once with the German Banking Industry Committee (not shipped with the software) and stores either as an
 environment variable or – encrypted, and changeable without server access – under `/admin/` › System
 settings (for technical administrators only, not part of normal club administration). Each cash-book
-**account** (*Cash › Accounts*) can optionally be linked to one of these accesses – accounts without a link
+**account** (*Administration › Finance & cash book › Accounts*) can optionally be linked to one of these accesses – accounts without a link
 continue to run via manual bank-statement import as before.
 On an access's detail page there is "Fetch account data" (shows the IBAN/BIC of the accounts held at the
 bank – useful for checking the connection and finding the right match to a cash-book account, without
@@ -698,6 +698,12 @@ invoice, minutes, cash report); it can be overridden in the document's "Document
 Only for "Miscellaneous" does the integration's default document type apply. Paperless creates missing types
 automatically.
 
+**File names for Paperless:** filed documents and documents handed to Paperless are named `YYYY-MM-DD_type_title.pdf`, e.g.
+`2026-03-07_Protokoll_Jahreshauptversammlung.pdf` (document date first, ISO format; the type is left out if the title already starts with
+it). **Invoices** keep `invoicenumber_type_recipient.pdf`. For Paperless to read the date from the file name, set
+`PAPERLESS_FILENAME_DATE_ORDER=YMD` in the Paperless configuration; assignments by type/title are possible with a Paperless workflow using a
+file name pattern (e.g. `*_Protokoll_*`). Feuerix already sets date, document type and tags itself on upload.
+
 **Automatic submission:** if "Automatically submit finished documents" is enabled in the integration
 (default), the following documents are submitted without any further click, as soon as they're finished –
 including archiving, tags, document type and live status:
@@ -777,9 +783,11 @@ letters: signatures, labels, start page & legal notice, bank details, taxes & no
 
 All other administration and master data pages (membership types, fee rules, FinTS accesses, accounts, departments, functions,
 tags, honour types, inventory categories and locations, imports, roles, permission matrix, backup …) are listed **by topic** under
-*Administration › Settings (overview)* **and** in the *Administration* menu, a multi-column menu with topic blocks (club & appearance,
-finances, members & honours, inventory, access & security, external integrations, system) showing all settings – there is **one**
-entry for the external integrations (the overview additionally links the OpenSlides and Paperless settings directly). Everybody only sees
+*Administration › Settings (overview)* **and** in the *Administration* menu, which has one **submenu** per topic (club, members & fees,
+finance & cash book, inventory, users & security, external integrations, system; the order follows setting up a club). **Every settings
+page** shows the same **navigation** on the left with all topics: the topic of the current page is expanded and the current page
+highlighted, so you can switch between settings directly. The menu has **one** entry for the external integrations (the overview and the
+navigation additionally link the OpenSlides and Paperless settings directly). Everybody only sees
 what their own role has permissions for. In the settings lists (users, roles, tags, departments, functions, membership types, fee
 rules, honour types, anniversary rules, accounts, booking categories, inventory categories and locations) a click on a row **opens
 editing directly** (with change permission; otherwise the detail view); at the top of the form "Detail view" leads to the detail

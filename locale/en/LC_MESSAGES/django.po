@@ -6502,53 +6502,7 @@ msgstr "\"%(g)s\" is already in the cart."
 msgid "„%(g)s“ zum Verleih-Warenkorb hinzugefügt."
 msgstr "\"%(g)s\" added to the loan cart."
 
-#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
-#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
-
-#~ msgid "Zuwendungsbestätigungen"
-#~ msgstr "Donation receipts"
-
-#~ msgid "Protokolle"
-#~ msgstr "Minutes"
-
-#~ msgid "Einladungen"
-#~ msgstr "Invitations"
-
-#~ msgid ""
-#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
-#~ "Die Bank-PIN wird nie gespeichert."
-#~ msgstr ""
-#~ "Experimental: this method has not yet been tested against a real bank. The "
-#~ "bank PIN is never stored."
-
-#~ msgid ""
-#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
-#~ "eintragen und speichern."
-#~ msgstr ""
-#~ "Enter and save the connection details here (bank code, user ID, the bank's "
-#~ "FinTS address)."
-
-#~ msgid ""
-#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
-#~ "nie gespeichert."
-#~ msgstr ""
-#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
-#~ "stored."
-
-#~ msgid ""
-#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
-#~ "abgefragt."
-#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
-
-#~ msgid ""
-#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
-#~ "übersprungen."
-#~ msgstr ""
-#~ "New transactions are created as bank transactions, duplicates are skipped "
-#~ "automatically."
-
 # Oeffentliche Seiten
-
 msgid "Für diesen Verein wurde noch kein vollständiges Impressum hinterlegt."
 msgstr "No complete legal notice has been stored for this club yet."
 
@@ -6556,7 +6510,6 @@ msgid "Aktuell sind keine öffentlichen Dokumente hinterlegt."
 msgstr "There are currently no public documents."
 
 # Titel/Spalten (Nachtrag)
-
 msgid "%(label)s löschen"
 msgstr "Delete %(label)s"
 
@@ -6574,7 +6527,6 @@ msgid "Kontakt"
 msgstr "Contact"
 
 # Administrator-Zugang und Passwort-Abgleich
-
 msgid "Administrator-Benutzer (nur Anzeige)"
 msgstr "Administrator user (display only)"
 
@@ -6672,3 +6624,80 @@ msgstr ""
 
 msgid "Ihr Feuerix-Passwort"
 msgstr "Your Feuerix password"
+
+#: apps/core/einstellungen.py
+msgid "Benutzer & Sicherheit"
+msgstr "Users & security"
+
+#: apps/core/einstellungen.py
+msgid "Finanzen & Kasse"
+msgstr "Finance & cash book"
+
+#: apps/core/einstellungen.py
+msgid "Kategorien"
+msgstr "Categories"
+
+#: apps/core/einstellungen.py
+msgid "Lagerorte"
+msgstr "Storage locations"
+
+#: apps/core/einstellungen.py
+msgid "Mitglieder & Beiträge"
+msgstr "Members & fees"
+
+#: apps/core/einstellungen.py
+msgid "Mitgliedsarten"
+msgstr "Membership types"
+
+#: apps/core/einstellungen.py
+msgid "Mitgliedsarten mit ihren Beitragshöhen"
+msgstr "Membership types with their fee amounts"
+
+#: apps/core/einstellungen.py
+msgid "Paperless-ngx"
+msgstr "Paperless-ngx"
+
+#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
+#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
+
+#~ msgid "Zuwendungsbestätigungen"
+#~ msgstr "Donation receipts"
+
+#~ msgid "Protokolle"
+#~ msgstr "Minutes"
+
+#~ msgid "Einladungen"
+#~ msgstr "Invitations"
+
+#~ msgid ""
+#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
+#~ "Die Bank-PIN wird nie gespeichert."
+#~ msgstr ""
+#~ "Experimental: this method has not yet been tested against a real bank. The "
+#~ "bank PIN is never stored."
+
+#~ msgid ""
+#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
+#~ "eintragen und speichern."
+#~ msgstr ""
+#~ "Enter and save the connection details here (bank code, user ID, the bank's "
+#~ "FinTS address)."
+
+#~ msgid ""
+#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
+#~ "nie gespeichert."
+#~ msgstr ""
+#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
+#~ "stored."
+
+#~ msgid ""
+#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
+#~ "abgefragt."
+#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
+
+#~ msgid ""
+#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
+#~ "übersprungen."
+#~ msgstr ""
+#~ "New transactions are created as bank transactions, duplicates are skipped "
+#~ "automatically."

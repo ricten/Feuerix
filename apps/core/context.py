@@ -37,8 +37,6 @@ NAV = [
     (_("Kasse"), "bi-wallet2", [
         (_("Kassenbuch (Buchungen)"), "buchung_list", "kassenbuch"),
         (_("Kassenberichte"), "kassenbericht_list", "kassenbuch"),
-        (_("Konten"), "konto_list", "kassenbuch"),
-        (_("Buchungskategorien"), "buchungskategorie_list", "kassenbuch"),
     ]),
     (_("Inventar"), "bi-box-seam", [
         (_("Gegenstände"), "gegenstand_list", "inventar"),
@@ -208,5 +206,8 @@ def mandant(request):
         m = getattr(request.user, "mitglied_zugang", None)
         if m is not None:
             verein = m.verein
+    seitenleiste = []
+    if verein is not None and _aktive_icon(request) == "bi-gear" and request.resolver_match.url_name != "einstellungen":
+        seitenleiste = _einstellungen.seitenleiste(request)      # Einstellungsseiten: Navigation links daneben
     return {**produkt, "verein": verein, "vereine": request.vereine, "navigation": navigation,
-            "aktive_icon": _aktive_icon(request), **_farbkontext(verein)}
+            "aktive_icon": _aktive_icon(request), "seitenleiste": seitenleiste, **_farbkontext(verein)}

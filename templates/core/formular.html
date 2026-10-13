@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load i18n static %}
 {% block content %}
-<div class="row justify-content-center"><div class="{% if gruppen %}col-xl-10{% else %}col-xl-8{% endif %}">
+<div class="row justify-content-center"><div class="{% if gruppen %}{% if seitenleiste %}col-12{% else %}col-xl-10{% endif %}{% else %}col-xl-8{% endif %}">
 <h3 class="mb-3">{% if aktive_icon %}<i class="bi {{ aktive_icon }}" style="color: var(--bs-primary);"></i> {% endif %}{{ titel }}</h3>
 {% if form_aktionen %}<div class="d-flex flex-wrap gap-2 mb-3">{% include "core/_buttons.html" with buttons=form_aktionen %}</div>{% endif %}
 <form method="post" enctype="multipart/form-data">{% csrf_token %}
@@ -10,7 +10,7 @@
   {% if gruppen %}
   {# Aufteilung nach Themen: links die Themen, rechts der Inhalt; gruppen = [{id, titel, icon, hinweis, bloecke, fehler, aktiv}] #}
   <div class="row g-3">
-    <div class="col-md-3">
+    <div class="{% if seitenleiste %}d-none{% else %}col-md-3{% endif %}">
       <div class="nav flex-column nav-pills shadow-sm rounded bg-body p-2" id="themen" role="tablist" aria-orientation="vertical">
         {% for g in gruppen %}
         <button type="button" class="nav-link text-start {% if g.aktiv %}active{% endif %}" id="tab-{{ g.id }}" data-bs-toggle="pill"
@@ -23,7 +23,7 @@
         <a href="{{ abbrechen_url }}" class="btn btn-outline-secondary mt-1"><i class="bi bi-x-lg"></i> {% trans "Abbrechen" %}</a>
       </div>
     </div>
-    <div class="col-md-9">
+    <div class="{% if seitenleiste %}col-12{% else %}col-md-9{% endif %}">
       <div class="tab-content">
         {% for g in gruppen %}
         <div class="tab-pane fade {% if g.aktiv %}show active{% endif %}" id="pane-{{ g.id }}" role="tabpanel" aria-labelledby="tab-{{ g.id }}">
@@ -39,6 +39,10 @@
         </div>
         {% endfor %}
       </div>
+      {% if seitenleiste %}
+      <button class="btn btn-primary"><i class="bi bi-check-lg"></i> {% trans "Speichern" %}</button>
+      <a href="{{ abbrechen_url }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i> {% trans "Abbrechen" %}</a>
+      {% endif %}
     </div>
   </div>
   {% elif abschnitte %}
@@ -73,20 +77,41 @@ document.addEventListener("DOMContentLoaded", function () {
   tabs.forEach(function (t) {
     t.addEventListener("shown.bs.tab", function () { try { localStorage.setItem(schluessel, t.id); } catch (e) {} });
   });
-  var ziel = (location.hash || "").replace("#", ""), zielreiter = ziel && document.getElementById("tab-" + ziel);
-  var block = ziel && !zielreiter ? document.getElementById(ziel) : null;       // "seite#thema-abschnitt"
-  var blockreiter = block && block.closest(".tab-pane") ? document.getElementById(block.closest(".tab-pane").getAttribute("aria-labelledby")) : null;
-  if (zielreiter) {       // Sprung aus Menue/Uebersicht ("seite#thema") hat Vorrang vor dem zuletzt benutzten Thema
-    bootstrap.Tab.getOrCreateInstance(zielreiter).show();
-  } else if (blockreiter) {
-    blockreiter.addEventListener("shown.bs.tab", function () { block.scrollIntoView({behavior: "smooth", block: "start"}); }, {once: true});
-    bootstrap.Tab.getOrCreateInstance(blockreiter).show();
-  } else if (!fehler) {
-    try {
-      var id = localStorage.getItem(schluessel), t = id && document.getElementById(id);
-      if (t) bootstrap.Tab.getOrCreateInstance(t).show();
-    } catch (e) {}
+  function markieren() {       // Eintrag der Seitenleiste zum angezeigten Thema hervorheben
+    var aktiv = document.querySelector("#themen .nav-link.active"), links = document.querySelectorAll(".einstellungen-nav [data-anker]");
+    if (!aktiv || !links.length) return;
+    var pane = document.querySelector(aktiv.getAttribute("data-bs-target")), ziel = (location.hash || "").replace("#", ""), treffer = null;
+    links.forEach(function (l) { l.classList.remove("active"); });
+    links.forEach(function (l) {
+      var k = l.getAttribute("data-anker"), el = document.getElementById(k);
+      if (!treffer && k === ziel && (k === aktiv.id.replace("tab-", "") || (el && pane.contains(el)))) treffer = l;
+    });
+    if (!treffer) links.forEach(function (l) {
+      var k = l.getAttribute("data-anker"), el = document.getElementById(k);
+      if (!treffer && (k === aktiv.id.replace("tab-", "") || (el && pane.contains(el)))) treffer = l;
+    });
+    if (treffer) { treffer.classList.add("active"); var d = treffer.closest("details"); if (d) d.open = true; }
   }
+  tabs.forEach(function (t) { t.addEventListener("shown.bs.tab", markieren); });
+  function springen(erstmals) {
+    var ziel = (location.hash || "").replace("#", ""), zielreiter = ziel && document.getElementById("tab-" + ziel);
+    var block = ziel && !zielreiter ? document.getElementById(ziel) : null;       // "seite#thema-abschnitt"
+    var blockreiter = block && block.closest(".tab-pane") ? document.getElementById(block.closest(".tab-pane").getAttribute("aria-labelledby")) : null;
+    if (zielreiter) {       // Sprung aus Menue/Uebersicht/Seitenleiste ("seite#thema") hat Vorrang vor dem zuletzt benutzten Thema
+      bootstrap.Tab.getOrCreateInstance(zielreiter).show();
+    } else if (blockreiter) {
+      blockreiter.addEventListener("shown.bs.tab", function () { block.scrollIntoView({behavior: "smooth", block: "start"}); }, {once: true});
+      bootstrap.Tab.getOrCreateInstance(blockreiter).show();
+    } else if (erstmals && !fehler) {
+      try {
+        var id = localStorage.getItem(schluessel), t = id && document.getElementById(id);
+        if (t) bootstrap.Tab.getOrCreateInstance(t).show();
+      } catch (e) {}
+    }
+    markieren();
+  }
+  window.addEventListener("hashchange", function () { springen(false); });
+  springen(true);
 });
 </script>
 {% endif %}
