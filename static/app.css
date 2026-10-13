@@ -199,3 +199,9 @@ dl.felder dt { font-weight: 500; color: #555; }
 }
 body { padding-bottom: 4.5rem; }   /* Rueckfall ohne JavaScript */
 @media print { #seitenfuss { position: static; } body { padding-bottom: 0 !important; } }
+
+/* Menue "Verwaltung": Themenbloecke in mehreren Spalten */
+.menue-mega { min-width: min(46rem, 92vw); }
+.menue-spalten { column-count: 3; column-gap: 1.5rem; }
+.menue-block { break-inside: avoid; margin-bottom: .75rem; }
+@media (max-width: 991.98px) { .menue-mega { min-width: 0; } .menue-spalten { column-count: 1; } }

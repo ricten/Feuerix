@@ -7,11 +7,11 @@ from django.utils.translation import gettext_lazy as _
 # (Thema, Symbol, [(Bezeichnung, url_name, Modul, Beschreibung)])
 BEREICHE = [
     (_("Verein & Erscheinungsbild"), "bi-building", [
-        (_("Vereinsdaten, Logo, Farben"), "verein_einstellungen", "verwaltung",
+        (_("Vereinsdaten, Logo, Farben"), "verein_einstellungen#stamm", "verwaltung",
          _("Name, Anschrift, Registereintrag, Logo, Farben, Unterschriften, Startseiten-Banner, Impressum, Etiketten")),
     ]),
     (_("Finanzen"), "bi-cash-coin", [
-        (_("Bank, Steuern & Rechnungen"), "verein_einstellungen", "verwaltung",
+        (_("Bank, Steuern & Rechnungen"), "verein_einstellungen#finanzen", "verwaltung",
          _("Bankverbindung, Gläubiger-ID, Gemeinnützigkeit, Umsatzsteuer, Zahlungsziel, Rechnungstexte, Freibeträge")),
         (_("Mitgliedsarten / Beiträge"), "mitgliedsart_list", "beitraege", _("Beitragshöhen je Mitgliedsart")),
         (_("Beitragsregeln"), "beitragsregel_list", "beitraege", _("Ermäßigungen und Sonderregeln für Beiträge")),
@@ -39,8 +39,12 @@ BEREICHE = [
         (_("Berechtigungsmatrix"), "berechtigungsmatrix", "verwaltung", _("Stufen je Datenbereich und Rolle")),
     ]),
     (_("Externe Anbindungen"), "bi-plug", [
-        (_("OpenSlides, Paperless-ngx"), "anbindungen", "openslides",
-         _("Online-Versammlungen und Dokumentenarchiv anbinden")),
+        (_("Übersicht der Anbindungen"), "anbindungen", "openslides",
+         _("Status von OpenSlides und Paperless-ngx, Einrichtung")),
+        (_("OpenSlides-Anbindung"), "openslides_einstellungen", "openslides",
+         _("Online-Versammlungen: Verbindung, Konten, Gruppen")),
+        (_("Paperless-Anbindung"), "paperless_einstellungen", "paperless",
+         _("Dokumentenarchiv: Verbindung und Übergabe")),
     ]),
 ]
 
@@ -50,18 +54,41 @@ SYSTEM = (_("System"), "bi-hdd-stack", [
 ])
 
 
+# Nur in der Uebersicht, nicht im Menue "Verwaltung" (dort steht ein einziger Punkt "Externe Anbindungen")
+NUR_UEBERSICHT = {"openslides_einstellungen", "paperless_einstellungen"}
+
+
+def menue_bloecke(request):
+    """[(Thema, [(Bezeichnung, Adresse)])] fuer das Menue "Verwaltung" - dieselben Themen wie die Uebersicht."""
+    bloecke = [(_("Übersicht"), [(_("Alle Einstellungen (Übersicht)"), reverse("einstellungen"))])]
+    gesehen = set()
+    for thema, _icon, zeilen in sichtbare_bereiche(request):
+        punkte = []
+        for label, url, _text, name in zeilen:
+            if name in NUR_UEBERSICHT:
+                continue
+            if url in gesehen:        # dieselbe Seite nicht doppelt im Menue
+                continue
+            gesehen.add(url)
+            punkte.append((label, url))
+        if punkte:
+            bloecke.append((thema, punkte))
+    return bloecke if len(bloecke) > 1 else []
+
+
 def url_namen():
     """Alle Seiten der Uebersicht - fuer die Hervorhebung des Menues "Verwaltung" auf diesen Seiten."""
-    return {u for _t, _i, eintraege in [*BEREICHE, SYSTEM] for _l, u, _m, _b in eintraege}
+    return {u.split("#")[0] for _t, _i, eintraege in [*BEREICHE, SYSTEM] for _l, u, _m, _b in eintraege}
 
 
 def sichtbare_bereiche(request):
-    """[(Thema, Symbol, [(Bezeichnung, Adresse, Beschreibung)])] - nur Eintraege, die die Rolle sehen darf."""
+    """[(Thema, Symbol, [(Bezeichnung, Adresse, Beschreibung, url_name)])] - nur Eintraege, die die Rolle sehen darf."""
     rechte = request.rechte
     ergebnis = []
     for thema, icon, eintraege in [*BEREICHE, *([SYSTEM] if request.user.is_superuser else [])]:
         zeilen = []
         for label, url_name, modul, text in eintraege:
+            url_name, _, anker = url_name.partition("#")        # "seite#thema" springt zum Thema der Seite
             if url_name == "anbindungen":
                 sichtbar = rechte.darf("openslides", "view") or rechte.darf("paperless", "view")
             elif modul is None:
@@ -70,7 +97,7 @@ def sichtbare_bereiche(request):
                 sichtbar = rechte.darf(modul, "view")
             if sichtbar:
                 try:
-                    zeilen.append((label, reverse(url_name), text))
+                    zeilen.append((label, reverse(url_name) + (f"#{anker}" if anker else ""), text, url_name))
                 except NoReverseMatch:
                     pass
         if zeilen:

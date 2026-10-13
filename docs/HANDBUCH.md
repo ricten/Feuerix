@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.82.2)
+# Handbuch – Feuerix (Version 1.83.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -773,10 +773,15 @@ Gemeinnützigkeit, Rechnungen), *Erscheinungsbild* (Logo & Farben, Briefe, Etike
 Eingabefehler öffnet sich automatisch das Thema mit dem Fehler (rotes Zähler-Abzeichen), sonst das zuletzt benutzte.
 
 Alle weiteren Verwaltungs- und Stammdatenseiten (Mitgliedsarten, Beitragsregeln, FinTS-Zugänge, Konten, Abteilungen, Funktionen,
-Tags, Ehrungsarten, Inventar-Kategorien und -Lagerorte, Importe, Rollen, Berechtigungsmatrix, Datensicherung …) stehen **nach
-Themen geordnet** unter *Verwaltung › Einstellungen (Übersicht)*; das Menü *Verwaltung* selbst enthält nur noch Übersicht,
-Vereinsdaten, Benutzer, **einen** Punkt für die externen Anbindungen (OpenSlides, Paperless-ngx) und – für Superadmins – die
-Datensicherung. Jeder sieht in der Übersicht nur, wofür die eigene Rolle Rechte hat.
+Tags, Ehrungsarten, Inventar-Kategorien und -Lagerorte, Importe, Rollen, Berechtigungsmatrix, Datensicherung …) stehen **nach Themen
+geordnet** unter *Verwaltung › Einstellungen (Übersicht)* **und** im Menü *Verwaltung*, das als mehrspaltiges Menü mit Themenblöcken
+(Verein & Erscheinungsbild, Finanzen, Mitglieder & Ehrungen, Inventar, Zugriff & Sicherheit, Externe Anbindungen, System) alle
+Einstellungen zeigt – für die externen Anbindungen gibt es dort **einen** Punkt (die Übersicht verlinkt zusätzlich die OpenSlides- und
+Paperless-Einstellungen direkt). Jeder sieht nur, wofür die eigene Rolle Rechte hat. In den Einstellungs-Listen (Benutzer, Rollen,
+Tags, Abteilungen, Funktionen, Mitgliedsarten, Beitragsregeln, Ehrungsarten, Jubiläumsregeln, Konten, Buchungskategorien,
+Inventar-Kategorien und -Lagerorte) öffnet ein Klick auf eine Zeile **direkt das Bearbeiten** (mit Änderungsrecht; sonst die
+Detailansicht); oben im Formular führt „Detailansicht“ zur Detailseite, bei Benutzern stehen dort auch „Passwort neu setzen“,
+„2FA zurücksetzen“ und „Konto entsperren“.
 
 **Impressum**: Das Feld „Impressum“ enthält den vollständigen Text nach § 5 TMG/§ 18 MStV (verantwortliche
 Person, Anschrift, Kontakt, Vertretungsberechtigte, ggf. USt-IdNr.) und wird **ungeprüft** auf einer öffentlich

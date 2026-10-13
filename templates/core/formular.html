@@ -3,6 +3,7 @@
 {% block content %}
 <div class="row justify-content-center"><div class="{% if gruppen %}col-xl-10{% else %}col-xl-8{% endif %}">
 <h3 class="mb-3">{% if aktive_icon %}<i class="bi {{ aktive_icon }}" style="color: var(--bs-primary);"></i> {% endif %}{{ titel }}</h3>
+{% if form_aktionen %}<div class="d-flex flex-wrap gap-2 mb-3">{% include "core/_buttons.html" with buttons=form_aktionen %}</div>{% endif %}
 <form method="post" enctype="multipart/form-data">{% csrf_token %}
   {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
   {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
@@ -64,20 +65,24 @@
 {% endif %}
 {% if gruppen %}
 <script>
-(function () {
-  // zuletzt gewaehltes Thema merken (nur Komfort - ohne Speicher einfach das erste bzw. das mit Fehlern)
+document.addEventListener("DOMContentLoaded", function () {
+  // zuletzt gewaehltes Thema merken (nur Komfort - ohne Speicher einfach das erste bzw. das mit Fehlern);
+  // bootstrap.bundle ist "defer" und steht erst zu DOMContentLoaded zur Verfuegung
   var schluessel = "formular-reiter:" + location.pathname, fehler = {{ gruppen_hat_fehler|yesno:"true,false" }};
   var tabs = document.querySelectorAll('#themen [data-bs-toggle="pill"]');
   tabs.forEach(function (t) {
     t.addEventListener("shown.bs.tab", function () { try { localStorage.setItem(schluessel, t.id); } catch (e) {} });
   });
-  if (!fehler) {
+  var ziel = (location.hash || "").replace("#", ""), zielreiter = ziel && document.getElementById("tab-" + ziel);
+  if (zielreiter) {       // Sprung aus Menue/Uebersicht ("seite#thema") hat Vorrang vor dem zuletzt benutzten Thema
+    bootstrap.Tab.getOrCreateInstance(zielreiter).show();
+  } else if (!fehler) {
     try {
       var id = localStorage.getItem(schluessel), t = id && document.getElementById(id);
       if (t) bootstrap.Tab.getOrCreateInstance(t).show();
     } catch (e) {}
   }
-})();
+});
 </script>
 {% endif %}
 {% endblock %}

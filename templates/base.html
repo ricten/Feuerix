@@ -81,12 +81,23 @@
   <div class="collapse navbar-collapse navbar-menu {% if web_akzentfarbe_2_textfarbe == '#000' %}navbar-light{% else %}navbar-dark{% endif %}" id="nav">
     <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between py-1">
       <ul class="navbar-nav me-auto">
-        {% for gruppe, icon, punkte in navigation %}
+        {% for gruppe, icon, punkte, bloecke in navigation %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi {{ icon }} me-1"></i>{{ gruppe }}</a>
+          {% if bloecke %}
+          {# Menü mit Themenblöcken (Verwaltung): mehrere Spalten, jeder Block mit Überschrift #}
+          <div class="dropdown-menu menue-mega p-3"><div class="menue-spalten">
+            {% for thema, eintraege in bloecke %}
+            <div class="menue-block"><h6 class="dropdown-header px-2">{{ thema }}</h6>
+              {% for label, url in eintraege %}<a class="dropdown-item rounded" href="{{ url }}">{{ label }}</a>{% endfor %}
+            </div>
+            {% endfor %}
+          </div></div>
+          {% else %}
           <ul class="dropdown-menu">
             {% for label, url in punkte %}<li><a class="dropdown-item" href="{{ url }}">{{ label }}</a></li>{% endfor %}
           </ul>
+          {% endif %}
         </li>
         {% endfor %}
       </ul>

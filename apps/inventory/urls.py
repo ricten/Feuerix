@@ -64,8 +64,9 @@ urlpatterns += crud("inventar", Gegenstand, "inventar", list_display=("inventarn
                     "seriennummer", "hersteller", "modell"), filter=("kategorie", "lagerort", "zustand", "verleihbar"),
                     select_related=("kategorie", "lagerort"), kontext=views.gegenstand_kontext,
                     listen_aktionen=gegenstand_listen_aktionen)
-urlpatterns += crud("inventar-kategorien", Kategorie, "inventar", list_display=("name",))
-urlpatterns += crud("inventar-lagerorte", Lagerort, "inventar", list_display=("name", "beschreibung"))
+urlpatterns += crud("inventar-kategorien", Kategorie, "inventar", list_display=("name",), zeilen_bearbeiten=True)
+urlpatterns += crud("inventar-lagerorte", Lagerort, "inventar", list_display=("name", "beschreibung"),
+                    zeilen_bearbeiten=True)
 def verleih_gruppieren(qs):
     """Mehrere Gegenstaende eines Vorgangs erscheinen in der Uebersicht als EINE Zeile (die erste passende Position);
     Einzelverleihe ohne Vorgang bleiben einzeln. Suche und Filter wirken vorher auf alle Positionen."""

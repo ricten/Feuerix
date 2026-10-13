@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.82.2)
+# Handbook – Feuerix (Version 1.83.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -749,10 +749,14 @@ invoices), *Appearance* (logo & colours, letters, labels) and *Start page & lega
 containing the error opens automatically (red counter badge), otherwise the one used last.
 
 All other administration and master data pages (membership types, fee rules, FinTS accesses, accounts, departments, functions,
-tags, honour types, inventory categories and locations, imports, roles, permission matrix, backup …) are listed **by topic**
-under *Administration › Settings (overview)*; the *Administration* menu itself only contains the overview, club data, users,
-**one** entry for the external integrations (OpenSlides, Paperless-ngx) and – for superadmins – the backup. In the overview
-everybody only sees what their own role has permissions for.
+tags, honour types, inventory categories and locations, imports, roles, permission matrix, backup …) are listed **by topic** under
+*Administration › Settings (overview)* **and** in the *Administration* menu, a multi-column menu with topic blocks (club & appearance,
+finances, members & honours, inventory, access & security, external integrations, system) showing all settings – there is **one**
+entry for the external integrations (the overview additionally links the OpenSlides and Paperless settings directly). Everybody only sees
+what their own role has permissions for. In the settings lists (users, roles, tags, departments, functions, membership types, fee
+rules, honour types, anniversary rules, accounts, booking categories, inventory categories and locations) a click on a row **opens
+editing directly** (with change permission; otherwise the detail view); at the top of the form "Detail view" leads to the detail
+page, and for users "Set new password", "Reset 2FA" and "Unlock account" are available there as well.
 
 **Legal notice ("Impressum"):** the "Legal notice" field contains the full text required under § 5 TMG/§ 18
 MStV (the responsible person, address, contact, authorised representatives, VAT ID if applicable) and is

@@ -193,15 +193,14 @@ def mandant(request):
                     pass
         if punkte:
             navigation.append((gruppe, icon, punkte))
-    if request.user.is_superuser:   # Datensicherung: nur Superadministratoren (enthaelt die Daten aller Vereine)
-        for gruppe, icon, punkte in navigation:
-            if icon == "bi-gear":
-                try:
-                    punkte.append((_("Datensicherung"), reverse("datensicherung")))
-                except NoReverseMatch:
-                    pass
+    navigation = [(g, i, p, None) for g, i, p in navigation]
+    for n, (gruppe, icon, punkte, _b) in enumerate(navigation):
+        if icon == "bi-gear":     # Menue "Verwaltung": alle Einstellungen nach Themen (siehe einstellungen.py)
+            bloecke = _einstellungen.menue_bloecke(request)
+            if bloecke:
+                navigation[n] = (gruppe, icon, [(l, u) for _t, ps in bloecke for l, u in ps], bloecke)
     try:   # fuer alle angemeldeten Benutzer sichtbar - unabhaengig von Modulrechten (reine Lesehilfe)
-        navigation.append((_("Hilfe"), "bi-question-circle", [(_("Handbuch & Anleitungen"), reverse("hilfe"))]))
+        navigation.append((_("Hilfe"), "bi-question-circle", [(_("Handbuch & Anleitungen"), reverse("hilfe"))], None))
     except NoReverseMatch:
         pass
     verein = request.verein

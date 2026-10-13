@@ -44,7 +44,8 @@ urlpatterns = [
 urlpatterns += crud("beitragsjahre", Beitragsjahr, "beitraege", list_display=("jahr", "faelligkeit", "alters_stichtag",
                     "abgerechnet_am"), kontext=views.beitragsjahr_kontext, ordering=("-jahr",))
 urlpatterns += crud("beitragsregeln", Beitragsregel, "beitraege", list_display=("name", "mitgliedsart", "nur_familie",
-                    "alter_von", "alter_bis", "betrag", "prioritaet", "aktiv"), select_related=("mitgliedsart",))
+                    "alter_von", "alter_bis", "betrag", "prioritaet", "aktiv"), select_related=("mitgliedsart",),
+                    zeilen_bearbeiten=True)
 urlpatterns += crud("rechnungen", Rechnung, "rechnungen", form=RechnungForm, list_display=("nummer", "typ", "empfaenger_name", "datum",
                     "betrag", "status", "jahr"), suche=("nummer", "empfaenger_name"),
                     filter=("jahr", "status", "typ", "mitglied"), ordering=("-datum", "-id"),

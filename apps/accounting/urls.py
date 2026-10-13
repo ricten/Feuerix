@@ -26,7 +26,8 @@ urlpatterns += crud("kassenberichte", Kassenbericht, "kassenbuch", form=Kassenbe
                     list_display=("titel", "von", "bis", "status", "kassenwart"), kontext=views.kassenbericht_kontext,
                     ordering=("-bis",), bearbeitbar=lambda b: b.status == "entwurf",
                     loeschbar=lambda b: b.status == "entwurf")
-urlpatterns += crud("konten", Konto, "kassenbuch", list_display=("name", "typ", "eroeffnungsbestand", "eroeffnungsdatum", "aktiv"))
+urlpatterns += crud("konten", Konto, "kassenbuch", list_display=("name", "typ", "eroeffnungsbestand", "eroeffnungsdatum", "aktiv"),
+                    zeilen_bearbeiten=True)
 urlpatterns += crud("buchungskategorien", Buchungskategorie, "kassenbuch",
                     list_display=("name", "typ", "sphaere", "sortierung", "aktiv"), filter=("typ", "sphaere"),
-                    ordering=("typ", "sphaere", "sortierung"))
+                    ordering=("typ", "sphaere", "sortierung"), zeilen_bearbeiten=True)

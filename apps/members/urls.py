@@ -41,13 +41,14 @@ urlpatterns += crud(
             "alters_ehrenabteilung"),
     select_related=("mitgliedsart",), ordering=("nachname", "vorname"), kontext=views.mitglied_kontext,
     detail_ausblenden=("openslides_initialpasswort", "selbstdienst_initialpasswort"))
-urlpatterns += crud("mitgliedsarten", Mitgliedsart, "beitraege", list_display=("name", "jahresbeitrag", "beschreibung"))
+urlpatterns += crud("mitgliedsarten", Mitgliedsart, "beitraege", list_display=("name", "jahresbeitrag", "beschreibung"),
+                    zeilen_bearbeiten=True)
 urlpatterns += crud("familien", Familie, "mitglieder", list_display=("name",), kontext=views.familie_kontext)
-urlpatterns += crud("abteilungen", Abteilung, "mitglieder", list_display=("name",))
-urlpatterns += crud("funktionen", Funktion, "mitglieder", list_display=("name",))
+urlpatterns += crud("abteilungen", Abteilung, "mitglieder", list_display=("name",), zeilen_bearbeiten=True)
+urlpatterns += crud("funktionen", Funktion, "mitglieder", list_display=("name",), zeilen_bearbeiten=True)
 urlpatterns += crud("tags", MitgliedTag, "mitglieder", form=MitgliedTagForm,
                     list_display=("name", "rolle", "paperless_gruppe", "openslides_gruppe", "beschreibung"),
-                    select_related=("rolle",))
+                    select_related=("rolle",), zeilen_bearbeiten=True)
 urlpatterns += crud("mitglied-funktionen", MitgliedFunktion, "mitglieder",
                     list_display=("mitglied", "funktion", "von", "bis"), select_related=("mitglied", "funktion"))
 urlpatterns += crud("dokumente", Dokument, "dokumente", edit=False,

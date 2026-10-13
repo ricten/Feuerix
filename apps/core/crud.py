@@ -257,9 +257,16 @@ class ListeView(MandantMixin, ListView):
         ctx = super().get_context_data(**kw)
         cfg, req = self.cfg, self.request
         cols = sichtbare_spalten(req, cfg)
+        darf_aendern = cfg.edit and req.rechte.darf(cfg.modul, "change")
+
+        def zeilen_ziel(o):
+            if cfg.zeilen_url:
+                return cfg.zeilen_url(o)
+            if cfg.zeilen_bearbeiten and darf_aendern and (not cfg.bearbeitbar or cfg.bearbeitbar(o)):
+                return reverse(f"{cfg.name}_edit", args=[o.pk])
+            return reverse(f"{cfg.name}_detail", args=[o.pk])
         zeilen = [{
-            "url": (cfg.zeilen_url(o) if cfg.zeilen_url else reverse(f"{cfg.name}_detail", args=[o.pk]))
-            if cfg.detail else None,
+            "url": zeilen_ziel(o) if (cfg.detail or cfg.zeilen_bearbeiten) else None,
             "zellen": [wert(o, c) for c, _ in cols],
             "klasse": cfg.zeile_klasse(o) if cfg.zeile_klasse else "",
         } for o in ctx["object_list"]]
@@ -382,6 +389,12 @@ class FormularMixin(MandantMixin):
         ctx = super().get_context_data(**kw)
         ctx.update(titel=(f"{self.cfg.label} anlegen" if self.neu else f"{self.cfg.label} bearbeiten"),
                    next=self._next() or "", abbrechen_url=self._next() or reverse(f"{self.cfg.name}_list"))
+        if self.cfg.zeilen_bearbeiten and not self.neu and getattr(self, "object", None) is not None:
+            o = self.object
+            aktionen = [knopf("Detailansicht", reverse(f"{self.cfg.name}_detail", args=[o.pk]))] if self.cfg.detail else []
+            if self.cfg.kontext:
+                aktionen += self.cfg.kontext(self.request, o).get("aktionen", [])
+            ctx["form_aktionen"] = aktionen
         form = ctx.get("form")
         if form is not None and hasattr(form, "abschnitte"):
             ctx["abschnitte"] = form.abschnitte()     # Formular gliedert seine Felder selbst in Karten (formular.html)
@@ -436,7 +449,7 @@ class LoeschenView(MandantMixin, DeleteView):
 def crud(prefix, model, modul, *, form=None, list_display=None, suche=(), filter=(), ordering=None,
          select_related=(), add=True, edit=True, delete=True, detail=True, kontext=None, nach_speichern=None,
          bearbeitbar=None, loeschbar=None, label=None, detail_ausblenden=(), paginate=50, listen_aktionen=None,
-         hinweis=None, zeile_klasse=None, gruppiert=None, zeilen_url=None):
+         hinweis=None, zeile_klasse=None, gruppiert=None, zeilen_url=None, zeilen_bearbeiten=False):
     """Erzeugt die URL-Patterns fuer ein Modell. URL-Namen: <modell>_list/_add/_detail/_edit/_delete.
     `hinweis`: optionaler kurzer Infotext, der oben auf der Listenseite angezeigt wird (z. B. um auf eine
     einfachere Alternative fuer Fortgeschrittenen-Funktionen hinzuweisen).
@@ -444,7 +457,9 @@ def crud(prefix, model, modul, *, form=None, list_display=None, suche=(), filter
     in der Listenansicht, z. B. um Faelligkeiten farblich hervorzuheben.
     `gruppiert`: optionales callable(queryset) -> queryset, das NACH Suche und Filtern mehrere zusammengehoerende
     Zeilen zu einer zusammenfasst (z. B. Verleih: ein Vorgang statt einer Zeile je Gegenstand).
-    `zeilen_url`: optionales callable(objekt) -> Adresse, wohin eine Zeile fuehrt (statt zur Detailseite des Objekts)."""
+    `zeilen_url`: optionales callable(objekt) -> Adresse, wohin eine Zeile fuehrt (statt zur Detailseite des Objekts).
+    `zeilen_bearbeiten`: eine Zeile fuehrt direkt zum Bearbeiten, wenn die Rolle Aenderungsrecht hat (sonst zur Detailseite);
+    auf dem Bearbeiten-Formular stehen dann ein Link zur Detailansicht und die Aktionen der Detailseite (kontext)."""
     name = model._meta.model_name
     REGISTRY[model] = modul
     if form is None and (add or edit):
@@ -455,7 +470,7 @@ def crud(prefix, model, modul, *, form=None, list_display=None, suche=(), filter
               loeschbar=loeschbar, label=label or str(model._meta.verbose_name),
               label_plural=str(model._meta.verbose_name_plural), detail_ausblenden=detail_ausblenden,
               paginate=paginate, listen_aktionen=listen_aktionen, hinweis=hinweis, zeile_klasse=zeile_klasse,
-              gruppiert=gruppiert, zeilen_url=zeilen_url)
+              gruppiert=gruppiert, zeilen_url=zeilen_url, zeilen_bearbeiten=zeilen_bearbeiten)
     if cfg.list_display == ("__str__",):
         cfg.list_display = (("__str__", cfg.label),)
     urls = [path(f"{prefix}/", ListeView.as_view(cfg=cfg), name=f"{name}_list")]

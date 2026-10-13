@@ -3,6 +3,14 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.83.0
+
+- **Menü „Verwaltung“** zeigt wieder alle Einstellungen – als mehrspaltiges Menü nach Themen (mit einem Punkt für die externen Anbindungen); die
+  Einstellungs-Übersicht verlinkt zusätzlich OpenSlides/Paperless direkt. Einträge „Bank, Steuern & Rechnungen“ springen direkt zum Thema.
+- **Einstellungs-Listen** (Benutzer, Rollen, Tags, Abteilungen, Funktionen, Mitgliedsarten, Beitragsregeln u. a.): Klick auf eine Zeile öffnet
+  direkt das Bearbeiten (mit Änderungsrecht); im Formular „Detailansicht“ und bei Benutzern Passwort/2FA/Entsperren.
+- Fehler behoben: das Themen-Skript der Vereinseinstellungen lief vor dem Laden von Bootstrap (zuletzt benutztes Thema wurde nicht gemerkt).
+
 ## 1.82.2
 
 - Neues Skript `scripts/markdown_aufraeumen.py` (Markdown-Warnungen automatisch beheben); Tabellen-Trennzeilen und Listenzeichen in README/INSTALL/

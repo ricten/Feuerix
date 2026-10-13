@@ -5123,56 +5123,7 @@ msgstr ""
 "letter PDF (printout, filing) only contains the members without an email "
 "address - the others receive the letter by email."
 
-#~ msgid "Zuständig"
-#~ msgstr "Assigned to"
-
-#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
-#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
-
-#~ msgid "Zuwendungsbestätigungen"
-#~ msgstr "Donation receipts"
-
-#~ msgid "Protokolle"
-#~ msgstr "Minutes"
-
-#~ msgid "Einladungen"
-#~ msgstr "Invitations"
-
-#~ msgid ""
-#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
-#~ "Die Bank-PIN wird nie gespeichert."
-#~ msgstr ""
-#~ "Experimental: this method has not yet been tested against a real bank. The "
-#~ "bank PIN is never stored."
-
-#~ msgid ""
-#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
-#~ "eintragen und speichern."
-#~ msgstr ""
-#~ "Enter and save the connection details here (bank code, user ID, the bank's "
-#~ "FinTS address)."
-
-#~ msgid ""
-#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
-#~ "nie gespeichert."
-#~ msgstr ""
-#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
-#~ "stored."
-
-#~ msgid ""
-#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
-#~ "abgefragt."
-#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
-
-#~ msgid ""
-#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
-#~ "übersprungen."
-#~ msgstr ""
-#~ "New transactions are created as bank transactions, duplicates are skipped "
-#~ "automatically."
-
 # Vorlagen-Layout
-
 msgid "Name und Logo mit Trennlinie"
 msgstr "Name and logo with divider line"
 
@@ -5263,7 +5214,6 @@ msgid "Layout: Schrift und Ränder"
 msgstr "Layout: font and margins"
 
 # Formatierter Text
-
 msgid ""
 "Formatierter Text. Platzhalter wie {vorname} lassen sich über die "
 "Schaltfläche „Platzhalter“ einfügen (Übersicht: Seite 'Platzhalter-Hilfe')."
@@ -5272,7 +5222,6 @@ msgstr ""
 "\"Platzhalter\" (placeholder) button (overview: page 'Platzhalter-Hilfe')."
 
 # Manuelle Anschrift
-
 msgid "Empfängeranschrift (manuell)"
 msgstr "Recipient address (manual)"
 
@@ -5286,7 +5235,6 @@ msgstr ""
 "member; it takes precedence over the member's address."
 
 # Manuelle Anschrift Leihschein/Mahnung
-
 msgid "Anschrift des Entleihers (manuell)"
 msgstr "Borrower's address (manual)"
 
@@ -5305,3 +5253,68 @@ msgid ""
 msgstr ""
 "Only fill in if the reminder is to go to a different address than the "
 "invoice's (one line per address line, first line = name)."
+
+#~ msgid "Zuständig"
+#~ msgstr "Assigned to"
+
+#~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
+#~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
+
+#~ msgid "Zuwendungsbestätigungen"
+#~ msgstr "Donation receipts"
+
+#~ msgid "Protokolle"
+#~ msgstr "Minutes"
+
+#~ msgid "Einladungen"
+#~ msgstr "Invitations"
+
+#~ msgid ""
+#~ "Experimentell: Dieser Weg wurde noch nicht mit einer echten Bank getestet. "
+#~ "Die Bank-PIN wird nie gespeichert."
+#~ msgstr ""
+#~ "Experimental: this method has not yet been tested against a real bank. The "
+#~ "bank PIN is never stored."
+
+#~ msgid ""
+#~ "Verbindungsdaten (Bankleitzahl, Kennung, FinTS-Adresse der Bank) hier "
+#~ "eintragen und speichern."
+#~ msgstr ""
+#~ "Enter and save the connection details here (bank code, user ID, the bank's "
+#~ "FinTS address)."
+
+#~ msgid ""
+#~ "„Jetzt abrufen“ startet den Abruf – die PIN wird dabei einmalig abgefragt, "
+#~ "nie gespeichert."
+#~ msgstr ""
+#~ "“Retrieve now” starts the retrieval – the PIN is asked for once and never "
+#~ "stored."
+
+#~ msgid ""
+#~ "Verlangt die Bank eine TAN (üblich), wird sie auf der nächsten Seite "
+#~ "abgefragt."
+#~ msgstr "If the bank requires a TAN (usual), it is requested on the next page."
+
+#~ msgid ""
+#~ "Neue Kontobewegungen werden als Bankumsätze angelegt, Duplikate automatisch "
+#~ "übersprungen."
+#~ msgstr ""
+#~ "New transactions are created as bank transactions, duplicates are skipped "
+#~ "automatically."
+
+# Verwaltungsmenue
+
+msgid "Alle Einstellungen (Übersicht)"
+msgstr "All settings (overview)"
+
+msgid "Übersicht der Anbindungen"
+msgstr "Overview of the integrations"
+
+msgid "Status von OpenSlides und Paperless-ngx, Einrichtung"
+msgstr "Status of OpenSlides and Paperless-ngx, setup"
+
+msgid "Online-Versammlungen: Verbindung, Konten, Gruppen"
+msgstr "Online meetings: connection, accounts, groups"
+
+msgid "Dokumentenarchiv: Verbindung und Übergabe"
+msgstr "Document archive: connection and transfer"

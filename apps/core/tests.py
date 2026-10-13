@@ -920,16 +920,32 @@ class EinstellungsUebersichtTests(TestCase):
         for thema in ("Verein &amp; Erscheinungsbild", "Finanzen", "Mitglieder &amp; Ehrungen", "Inventar",
                       "Zugriff &amp; Sicherheit", "Externe Anbindungen", "System"):
             self.assertContains(r, thema)
-        for name in ("verein_einstellungen", "fintszugang_list", "abteilung_list", "kategorie_list", "zugang_list",
-                     "anbindungen", "datensicherung"):
+        for name in ("fintszugang_list", "abteilung_list", "kategorie_list", "zugang_list", "rolle_list",
+                     "mitgliedtag_list", "berechtigungsmatrix", "anbindungen", "openslides_einstellungen",
+                     "paperless_einstellungen", "datensicherung"):
             self.assertContains(r, 'href="%s"' % reverse(name))
+        self.assertContains(r, 'href="%s#stamm"' % reverse("verein_einstellungen"))
+        self.assertContains(r, 'href="%s#finanzen"' % reverse("verein_einstellungen"))
 
-    def test_menue_verwaltung_ist_kurz_mit_einem_punkt_fuer_anbindungen(self):
+    def test_alle_punkte_des_alten_verwaltungsmenues_sind_erreichbar(self):
+        """Nichts aus dem frueheren Menue Verwaltung geht verloren: alles steht im neuen Menue bzw. in der Uebersicht."""
+        alt = ["verein_einstellungen", "anbindungen", "openslides_einstellungen", "paperless_einstellungen",
+               "fintszugang_list", "zugang_list", "rolle_list", "berechtigungsmatrix", "beitragsregel_list",
+               "mitgliedsart_list", "abteilung_list", "funktion_list", "mitgliedtag_list", "ehrungsart_list",
+               "jubilaeumsregel_list", "kategorie_list", "lagerort_list", "mitglieder_import", "gegenstand_import",
+               "datensicherung"]
+        uebersicht = self.client.get(reverse("einstellungen")).content.decode()
+        for name in alt:
+            self.assertIn('href="%s' % reverse(name), uebersicht, name)
+
+    def test_menue_verwaltung_zeigt_themenbloecke(self):
         r = self.client.get(reverse("dashboard"))
-        self.assertContains(r, 'href="%s"' % reverse("einstellungen"))
-        self.assertContains(r, 'href="%s"' % reverse("anbindungen"))
-        for name in ("openslides_einstellungen", "paperless_einstellungen", "abteilung_list", "kategorie_list"):
-            self.assertNotContains(r, 'class="dropdown-item" href="%s"' % reverse(name))
+        self.assertContains(r, "menue-mega")
+        for name in ("einstellungen", "zugang_list", "rolle_list", "mitgliedtag_list", "abteilung_list", "kategorie_list",
+                     "fintszugang_list", "berechtigungsmatrix", "anbindungen", "datensicherung"):
+            self.assertContains(r, 'class="dropdown-item rounded" href="%s' % reverse(name), msg_prefix=name)
+        for name in ("openslides_einstellungen", "paperless_einstellungen"):    # nur ein Menuepunkt fuer die Anbindungen
+            self.assertNotContains(r, 'class="dropdown-item rounded" href="%s"' % reverse(name))
 
     def test_nur_sichtbare_eintraege_je_rolle(self):
         rolle = Rolle.objects.create(verein=self.verein, name="Nur Inventar", rechte=["inventar.view"])
@@ -952,3 +968,59 @@ class EinstellungsUebersichtTests(TestCase):
         from apps.core.context import _URL_ICON
         for name in ("abteilung", "kategorie", "mitgliedsart", "rolle", "openslides_einstellungen"):
             self.assertEqual(_URL_ICON.get(name), "bi-gear", name)
+
+
+class ZeilenDirektBearbeitenTests(TestCase):
+    """In den Einstellungs-Listen führt ein Klick auf eine Zeile direkt zum Bearbeiten (bei Änderungsrecht)."""
+
+    def setUp(self):
+        self.verein = Verein.objects.create(name="Testverein", kuerzel="test")
+        self.admin = User.objects.create_superuser("admin", password="pw-Test-12345")
+        self.rolle = Rolle.objects.get(verein=self.verein, name="Superadministrator")
+        self.user = User.objects.create_user("max", password="pw-Test-12345")
+        self.zugang = Zugang.objects.create(verein=self.verein, user=self.user, rolle=self.rolle)
+        self.client.force_login(self.admin)
+        s = self.client.session
+        s["verein_id"] = self.verein.pk
+        s.save()
+
+    def test_benutzerliste_fuehrt_direkt_zum_bearbeiten(self):
+        r = self.client.get(reverse("zugang_list"))
+        self.assertContains(r, reverse("zugang_edit", args=[self.zugang.pk]))
+        self.assertNotContains(r, 'href="%s"' % reverse("zugang_detail", args=[self.zugang.pk]))
+
+    def test_nur_lesen_fuehrt_zur_detailseite(self):
+        lesen = Rolle.objects.create(verein=self.verein, name="Leser", rechte=["verwaltung.view"])
+        u = User.objects.create_user("leser", password="pw-Test-12345")
+        Zugang.objects.create(verein=self.verein, user=u, rolle=lesen)
+        self.client.force_login(u)
+        s = self.client.session
+        s["verein_id"] = self.verein.pk
+        s.save()
+        r = self.client.get(reverse("zugang_list"))
+        self.assertContains(r, reverse("zugang_detail", args=[self.zugang.pk]))
+        self.assertNotContains(r, reverse("zugang_edit", args=[self.zugang.pk]))
+
+    def test_bearbeiten_formular_hat_detailansicht_und_sicherheitsaktionen(self):
+        r = self.client.get(reverse("zugang_edit", args=[self.zugang.pk]))
+        self.assertContains(r, "Detailansicht")
+        self.assertContains(r, reverse("zugang_detail", args=[self.zugang.pk]))
+        self.assertContains(r, "Passwort neu setzen")
+        # die Aktionsknoepfe stehen ausserhalb des Formulars (keine verschachtelten Formulare)
+        html = r.content.decode()
+        self.assertLess(html.index("Passwort neu setzen"), html.index('enctype="multipart/form-data"'))
+
+    def test_weitere_einstellungslisten_fuehren_direkt_zum_bearbeiten(self):
+        from apps.members.models import Abteilung, MitgliedTag
+        a = Abteilung.objects.create(verein=self.verein, name="Löschzug X")
+        r = self.client.get(reverse("abteilung_list"))
+        self.assertContains(r, reverse("abteilung_edit", args=[a.pk]))
+        t = MitgliedTag.objects.create(verein=self.verein, name="Testtag-Eigen")
+        r = self.client.get(reverse("mitgliedtag_list"))
+        self.assertContains(r, reverse("mitgliedtag_edit", args=[t.pk]))
+        self.assertContains(self.client.get(reverse("rolle_list")), reverse("rolle_edit", args=[self.rolle.pk]))
+
+    def test_listen_ohne_option_bleiben_bei_der_detailseite(self):
+        m = Mitglied.objects.create(verein=self.verein, vorname="A", nachname="B", status="aktiv")
+        r = self.client.get(reverse("mitglied_list"))
+        self.assertContains(r, reverse("mitglied_detail", args=[m.pk]))
