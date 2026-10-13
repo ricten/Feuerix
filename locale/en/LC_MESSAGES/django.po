@@ -5359,3 +5359,14 @@ msgstr "Payment terms, invoice texts above and below"
 
 msgid "Vereinsangaben ohne Vereinsnamen und Seitenzahl"
 msgstr "Club details without club name, and page number"
+
+# Detailseite: Links
+
+msgid "Links zum Weitergeben"
+msgstr "Links to share"
+
+msgid "Link kopieren"
+msgstr "Copy link"
+
+msgid "Seite öffnen"
+msgstr "Open page"

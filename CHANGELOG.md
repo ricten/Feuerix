@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.86.1
+
+- Englischer Katalog: drei fehlende Übersetzungen der Detailseite („Links zum Weitergeben“, „Link kopieren“, „Seite öffnen“) ergänzt.
+
 ## 1.86.0
 
 - **Detailseiten mit Vorschau besser genutzt:** Die PDF-/Bildvorschau steht auf breiten Bildschirmen rechts neben den Feldern und Tabellen, läuft beim
