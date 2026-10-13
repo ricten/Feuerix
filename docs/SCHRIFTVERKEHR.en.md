@@ -65,7 +65,8 @@ created with this template; invoices, reminders etc. keep their fixed look):
 
 * **Letterhead:** name and logo with divider line (default), name only, logo only or **no letterhead** for pre-printed letter paper –
   the top margin (default 45 mm) is then left free on the first page. **Logo left or right.**
-* **Sender line** (small return address above the address, for window envelopes) on/off, **date** left or right, **footer** with
+* **Sender line** (small return address above the address, for window envelopes) on/off – it is omitted automatically if it would only
+  contain the club name (no address stored), **date** left or right, **footer** with
   club details, with club details **without the club name** (it is already in the letterhead), page number only or none.
 * **Font:** Helvetica, Times or Courier, size 8 to 14 pt. **Margins** left, right, bottom (and top with "no letterhead") in mm.
 

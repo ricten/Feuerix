@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.85.1
+
+- Briefe/PDFs: Die kleine Absenderzeile über der Anschrift entfällt, wenn sie nur den Vereinsnamen wiederholen würde (Verein ohne hinterlegte Anschrift).
+
 ## 1.85.0
 
 - **Fußzeile ohne Vereinsnamen** als Layout-Option je Vorlage („Vereinsangaben ohne Vereinsnamen und Seitenzahl“): der Name steht schon im Briefkopf;

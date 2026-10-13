@@ -81,6 +81,14 @@ class LayoutPdfTests(TestCase):
         self.assertIn("Seite 1", t)
         self.assertIn("Demo e.V.", text(seiten_pdf(v, [SEITE], layout=Layout(kopf="ohne", absenderzeile=False))))
 
+    def test_absenderzeile_entfaellt_wenn_sie_nur_den_vereinsnamen_enthielte(self):
+        v = Verein.objects.create(name="Demo e.V.", kuerzel="demo")          # keine Anschrift hinterlegt
+        zaehlt = lambda ver: text(seiten_pdf(ver, [SEITE], layout=Layout())).count(ver.name)  # noqa: E731
+        self.assertEqual(zaehlt(v), 2)               # Briefkopf + Fusszeile, keine wiederholende Absenderzeile
+        v.anschrift, v.plz, v.ort = "Hauptstr. 1", "12345", "Musterstadt"
+        v.save()
+        self.assertEqual(zaehlt(v), 3)               # mit Anschrift: Briefkopf + Absenderzeile + Fusszeile
+
     def test_schriftart_und_groesse(self):
         self.assertIn(b"Times-Roman", self.pdf(schriftart="Times-Roman"))
         self.assertIn(b"Courier", self.pdf(schriftart="Courier"))

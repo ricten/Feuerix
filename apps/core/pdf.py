@@ -249,8 +249,8 @@ def _seite(verein, s, stile, layout=None):
     normal, klein, kopf = stile["normal"], stile["klein"], stile["kopf"]
     datum_stil, rechts = stile["rechts"], stile["rechts_tabelle"]     # Datum kann links stehen, Tabellenzahlen bleiben rechts
     story = []
-    if layout.absenderzeile:
-        absender = ", ".join(x for x in (verein.name, verein.anschrift, f"{verein.plz} {verein.ort}".strip()) if x)
+    absender = ", ".join(x for x in (verein.name, verein.anschrift, f"{verein.plz} {verein.ort}".strip()) if x)
+    if layout.absenderzeile and absender != verein.name:     # nur der Vereinsname wuerde den Briefkopf bloss wiederholen
         t = Table([[_p(absender, klein)]], colWidths=[105 * mm], hAlign="LEFT")
         t.setStyle(TableStyle([("LEFTPADDING", (0, 0), (-1, -1), 0), ("BOTTOMPADDING", (0, 0), (-1, -1), 0)]))
         story += [t, Spacer(1, 8 * mm)]
