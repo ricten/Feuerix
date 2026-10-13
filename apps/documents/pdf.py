@@ -11,9 +11,10 @@ def absaetze(text):
     return [a.strip("\n") for a in re.split(r"\n[ \t]*\n", text or "") if a.strip()]
 
 
-def _seite(verein, betreff, text, mitglied, datum, ctx, mit_empfaenger=True, wasserzeichen=None):
+def _seite(verein, betreff, text, mitglied, datum, ctx, mit_empfaenger=True, wasserzeichen=None, anschrift=None):
     return {
-        "empfaenger": mitglied.anschrift_zeilen() if (mitglied is not None and mit_empfaenger) else [],
+        "empfaenger": anschrift if anschrift is not None else (
+            mitglied.anschrift_zeilen() if (mitglied is not None and mit_empfaenger) else []),
         "betreff": ersetzen(betreff, ctx) or "Schreiben",
         "datum": f"Datum: {ctx['datum']}",
         "vor": [lambda stile, layout, breite, h=richtext.text_ersetzt(text, ctx):
@@ -25,7 +26,7 @@ def _seite(verein, betreff, text, mitglied, datum, ctx, mit_empfaenger=True, was
 def schriftstueck_pdf(s):
     ctx = s.kontext()
     seite = _seite(s.verein, s.betreff or s.titel, s.text, s.mitglied, s.datum, ctx,
-                   mit_empfaenger=s.art != "protokoll")
+                   mit_empfaenger=s.art != "protokoll", anschrift=s.anschrift_zeilen())
     seiten = [seite]
     if s.art == "protokoll" and s.veranstaltung_id:   # Teilnehmerliste/Abstimmungen/Wahlen als Anlagen (eigene Seiten)
         seiten += anlagen.pdf_seiten(s.veranstaltung, ctx.get("veranstaltung_datum", ""))

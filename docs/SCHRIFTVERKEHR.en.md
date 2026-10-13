@@ -34,6 +34,14 @@ new name), or created from scratch.
 * On the detail page: **view PDF**, **Word (.docx)** for further editing, **save as PDF to the archive**.
 * Placeholders that could not be replaced are shown as a notice.
 
+## Recipient address
+
+Every document (letter) has the field **"Recipient address (manual)"**: one line per address line (name, street, postcode city). If it
+is filled in, this text is used as the address in the letter (PDF and Word) – **even without a member** (e.g. for authorities, companies,
+guests) – and takes precedence over the address of a selected member. Without a member, the placeholder `{briefanrede}` becomes "Sehr
+geehrte Damen und Herren,". Minutes have no address. For invoices and donation receipts the recipient can also be entered manually
+("Recipient/Address" or "Address if not a member").
+
 ## Formatted text (editor)
 
 The text of templates, documents and mail merges is edited in an **editor** (TinyMCE) – like in a word processor: paragraph/heading 1–3,

@@ -228,8 +228,9 @@ def schriftstueck_docx(s):
     absender = ", ".join(x for x in (v.name, v.anschrift, f"{v.plz} {v.ort}".strip()) if x)
     p = doc.add_paragraph(absender)
     p.runs[0].font.size = Pt(8)
-    if s.mitglied_id and s.art != "protokoll":
-        doc.add_paragraph("\n".join(z for z in s.mitglied.anschrift_zeilen() if z))
+    anschrift = s.anschrift_zeilen()
+    if anschrift:
+        doc.add_paragraph("\n".join(z for z in anschrift if z))
     d = doc.add_paragraph(f"Datum: {ctx['datum']}")
     d.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     doc.add_heading(ersetzen(s.betreff or s.titel, ctx), level=2)

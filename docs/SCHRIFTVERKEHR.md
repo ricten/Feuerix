@@ -30,6 +30,14 @@ Jubiläum, Zugangsdaten OpenSlides, Brief allgemein. Jede Vorlage kann geändert
 * Auf der Detailseite: **PDF ansehen**, **Word (.docx)** zum Weiterbearbeiten, **Als PDF in Ablage speichern**.
 * Nicht ersetzbare Platzhalter werden als Hinweis angezeigt.
 
+## Empfängeranschrift
+
+Jedes Schriftstück (Anschreiben) hat das Feld **„Empfängeranschrift (manuell)“**: eine Zeile je Adresszeile (Name, Straße, PLZ Ort). Ist
+es ausgefüllt, steht dieser Text als Anschrift im Brief (PDF und Word) – **auch ohne Mitglied** (z. B. für Behörden, Firmen, Gäste) – und hat
+Vorrang vor der Anschrift eines gewählten Mitglieds. Ohne Mitglied lautet die Anrede-Platzhalter `{briefanrede}` dann „Sehr geehrte Damen
+und Herren,“. Protokolle haben keine Anschrift. Bei Rechnungen und Spendenquittungen lässt sich der Empfänger ebenfalls manuell eintragen
+(„Empfänger/Anschrift“ bzw. „Anschrift falls kein Mitglied“).
+
 ## Formatierter Text (Editor)
 
 Der Text von Vorlagen, Schriftstücken und Serienbriefen wird in einem **Editor** (TinyMCE) bearbeitet – wie in einem Textprogramm:

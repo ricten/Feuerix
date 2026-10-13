@@ -62,6 +62,9 @@ class SchriftstueckForm(VorlageFuellen, TenantModelForm):
     def __init__(self, *a, **kw):
         super().__init__(*a, **kw)
         self.textfeld()
+        if "empfaenger_anschrift" in self.fields:
+            self.fields["empfaenger_anschrift"].widget = forms.Textarea(attrs={
+                "rows": 4, "class": "form-control", "placeholder": "Max Mustermann\nMusterstraße 1\n12345 Musterstadt"})
         self.fields["vorlage"].queryset = self.fields["vorlage"].queryset.filter(aktiv=True)
 
 

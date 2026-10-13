@@ -195,6 +195,10 @@ class Schriftstueck(TenantModel):
                                       related_name="schriftstuecke", verbose_name=_("Veranstaltung"))
     mitglied = models.ForeignKey(Mitglied, on_delete=models.SET_NULL, null=True, blank=True, related_name="+",
                                  verbose_name=_("Empfänger (Mitglied, optional)"))
+    empfaenger_anschrift = models.TextField(
+        _("Empfängeranschrift (manuell)"), blank=True,
+        help_text=_("Eine Zeile je Adresszeile (Name, Straße, PLZ Ort). Ist hier etwas eingetragen, steht es als Anschrift im "
+                  "Brief - auch ohne Mitglied; es hat Vorrang vor der Anschrift des Mitglieds."))
     datum = models.DateField(_("Datum"), default=date.today)
     betreff = models.CharField(_("Betreff / Titel"), max_length=250, blank=True)
     text = models.TextField(_("Text"), blank=True)
@@ -210,10 +214,22 @@ class Schriftstueck(TenantModel):
     def __str__(self):
         return self.titel
 
+    def anschrift_zeilen(self):
+        """Anschrift im Brief: manuell eingetragene Zeilen, sonst die des Mitglieds; Protokolle haben keine Anschrift."""
+        if self.art == "protokoll":
+            return []
+        manuell = [z.strip() for z in (self.empfaenger_anschrift or "").splitlines() if z.strip()]
+        if manuell:
+            return manuell
+        return self.mitglied.anschrift_zeilen() if self.mitglied_id else []
+
     def kontext(self):
         from .platzhalter import kontext
-        return kontext(self.verein, mitglied=self.mitglied, veranstaltung=self.veranstaltung, datum=self.datum,
-                       anlagen=self.art == "protokoll")
+        k = kontext(self.verein, mitglied=self.mitglied, veranstaltung=self.veranstaltung, datum=self.datum,
+                    anlagen=self.art == "protokoll")
+        if self.mitglied_id is None and (self.empfaenger_anschrift or "").strip():
+            k["briefanrede"] = "Sehr geehrte Damen und Herren,"      # Anschrift ohne Mitglied: neutrale Anrede
+        return k
 
 
 class Serienbrief(TenantModel):
