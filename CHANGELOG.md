@@ -3,6 +3,12 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.84.0
+
+- **Unterthemen der Vereinseinstellungen in der Übersicht:** Vereinsdaten, Logo & Farben, Briefe: Unterschriften, Etiketten, Startseite & Impressum,
+  Bankverbindung, Steuern & Gemeinnützigkeit und Rechnungen stehen einzeln in der Einstellungs-Übersicht und im Menü „Verwaltung“ und springen direkt
+  zum Abschnitt.
+
 ## 1.83.0
 
 - **Menü „Verwaltung“** zeigt wieder alle Einstellungen – als mehrspaltiges Menü nach Themen (mit einem Punkt für die externen Anbindungen); die

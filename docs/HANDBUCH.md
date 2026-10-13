@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.83.0)
+# Handbuch – Feuerix (Version 1.84.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -770,7 +770,9 @@ Angaben zum Gemeinnützigkeitsbescheid (für Spendenquittungen), Umsatzsteuerpfl
 Rechnungstexte, die konfigurierbaren Freibeträge für Aufwandsentschädigungen, sowie Logo, Akzentfarbe(n) und die
 Unterschriftszeilen für den Briefkopf (Kapitel 11). Die Seite ist nach Themen aufgeteilt, die links angewählt werden: *Verein*, *Finanzen* (Bank, Steuern &
 Gemeinnützigkeit, Rechnungen), *Erscheinungsbild* (Logo & Farben, Briefe, Etiketten) und *Startseite & Impressum*; bei einem
-Eingabefehler öffnet sich automatisch das Thema mit dem Fehler (rotes Zähler-Abzeichen), sonst das zuletzt benutzte.
+Eingabefehler öffnet sich automatisch das Thema mit dem Fehler (rotes Zähler-Abzeichen), sonst das zuletzt benutzte. Die Unterthemen
+(Vereinsdaten, Logo & Farben, Briefe: Unterschriften, Etiketten, Startseite & Impressum, Bankverbindung, Steuern & Gemeinnützigkeit,
+Rechnungen) stehen auch **einzeln** in der Einstellungs-Übersicht und im Menü *Verwaltung*; ein Klick springt direkt zum Abschnitt.
 
 Alle weiteren Verwaltungs- und Stammdatenseiten (Mitgliedsarten, Beitragsregeln, FinTS-Zugänge, Konten, Abteilungen, Funktionen,
 Tags, Ehrungsarten, Inventar-Kategorien und -Lagerorte, Importe, Rollen, Berechtigungsmatrix, Datensicherung …) stehen **nach Themen

@@ -924,8 +924,19 @@ class EinstellungsUebersichtTests(TestCase):
                      "mitgliedtag_list", "berechtigungsmatrix", "anbindungen", "openslides_einstellungen",
                      "paperless_einstellungen", "datensicherung"):
             self.assertContains(r, 'href="%s"' % reverse(name))
-        self.assertContains(r, 'href="%s#stamm"' % reverse("verein_einstellungen"))
-        self.assertContains(r, 'href="%s#finanzen"' % reverse("verein_einstellungen"))
+
+    def test_unterthemen_der_vereinseinstellungen_stehen_in_der_uebersicht_und_sind_sprungziele(self):
+        ziele = ("stamm", "design-logo", "design-briefe", "design-etiketten", "startseite", "finanzen-bank",
+                 "finanzen-steuern", "finanzen-rechnungen")
+        uebersicht = self.client.get(reverse("einstellungen"))
+        seite = self.client.get(reverse("verein_einstellungen")).content.decode()
+        menue = self.client.get(reverse("dashboard")).content.decode()
+        for ziel in ziele:
+            link = 'href="%s#%s"' % (reverse("verein_einstellungen"), ziel)
+            self.assertContains(uebersicht, link, msg_prefix=ziel)
+            self.assertIn(link, menue, ziel)
+            # das Ziel existiert auf der Seite: als Thema (tab-<id>) oder als Abschnittskarte (id=<id>)
+            self.assertTrue(f'id="tab-{ziel}"' in seite or f'id="{ziel}"' in seite, ziel)
 
     def test_alle_punkte_des_alten_verwaltungsmenues_sind_erreichbar(self):
         """Nichts aus dem frueheren Menue Verwaltung geht verloren: alles steht im neuen Menue bzw. in der Uebersicht."""

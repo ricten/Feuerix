@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.83.0)
+# Handbook – Feuerix (Version 1.84.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -746,7 +746,9 @@ details of the non-profit determination notice (for donation receipts), VAT liab
 configurable tax-free allowances for expense allowances, as well as the logo, accent colour(s) and the
 signature lines for the letterhead (chapter 11). The page is divided into topics selected on the left: *Club*, *Finances* (bank, taxes & non-profit status,
 invoices), *Appearance* (logo & colours, letters, labels) and *Start page & legal notice*; after an input error the topic
-containing the error opens automatically (red counter badge), otherwise the one used last.
+containing the error opens automatically (red counter badge), otherwise the one used last. The sub-topics (club data, logo & colours,
+letters: signatures, labels, start page & legal notice, bank details, taxes & non-profit status, invoices) are also listed
+**individually** in the settings overview and in the *Administration* menu; a click jumps straight to the section.
 
 All other administration and master data pages (membership types, fee rules, FinTS accesses, accounts, departments, functions,
 tags, honour types, inventory categories and locations, imports, roles, permission matrix, backup …) are listed **by topic** under

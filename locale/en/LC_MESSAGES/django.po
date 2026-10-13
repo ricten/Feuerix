@@ -5254,6 +5254,22 @@ msgstr ""
 "Only fill in if the reminder is to go to a different address than the "
 "invoice's (one line per address line, first line = name)."
 
+# Verwaltungsmenue
+msgid "Alle Einstellungen (Übersicht)"
+msgstr "All settings (overview)"
+
+msgid "Übersicht der Anbindungen"
+msgstr "Overview of the integrations"
+
+msgid "Status von OpenSlides und Paperless-ngx, Einrichtung"
+msgstr "Status of OpenSlides and Paperless-ngx, setup"
+
+msgid "Online-Versammlungen: Verbindung, Konten, Gruppen"
+msgstr "Online meetings: connection, accounts, groups"
+
+msgid "Dokumentenarchiv: Verbindung und Übergabe"
+msgstr "Document archive: connection and transfer"
+
 #~ msgid "Zuständig"
 #~ msgstr "Assigned to"
 
@@ -5302,19 +5318,39 @@ msgstr ""
 #~ "New transactions are created as bank transactions, duplicates are skipped "
 #~ "automatically."
 
-# Verwaltungsmenue
+# Uebersicht Vereinseinstellungen
 
-msgid "Alle Einstellungen (Übersicht)"
-msgstr "All settings (overview)"
+msgid "Vereinsdaten"
+msgstr "Club data"
 
-msgid "Übersicht der Anbindungen"
-msgstr "Overview of the integrations"
+msgid "Name, Anschrift, Kontakt, Registereintrag"
+msgstr "Name, address, contact, register entry"
 
-msgid "Status von OpenSlides und Paperless-ngx, Einrichtung"
-msgstr "Status of OpenSlides and Paperless-ngx, setup"
+msgid "Vereinslogo, Akzentfarben für Briefe/PDFs und Weboberfläche"
+msgstr "Club logo, accent colours for letters/PDFs and the web interface"
 
-msgid "Online-Versammlungen: Verbindung, Konten, Gruppen"
-msgstr "Online meetings: connection, accounts, groups"
+msgid "Briefe: Unterschriften"
+msgstr "Letters: signatures"
 
-msgid "Dokumentenarchiv: Verbindung und Übergabe"
-msgstr "Document archive: connection and transfer"
+msgid "Unterschriftszeilen im Briefkopf und in Briefen"
+msgstr "Signature lines in the letterhead and in letters"
+
+msgid "Größe und Anordnung der Inventar-Etiketten"
+msgstr "Size and arrangement of the inventory labels"
+
+msgid "Banner auf der Startseite, Impressumstext"
+msgstr "Start page banner, legal notice text"
+
+msgid "Bankverbindung"
+msgstr "Bank details"
+
+msgid "Bank, IBAN, BIC, Gläubiger-ID (SEPA)"
+msgstr "Bank, IBAN, BIC, creditor ID (SEPA)"
+
+msgid ""
+"Finanzamt, Steuernummer, Umsatzsteuer, Gemeinnützigkeitsbescheid, "
+"Freibeträge"
+msgstr "Tax office, tax number, VAT, non-profit notice, allowances"
+
+msgid "Zahlungsziel, Rechnungstexte oben und unten"
+msgstr "Payment terms, invoice texts above and below"

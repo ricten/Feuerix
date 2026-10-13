@@ -197,22 +197,23 @@ def verein_logo(request):
 # oder None, Felder)]). Felder, die hier nicht vorkommen, landen unter "Weitere", damit nach Modelländerungen nichts verschwindet.
 EINSTELLUNGS_GRUPPEN = [
     ("stamm", _lazy("Verein"), "bi-building", "",
-     [(None, ("name", "anschrift", "plz", "ort", "email", "vereinsregister"))]),
+     [(None, ("name", "anschrift", "plz", "ort", "email", "vereinsregister"), None)]),
     ("finanzen", _lazy("Finanzen"), "bi-cash-coin",
      _lazy("Steuerlich Relevantes bitte mit dem Steuerberater abstimmen."),
-     [(_lazy("Bank"), ("bankname", "iban", "bic", "glaeubiger_id")),
+     [(_lazy("Bank"), ("bankname", "iban", "bic", "glaeubiger_id"), "finanzen-bank"),
       (_lazy("Steuern & Gemeinnützigkeit"),
        ("finanzamt", "steuernummer", "umsatzsteuerpflichtig", "ust_idnr", "rechnung_steuerhinweis", "bescheid_art",
         "bescheid_datum", "bescheid_zeitraum", "beguenstigte_zwecke", "uebungsleiter_freibetrag",
-        "ehrenamts_freibetrag")),
-      (_lazy("Rechnungen"), ("zahlungsziel_tage", "rechnung_kopftext", "rechnung_fusstext"))]),
+        "ehrenamts_freibetrag"), "finanzen-steuern"),
+      (_lazy("Rechnungen"), ("zahlungsziel_tage", "rechnung_kopftext", "rechnung_fusstext"), "finanzen-rechnungen")]),
     ("design", _lazy("Erscheinungsbild"), "bi-palette", "",
      [(_lazy("Logo & Farben"), ("logo", "akzentfarbe", "akzentfarbe_fuss", "akzentfarbe_web", "akzentfarbe_web_2",
-                                "akzentfarbe_web_3")),
-      (_lazy("Briefe"), ("unterschrift_1", "unterschrift_2")),
-      (_lazy("Etiketten"), ("etikett_breite_mm", "etikett_hoehe_mm", "etikett_spalten", "etikett_zeilen"))]),
+                                "akzentfarbe_web_3"), "design-logo"),
+      (_lazy("Briefe"), ("unterschrift_1", "unterschrift_2"), "design-briefe"),
+      (_lazy("Etiketten"), ("etikett_breite_mm", "etikett_hoehe_mm", "etikett_spalten", "etikett_zeilen"),
+       "design-etiketten")]),
     ("startseite", _lazy("Startseite & Impressum"), "bi-megaphone", "",
-     [(None, ("startseite_banner", "startseite_banner_art", "startseite_banner_bis", "impressum_text"))]),
+     [(None, ("startseite_banner", "startseite_banner_art", "startseite_banner_bis", "impressum_text"), None)]),
 ]
 
 
@@ -221,16 +222,16 @@ def _einstellungs_gruppen(form):
     verteilt, gruppen = set(), []
     for gid, titel, icon, hinweis, bloecke in EINSTELLUNGS_GRUPPEN:
         liste = []
-        for blocktitel, namen in bloecke:
+        for blocktitel, namen, block_id in bloecke:
             felder = [form[n] for n in namen if n in form.fields]
             verteilt.update(n for n in namen if n in form.fields)
             if felder:
-                liste.append({"titel": blocktitel, "felder": felder})
+                liste.append({"titel": blocktitel, "felder": felder, "id": block_id})
         gruppen.append({"id": gid, "titel": titel, "icon": icon, "hinweis": hinweis, "bloecke": liste})
     rest = [form[n] for n in form.fields if n not in verteilt]
     if rest:
         gruppen.append({"id": "weitere", "titel": _lazy("Weitere"), "icon": "bi-three-dots", "hinweis": "",
-                        "bloecke": [{"titel": None, "felder": rest}]})
+                        "bloecke": [{"titel": None, "felder": rest, "id": None}]})
     gruppen = [g for g in gruppen if g["bloecke"]]
     for g in gruppen:
         g["felder"] = [f for blk in g["bloecke"] for f in blk["felder"]]

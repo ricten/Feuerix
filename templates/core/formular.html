@@ -29,7 +29,7 @@
         <div class="tab-pane fade {% if g.aktiv %}show active{% endif %}" id="pane-{{ g.id }}" role="tabpanel" aria-labelledby="tab-{{ g.id }}">
           {% if g.hinweis %}<p class="text-muted small">{{ g.hinweis }}</p>{% endif %}
           {% for blk in g.bloecke %}
-          <div class="card shadow-sm mb-3">
+          <div class="card shadow-sm mb-3"{% if blk.id %} id="{{ blk.id }}"{% endif %}>
             {% if blk.titel %}<div class="card-header fw-semibold">{{ blk.titel }}</div>{% endif %}
             <div class="card-body pb-1">
               {% for field in blk.felder %}{% include "core/_formfeld.html" %}{% endfor %}
@@ -74,8 +74,13 @@ document.addEventListener("DOMContentLoaded", function () {
     t.addEventListener("shown.bs.tab", function () { try { localStorage.setItem(schluessel, t.id); } catch (e) {} });
   });
   var ziel = (location.hash || "").replace("#", ""), zielreiter = ziel && document.getElementById("tab-" + ziel);
+  var block = ziel && !zielreiter ? document.getElementById(ziel) : null;       // "seite#thema-abschnitt"
+  var blockreiter = block && block.closest(".tab-pane") ? document.getElementById(block.closest(".tab-pane").getAttribute("aria-labelledby")) : null;
   if (zielreiter) {       // Sprung aus Menue/Uebersicht ("seite#thema") hat Vorrang vor dem zuletzt benutzten Thema
     bootstrap.Tab.getOrCreateInstance(zielreiter).show();
+  } else if (blockreiter) {
+    blockreiter.addEventListener("shown.bs.tab", function () { block.scrollIntoView({behavior: "smooth", block: "start"}); }, {once: true});
+    bootstrap.Tab.getOrCreateInstance(blockreiter).show();
   } else if (!fehler) {
     try {
       var id = localStorage.getItem(schluessel), t = id && document.getElementById(id);

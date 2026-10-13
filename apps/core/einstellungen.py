@@ -7,12 +7,24 @@ from django.utils.translation import gettext_lazy as _
 # (Thema, Symbol, [(Bezeichnung, url_name, Modul, Beschreibung)])
 BEREICHE = [
     (_("Verein & Erscheinungsbild"), "bi-building", [
-        (_("Vereinsdaten, Logo, Farben"), "verein_einstellungen#stamm", "verwaltung",
-         _("Name, Anschrift, Registereintrag, Logo, Farben, Unterschriften, Startseiten-Banner, Impressum, Etiketten")),
+        (_("Vereinsdaten"), "verein_einstellungen#stamm", "verwaltung",
+         _("Name, Anschrift, Kontakt, Registereintrag")),
+        (_("Logo & Farben"), "verein_einstellungen#design-logo", "verwaltung",
+         _("Vereinslogo, Akzentfarben für Briefe/PDFs und Weboberfläche")),
+        (_("Briefe: Unterschriften"), "verein_einstellungen#design-briefe", "verwaltung",
+         _("Unterschriftszeilen im Briefkopf und in Briefen")),
+        (_("Etiketten"), "verein_einstellungen#design-etiketten", "verwaltung",
+         _("Größe und Anordnung der Inventar-Etiketten")),
+        (_("Startseite & Impressum"), "verein_einstellungen#startseite", "verwaltung",
+         _("Banner auf der Startseite, Impressumstext")),
     ]),
     (_("Finanzen"), "bi-cash-coin", [
-        (_("Bank, Steuern & Rechnungen"), "verein_einstellungen#finanzen", "verwaltung",
-         _("Bankverbindung, Gläubiger-ID, Gemeinnützigkeit, Umsatzsteuer, Zahlungsziel, Rechnungstexte, Freibeträge")),
+        (_("Bankverbindung"), "verein_einstellungen#finanzen-bank", "verwaltung",
+         _("Bank, IBAN, BIC, Gläubiger-ID (SEPA)")),
+        (_("Steuern & Gemeinnützigkeit"), "verein_einstellungen#finanzen-steuern", "verwaltung",
+         _("Finanzamt, Steuernummer, Umsatzsteuer, Gemeinnützigkeitsbescheid, Freibeträge")),
+        (_("Rechnungen"), "verein_einstellungen#finanzen-rechnungen", "verwaltung",
+         _("Zahlungsziel, Rechnungstexte oben und unten")),
         (_("Mitgliedsarten / Beiträge"), "mitgliedsart_list", "beitraege", _("Beitragshöhen je Mitgliedsart")),
         (_("Beitragsregeln"), "beitragsregel_list", "beitraege", _("Ermäßigungen und Sonderregeln für Beiträge")),
         (_("FinTS-Zugänge"), "fintszugang_list", "bank", _("Bankzugänge für den automatischen Abruf der Umsätze")),
