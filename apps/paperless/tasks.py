@@ -30,13 +30,13 @@ def fertiges_dokument_task(art, pk):
     if art == "rechnung":
         from apps.finance.erechnung import zugferd_pdf
         from apps.finance.models import Rechnung
-        from apps.finance.pdf import rechnung_pdf
+        from apps.finance.pdf import rechnung_dateiname, rechnung_pdf
         obj = Rechnung.objects.get(pk=pk)
         try:
             pdf = zugferd_pdf(obj)   # E-Rechnung (ZUGFeRD/Factur-X), sonst normale PDF-Rechnung
         except Exception:
             pdf = rechnung_pdf(obj)
-        titel, kat, datum, name = f"{obj.get_typ_display()} {obj.nummer}", "rechnung", obj.datum, obj.nummer
+        titel, kat, datum, name = f"{obj.get_typ_display()} {obj.nummer}", "rechnung", obj.datum, rechnung_dateiname(obj)
     elif art == "zuwendung":
         from apps.donations.models import Zuwendungsbestaetigung
         from apps.donations.pdf import zuwendungsbestaetigung_pdf
@@ -45,7 +45,7 @@ def fertiges_dokument_task(art, pk):
         titel, kat, datum, name = f"Zuwendungsbestätigung {obj.nummer}", "zuwendung", obj.ausgestellt_am, obj.nummer
     else:
         return
-    d = ablegen(obj.verein, titel, kat, f"{name}.pdf", pdf, datum=datum)
+    d = ablegen(obj.verein, titel, kat, name if name.endswith(".pdf") else f"{name}.pdf", pdf, datum=datum)
     from . import auto
     v = auto.verbindung(obj.verein)
     if v is None:

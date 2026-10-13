@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.88.0)
+# Handbuch – Feuerix (Version 1.89.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -263,6 +263,8 @@ erscheint bei 0 % weiterhin der Standardhinweis „Steuerbefreiung nach § 4 USt
 **USt-IdNr.** kann dort ebenfalls gepflegt werden (erscheint dann in der E-Rechnung). Das ersetzt keine steuerliche
 Beratung – insbesondere die Frage, welche Vereinstätigkeiten tatsächlich umsatzsteuerpflichtig sind, bitte mit
 Steuerberater/Finanzamt klären.
+
+**Dateinamen:** Rechnungs-PDFs (Download, E-Mail-Anhang, Ablage, Paperless) heißen `Rechnungsnummer_Typ_Empfänger.pdf`, z. B. `RE-2026-0001_Individuelle_Rechnung_Max_Mustermann.pdf` (Entwürfe beginnen mit „Entwurf“, die E-Rechnung endet auf `_E-Rechnung`). Hochgeladene und abgelegte Dateien behalten ihren Namen ohne Zufallskennung.
 
 **E-Rechnung (ZUGFeRD-PDF)**: erzeugt aus der Rechnung eine ZUGFeRD/Factur-X-Datei (Profil EN16931) zum Download –
 das ist die normale PDF-Rechnung mit einer zusätzlich eingebetteten, maschinenlesbaren XML-Datei. Gedacht für den

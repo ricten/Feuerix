@@ -13,11 +13,12 @@ from django.views.decorators.http import require_POST
 
 from apps.core.crud import pdf_vorschau, abschnitt, knopf, wert
 from apps.core.util import geld
+from django.utils.http import content_disposition_header
 
 from . import erechnung, fints_service, kontoauszug, sepa, services
 from .forms import FinTSPinForm, FinTSTanForm
 from .models import Bankumsatz, Beitragsjahr, FinTSZugang, Mahnung, Rechnung, SepaEinzug, SepaEinzugPosition, Zahlung, wirksame_summe
-from .pdf import mahnung_pdf, rechnung_pdf
+from .pdf import mahnung_pdf, rechnung_dateiname, rechnung_pdf
 from django.utils.translation import gettext, gettext_lazy
 from django.utils.text import format_lazy
 
@@ -84,7 +85,7 @@ def rechnung_kontext(request, r):
 def rechnung_pdf_view(request, pk):
     r = _rechnung(request, pk, "view")
     resp = HttpResponse(rechnung_pdf(r), content_type="application/pdf")
-    resp["Content-Disposition"] = f'inline; filename="{r.nummer or "entwurf"}.pdf"'
+    resp["Content-Disposition"] = content_disposition_header(False, rechnung_dateiname(r))
     return resp
 
 
@@ -100,7 +101,7 @@ def rechnung_erechnung_view(request, pk):
         messages.error(request, gettext("E-Rechnung konnte nicht erzeugt werden: %(e)s") % {"e": e})
         return redirect("rechnung_detail", pk=r.pk)
     resp = HttpResponse(pdf_bytes, content_type="application/pdf")
-    resp["Content-Disposition"] = f'attachment; filename="{r.nummer}-zugferd.pdf"'
+    resp["Content-Disposition"] = content_disposition_header(True, rechnung_dateiname(r, "E-Rechnung"))
     return resp
 
 

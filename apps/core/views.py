@@ -21,7 +21,7 @@ from . import audit, passwortabgleich
 from .crud import REGISTRY, wert
 from .forms import VereinForm
 from .models import DashboardEinstellung, Verein, Zugang
-from .util import geld
+from .util import anzeige_dateiname, geld
 
 DASHBOARD_KACHELN = ("kennzahlen", "veranstaltungen", "aufgaben", "verleihe")
 
@@ -189,7 +189,7 @@ def datei(request, app_label, modell, pk, feld):
     fdatei = getattr(obj, feld)
     if not fdatei:
         raise Http404
-    return FileResponse(fdatei.open("rb"), as_attachment=(feld != "foto"), filename=os.path.basename(fdatei.name))
+    return FileResponse(fdatei.open("rb"), as_attachment=(feld != "foto"), filename=anzeige_dateiname(fdatei.name))
 
 
 @login_required
@@ -370,7 +370,7 @@ def oeffentliches_dokument_download(request, kuerzel, pk):
     d = get_object_or_404(Ablagedokument, pk=pk, verein=verein, oeffentlich=True)
     if not d.datei:
         raise Http404
-    return FileResponse(d.datei.open("rb"), as_attachment=True, filename=os.path.basename(d.datei.name))
+    return FileResponse(d.datei.open("rb"), as_attachment=True, filename=anzeige_dateiname(d.datei.name))
 
 
 @login_required

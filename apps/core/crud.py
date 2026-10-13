@@ -23,7 +23,7 @@ from django.views.generic import CreateView, DeleteView, DetailView, ListView, U
 from . import audit
 from .forms import TenantModelForm
 from .felder import anbindung_versteckt, feldstatus
-from .util import geld
+from .util import anzeige_dateiname, geld
 from django.utils.translation import gettext, gettext_lazy
 
 REGISTRY = {}  # Modell -> Rechte-Modul (fuer den geschuetzten Dateizugriff)
@@ -41,7 +41,7 @@ def wert(obj, name):
     if callable(v):
         v = v()
     if isinstance(v, FieldFile):
-        return os.path.basename(v.name) if v else "–"
+        return anzeige_dateiname(v.name) if v else "–"
     if v is None or v == "":
         return "–"
     if feld is not None and getattr(feld, "choices", None):

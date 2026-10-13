@@ -163,7 +163,7 @@ def mahnung_erstellen(rechnung, gebuehr=Decimal("0"), frist_tage=14):
 
 # ------------------------------------------------------------------ Mail
 def rechnung_mailen(rechnung):
-    from .pdf import rechnung_pdf
+    from .pdf import rechnung_dateiname, rechnung_pdf
     m = rechnung.mitglied
     if not (m and m.email):
         raise ValueError("Kein Mitglied mit E-Mail-Adresse hinterlegt.")
@@ -172,7 +172,7 @@ def rechnung_mailen(rechnung):
         body=f"Guten Tag {m.name},\n\nanbei erhalten Sie Ihre Rechnung {rechnung.nummer}.\n\n"
              f"Mit freundlichen Grüßen\n{rechnung.verein.name}",
         from_email=settings.DEFAULT_FROM_EMAIL, to=[m.email])
-    mail.attach(f"{rechnung.nummer}.pdf", rechnung_pdf(rechnung), "application/pdf")
+    mail.attach(rechnung_dateiname(rechnung), rechnung_pdf(rechnung), "application/pdf")
     mail.send()
     rechnung.versendet_am = timezone.now()
     rechnung.save(update_fields=["versendet_am", "geaendert"])

@@ -12,7 +12,7 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.http import require_POST
 
 from apps.core.crud import pdf_vorschau, knopf
-from apps.core.util import geld
+from apps.core.util import anzeige_dateiname, geld
 from apps.documents.services import ablegen
 
 from . import erechnung, services
@@ -71,7 +71,7 @@ def buchung_beleg_ablegen(request, pk):
         inhalt = b.beleg.read()
     finally:
         b.beleg.close()
-    dateiname = os.path.basename(b.beleg.name)
+    dateiname = anzeige_dateiname(b.beleg.name)
     doc = ablegen(request.verein, f"Beleg {b.belegnummer or b.pk}", "beleg", dateiname, inhalt, datum=b.datum,
                  veranstaltung=b.veranstaltung, beschreibung=b.text[:300])
     b.ablage = doc

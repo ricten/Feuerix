@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.88.0)
+# Handbook – Feuerix (Version 1.89.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -256,6 +256,8 @@ standard note "Tax-exempt under § 4 UStG (non-profit core purpose)" still appea
 also be maintained there (it then appears on the e-invoice). None of this replaces tax advice – in
 particular, which club activities are actually subject to VAT should be clarified with a tax advisor/tax
 office.
+
+**File names:** invoice PDFs (download, e-mail attachment, filing, Paperless) are named `invoicenumber_type_recipient.pdf`, e.g. `RE-2026-0001_Individuelle_Rechnung_Max_Mustermann.pdf` (drafts start with "Entwurf", the e-invoice ends in `_E-Rechnung`). Uploaded and filed files keep their name without a random identifier.
 
 **E-invoice (ZUGFeRD PDF)**: generates a ZUGFeRD/Factur-X file (EN16931 profile) from the invoice for
 download – this is the normal PDF invoice with an additional, machine-readable XML file embedded. Intended

@@ -9,6 +9,7 @@ from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_sameorigin
+from django.utils.http import content_disposition_header
 from django.views.decorators.http import require_POST
 
 from apps.core.anbindungen import anbindungen
@@ -52,7 +53,7 @@ def ablage_vorschau(request, pk):
     if not d.datei or endung not in VORSCHAU_TYPEN:
         raise Http404
     r = FileResponse(d.datei.open("rb"), content_type=VORSCHAU_TYPEN[endung])
-    r["Content-Disposition"] = f'inline; filename="{os.path.basename(d.datei.name)}"'
+    r["Content-Disposition"] = content_disposition_header(False, d.dateiname)
     return r
 
 

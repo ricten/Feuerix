@@ -8,7 +8,7 @@ from django.db.models import Max, Q
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import TenantModel
-from apps.core.util import upload_pfad
+from apps.core.util import anzeige_dateiname, upload_pfad
 from apps.members.models import Mitglied
 
 KATEGORIEN = [("rechnung", _("Rechnung")), ("zuwendung", _("Zuwendungsbestätigung")), ("protokoll", _("Protokoll")), ("einladung", _("Einladung")), ("serienbrief", _("Serienbrief")),
@@ -104,7 +104,7 @@ class Ablagedokument(TenantModel):
 
     @property
     def dateiname(self):
-        return os.path.basename(self.datei.name) if self.datei else ""
+        return anzeige_dateiname(self.datei.name) if self.datei else ""
 
     def save(self, *args, **kwargs):
         # Versionierung: gleicher Titel im gleichen Ordner UND zur gleichen Veranstaltung -> neue Version; alte Dateien

@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.89.0
+
+- **Rechnungs-Dateinamen:** `Rechnungsnummer_Typ_Empfänger.pdf` (Download, Mailanhang, Ablage, Paperless); gespeicherte Dateien tragen keine Zufallskennung mehr im Namen (ältere werden ohne angezeigt).
+
 ## 1.88.0
 
 - **Administrator-Zugang anzeigen:** In der Paperless- und OpenSlides-Anbindung lässt sich der bei der Installation vergebene Administrator hinterlegen

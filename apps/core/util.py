@@ -71,7 +71,23 @@ def geld(wert):
 
 
 def upload_pfad(instance, dateiname):
-    return f"{instance.verein_id}/{instance._meta.model_name}/{uuid.uuid4().hex[:12]}_{os.path.basename(dateiname)}"
+    """Die zufaellige Kennung (verhindert Namenskollisionen) steht im Ordner - der Dateiname bleibt unveraendert."""
+    return f"{instance.verein_id}/{instance._meta.model_name}/{uuid.uuid4().hex[:12]}/{os.path.basename(dateiname)}"
+
+
+_ALTE_KENNUNG = re.compile(r"^[0-9a-f]{12}_")
+_UNZULAESSIG = re.compile(r'[\\/:*?"<>|\x00-\x1f]')
+
+
+def anzeige_dateiname(pfad):
+    """Dateiname einer gespeicherten Datei ohne die Kennung, die aeltere Uploads (bis 1.88) vor den Namen gesetzt bekamen."""
+    return _ALTE_KENNUNG.sub("", os.path.basename(pfad or ""), count=1)
+
+
+def dateiname_bereinigen(text, endung="", maxlaenge=120):
+    """Aus freiem Text einen gueltigen Dateinamen machen (keine Sonderzeichen, einfache Leerzeichen, begrenzte Laenge)."""
+    name = " ".join(_UNZULAESSIG.sub(" ", str(text or "")).split()).strip(" .")
+    return (name[:maxlaenge].rstrip(" .") or "Dokument") + endung
 
 
 def logo_pfad(instance, dateiname):

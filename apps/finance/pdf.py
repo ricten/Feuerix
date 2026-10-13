@@ -1,7 +1,18 @@
+from django.utils import translation
+
 from apps.core.pdf import brief_pdf
-from apps.core.util import geld
+from apps.core.util import dateiname_bereinigen, geld
 
 from .models import STANDARD_STEUERHINWEIS
+
+
+def rechnung_dateiname(r, zusatz=""):
+    """Dateiname einer Rechnung: Rechnungsnummer_Typ_Empfaenger (z. B. "RE-2026-0001_Rechnung_Max_Mustermann.pdf"), ohne
+    Nummer (Entwurf) "Entwurf_...". Leerzeichen werden zu Unterstrichen; `zusatz` z. B. "E-Rechnung" kommt ans Ende."""
+    with translation.override("de"):      # Dateinamen unabhaengig von der Anzeigesprache einheitlich
+        typ = str(r.get_typ_display())
+    teile = [r.nummer or "Entwurf", typ, r.empfaenger_name, zusatz]
+    return "_".join(dateiname_bereinigen(t).replace(" ", "_") for t in teile if t) + ".pdf"
 
 
 def _empfaenger(r):
