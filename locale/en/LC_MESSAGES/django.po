@@ -6657,6 +6657,18 @@ msgstr "Membership types with their fee amounts"
 msgid "Paperless-ngx"
 msgstr "Paperless-ngx"
 
+#: templates/base.html
+msgid "Tatü-tata! Blaulicht frei."
+msgstr "Siren on! Blue lights clear."
+
+#: templates/base.html
+msgid "Wasser marsch!"
+msgstr "Water on!"
+
+#: templates/core/dashboard.html
+msgid "Heute ist Floriani-Tag, der Gedenktag unseres Schutzpatrons. Gut Wehr!"
+msgstr "Today is St. Florian's Day, the feast of our patron saint. Gut Wehr!"
+
 #~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
 #~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
 

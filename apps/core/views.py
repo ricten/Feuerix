@@ -61,6 +61,11 @@ def verein_waehlen(request):
     return render(request, "core/verein_waehlen.html")
 
 
+def ist_floriani(tag):
+    """4. Mai: Floriani-Tag, Gedenktag des Schutzpatrons der Feuerwehr (Easter Egg auf der Startseite)."""
+    return (tag.month, tag.day) == (5, 4)
+
+
 @login_required
 def dashboard(request):
     if (r := _vorbereiten(request)):
@@ -145,6 +150,7 @@ def dashboard(request):
         "kachel_order": kachel_order,
         "kacheln_ausgeblendet": kacheln_ausgeblendet,
         "jahr": jahr,
+        "floriani": ist_floriani(heute),
     }
     return render(request, "core/dashboard.html", ctx)
 

@@ -97,7 +97,11 @@ def version(request):
         app_version = (settings.BASE_DIR / "VERSION").read_text(encoding="utf-8").strip()
     except OSError:
         app_version = ""
-    ctx = {"app_version": app_version}
+    try:      # Codename der Version (Feuerwehrjargon), Datei VERSION_NAME - fehlt sie, bleibt die Anzeige bei der Nummer
+        app_version_name = (settings.BASE_DIR / "VERSION_NAME").read_text(encoding="utf-8").strip()
+    except OSError:
+        app_version_name = ""
+    ctx = {"app_version": app_version, "app_version_name": app_version_name}
     if getattr(request.user, "is_superuser", False):
         from .models import Systemeinstellung
         se = Systemeinstellung.laden()

@@ -103,6 +103,10 @@ Die Datei `VERSION` folgt Semantic Versioning (`MAJOR.MINOR.PATCH`), bei jeder n
 * **MINOR** (`1.0.0` → `1.1.0`): Neue Funktionen/Module, abwärtskompatible Erweiterungen.
 * **MAJOR** (`1.0.0` → `2.0.0`): Große strukturelle Änderungen (z. B. Datenmodell-Umbau, Architekturwechsel).
 
+Dazu gehört der **Codename** der Version (Feuerwehrjargon, jeweils neu und noch nicht vergeben): Datei `VERSION_NAME` anpassen
+(erscheint in der Fußzeile), außerdem im Commit-Betreff (`... (1.91.0) · „Name“`) und in der Nachricht des Tags - nicht in der
+Überschrift der `CHANGELOG.md` (sonst bricht der Update-Link auf den Abschnitt).
+
 Bei jeder Version zusätzlich die Versionsnummer im Titel von `docs/HANDBUCH.md` **und** `docs/HANDBUCH.en.md`
 (jeweils Zeile 1) synchron halten.
 Außerdem bei jeder Versionserhöhung einen kurzen Stichpunkt ganz oben in `CHANGELOG.md` ergänzen (ein bis zwei

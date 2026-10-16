@@ -9,6 +9,7 @@
     <div class="small text-uppercase fw-semibold mb-1" style="opacity:.8">{% now "l, j. F Y" %}</div>
     <h1 class="h2 fw-bold mb-1">{% blocktrans with name=user.get_full_name|default:user.get_username %}Willkommen zurück, {{ name }}{% endblocktrans %}</h1>
     <div style="opacity:.9">{% trans "Übersicht" %} {{ jahr }}{% if verein.name %} · {{ verein.name }}{% endif %}</div>
+    {% if floriani %}<div class="mt-2 fw-semibold"><i class="bi bi-fire"></i> {% trans "Heute ist Floriani-Tag, der Gedenktag unseres Schutzpatrons. Gut Wehr!" %}</div>{% endif %}
   </div>
 </div>
 {% endblock %}

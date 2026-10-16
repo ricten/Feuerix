@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.91.0
+
+- **Codename „Namensschild“.** Der Name der Version (Feuerwehrjargon) steht jetzt in der Fußzeile neben der Versionsnummer; dazu ein paar kleine Überraschungen.
+
 ## 1.90.0
 
 - **Codename „Schlauchsortierung“.** **Einstellungen neu geordnet:** Verwaltungsmenü mit Untermenü je Thema (Verein, Mitglieder & Beiträge, Finanzen & Kasse, Inventar, Benutzer & Sicherheit, Anbindungen, System);

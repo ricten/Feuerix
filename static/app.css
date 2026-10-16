@@ -200,6 +200,17 @@ dl.felder dt { font-weight: 500; color: #555; }
 body { padding-bottom: 4.5rem; }   /* Rueckfall ohne JavaScript */
 @media print { #seitenfuss { position: static; } body { padding-bottom: 0 !important; } }
 
+/* Easter Eggs: Blaulicht (Konami-Code), Wasserstrahl (Klick auf die Versionsnummer), Hinweis */
+.ei-hinweis { position: fixed; top: 4.5rem; left: 50%; transform: translateX(-50%); z-index: 3000; background: #1c1c1c; color: #fff;
+  padding: .6rem 1.2rem; border-radius: 2rem; box-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .35); font-weight: 600; }
+.ei-blaulicht { position: fixed; inset: 0 0 auto 0; height: .6rem; z-index: 2999; pointer-events: none;
+  background: linear-gradient(90deg, #0d6efd 50%, #fff 50%); background-size: 200% 100%; animation: ei-blau .5s steps(2) infinite; }
+@keyframes ei-blau { to { background-position: -200% 0; } }
+.ei-tropfen { position: fixed; top: -2rem; width: .5rem; height: 1.2rem; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: #4dabf7; opacity: .85; z-index: 2998; pointer-events: none; animation: ei-fall 1.6s ease-in forwards; }
+@keyframes ei-fall { to { transform: translateY(110vh); } }
+@media (prefers-reduced-motion: reduce) { .ei-blaulicht, .ei-tropfen { animation: none; display: none; } }
+
 /* Menue "Verwaltung": ein Untermenue je Thema */
 .menue-unter { min-width: 15rem; }
 .dropdown-submenu { position: relative; }
