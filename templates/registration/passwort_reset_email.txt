@@ -1,0 +1,8 @@
+{% autoescape off %}Hallo {{ user.get_short_name|default:user.get_username }},
+
+für Ihr Konto "{{ user.get_username }}" wurde das Zurücksetzen des Passworts angefordert. Über diesen Link können Sie ein neues Passwort festlegen:
+
+{{ protocol }}://{{ domain }}{% url 'passwort_neu' uidb64=uid token=token %}
+
+Der Link ist eine Stunde gültig und nur einmal verwendbar. Haben Sie das nicht angefordert, ignorieren Sie diese Nachricht - Ihr Passwort bleibt dann unverändert.
+{% endautoescape %}

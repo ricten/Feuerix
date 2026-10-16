@@ -2,6 +2,9 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
+from django.views.generic import TemplateView
+
+from apps.core import konto_hilfe
 from apps.core.views import PasswortAendernView
 
 urlpatterns = [
@@ -10,6 +13,14 @@ urlpatterns = [
     path("login/", auth_views.LoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("passwort/", PasswortAendernView.as_view(success_url="/nach-anmeldung/"), name="password_change"),
+    path("passwort-vergessen/", konto_hilfe.PasswortVergessenView.as_view(), name="passwort_vergessen"),
+    path("passwort-vergessen/gesendet/", TemplateView.as_view(template_name="registration/passwort_vergessen_gesendet.html"),
+         name="passwort_vergessen_gesendet"),
+    path("passwort-neu/<uidb64>/<token>/", konto_hilfe.PasswortNeuView.as_view(), name="passwort_neu"),
+    path("passwort-neu/fertig/", TemplateView.as_view(template_name="registration/passwort_neu_fertig.html"),
+         name="passwort_neu_fertig"),
+    path("zwei-faktor/anfrage/", konto_hilfe.zf_anfrage, name="zf_anfrage"),
+    path("zwei-faktor/anfrage/gesendet/", konto_hilfe.zf_anfrage_fertig, name="zf_anfrage_fertig"),
     path("", include("apps.core.urls")),
     path("", include("apps.members.urls")),
     path("", include("apps.honors.urls")),

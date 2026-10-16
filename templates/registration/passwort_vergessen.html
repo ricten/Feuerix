@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row justify-content-center mt-5"><div class="col-md-4"><div class="card shadow-sm"><div class="card-body">
+  <h4 class="mb-3"><i class="bi bi-key me-1"></i>{% trans "Passwort vergessen" %}</h4>
+  <p class="text-muted small">{% trans "Geben Sie die E-Mail-Adresse Ihres Kontos ein. Wir senden Ihnen einen Link, mit dem Sie ein neues Passwort festlegen können." %}</p>
+  {{ form.email.errors }}
+  <form method="post">{% csrf_token %}
+    <div class="mb-3"><label class="form-label">{% trans "E-Mail-Adresse" %}</label><input name="email" type="email" class="form-control" autocomplete="email" autofocus required></div>
+    <button class="btn btn-primary w-100"><i class="bi bi-envelope"></i> {% trans "Link senden" %}</button>
+  </form>
+  <div class="text-center mt-3 small"><a href="{% url 'login' %}">{% trans "Zurück zur Anmeldung" %}</a></div>
+</div></div></div></div>
+{% endblock %}

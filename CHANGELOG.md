@@ -3,6 +3,11 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.92.0
+
+- **Codename „Rettungsleine“.** Anmeldeseite mit drei Links: Meine Daten (Selbstdatenpflege), Passwort vergessen (Link per E-Mail) und Anfrage an die Administration, die 2FA zurückzusetzen
+  (Hinweis für Superadmins, Mail an sie, Eintrag an der Benutzer-Detailseite).
+
 ## 1.91.0
 
 - **Codename „Namensschild“.** Der Name der Version (Feuerwehrjargon) steht jetzt in der Fußzeile neben der Versionsnummer; dazu ein paar kleine Überraschungen.

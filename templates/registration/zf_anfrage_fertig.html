@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row justify-content-center mt-5"><div class="col-md-5"><div class="card shadow-sm"><div class="card-body">
+  <h4 class="mb-3"><i class="bi bi-send-check me-1"></i>{% trans "Anfrage gesendet" %}</h4>
+  <p>{% trans "Wenn für dieses Konto eine Zwei-Faktor-Anmeldung eingerichtet ist, wurde die Administration informiert. Sie meldet sich bei Ihnen, bevor sie etwas zurücksetzt." %}</p>
+  <a href="{% url 'login' %}" class="btn btn-outline-secondary">{% trans "Zurück zur Anmeldung" %}</a>
+</div></div></div></div>
+{% endblock %}

@@ -353,3 +353,20 @@ class ZweiFaktor(models.Model):
 
     def __str__(self):
         return f"2FA von {self.user}"
+
+
+class ZweiFaktorAnfrage(models.Model):
+    """Anfrage eines Benutzers (ohne Anmeldung gestellt), seine Zwei-Faktor-Anmeldung zurückzusetzen. Bleibt offen, bis ein
+    Superadmin die 2FA des Kontos zurücksetzt (zweifaktor.entsperren). Gilt für das Konto, nicht pro Verein."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="zweifaktor_anfragen")
+    erstellt = models.DateTimeField(_("Angefragt am"), auto_now_add=True)
+    nachricht = models.CharField(_("Nachricht"), max_length=300, blank=True)
+    erledigt_am = models.DateTimeField(_("Erledigt am"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("Anfrage: 2FA zurücksetzen")
+        verbose_name_plural = _("Anfragen: 2FA zurücksetzen")
+        ordering = ["-erstellt"]
+
+    def __str__(self):
+        return f"2FA-Anfrage von {self.user}"

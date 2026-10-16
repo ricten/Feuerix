@@ -52,7 +52,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "apps.core.middleware.MandantMiddleware",
     "apps.core.middleware.ZweiFaktorMiddleware",
-    "apps.core.middleware.ZweiFaktorMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # Muss die letzte Middleware sein (siehe django-axes-Doku).
@@ -143,6 +142,7 @@ USE_X_FORWARDED_FOR = _bool("USE_X_FORWARDED_FOR")
 # AXES_COOLOFF_TIME gesperrt - eine einzelne IP (z. B. hinter einem gemeinsamen NAT) sperrt dadurch nicht
 # automatisch alle Benutzernamen gleichzeitig aus.
 AXES_FAILURE_LIMIT = 5
+PASSWORD_RESET_TIMEOUT = 3600   # Link "Passwort vergessen": eine Stunde gueltig
 AXES_COOLOFF_TIME = 1  # Stunden
 AXES_LOCKOUT_PARAMETERS = [["username", "ip_address"]]
 AXES_RESET_ON_SUCCESS = True

@@ -6669,6 +6669,168 @@ msgstr "Water on!"
 msgid "Heute ist Floriani-Tag, der Gedenktag unseres Schutzpatrons. Gut Wehr!"
 msgstr "Today is St. Florian's Day, the feast of our patron saint. Gut Wehr!"
 
+#: apps/core/konto_hilfe.py
+msgid "Nachricht an die Administration (optional)"
+msgstr "Message to the administration (optional)"
+
+#: apps/core/konto_hilfe.py
+msgid "Z. B. wie die Administration Sie erreicht oder woran sie Sie erkennt."
+msgstr "E.g. how the administration can reach you or recognise you."
+
+#: templates/registration/login.html
+msgid "2FA zurücksetzen anfragen"
+msgstr "Request 2FA reset"
+
+#: apps/core/models.py
+msgid "Angefragt am"
+msgstr "Requested on"
+
+#: apps/core/models.py
+msgid "Nachricht"
+msgstr "Message"
+
+#: apps/core/models.py
+msgid "Erledigt am"
+msgstr "Completed on"
+
+#: apps/core/models.py
+msgid "Anfrage: 2FA zurücksetzen"
+msgstr "Request: reset 2FA"
+
+#: apps/core/models.py
+msgid "Anfragen: 2FA zurücksetzen"
+msgstr "Requests: reset 2FA"
+
+#: apps/core/benutzer_sicherheit.py
+msgid ""
+"2FA-Rücksetzung angefragt am %(datum)s%(nachricht)s. Vor dem Zurücksetzen "
+"bitte sicherstellen, dass die Anfrage wirklich von dieser Person kommt (z. "
+"B. Rückruf)."
+msgstr ""
+"2FA reset requested on %(datum)s%(nachricht)s. Before resetting, please make"
+" sure the request really comes from this person (e.g. call back)."
+
+#: templates/base.html
+msgid "Zu den Benutzern"
+msgstr "Go to users"
+
+#: templates/core/zf_pruefen.html
+msgid "Kein Zugriff mehr auf die App? 2FA zurücksetzen anfragen"
+msgstr "No access to the app any more? Request a 2FA reset"
+
+#: templates/registration/login.html
+msgid "Meine Daten (Selbstdatenpflege)"
+msgstr "My data (self-service)"
+
+#: templates/registration/login.html
+msgid "Passwort vergessen"
+msgstr "Forgot password"
+
+#: templates/registration/passwort_neu.html
+msgid "Neues Passwort festlegen"
+msgstr "Set a new password"
+
+#: templates/registration/passwort_neu.html
+msgid "Passwort speichern"
+msgstr "Save password"
+
+#: templates/registration/passwort_neu.html
+msgid ""
+"Dieser Link ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen an."
+msgstr "This link is invalid or has expired. Please request a new one."
+
+#: templates/registration/passwort_neu.html
+msgid "Neuen Link anfordern"
+msgstr "Request a new link"
+
+#: templates/registration/passwort_neu_fertig.html
+msgid "Passwort gespeichert"
+msgstr "Password saved"
+
+#: templates/registration/passwort_neu_fertig.html
+msgid "Ihr neues Passwort ist gesetzt. Sie können sich jetzt anmelden."
+msgstr "Your new password has been set. You can now sign in."
+
+#: templates/registration/passwort_neu_fertig.html
+msgid "Zur Anmeldung"
+msgstr "Go to sign-in"
+
+#: templates/registration/passwort_vergessen.html
+msgid ""
+"Geben Sie die E-Mail-Adresse Ihres Kontos ein. Wir senden Ihnen einen Link, "
+"mit dem Sie ein neues Passwort festlegen können."
+msgstr ""
+"Enter the e-mail address of your account. We will send you a link to set a "
+"new password."
+
+#: templates/registration/passwort_vergessen.html
+msgid "E-Mail-Adresse"
+msgstr "E-mail address"
+
+#: templates/registration/passwort_vergessen.html
+msgid "Link senden"
+msgstr "Send link"
+
+#: templates/registration/passwort_vergessen.html
+msgid "Zurück zur Anmeldung"
+msgstr "Back to sign-in"
+
+#: templates/registration/passwort_vergessen_gesendet.html
+msgid "Link unterwegs"
+msgstr "Link on its way"
+
+#: templates/registration/passwort_vergessen_gesendet.html
+msgid ""
+"Wenn zu dieser E-Mail-Adresse ein aktives Konto gehört, haben wir einen Link"
+" zum Festlegen eines neuen Passworts gesendet. Er ist eine Stunde gültig."
+msgstr ""
+"If an active account belongs to this e-mail address, we have sent a link to "
+"set a new password. It is valid for one hour."
+
+#: templates/registration/passwort_vergessen_gesendet.html
+msgid ""
+"Nichts erhalten? Bitte auch den Spam-Ordner prüfen. Ist Ihr Konto gesperrt "
+"oder fehlt die E-Mail-Adresse, wenden Sie sich an die Administration."
+msgstr ""
+"Nothing received? Please also check your spam folder. If your account is "
+"locked or has no e-mail address, contact the administration."
+
+#: templates/registration/zf_anfrage.html
+msgid ""
+"Authenticator-App verloren und keine Wiederherstellungscodes mehr? Die "
+"Administration wird informiert und setzt die Zwei-Faktor-Anmeldung zurück, "
+"nachdem sie geprüft hat, dass die Anfrage von Ihnen kommt. Danach richten "
+"Sie sie bei der nächsten Anmeldung neu ein."
+msgstr ""
+"Lost your authenticator app and have no recovery codes left? The "
+"administration will be informed and resets the two-factor sign-in after "
+"checking that the request comes from you. You then set it up again at your "
+"next sign-in."
+
+#: templates/registration/zf_anfrage.html
+msgid "Anfrage senden"
+msgstr "Send request"
+
+#: templates/registration/zf_anfrage_fertig.html
+msgid "Anfrage gesendet"
+msgstr "Request sent"
+
+#: templates/registration/zf_anfrage_fertig.html
+msgid ""
+"Wenn für dieses Konto eine Zwei-Faktor-Anmeldung eingerichtet ist, wurde die"
+" Administration informiert. Sie meldet sich bei Ihnen, bevor sie etwas "
+"zurücksetzt."
+msgstr ""
+"If two-factor sign-in is set up for this account, the administration has "
+"been informed. It will contact you before resetting anything."
+
+#: templates/base.html
+msgid "%(anzahl)s offene Anfrage, eine Zwei-Faktor-Anmeldung zurückzusetzen."
+msgid_plural ""
+"%(anzahl)s offene Anfragen, Zwei-Faktor-Anmeldungen zurückzusetzen."
+msgstr[0] "%(anzahl)s open request to reset a two-factor sign-in."
+msgstr[1] "%(anzahl)s open requests to reset two-factor sign-ins."
+
 #~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
 #~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
 

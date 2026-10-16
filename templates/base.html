@@ -131,6 +131,13 @@
     <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
   </div>
   {% endif %}
+  {% if zf_anfragen_offen %}
+  <div class="alert alert-warning d-flex align-items-center gap-2">
+    <i class="bi bi-shield-exclamation"></i>
+    <div>{% blocktrans count anzahl=zf_anfragen_offen %}{{ anzahl }} offene Anfrage, eine Zwei-Faktor-Anmeldung zurückzusetzen.{% plural %}{{ anzahl }} offene Anfragen, Zwei-Faktor-Anmeldungen zurückzusetzen.{% endblocktrans %}
+      <a href="{% url 'zugang_list' %}">{% trans "Zu den Benutzern" %}</a></div>
+  </div>
+  {% endif %}
   {% if sicherung_fehler %}
   <div class="alert alert-danger d-flex align-items-center gap-2">
     <i class="bi bi-exclamation-triangle"></i>

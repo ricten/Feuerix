@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.91.0)
+# Handbook – Feuerix (Version 1.92.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -106,6 +106,12 @@ purely computed columns such as "Borrower" in the lending list).
   password**, **reset the 2FA** and **unlock** a locked account (each recorded in the change log; not for your own account). If
   nobody is able to do so any more, use `docker compose exec web python manage.py zweifaktor_zuruecksetzen <username>` on the
   server (with `--2fa-zuruecksetzen` the 2FA is deleted as well) or the Django admin under "Two-factor authentications".
+- **Links on the sign-in page:** *My data (self-service)* leads to the "My data" page (after signing in), *Forgot password* sends a link
+  for setting a new password to the account's e-mail address (valid for one hour, usable once; locked accounts get no link, the reply never
+  reveals whether an account exists; with password synchronisation switched on, the password is also set in Paperless/OpenSlides).
+  *Request 2FA reset* (also on the code page) creates a request and notifies all superadmins with an e-mail address; open requests are
+  shown to all superadmins as a notice at the top of every page, and the message appears on the account's detail page. The reset itself
+  only happens when a superadmin triggers it - **please verify first that the person really is asking** (e.g. call back).
 
 ## 2. Roles and permissions
 

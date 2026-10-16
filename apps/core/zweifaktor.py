@@ -162,3 +162,5 @@ def entsperren(user, zweifaktor_zuruecksetzen=False):
     zf.save(update_fields=["fehlversuche", "gesperrt", "code_fehlversuche", "code_gesperrt_bis"])
     if zweifaktor_zuruecksetzen:
         deaktivieren(zf)
+        from django.utils import timezone
+        user.zweifaktor_anfragen.filter(erledigt_am__isnull=True).update(erledigt_am=timezone.now())

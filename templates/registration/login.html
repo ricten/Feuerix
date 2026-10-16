@@ -17,5 +17,10 @@
       <button class="btn btn-primary w-100"><i class="bi bi-box-arrow-in-right"></i> {% trans "Anmelden" %}</button>
     </form>
   </div></div>
+  <div class="card shadow-sm mt-3"><div class="list-group list-group-flush">
+    <a class="list-group-item list-group-item-action" href="{% url 'mein_konto' %}"><i class="bi bi-person-lines-fill me-2"></i>{% trans "Meine Daten (Selbstdatenpflege)" %}</a>
+    <a class="list-group-item list-group-item-action" href="{% url 'passwort_vergessen' %}"><i class="bi bi-key me-2"></i>{% trans "Passwort vergessen" %}</a>
+    <a class="list-group-item list-group-item-action" href="{% url 'zf_anfrage' %}"><i class="bi bi-shield-lock me-2"></i>{% trans "2FA zurücksetzen anfragen" %}</a>
+  </div></div>
 </div></div>
 {% endblock %}

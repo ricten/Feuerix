@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<div class="row justify-content-center mt-5"><div class="col-md-5"><div class="card shadow-sm"><div class="card-body">
+  <h4 class="mb-3"><i class="bi bi-envelope-check me-1"></i>{% trans "Link unterwegs" %}</h4>
+  <p>{% trans "Wenn zu dieser E-Mail-Adresse ein aktives Konto gehört, haben wir einen Link zum Festlegen eines neuen Passworts gesendet. Er ist eine Stunde gültig." %}</p>
+  <p class="text-muted small">{% trans "Nichts erhalten? Bitte auch den Spam-Ordner prüfen. Ist Ihr Konto gesperrt oder fehlt die E-Mail-Adresse, wenden Sie sich an die Administration." %}</p>
+  <a href="{% url 'login' %}" class="btn btn-outline-secondary">{% trans "Zurück zur Anmeldung" %}</a>
+</div></div></div></div>
+{% endblock %}

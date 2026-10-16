@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.91.0)
+# Handbuch – Feuerix (Version 1.92.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -109,6 +109,13 @@ echtes Datenfeld abbilden (nicht für rein berechnete Spalten wie z. B. „Entle
   Änderungsprotokoll; nicht für das eigene Konto). Ist niemand mehr dazu in der Lage, geht es auf dem Server mit
   `docker compose exec web python manage.py zweifaktor_zuruecksetzen <Benutzername>` (mit `--2fa-zuruecksetzen` wird zusätzlich
   die 2FA gelöscht) oder im Django-Admin unter „Zwei-Faktor-Anmeldungen“.
+- **Links auf der Anmeldeseite:** *Meine Daten (Selbstdatenpflege)* führt zur Seite „Meine Daten“ (nach der Anmeldung), *Passwort
+  vergessen* sendet einen Link zum Festlegen eines neuen Passworts an die E-Mail-Adresse des Kontos (eine Stunde gültig, nur einmal
+  verwendbar; gesperrte Konten bekommen keinen Link, die Antwort verrät nie, ob ein Konto existiert; ist der Passwort-Abgleich
+  eingeschaltet, wird das Passwort auch in Paperless/OpenSlides gesetzt). *2FA zurücksetzen anfragen* (auch auf der Code-Seite zu
+  finden) legt eine Anfrage an und benachrichtigt alle Superadmins mit E-Mail-Adresse; offene Anfragen zeigt allen Superadmins ein
+  Hinweis oben auf jeder Seite, an der Konto-Detailseite steht die Nachricht. Das Zurücksetzen selbst geschieht erst, wenn ein
+  Superadmin es auslöst - **vorher bitte prüfen, dass wirklich die Person fragt** (z. B. Rückruf).
 
 ## 2. Rollen und Rechte
 

@@ -9,6 +9,8 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods, require_POST
 
+from django.utils.timezone import localtime
+
 from . import audit, passwortabgleich, zweifaktor
 from .crud import knopf
 from .models import Zugang
@@ -25,6 +27,12 @@ def aktionen(request, zugang):
                              stil="success", bestaetigung=_("Konto entsperren?")))
     if zf.gesperrt:
         hinweise.append(_("Das Konto ist wegen zu vieler falscher Passworteingaben gesperrt."))
+    anfrage = zugang.user.zweifaktor_anfragen.filter(erledigt_am__isnull=True).first()
+    if anfrage:
+        hinweise.append(_("2FA-Rücksetzung angefragt am %(datum)s%(nachricht)s. Vor dem Zurücksetzen bitte sicherstellen, dass die Anfrage "
+                          "wirklich von dieser Person kommt (z. B. Rückruf).") % {
+            "datum": localtime(anfrage.erstellt).strftime("%d.%m.%Y %H:%M"),
+            "nachricht": f" ({anfrage.nachricht})" if anfrage.nachricht else ""})
     if zf.aktiv:
         knoepfe.append(knopf(_("2FA zurücksetzen"), reverse("benutzer_zf_reset", args=[zugang.pk]), post=True,
                              stil="outline-danger",
