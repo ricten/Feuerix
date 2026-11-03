@@ -11,6 +11,8 @@ import xml.etree.ElementTree as ET
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 
+from defusedxml import DefusedXmlException, ElementTree as DET
+
 from .models import Bankumsatz
 
 # ---------------------------------------------------------------- Gemeinsam
@@ -200,8 +202,8 @@ def _camt_datum(s):
 def camt053_import(verein, dateiinhalt):
     """Importiert einen Kontoauszug im CAMT.053-Format (ISO-20022-XML). Gibt (neu, doppelt) zurück."""
     try:
-        root = ET.fromstring(dateiinhalt)
-    except ET.ParseError as e:
+        root = DET.fromstring(dateiinhalt)
+    except (ET.ParseError, DefusedXmlException) as e:
         raise ValueError(f"CAMT.053-Datei nicht lesbar: {e}")
     eintraege = _find_all(root, "Ntry")
     if not eintraege:

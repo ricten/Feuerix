@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.92.6
+
+- **Codename „Sicherheitsbegehung“.** Härtung nach Sicherheitsprüfung: Mindestversionen angehoben (`pypdf>=6.21.4`, `Pillow>=13.0.0`, bekannte CVEs), XML-Import (CAMT.053, E-Rechnung) über `defusedxml`, Bank-Challenge (FinTS) nur noch als Text statt `|safe`, und „Passwort vergessen“ sowie „2FA-Anfrage“ sind auf 5 Anfragen je IP und Stunde begrenzt.
+
 ## 1.92.5
 
 - **Codename „Saugleitungstest“.** Fix: Ein OpenSlides-Test nahm an, dass Mitglied-ID und automatisch vergebene Mitgliedsnummer gleich sind - nur auf SQLite wahr, auf PostgreSQL nicht.

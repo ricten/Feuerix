@@ -10,6 +10,8 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 
+from defusedxml import DefusedXmlException, ElementTree as DET
+
 
 def _local(tag):
     return tag.split("}")[-1] if "}" in tag else tag
@@ -86,8 +88,8 @@ def parse_rechnung(xml_bytes):
     if not xml_bytes:
         return None
     try:
-        root = ET.fromstring(xml_bytes)
-    except ET.ParseError:
+        root = DET.fromstring(xml_bytes)
+    except (ET.ParseError, DefusedXmlException):
         return None
     wurzel = _local(root.tag)
     if wurzel == "Invoice":

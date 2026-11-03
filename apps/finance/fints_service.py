@@ -8,7 +8,10 @@ in der Datenbank - das ist bei diesem Ablauf technisch nicht vermeidbar (python-
 Bank-Nachrichten erneut zu signieren) und wird nach Abschluss (Erfolg oder endgueltiger Fehler) sofort geloescht.
 
 Gegen keine echte Bank getestet - vor dem produktiven Einsatz mit der eigenen Bank pruefen."""
+import re
 from base64 import b64decode, b64encode
+
+from django.utils.html import strip_tags
 
 from apps.core.models import Systemeinstellung
 
@@ -23,10 +26,15 @@ class FinTSAblaufFehler(Exception):
     pass
 
 
+def _nur_text(html):
+    """Das HTML der Bank (Challenge) wird nie ungeprueft ausgegeben: nur Text, Zeilenumbrueche bleiben erhalten."""
+    return strip_tags(re.sub(r"<br\s*/?>|</p>", "\n", str(html or ""), flags=re.I)).strip()
+
+
 def _tan_challenge_felder(tan_response):
     return {
         "challenge": tan_response.challenge or "",
-        "challenge_html": str(tan_response.challenge_html or ""),
+        "challenge_html": _nur_text(tan_response.challenge_html),
         "challenge_matrix_png": b64encode(tan_response.challenge_matrix[1]).decode()
         if tan_response.challenge_matrix and tan_response.challenge_matrix[0] == "image/png" else None,
         "decoupled": bool(tan_response.decoupled),

@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -16,6 +17,7 @@ PW = "pw-Test-12345"
 
 class Basis(TestCase):
     def setUp(self):
+        cache.clear()      # Ratenlimit der Anmeldehilfe darf nicht zwischen Tests uebertragen werden
         self.verein = Verein.objects.create(name="Testverein", kuerzel="test")
         self.admin = User.objects.create_superuser("admin", email="admin@example.org", password=PW)
         Zugang.objects.create(verein=self.verein, user=self.admin, rolle=Rolle.objects.get(verein=self.verein, name="Superadministrator"))
@@ -139,3 +141,21 @@ class ZfAnfrageTests(Basis):
         self.assertNotContains(self.client.get(reverse("dashboard")), "offene Anfrage")
         konto_hilfe.anfragen("max")           # 2FA wurde zurückgesetzt -> keine neue Anfrage mehr möglich
         self.assertEqual(ZweiFaktorAnfrage.objects.count(), 1)
+
+
+class RatenlimitTests(Basis):
+    def test_passwort_vergessen_nach_limit_ohne_mail_aber_gleiche_antwort(self):
+        for _ in range(konto_hilfe.ANFRAGEN_JE_STUNDE):
+            self.client.post(reverse("passwort_vergessen"), {"email": "max@example.org"})
+        self.assertEqual(len(mail.outbox), konto_hilfe.ANFRAGEN_JE_STUNDE)
+        r = self.client.post(reverse("passwort_vergessen"), {"email": "max@example.org"})
+        self.assertRedirects(r, reverse("passwort_vergessen_gesendet"))      # verraet das Limit nicht
+        self.assertEqual(len(mail.outbox), konto_hilfe.ANFRAGEN_JE_STUNDE)
+
+    def test_zf_anfrage_nach_limit_wird_nichts_angelegt(self):
+        self.zf_an(self.max)
+        for _ in range(konto_hilfe.ANFRAGEN_JE_STUNDE):
+            self.client.post(reverse("zf_anfrage"), {"benutzername": "unbekannt"})
+        r = self.client.post(reverse("zf_anfrage"), {"benutzername": "max"})
+        self.assertRedirects(r, reverse("zf_anfrage_fertig"))
+        self.assertEqual(ZweiFaktorAnfrage.objects.count(), 0)

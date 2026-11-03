@@ -4,8 +4,10 @@ existiert."""
 import logging
 
 from django import forms
+from axes.helpers import get_client_ip_address
 from django.contrib.auth import get_user_model
 from django.contrib.auth import views as auth_views
+from django.core.cache import cache
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django.shortcuts import redirect, render
@@ -18,6 +20,22 @@ from .models import Zugang, ZweiFaktorAnfrage
 
 log = logging.getLogger(__name__)
 
+# Beide Seiten sind ohne Anmeldung erreichbar und loesen Mails aus (an Benutzer bzw. Administration): je IP-Adresse
+# nur wenige Anfragen pro Stunde, damit sie nicht zum Mail-Fluten oder Abtasten von Benutzernamen taugen.
+ANFRAGEN_JE_STUNDE = 5
+
+
+def zu_viele_anfragen(request, bereich):
+    """Zaehlt eine POST-Anfrage je IP und Bereich; True, wenn das Limit ueberschritten ist (dann nichts tun, aber
+    genauso antworten wie sonst - der Aufrufer verraet nichts)."""
+    schluessel = f"konto_hilfe:{bereich}:{get_client_ip_address(request)}"
+    cache.add(schluessel, 0, 3600)
+    try:
+        return cache.incr(schluessel) > ANFRAGEN_JE_STUNDE
+    except ValueError:      # Eintrag zwischenzeitlich abgelaufen
+        cache.set(schluessel, 1, 3600)
+        return False
+
 
 class PasswortVergessenView(auth_views.PasswordResetView):
     """Formular für die E-Mail-Adresse; Django verschickt den Link nur an aktive Konten mit passender Adresse."""
@@ -25,6 +43,11 @@ class PasswortVergessenView(auth_views.PasswordResetView):
     email_template_name = "registration/passwort_reset_email.txt"
     subject_template_name = "registration/passwort_reset_betreff.txt"
     success_url = reverse_lazy("passwort_vergessen_gesendet")
+
+    def form_valid(self, form):
+        if zu_viele_anfragen(self.request, "passwort"):
+            return redirect(self.success_url)      # wie erfolgreich, aber ohne Mail
+        return super().form_valid(form)
 
 
 class PasswortNeuView(auth_views.PasswordResetConfirmView):
@@ -84,7 +107,8 @@ def anfragen(benutzername, nachricht=""):
 def zf_anfrage(request):
     form = ZfAnfrageForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
-        anfragen(form.cleaned_data["benutzername"], form.cleaned_data["nachricht"])
+        if not zu_viele_anfragen(request, "zf"):
+            anfragen(form.cleaned_data["benutzername"], form.cleaned_data["nachricht"])
         return redirect("zf_anfrage_fertig")
     return render(request, "registration/zf_anfrage.html", {"form": form, "titel": gettext("2FA zurücksetzen anfragen")})
 
