@@ -696,6 +696,13 @@ class UpdateBenachrichtigungAnzeigeTests(TestCase):
             self.client.get(reverse("dashboard"))
         mock_delay.assert_called_once()
 
+    def test_seite_laedt_auch_wenn_die_pruefung_nicht_angestossen_werden_kann(self):
+        Systemeinstellung.objects.create(update_geprueft_am=timezone.now() - timedelta(hours=25))
+        self.client.login(username="admin", password="pw-Test-12345")
+        with patch("apps.core.tasks.update_pruefen_task.delay", side_effect=ModuleNotFoundError("packaging")):
+            r = self.client.get(reverse("dashboard"))
+        self.assertEqual(r.status_code, 200)
+
     def test_lizenzhinweis_im_footer_sichtbar(self):
         self.client.login(username="admin", password="pw-Test-12345")
         r = self.client.get(reverse("dashboard"))

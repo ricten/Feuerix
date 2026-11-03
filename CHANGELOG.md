@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.92.1
+
+- **Codename „Kupplungsschlüssel“.** Fix: Jede Seite brach mit „500“ ab (für Superuser), wenn `kombu` das Paket `packaging` vermisst - `requirements.txt` verlangt jetzt `celery[redis]` (neuere `kombu`-Versionen installieren `packaging` nur mit dieser Erweiterung), und ein nicht erreichbarer Update-Check im Seitenkopf lässt die Seite nicht mehr ausfallen.
+
 ## 1.92.0
 
 - **Codename „Rettungsleine“.** Anmeldeseite mit drei Links: Meine Daten (Selbstdatenpflege), Passwort vergessen (Link per E-Mail) und Anfrage an die Administration, die 2FA zurückzusetzen

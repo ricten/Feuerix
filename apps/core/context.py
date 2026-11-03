@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from django.conf import settings
@@ -109,7 +110,10 @@ def version(request):
         if settings.UPDATE_CHECK_URL and (se.update_geprueft_am is None
                                           or timezone.now() - se.update_geprueft_am > intervall):
             from .tasks import update_pruefen_task
-            update_pruefen_task.delay()
+            try:
+                update_pruefen_task.delay()
+            except Exception:      # Broker/Celery nicht nutzbar: die Seite darf deshalb nie ausfallen
+                logging.getLogger(__name__).warning("Update-Prüfung konnte nicht angestoßen werden", exc_info=True)
         neu = se.update_anzeigen(app_version)
         if neu:
             ctx["update_verfuegbare_version"] = neu
