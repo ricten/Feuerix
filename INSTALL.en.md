@@ -58,11 +58,34 @@ docker info                        # must run without errors
 
 Place the project (example `/opt/verein`):
 
+> **Always install as a Git checkout** (not as a ZIP and not as unpacked files) when Feuerix does **not** run through the Portal administration. Only
+> then can updates be applied with `git pull` (section 13), and the installed state can be traced by its version. If Feuerix runs through the
+> Portal administration, this step is not needed: it creates the checkout itself (`FEUERIX_REPO_PFAD`) and updates the instances.
+
 ```bash
 sudo mkdir -p /opt/verein && sudo chown $USER /opt/verein
-# upload and unzip the ZIP -> /opt/verein/vereinsverwaltung
-cd /opt/verein/vereinsverwaltung
+cd /opt/verein
+git clone https://github.com/ricten/Feuerix.git vereinsverwaltung
+cd vereinsverwaltung
 ```
+
+* Configuration lives only in `.env` (excluded from Git and untouched by updates). **Do not change versioned files**, otherwise `git pull` aborts
+  with a conflict during an update.
+* The folder name determines the Docker Compose project name and thus the names of the database and media volumes. Do not rename or move the
+  folder later, or Feuerix starts with empty volumes (the data stays in the old ones).
+* If the repository is not publicly reachable, set up credentials or an SSH key (deploy key) first and clone the SSH address.
+
+**Converting an existing ZIP installation to Git** (once, back up first, section 12):
+
+```bash
+cd /opt/verein/vereinsverwaltung
+git init -b main && git remote add origin https://github.com/ricten/Feuerix.git
+git fetch origin && git reset origin/main     # files stay, only the Git history is linked
+git status                                    # shows differences; "nothing to commit" = everything identical
+```
+
+If `git status` lists changed files, they are local customisations or an older state: inspect with `git diff`, save your own changes, then
+`git checkout -- .` (resets the files to the GitHub state; `.env` stays untouched).
 
 ## 3. Configuring Feuerix
 
@@ -89,11 +112,11 @@ Important (set all values yourself):
 
 ```bash
 docker compose build
-# one-time: generate database migrations and keep them in the project (important for later updates)
-docker compose run --rm --no-deps --user root -v "$PWD/apps:/app/apps" web python manage.py makemigrations
 docker compose up -d
 docker compose logs -f web         # wait until "Listening at: http://0.0.0.0:8000"
 ```
+
+The database migrations are part of the repository and are applied automatically on startup – no separate step is needed.
 
 Test: `curl -I http://127.0.0.1:8000/login/` → HTTP 200. Log in with `ADMIN_USER`/`ADMIN_PASSWORD`. On the
 first start, the club is created from `VEREIN_NAME` with the data-protection-bylaw roles/tags, sample core
@@ -388,9 +411,12 @@ separately).
 
 ## 13. Updates
 
-* **Feuerix:** deploy the new project files (keep `.env` and `apps/*/migrations`), then
-  `docker compose build && docker compose run --rm --no-deps --user root -v "$PWD/apps:/app/apps" web python manage.py makemigrations && docker compose up -d`
-  (migrations are applied automatically on startup). Always back up first!
+* **Feuerix (Git checkout, without the Portal administration):** always back up first (section 12), then in the project folder
+  `git pull --ff-only && docker compose build && docker compose up -d`
+  (migrations are applied automatically on startup). What is new is listed in `CHANGELOG.md`; the running version is shown in the footer.
+  If `git pull` reports local changes or a conflict, a versioned file was modified (`git status`) – configuration belongs in `.env` only. If Feuerix
+  was still installed from a ZIP, convert it to Git first (section 2). **With the Portal administration** it updates the instances itself
+  ("Update available" and "Roll out update" in its web interface).
 * **OpenSlides** (only if used): bump `defaults.tag` in `config.yml`, then
   `./osmanage config --force --config config.yml --template docker-compose.yml.tmpl .`,
   `docker compose up --detach`, and if needed `./osmanage migrations stats|migrate|finalize`. Read the

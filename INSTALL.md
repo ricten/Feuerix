@@ -58,11 +58,35 @@ docker info                        # muss ohne Fehler laufen
 
 Projekt ablegen (Beispiel `/opt/verein`):
 
+> **Immer als Git-Checkout installieren** (nicht als ZIP und nicht als entpackte Dateien), wenn Feuerix **nicht** über die Portalverwaltung
+> läuft. Nur so lassen sich Updates mit `git pull` einspielen (Abschnitt 13), und der installierte Stand ist an der Version nachvollziehbar.
+> Läuft Feuerix über die Portalverwaltung, entfällt dieser Schritt: Sie legt den Checkout selbst an (`FEUERIX_REPO_PFAD`) und aktualisiert die
+> Instanzen.
+
 ```bash
 sudo mkdir -p /opt/verein && sudo chown $USER /opt/verein
-# ZIP hochladen und entpacken -> /opt/verein/vereinsverwaltung
-cd /opt/verein/vereinsverwaltung
+cd /opt/verein
+git clone https://github.com/ricten/Feuerix.git vereinsverwaltung
+cd vereinsverwaltung
 ```
+
+* Die Konfiguration steht nur in der `.env` (ist von Git ausgenommen und bleibt bei Updates unberührt). **Keine versionierten Dateien ändern**, sonst
+  bricht `git pull` bei einem Update mit einem Konflikt ab.
+* Der Ordnername bestimmt den Namen des Docker-Compose-Projekts und damit die Namen der Datenbank- und Medien-Volumes. Den Ordner später nicht
+  umbenennen oder verschieben, sonst startet Feuerix mit leeren Volumes (Daten bleiben in den alten).
+* Ist das Repository nicht öffentlich erreichbar, vorher Zugangsdaten bzw. einen SSH-Schlüssel (Deploy Key) einrichten und die SSH-Adresse klonen.
+
+**Bestehende Installation aus einem ZIP auf Git umstellen** (einmalig, vorher Backup, Abschnitt 12):
+
+```bash
+cd /opt/verein/vereinsverwaltung
+git init -b main && git remote add origin https://github.com/ricten/Feuerix.git
+git fetch origin && git reset origin/main     # Dateien bleiben, nur die Git-Historie wird verknüpft
+git status                                    # zeigt Abweichungen; "nothing to commit" = alles identisch
+```
+
+Zeigt `git status` geänderte Dateien, sind es lokale Anpassungen oder ein älterer Stand: mit `git diff` prüfen, Eigenes sichern und danach
+`git checkout -- .` (setzt die Dateien auf den Stand von GitHub; `.env` bleibt unberührt).
 
 ## 3. Feuerix konfigurieren
 
@@ -89,11 +113,11 @@ Wichtig (alle Werte selbst setzen):
 
 ```bash
 docker compose build
-# einmalig: Datenbank-Migrationen erzeugen und im Projekt ablegen (wichtig für spätere Updates)
-docker compose run --rm --no-deps --user root -v "$PWD/apps:/app/apps" web python manage.py makemigrations
 docker compose up -d
 docker compose logs -f web         # warten bis "Listening at: http://0.0.0.0:8000"
 ```
+
+Die Datenbank-Migrationen liegen im Repository und werden beim Start automatisch angewendet – dafür ist kein eigener Schritt nötig.
 
 Test: `curl -I http://127.0.0.1:8000/login/` → HTTP 200. Anmeldung mit `ADMIN_USER`/`ADMIN_PASSWORD`.
 Beim ersten Start wird der Verein aus `VEREIN_NAME` mit den Rollen/Tags der Datenschutzordnung, Beispiel-Stammdaten,
@@ -386,9 +410,12 @@ aufbewahren).
 
 ## 13. Updates
 
-* **Feuerix:** neue Projektdateien einspielen (`.env` und `apps/*/migrations` behalten), dann
-  `docker compose build && docker compose run --rm --no-deps --user root -v "$PWD/apps:/app/apps" web python manage.py makemigrations && docker compose up -d`
-  (Migrationen werden beim Start automatisch angewendet). Vorher immer Backup!
+* **Feuerix (Git-Checkout, ohne Portalverwaltung):** Vorher immer Backup (Abschnitt 12), dann im Projektordner
+  `git pull --ff-only && docker compose build && docker compose up -d`
+  (Migrationen werden beim Start automatisch angewendet). Was neu ist, steht in `CHANGELOG.md`; die laufende Version zeigt die Fußzeile.
+  Meldet `git pull` lokale Änderungen oder einen Konflikt, wurde eine versionierte Datei verändert (`git status`) – Konfiguration gehört nur in die
+  `.env`. Wurde Feuerix noch aus einem ZIP installiert, vorher auf Git umstellen (Abschnitt 2). **Mit der Portalverwaltung** aktualisiert diese
+  die Instanzen (Hinweis „Update verfügbar“ und „Update jetzt ausrollen“ in ihrer Weboberfläche).
 * **OpenSlides** (nur falls genutzt): `defaults.tag` in `config.yml` erhöhen, dann
   `./osmanage config --force --config config.yml --template docker-compose.yml.tmpl .`, `docker compose up --detach`,
   bei Bedarf `./osmanage migrations stats|migrate|finalize`. Versionshinweise in der offiziellen INSTALL.md lesen (bei

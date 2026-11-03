@@ -35,11 +35,10 @@ Ausführliche Schritt-für-Schritt-Anleitung für Server, HTTPS und die optional
 Paperless-ngx): **[INSTALL.md](INSTALL.md)**. Kurzfassung:
 
 ```bash
+git clone https://github.com/ricten/Feuerix.git && cd Feuerix   # als Git-Checkout (nicht als ZIP): Updates dann per "git pull"
 cp .env.example .env          # SECRET_KEY, FIELD_ENCRYPTION_KEY, POSTGRES_PASSWORD, ADMIN_* ausfüllen
-# Migrationen einmalig erzeugen und im Projekt ablegen (wichtig für spätere Updates):
 docker compose build
-docker compose run --rm --no-deps --user root -v "$PWD/apps:/app/apps" web python manage.py makemigrations
-docker compose up -d
+docker compose up -d          # Migrationen werden beim Start automatisch angewendet
 ```
 
 Danach: http://localhost:8000 – Anmeldung mit `ADMIN_USER` / `ADMIN_PASSWORD`. Beim allerersten Start wird der

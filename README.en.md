@@ -38,11 +38,10 @@ Detailed step-by-step instructions for the server, HTTPS and the optional integr
 Paperless-ngx): **[INSTALL.en.md](INSTALL.en.md)**. Quick version:
 
 ```bash
+git clone https://github.com/ricten/Feuerix.git && cd Feuerix   # as a Git checkout (not a ZIP): updates then work with "git pull"
 cp .env.example .env          # fill in SECRET_KEY, FIELD_ENCRYPTION_KEY, POSTGRES_PASSWORD, ADMIN_*
-# Generate migrations once and keep them in the project (important for later updates):
 docker compose build
-docker compose run --rm --no-deps --user root -v "$PWD/apps:/app/apps" web python manage.py makemigrations
-docker compose up -d
+docker compose up -d          # migrations are applied automatically on startup
 ```
 
 Then: http://localhost:8000 – log in with `ADMIN_USER` / `ADMIN_PASSWORD`. On the very first start, the club
