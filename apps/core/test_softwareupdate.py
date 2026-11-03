@@ -243,6 +243,9 @@ class SkriptSyntaxTests(TestCase):
                          "SOFTWAREUPDATE_PER_WEB=1", "update/host_bereit", "feuerix-update-auto.timer", "--nur-wenn-neu", "--entfernen"):
             self.assertIn(erwartet, text)
         self.assertNotIn("docker.sock", text)             # der Container bekommt nie Zugriff auf Docker
+        # ueber bash starten: das Ausfuehrungsrecht der Datei (unter Windows eingecheckt) darf keine Rolle spielen
+        self.assertIn("ExecStart=/bin/bash $DIR/scripts/update.sh\n", text)
+        self.assertIn("ExecStart=/bin/bash $DIR/scripts/update.sh --nur-wenn-neu\n", text)
 
     def test_compose_bindet_nur_den_update_ordner_ein(self):
         text = (WURZEL / "docker-compose.yml").read_text(encoding="utf-8")

@@ -51,7 +51,7 @@ Wants=docker.service
 Type=oneshot
 User=$BENUTZER
 WorkingDirectory=$DIR
-ExecStart=$DIR/scripts/update.sh
+ExecStart=/bin/bash $DIR/scripts/update.sh
 TimeoutStartSec=3600
 EOF
 sudo tee /etc/systemd/system/feuerix-update.path >/dev/null <<EOF
@@ -77,7 +77,7 @@ Wants=docker.service
 Type=oneshot
 User=$BENUTZER
 WorkingDirectory=$DIR
-ExecStart=$DIR/scripts/update.sh --nur-wenn-neu
+ExecStart=/bin/bash $DIR/scripts/update.sh --nur-wenn-neu
 TimeoutStartSec=3600
 EOF
   sudo tee /etc/systemd/system/feuerix-update-auto.timer >/dev/null <<EOF

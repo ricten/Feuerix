@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.94.1
+
+- **Codename „Zündschloss“.** Fix: Die Skripte `scripts/update.sh` und `scripts/update_einrichten.sh` waren ohne Ausführungsrecht eingecheckt (auf dem Server „Permission denied“). Jetzt ausführbar; der systemd-Dienst startet das Update zusätzlich über `/bin/bash`, unabhängig vom Dateimodus. Migration: keine.
+
 ## 1.94.0
 
 - **Codename „Meldeempfänger“.** Neu: **Update per Weboberfläche** (ohne Portalverwaltung). Unter *Verwaltung › Software-Update* (nur Superadministratoren) zeigt Feuerix Version, verfügbare Version, Ergebnis und Protokoll des letzten Laufs und startet mit „Jetzt aktualisieren“ das Update. Der Container bekommt dafür **keinen** Docker-Zugriff: Er legt nur die Auftragsdatei `update/auftrag` an, ein systemd-Pfad-Dienst auf dem Server startet daraufhin `scripts/update.sh` (Sicherung → `git pull --ff-only` → `docker compose build` → `up -d` → warten, bis die Anmeldeseite antwortet; bei fehlgeschlagener Sicherung oder fehlgeschlagenem Pull wird nichts verändert, bei fehlgeschlagenem Bauen der Code zurückgesetzt). Einrichtung einmalig mit `./scripts/update_einrichten.sh` (optional `--automatisch` für ein nächtliches Update, `--entfernen`). Voraussetzung ist die Installation als Git-Checkout. Die Anleitung sagt jetzt ausdrücklich: ohne Portalverwaltung immer per `git clone` installieren, Updates per `git pull`, Umstellung einer ZIP-Installation inklusive; der veraltete Schritt `makemigrations` ist entfernt. Migration: keine. Auf dem Server nach dem Update einmal `docker compose build && docker compose up -d` (neuer Ordner `update/` wird eingebunden).
