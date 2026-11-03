@@ -864,14 +864,14 @@ Beim Wiederherstellen werden die Daten **aller** Vereine ersetzt; Paperless/Open
 **Wichtig:** Der Schlüssel `FIELD_ENCRYPTION_KEY` aus der `.env` ist nicht Teil der Sicherung und muss
 separat aufbewahrt werden; OpenSlides und Paperless-ngx laufen in eigenen Stacks: ihre Sicherung legt das Host-Skript
 `scripts/backup-zusatz.sh` ins gleiche Volume, danach erscheint sie in der Liste und wird mit auf das externe Ziel
-kopiert (INSTALL.md, Abschnitt 12, dort auch die Wiederherstellung).
+kopiert (INSTALL.md, Abschnitt 11, dort auch die Wiederherstellung).
 
 **Software-Update** (nur Superadministratoren, nur ohne Portalverwaltung): Unter *Verwaltung › Software-Update* stehen die installierte und
 die verfügbare Version, das Ergebnis des letzten Laufs und dessen Protokoll. „Jetzt aktualisieren“ sichert zuerst Datenbank und Dateien,
 holt dann den neuen Code, baut das Image und startet Feuerix neu; die Seite zeigt den Fortschritt, Feuerix ist dabei einige Minuten nicht
 erreichbar, und Sie müssen sich danach ggf. neu anmelden. Schlägt die Sicherung oder das Holen des Codes fehl, wird nichts verändert; schlägt
 das Bauen fehl, läuft die bisherige Version unverändert weiter. Die Arbeit erledigt ein kleiner Dienst auf dem Server, den ein Administrator
-einmalig mit `./scripts/update_einrichten.sh` einrichtet (INSTALL.md, Abschnitt 13); ohne Einrichtung zeigt die Seite nur diese Anleitung.
+einmalig mit `./scripts/update_einrichten.sh` einrichtet (INSTALL.md, Abschnitt 12); ohne Einrichtung zeigt die Seite nur diese Anleitung.
 Jedes Anstoßen steht im Änderungsprotokoll. Mit der Portalverwaltung aktualisiert diese die Instanzen.
 
 ## 16. Datenschutz und Sicherheit

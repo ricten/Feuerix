@@ -149,7 +149,7 @@ notwendige Cookies: Anmeldung, CSRF-Schutz, Sprache – keine Tracking-Cookies).
   OpenSlides-Version einzelne ablehnt). Ein erneuter Abruf ersetzt zuvor übernommene Ergebnisse derselben Veranstaltung vollständig.
 * **Paperless-ngx:** Entweder eine bereits laufende, separate Instanz verwenden (nur Adresse und API-Token unter
   *Verwaltung › Paperless-Anbindung* eintragen), oder optional über [paperless/](paperless/) als eigenen
-  Docker-Compose-Stack auf diesem Server mitbetreiben (siehe INSTALL.md Abschnitt 9). Der Versand ist in jedem
+  Docker-Compose-Stack auf diesem Server mitbetreiben (siehe INSTALL.md Abschnitt 7). Der Versand ist in jedem
   Fall reines Hochladen (Einweg); es gibt keinen Rücksync von Status/Metadaten aus Paperless in Feuerix.
 * **Kontoauszug-Import:** CSV, MT940 und CAMT.053 werden anhand Dateiendung/Inhalt automatisch erkannt; bei MT940
   wird der Verwendungszweck nur nach den gängigen deutschen SEPA-Feldkennungen (`SVWZ+` u. a.) durchsucht – weicht

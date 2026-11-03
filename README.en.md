@@ -154,7 +154,7 @@ login, CSRF protection, language – no tracking cookies).
   again fully replaces previously imported results for the same event.
 * **Paperless-ngx:** either use an already-running, separate instance (just enter the address and API token
   under *Administration › Paperless Integration*), or optionally run it alongside, on this server, via
-  [paperless/](paperless/) as its own Docker Compose stack (see INSTALL.en.md, section 9). Submission is, in
+  [paperless/](paperless/) as its own Docker Compose stack (see INSTALL.en.md, section 7). Submission is, in
   either case, a one-way upload – there is no sync of status/metadata back from Paperless into Feuerix.
 * **Bank statement import:** CSV, MT940 and CAMT.053 are recognised automatically from the file extension/
   content; for MT940, the reference field is only searched using the common German SEPA field identifiers

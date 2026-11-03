@@ -16,10 +16,10 @@ Internet ──► Caddy (ports 80/443, automatic HTTPS)
 
 > **Note on status:** an automated test suite and GitHub Actions CI check Feuerix against a real PostgreSQL
 > database on every change. The Paperless-ngx integration has been successfully tested against a running
-> instance (document submission); for a new instance, a quick test is still recommended (section 11). The
+> instance (document submission); for a new instance, a quick test is still recommended (section 10). The
 > OpenSlides integration (implemented following the official documentation) has been tried out with an OpenSlides 4.3
 > instance (connection test, member sync, creating a meeting, retrieving attendance, elections and votes); further parts
-> are still only implemented according to the documentation – plan a test phase (section 11) if you use it. The OpenSlides
+> are still only implemented according to the documentation – plan a test phase (section 10) if you use it. The OpenSlides
 > installation steps match the official `INSTALL.md` (OpenSlides 4.x, the `osmanage` tool); the Paperless
 > installation steps match the official Docker Compose installation.
 
@@ -31,15 +31,15 @@ Internet ──► Caddy (ports 80/443, automatic HTTPS)
 | --- | --- |
 | Server | Linux (Ubuntu 24.04 LTS or Debian 12), **at least 1 CPU / 2 GB RAM** for Feuerix alone (a tight floor: 4 containers – Postgres, Redis, 3 Gunicorn workers, 1 Celery worker – already use roughly 700–900 MB at idle; for comfortable operation with headroom, e.g. during a larger fee run or mail-merge send, **4 GB is recommended**), 20 GB of space |
 | Domain | a name pointing at the server's IP (DNS A record): e.g. `verein.example.org` – **required** |
-| Additional domains | one more name each, only if needed: `versammlung.example.org` for OpenSlides (section 5), `paperless.example.org` for Paperless-ngx (section 9) |
-| Additional RAM | +2 GB if OpenSlides is also run (many containers); +1 GB if Paperless-ngx is run via section 9 (route A) (its own Postgres instance, OCR processing) |
+| Additional domains | one more name each, only if needed: `versammlung.example.org` for OpenSlides (section 8), `paperless.example.org` for Paperless-ngx (section 7) |
+| Additional RAM | +2 GB if OpenSlides is also run (many containers); +1 GB if Paperless-ngx is run via section 7 (route A) (its own Postgres instance, OCR processing) |
 | Ports | 80 and 443 open inbound (for HTTPS/Let's Encrypt) |
 | Access | SSH access with sudo rights |
 | Email | SMTP credentials (for sending invoices and mail merges), optional |
 
 To try it out on your own computer, Docker alone is enough; domains/HTTPS are then not needed (section 4
 with `http://localhost:8000`; for OpenSlides or Paperless-ngx, accordingly `http://127.0.0.1:9000`/`:10000`
-– though OpenSlides does need HTTPS in the browser, see section 7).
+– though OpenSlides does need HTTPS in the browser, see section 6).
 
 ## 2. Preparing the server
 
@@ -59,7 +59,7 @@ docker info                        # must run without errors
 Place the project (example `/opt/verein`):
 
 > **Always install as a Git checkout** (not as a ZIP and not as unpacked files) when Feuerix does **not** run through the Portal administration. Only
-> then can updates be applied with `git pull` (section 13), and the installed state can be traced by its version. If Feuerix runs through the
+> then can updates be applied with `git pull` (section 12), and the installed state can be traced by its version. If Feuerix runs through the
 > Portal administration, this step is not needed: it creates the checkout itself (`FEUERIX_REPO_PFAD`) and updates the instances.
 
 ```bash
@@ -75,7 +75,7 @@ cd vereinsverwaltung
   folder later, or Feuerix starts with empty volumes (the data stays in the old ones).
 * If the repository is not publicly reachable, set up credentials or an SSH key (deploy key) first and clone the SSH address.
 
-**Converting an existing ZIP installation to Git** (once, back up first, section 12):
+**Converting an existing ZIP installation to Git** (once, back up first, section 11):
 
 ```bash
 cd /opt/verein/vereinsverwaltung
@@ -104,8 +104,8 @@ Important (set all values yourself):
 * `ALLOWED_HOSTS=verein.example.org`
 * `CSRF_TRUSTED_ORIGINS=https://verein.example.org`
 * `HTTPS=1` and `USE_X_FORWARDED_FOR=1` (because the proxy sits in front)
-* `VEREIN_DOMAIN`, `ACME_EMAIL` (for the proxy) – `OPENSLIDES_DOMAIN`/`PAPERLESS_DOMAIN` only if section 5 or
-  9 is used, otherwise leave empty
+* `VEREIN_DOMAIN`, `ACME_EMAIL` (for the proxy) – `OPENSLIDES_DOMAIN`/`PAPERLESS_DOMAIN` only if section 8 or
+  7 is used, otherwise leave empty
 * Email: `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL`
 
 ## 4. Starting Feuerix
@@ -122,37 +122,7 @@ Test: `curl -I http://127.0.0.1:8000/login/` → HTTP 200. Log in with `ADMIN_US
 first start, the club is created from `VEREIN_NAME` with the data-protection-bylaw roles/tags, sample core
 data, **archive folders and default templates** (invitations, minutes, mail merges).
 
-## 5. Installing OpenSlides (optional)
-
-Completely optional – if you don't need an online general meeting, skip this section and section 8 (then
-just leave `OPENSLIDES_DOMAIN` empty in section 3).
-
-```bash
-cd /opt/verein/vereinsverwaltung/openslides
-./install.sh
-```
-
-The script downloads the `osmanage` management tool and the Compose template, generates the configuration
-including secrets (`secrets/`), starts the containers and creates the initial data. At the end it shows the
-password of the `superadmin` user. Manually, this corresponds to:
-
-```bash
-wget https://github.com/OpenSlides/openslides-cli/releases/download/latest/osmanage && chmod +x osmanage
-wget https://raw.githubusercontent.com/OpenSlides/openslides-cli/refs/heads/main/contrib/docker-compose.yml.tmpl
-./osmanage setup -c config.yml -t docker-compose.yml.tmpl .
-docker compose pull && docker compose up --detach
-./osmanage initial-data --superadmin-password-file secrets/superadmin
-```
-
-`config.yml` binds OpenSlides to `127.0.0.1:9000` and turns off its own HTTPS (Caddy takes care of that).
-**Autostart:** After a restart of Docker/the server, the generated `docker-compose.yml` only brings back individual
-services – the rest would stay down (connection test in Feuerix: "HTTP 502"). `install.sh` therefore calls
-`./autostart.sh`, which creates `docker-compose.override.yml` with `restart: unless-stopped` for all services. On an
-already existing installation, catch up once: `cd openslides && ./autostart.sh && docker compose up --detach`.
-**Setting the version:** `config.yml` has a `defaults.tag` entry; set it to the current version from
-<https://github.com/OpenSlides/OpenSlides/releases>.
-
-## 6. HTTPS / Reverse Proxy (Caddy)
+## 5. HTTPS / Reverse Proxy (Caddy)
 
 ```bash
 cd /opt/verein/vereinsverwaltung/deploy
@@ -181,7 +151,7 @@ All three approaches can be chosen independently per domain (e.g. your own certi
 Encrypt for the others). With empty `*_TLS_CERT`/`*_TLS_KEY` variables, it stays with the automatic
 certificate.
 
-## 7. First steps in Feuerix
+## 6. First steps in Feuerix
 
 1. **Administration › Club / Settings / Logo:** fill in the club's details, **upload a logo** (PNG or JPG,
    ideally with a transparent or white background), enter signature lines (e.g. "Jane Doe, 1st Chair"),
@@ -196,26 +166,7 @@ certificate.
 
 A detailed user guide for every module is in **[docs/HANDBUCH.en.md](docs/HANDBUCH.en.md)**.
 
-## 8. Connecting OpenSlides to Feuerix (only if section 5 is used)
-
-1. Log in to OpenSlides as `superadmin`, change the password.
-2. **Accounts › New account:** create a technical user (e.g. `verein-sync`, a long password) and give it the
-   organisation management level **"Organisation Admin"**. If creating meetings fails with a permissions
-   error: additionally give it committee management in the committee, or – as a last resort – Superadmin.
-3. Determine the committee ID: open the committee in OpenSlides, note the number in the address bar
-   (`…/committees/<ID>`). Likewise note the account ID of the administrator who should manage new meetings
-   (default: `1` = superadmin).
-4. In Feuerix, **Administration › External integrations › OpenSlides (Set up):** enter the address
-   (`https://versammlung.example.org`), the technical user, password, committee ID, administrator IDs, set
-   "Integration active", save → **test the connection**.
-5. **Sync members:** creates accounts with a starting password (runs in the background, result shown on the
-   page).
-6. Distribute credentials: **Correspondence › Mail merges** using the "OpenSlides login credentials"
-   template (by letter or email), then **delete starting passwords**.
-7. In an **event** (general meeting), maintain the agenda → **"Create in OpenSlides"**. Participants are then
-   assigned to the meeting in OpenSlides (Participants › add existing accounts).
-
-## 9. Setting up and connecting Paperless-ngx (optional)
+## 7. Setting up and connecting Paperless-ngx (optional)
 
 Completely optional – skip this section if you don't need it. Two routes:
 
@@ -230,7 +181,7 @@ nano .env              # set PAPERLESS_SECRET_KEY, POSTGRES_PASSWORD, PAPERLESS_
 
 Afterwards runs locally on `127.0.0.1:10000`. To make it reachable via the reverse proxy too, set
 `PAPERLESS_DOMAIN=paperless.example.org` in **Feuerix's `.env`** (not the one in `paperless/`!) and recreate
-the proxy (section 6: `docker compose -f docker-compose.proxy.yml up -d --force-recreate`). Details, backup
+the proxy (section 5: `docker compose -f docker-compose.proxy.yml up -d --force-recreate`). Details, backup
 and updating are covered in [paperless/README.md](paperless/README.md).
 
 **B) Use an already existing, separate Paperless-ngx instance** (your own server, or an existing
@@ -250,7 +201,42 @@ installation) – then skip route A and continue directly with step 1 below.
 **Note:** submission is a one-way upload – status or metadata subsequently changed in Paperless does not
 flow back into Feuerix.
 
-## 10. Adding OpenSlides or Paperless-ngx later (or removing it)
+## 8. Setting up and connecting OpenSlides (optional)
+
+Completely optional – if you don't need an online general meeting, skip this section (then just leave `OPENSLIDES_DOMAIN` empty in
+section 3). Like Paperless-ngx (section 7), OpenSlides runs as its own Docker Compose stack.
+
+**Installing:**
+
+```bash
+cd /opt/verein/vereinsverwaltung/openslides
+./install.sh
+```
+
+The script downloads the `osmanage` tool and the Compose template, generates the configuration and secrets (`secrets/`), starts the containers,
+creates the initial data and sets up **autostart** (otherwise individual services stay down after a server restart; the connection test in Feuerix
+then shows "HTTP 502"). At the end the password of the `superadmin` user is shown. OpenSlides runs locally on `127.0.0.1:9000` (Caddy takes care of
+HTTPS). The version is in `openslides/config.yml` (`defaults.tag`, current versions: <https://github.com/OpenSlides/OpenSlides/releases>); the
+script's individual commands are listed in [openslides/README.md](openslides/README.md).
+
+To make OpenSlides reachable through the reverse proxy as well, set `OPENSLIDES_DOMAIN=versammlung.example.org` in **Feuerix's `.env`** (not
+`openslides/config.yml`) and recreate the proxy (section 5: `docker compose -f docker-compose.proxy.yml up -d --force-recreate`).
+
+**Connecting:**
+
+1. Log in to OpenSlides as `superadmin`, change the password and, under **Accounts**, create a technical user (e.g. `verein-sync`, a long password)
+   with the organisation management level **"Organisation Admin"**. If creating meetings later fails with a permissions error: additionally give it
+   committee management in the committee, or – as a last resort – Superadmin.
+2. Note the committee ID (the number in the address `…/committees/<ID>`) and the account ID of the administrator for new meetings
+   (default: `1` = superadmin).
+3. In Feuerix, **Administration › External integrations › OpenSlides (Set up):** enter the address (`https://versammlung.example.org`), user,
+   password, committee ID and administrator IDs, set "Integration active", save → **test the connection**.
+4. **Sync members** (creates accounts with a starting password, runs in the background). Distribute the credentials via **Correspondence › Mail
+   merges** with the "OpenSlides login credentials" template (letter or email); then **delete starting passwords**.
+5. In an **event** (general meeting), maintain the agenda → **"Create in OpenSlides"**. Afterwards assign the participants to the meeting in
+   OpenSlides (Participants › add existing accounts).
+
+## 9. Adding OpenSlides or Paperless-ngx later (or removing it)
 
 Neither building block has to be present from the very first setup – they can be added at any later time
 without touching Feuerix's running operation: the app containers (`web`/`worker`/`db`/`redis`) stay
@@ -261,29 +247,28 @@ domains running through that proxy – not just the newly added one).
 
 1. Create a DNS A record for the desired domain (e.g. `versammlung.example.org`) pointing at the server's
    IP, if not already done.
-2. Carry out section 5: `cd openslides && ./install.sh`.
-3. In **Feuerix's `.env`** (the project root, not `openslides/config.yml`), enter
-   `OPENSLIDES_DOMAIN=versammlung.example.org` (optionally `OPENSLIDES_TLS_CERT`/`_KEY`, see section 6).
-4. Recreate the proxy so the domain becomes active: `cd deploy && docker compose -f docker-compose.proxy.yml up -d --force-recreate`.
-5. Carry out section 8 (set up and test the connection in Feuerix).
+2. In **Feuerix's `.env`** (the project root, not `openslides/config.yml`), enter
+   `OPENSLIDES_DOMAIN=versammlung.example.org` (optionally `OPENSLIDES_TLS_CERT`/`_KEY`, see section 5).
+3. Recreate the proxy so the domain becomes active: `cd deploy && docker compose -f docker-compose.proxy.yml up -d --force-recreate`.
+4. Carry out section 8 (install OpenSlides, then set up and test the connection in Feuerix).
 
-**Adding Paperless-ngx later:** the same, just with section 9 instead of 5/8 – i.e. carry out route A or B,
-set `PAPERLESS_DOMAIN` in Feuerix's `.env`, recreate the proxy (step 4 above), then connect (steps 1–4 in
-section 9).
+**Adding Paperless-ngx later:** the same, just with section 7 instead of 8 – i.e. carry out route A or B,
+set `PAPERLESS_DOMAIN` in Feuerix's `.env`, recreate the proxy (step 3 above), then connect (steps 1–4 in
+section 7).
 
 **Removing again:** in reverse order – in Feuerix, under *Administration › OpenSlides/Paperless
 Integration*, deselect "Integration active" (otherwise detail pages keep showing dead buttons), clear
-`OPENSLIDES_DOMAIN` or `PAPERLESS_DOMAIN` in `.env` again, recreate the proxy (step 4 above), then stop the
+`OPENSLIDES_DOMAIN` or `PAPERLESS_DOMAIN` in `.env` again, recreate the proxy (step 3 above), then stop the
 respective stack: `cd openslides` or `cd paperless && docker compose down` (add `-v` to also permanently
-delete the associated database/file volumes – back up first, see section 12).
+delete the associated database/file volumes – back up first, see section 11).
 
-## 11. Test phase (strongly recommended)
+## 10. Test phase (strongly recommended)
 
 Before entering real member data: create a test club and check it – generate a fee invoice and view it as a
 PDF, mail-merge preview, archive, OpenSlides connection test (if used), Paperless connection test (if used),
 backup **and restore** on a second machine.
 
-## 12. Backups
+## 11. Backups
 
 **Recommended:** In the web interface under *Administration › Data backup* (superadministrators only) switch on
 the daily backup and, if needed, enter an external target (NAS via SFTP or SMB share); the backups can also be
@@ -310,9 +295,9 @@ Alternatively by hand (without the web interface):
 ```bash
 # Feuerix (database + uploaded files)
 docker compose exec -T web /app/scripts/backup.sh          # places files in the "backups" volume
-# OpenSlides (only if section 5 is used)
+# OpenSlides (only if section 8 is used)
 cd openslides && docker compose exec --user postgres postgres pg_dump -U openslides --clean > /opt/verein/os-$(date +%F).sql
-# Paperless-ngx (only if self-hosted via route A in section 9)
+# Paperless-ngx (only if self-hosted via route A in section 7)
 cd paperless && docker compose exec -T db pg_dump -U paperless --clean > /opt/verein/paperless-$(date +%F).sql
 ```
 
@@ -409,9 +394,9 @@ docker compose up --detach
 In addition, `openslides/secrets/` and `paperless/.env` are needed (not part of this backup, keep them
 separately).
 
-## 13. Updates
+## 12. Updates
 
-* **Feuerix (Git checkout, without the Portal administration):** always back up first (section 12), then in the project folder
+* **Feuerix (Git checkout, without the Portal administration):** always back up first (section 11), then in the project folder
   `git pull --ff-only && docker compose build && docker compose up -d`
   (migrations are applied automatically on startup). What is new is listed in `CHANGELOG.md`; the running version is shown in the footer.
   If `git pull` reports local changes or a conflict, a versioned file was modified (`git status`) – configuration belongs in `.env` only. If Feuerix
@@ -440,7 +425,7 @@ separately).
 * **Paperless-ngx** (only if self-hosted): `cd paperless && docker compose pull && docker compose up --detach`.
   Read the release notes in the official Paperless-ngx release notes.
 
-## 14. Troubleshooting
+## 13. Troubleshooting
 
 | Problem | Solution |
 | --- | --- |
@@ -454,7 +439,7 @@ separately).
 | Port 8000/9000/10000 in use | change the ports in `.env` (`WEB_PORT`) or `openslides/config.yml`/`PAPERLESS_PORT` and adjust the Caddyfile |
 | Logo doesn't appear in the PDF | PNG/JPG only; file not corrupted; appears top right in the PDF (approx. max. 55 × 28 mm) |
 
-## 15. Data protection notes (brief)
+## 14. Data protection notes (brief)
 
 Handling member and bank data brings GDPR obligations: a data processing agreement with your hoster, a
 record of processing activities, access rights via roles (already built in), data requests/anonymisation per

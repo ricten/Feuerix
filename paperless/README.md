@@ -2,7 +2,7 @@
 
 Dieses Verzeichnis enthält einen eigenständigen Docker-Compose-Stack für Paperless-ngx – läuft unabhängig von der
 Vereinsverwaltung (eigene Datenbank, eigener Redis) und wird über ein API-Token angebunden (siehe
-[../INSTALL.md](../INSTALL.md) Abschnitt 9). Komplett optional: ohne dieses Verzeichnis funktioniert die
+[../INSTALL.md](../INSTALL.md) Abschnitt 7). Komplett optional: ohne dieses Verzeichnis funktioniert die
 Vereinsverwaltung normal weiter, nur der Paperless-Versand aus der Ablage fehlt dann. Wer bereits eine andere
 Paperless-ngx-Instanz betreibt, kann dieses Verzeichnis ignorieren und direkt unter *Verwaltung ›
 Paperless-Anbindung* deren Adresse eintragen.
