@@ -416,6 +416,22 @@ aufbewahren).
   Meldet `git pull` lokale Änderungen oder einen Konflikt, wurde eine versionierte Datei verändert (`git status`) – Konfiguration gehört nur in die
   `.env`. Wurde Feuerix noch aus einem ZIP installiert, vorher auf Git umstellen (Abschnitt 2). **Mit der Portalverwaltung** aktualisiert diese
   die Instanzen (Hinweis „Update verfügbar“ und „Update jetzt ausrollen“ in ihrer Weboberfläche).
+* **Update per Weboberfläche (ohne Portalverwaltung, optional):** Einmalig auf dem Server im Feuerix-Ordner einrichten (Git-Checkout, Benutzer in der
+  Gruppe `docker`, sudo nötig):
+
+  ```bash
+  ./scripts/update_einrichten.sh              # Knopf im Admin; zusätzlich --automatisch für ein nächtliches Update (ca. 03:30 Uhr)
+  docker compose up -d                        # bindet den Ordner update/ ein
+  ```
+
+  Danach steht unter *Verwaltung › Software-Update* (nur Superadministratoren) der Knopf „Jetzt aktualisieren“, und bei einer neuen Version zeigt der
+  Hinweis oben einen Link dorthin. Das Skript `scripts/update.sh` sichert zuerst (schlägt das fehl, wird **nichts** verändert), holt den Code
+  (`git pull --ff-only`), baut das Image (bei Fehlern wird der Code zurückgesetzt, die laufende Version bleibt) und startet neu. Der Stand steht in
+  `update/status.json`, die Ausgabe in `update/update.log` und im Journal (`journalctl -u feuerix-update`). Der Container bekommt **keinen**
+  Docker-Zugriff: Er legt nur die Auftragsdatei `update/auftrag` an, ein systemd-Pfad-Dienst (`feuerix-update.path`) startet das Skript. Der
+  Ordner `update/` ist absichtlich für alle beschreibbar (nur Auftrag, Stand und Protokoll, nichts Geheimes). Von Hand geht dasselbe mit
+  `./scripts/update.sh`. Wieder entfernen: `./scripts/update_einrichten.sh --entfernen`.
+
 * **OpenSlides** (nur falls genutzt): `defaults.tag` in `config.yml` erhöhen, dann
   `./osmanage config --force --config config.yml --template docker-compose.yml.tmpl .`, `docker compose up --detach`,
   bei Bedarf `./osmanage migrations stats|migrate|finalize`. Versionshinweise in der offiziellen INSTALL.md lesen (bei

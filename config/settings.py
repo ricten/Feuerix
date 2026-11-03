@@ -197,6 +197,11 @@ PRODUCT_CHANGELOG_URL = os.environ.get(
 # Version - leer lassen, um die Prüfung ganz abzuschalten (z. B. in Intranet-Installationen ohne Internetzugang).
 UPDATE_CHECK_URL = os.environ.get("UPDATE_CHECK_URL", "https://raw.githubusercontent.com/ricten/Feuerix/main/VERSION")
 UPDATE_CHECK_INTERVALL_STUNDEN = int(os.environ.get("UPDATE_CHECK_INTERVALL_STUNDEN", "24"))
+# Update per Weboberflaeche (nur ohne Portalverwaltung): Der Container legt im Ordner UPDATE_VERZEICHNIS nur eine Auftragsdatei an;
+# ein systemd-Dienst auf dem Server startet daraufhin scripts/update.sh. Aktiv wird es durch scripts/update_einrichten.sh
+# (setzt SOFTWAREUPDATE_PER_WEB=1). Der Container selbst hat keinen Zugriff auf Docker.
+SOFTWAREUPDATE_PER_WEB = _bool("SOFTWAREUPDATE_PER_WEB")
+UPDATE_VERZEICHNIS = Path(os.environ.get("UPDATE_VERZEICHNIS", "/data/update"))
 
 # Tests legen sehr viele Benutzer an (meist in setUp(), also pro Testmethode neu) - der produktive, bewusst
 # langsame PBKDF2-Hasher macht dabei einen spuerbaren Teil der Laufzeit aus, ohne in Tests einen Sicherheitsgewinn

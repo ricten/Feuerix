@@ -6831,6 +6831,149 @@ msgid_plural ""
 msgstr[0] "%(anzahl)s open request to reset a two-factor sign-in."
 msgstr[1] "%(anzahl)s open requests to reset two-factor sign-ins."
 
+#: apps/core/update_views.py
+msgid "Software-Update"
+msgstr "Software update"
+
+#: apps/core/update_views.py
+msgid "Update angefordert (installiert: %(version)s)"
+msgstr "Update requested (installed: %(version)s)"
+
+#: apps/core/update_views.py
+msgid ""
+"Das Update wurde angefordert. Feuerix wird dabei gesichert und neu gestartet"
+" und ist für einige Minuten nicht erreichbar; diese Seite zeigt den "
+"Fortschritt und lädt sich danach neu."
+msgstr ""
+"The update has been requested. Feuerix is backed up and restarted and will "
+"be unreachable for a few minutes; this page shows the progress and reloads "
+"afterwards."
+
+#: apps/core/softwareupdate.py
+msgid "Das Update per Weboberfläche ist nicht eingerichtet."
+msgstr "Updating through the web interface is not set up."
+
+#: apps/core/softwareupdate.py
+msgid ""
+"Der Server-Dienst für das Update ist nicht eingerichtet oder der Ordner ist "
+"nicht beschreibbar."
+msgstr ""
+"The server service for the update is not set up or the folder is not "
+"writable."
+
+#: apps/core/softwareupdate.py
+msgid "Es läuft bereits ein Update oder ein Auftrag wartet auf den Server."
+msgstr "An update is already running or a request is waiting for the server."
+
+#: apps/core/softwareupdate.py
+msgid "Es wartet bereits ein Auftrag auf den Server."
+msgstr "A request is already waiting for the server."
+
+#: apps/core/softwareupdate.py
+msgid "Der Auftrag konnte nicht angelegt werden: %(fehler)s"
+msgstr "The request could not be created: %(fehler)s"
+
+#: apps/core/einstellungen.py
+msgid "Neue Feuerix-Version einspielen, Stand und Protokoll"
+msgstr "Install a new Feuerix version, status and log"
+
+#: templates/core/softwareupdate.html
+msgid "Stand"
+msgstr "Status"
+
+#: templates/core/softwareupdate.html
+msgid "Installierte Version:"
+msgstr "Installed version:"
+
+#: templates/core/softwareupdate.html
+msgid "Verfügbar:"
+msgstr "Available:"
+
+#: templates/core/softwareupdate.html
+msgid "Es ist keine neuere Version bekannt."
+msgstr "No newer version is known."
+
+#: templates/core/softwareupdate.html
+msgid "zuletzt geprüft: %(zeit)s"
+msgstr "last checked: %(zeit)s"
+
+#: templates/core/softwareupdate.html
+msgid "Warte auf den Server …"
+msgstr "Waiting for the server …"
+
+#: templates/core/softwareupdate.html
+msgid ""
+"Der Auftrag liegt seit mehr als fünf Minuten unbearbeitet. Läuft der Dienst "
+"auf dem Server? Prüfen: systemctl status feuerix-update.path"
+msgstr ""
+"The request has been waiting for more than five minutes. Is the service "
+"running on the server? Check: systemctl status feuerix-update.path"
+
+#: templates/core/softwareupdate.html
+msgid ""
+"Jetzt aktualisieren? Vorher wird eine Sicherung angelegt. Feuerix ist danach"
+" für einige Minuten nicht erreichbar."
+msgstr ""
+"Update now? A backup is created first. Feuerix will then be unreachable for "
+"a few minutes."
+
+#: templates/core/softwareupdate.html
+msgid ""
+"Es ist keine neuere Version bekannt; das Update prüft trotzdem auf dem "
+"Server nach."
+msgstr "No newer version is known; the update still checks on the server."
+
+#: templates/core/softwareupdate.html
+msgid "Jetzt aktualisieren"
+msgstr "Update now"
+
+#: templates/core/softwareupdate.html
+msgid "Letzter Lauf:"
+msgstr "Last run:"
+
+#: templates/core/softwareupdate.html
+msgid "Update per Weboberfläche ist nicht eingerichtet"
+msgstr "Updating through the web interface is not set up"
+
+#: templates/core/softwareupdate.html
+msgid ""
+"Damit der Knopf funktioniert, braucht der Server einmalig einen kleinen "
+"Dienst, der das Update ausführt (Feuerix selbst darf Docker nicht steuern). "
+"Auf dem Server, im Feuerix-Ordner:"
+msgstr ""
+"For the button to work, the server needs a small service once that runs the "
+"update (Feuerix itself must not control Docker). On the server, in the "
+"Feuerix folder:"
+
+#: templates/core/softwareupdate.html
+msgid ""
+"Voraussetzung ist eine Installation als Git-Checkout (siehe INSTALL.md, "
+"Abschnitt 2). Mit --automatisch aktualisiert sich Feuerix zusätzlich nachts "
+"selbst, wenn es eine neue Version gibt. Läuft Feuerix über die "
+"Portalverwaltung, aktualisiert diese die Instanz – dann ist hier nichts "
+"einzurichten."
+msgstr ""
+"A prerequisite is an installation as a Git checkout (see INSTALL.en.md, "
+"section 2). With --automatisch Feuerix also updates itself at night when a "
+"new version is available. If Feuerix runs through the Portal administration,"
+" that updates the instance – then there is nothing to set up here."
+
+#: templates/core/softwareupdate.html
+msgid "Protokoll des letzten Laufs"
+msgstr "Log of the last run"
+
+#: templates/core/softwareupdate.html
+msgid "Noch kein Update über diese Seite durchgeführt."
+msgstr "No update has been run through this page yet."
+
+#: templates/core/softwareupdate.html
+msgid "Feuerix startet neu – einen Moment …"
+msgstr "Feuerix is restarting – one moment …"
+
+#: templates/base.html
+msgid "Jetzt aktualisieren …"
+msgstr "Update now …"
+
 #~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
 #~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
 

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block content %}
+<h3 class="mb-3">{% trans "Software-Update" %}</h3>
+<div class="row g-3">
+  <div class="col-xl-6">
+    <div class="card shadow-sm mb-3"><div class="card-body">
+      <h6>{% trans "Stand" %}</h6>
+      <p class="mb-1">{% trans "Installierte Version:" %} <strong id="su-version">{{ version|default:"?" }}</strong></p>
+      {% if neue_version %}
+        <p class="mb-1">{% trans "Verfügbar:" %} <strong class="text-success">{{ neue_version }}</strong>
+          {% if changelog_url %}<a href="{{ changelog_url }}" target="_blank" rel="noopener" class="small">{% trans "Änderungen ansehen" %}</a>{% endif %}</p>
+      {% else %}
+        <p class="mb-1 text-muted">{% trans "Es ist keine neuere Version bekannt." %}
+          {% if geprueft_am %}<span class="small">({% blocktrans with zeit=geprueft_am|date:"d.m.Y H:i" %}zuletzt geprüft: {{ zeit }}{% endblocktrans %})</span>{% endif %}</p>
+      {% endif %}
+
+      {% if aktiv and bereit %}
+        <div id="su-lauf" class="alert alert-info small mt-3 mb-2 {% if not laeuft %}d-none{% endif %}">
+          <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+          <span id="su-schritt">{{ status.schritt|default:_("Warte auf den Server …") }}</span>
+        </div>
+        {% if haengt %}
+          <div class="alert alert-warning small">{% trans "Der Auftrag liegt seit mehr als fünf Minuten unbearbeitet. Läuft der Dienst auf dem Server? Prüfen: systemctl status feuerix-update.path" %}</div>
+        {% endif %}
+        {% trans "Jetzt aktualisieren? Vorher wird eine Sicherung angelegt. Feuerix ist danach für einige Minuten nicht erreichbar." as frage %}
+        <form method="post" action="{% url 'softwareupdate_starten' %}" id="su-form"
+              onsubmit="return confirm('{{ frage|escapejs }}');"
+              {% if laeuft %}class="d-none"{% endif %}>{% csrf_token %}
+          <button class="btn btn-primary" {% if not neue_version %}title="{% trans 'Es ist keine neuere Version bekannt; das Update prüft trotzdem auf dem Server nach.' %}"{% endif %}>
+            <i class="bi bi-arrow-up-circle"></i> {% trans "Jetzt aktualisieren" %}</button>
+        </form>
+      {% endif %}
+    </div></div>
+
+    {% if status.zustand %}
+    <div class="alert alert-{% if status.zustand == 'ok' %}success{% elif status.zustand == 'fehler' %}danger{% elif status.zustand == 'aktuell' %}secondary{% else %}info{% endif %} small" id="su-ergebnis">
+      <strong>{% trans "Letzter Lauf:" %}</strong>
+      {% if status.gestartet %}{{ status.gestartet|date:"d.m.Y H:i" }}{% endif %}
+      {% if status.von or status.nach %}· {{ status.von }} → {{ status.nach|default:"?" }}{% endif %}<br>
+      {% if status.meldung %}{{ status.meldung }}{% else %}{{ status.schritt }}{% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col-xl-6">
+    {% if not aktiv or not bereit %}
+    <div class="card shadow-sm mb-3 border-warning"><div class="card-body">
+      <h6><i class="bi bi-info-circle"></i> {% trans "Update per Weboberfläche ist nicht eingerichtet" %}</h6>
+      <p class="small">{% trans "Damit der Knopf funktioniert, braucht der Server einmalig einen kleinen Dienst, der das Update ausführt (Feuerix selbst darf Docker nicht steuern). Auf dem Server, im Feuerix-Ordner:" %}</p>
+      <pre class="small bg-light p-2 mb-2">./scripts/update_einrichten.sh
+docker compose up -d</pre>
+      <p class="small text-muted mb-0">{% trans "Voraussetzung ist eine Installation als Git-Checkout (siehe INSTALL.md, Abschnitt 2). Mit --automatisch aktualisiert sich Feuerix zusätzlich nachts selbst, wenn es eine neue Version gibt. Läuft Feuerix über die Portalverwaltung, aktualisiert diese die Instanz – dann ist hier nichts einzurichten." %}</p>
+    </div></div>
+    {% endif %}
+    <div class="card shadow-sm"><div class="card-body">
+      <h6>{% trans "Protokoll des letzten Laufs" %}</h6>
+      {% if log %}<pre id="su-log" class="small bg-light p-2 mb-0" style="max-height:24rem;overflow:auto">{{ log }}</pre>
+      {% else %}<p id="su-log-leer" class="text-muted mb-0">{% trans "Noch kein Update über diese Seite durchgeführt." %}</p>{% endif %}
+    </div></div>
+  </div>
+</div>
+
+{% if aktiv and bereit %}
+<script>
+(function () {
+  var url = "{% url 'softwareupdate_status' %}";
+  var lief = {{ laeuft|yesno:"true,false" }};
+  var versionVorher = "{{ version|escapejs }}";
+  {% trans "Feuerix startet neu – einen Moment …" as neustart_text %}
+  var neustart = "{{ neustart_text|escapejs }}";
+  function schritt(t) { var e = document.getElementById("su-schritt"); if (e && t) { e.textContent = t; } }
+  function abfragen() {
+    fetch(url, {credentials: "same-origin", headers: {"Accept": "application/json"}}).then(function (r) {
+      if (!r.ok) { throw new Error("status " + r.status); }
+      return r.json();
+    }).then(function (d) {
+      if (d.laeuft) { lief = true; schritt(d.schritt); setTimeout(abfragen, 3000); }
+      else if (lief) { location.reload(); }
+    }).catch(function () {      // während des Neustarts antwortet Feuerix kurz nicht - weiter versuchen
+      if (lief) { schritt(neustart); setTimeout(abfragen, 3000); }
+    });
+  }
+  var form = document.getElementById("su-form");
+  if (form) { form.addEventListener("submit", function () { lief = true; }); }
+  if (lief) { abfragen(); }
+})();
+</script>
+{% endif %}
+{% endblock %}

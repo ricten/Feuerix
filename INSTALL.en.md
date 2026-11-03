@@ -417,6 +417,22 @@ separately).
   If `git pull` reports local changes or a conflict, a versioned file was modified (`git status`) – configuration belongs in `.env` only. If Feuerix
   was still installed from a ZIP, convert it to Git first (section 2). **With the Portal administration** it updates the instances itself
   ("Update available" and "Roll out update" in its web interface).
+* **Update through the web interface (without the Portal administration, optional):** Set up once on the server in the Feuerix folder (Git checkout,
+  user in the `docker` group, sudo required):
+
+  ```bash
+  ./scripts/update_einrichten.sh              # button in the admin; add --automatisch for a nightly update (about 03:30)
+  docker compose up -d                        # mounts the update/ folder
+  ```
+
+  Afterwards *Administration › Software update* (superadministrators only) offers the "Update now" button, and when a new version exists the notice at
+  the top links to it. The script `scripts/update.sh` backs up first (if that fails, **nothing** is changed), fetches the code
+  (`git pull --ff-only`), builds the image (on errors the code is reset and the running version stays) and restarts. The status is in
+  `update/status.json`, the output in `update/update.log` and in the journal (`journalctl -u feuerix-update`). The container gets **no** Docker
+  access: it only creates the request file `update/auftrag`, and a systemd path service (`feuerix-update.path`) starts the script. The `update/`
+  folder is deliberately writable for everyone (only request, status and log, nothing secret). The same works by hand with `./scripts/update.sh`.
+  To remove: `./scripts/update_einrichten.sh --entfernen`.
+
 * **OpenSlides** (only if used): bump `defaults.tag` in `config.yml`, then
   `./osmanage config --force --config config.yml --template docker-compose.yml.tmpl .`,
   `docker compose up --detach`, and if needed `./osmanage migrations stats|migrate|finalize`. Read the

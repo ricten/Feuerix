@@ -114,6 +114,8 @@ def version(request):
                 update_pruefen_task.delay()
             except Exception:      # Broker/Celery nicht nutzbar: die Seite darf deshalb nie ausfallen
                 logging.getLogger(__name__).warning("Update-Prüfung konnte nicht angestoßen werden", exc_info=True)
+        from . import softwareupdate
+        ctx["update_per_web"] = softwareupdate.aktiv()
         neu = se.update_anzeigen(app_version)
         if neu:
             ctx["update_verfuegbare_version"] = neu

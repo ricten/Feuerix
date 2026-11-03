@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.93.0)
+# Handbook – Feuerix (Version 1.94.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -835,6 +835,14 @@ file names unchanged). Restoring replaces the data of **all** clubs; Paperless/O
 Paperless-ngx run in their own stacks: their backup is placed into the same volume by the host script
 `scripts/backup-zusatz.sh`, then appears in the list and is copied to the external target as well (INSTALL.en.md,
 section 12, which also covers restoring).
+
+**Software update** (superadministrators only, only without the Portal administration): *Administration › Software update* shows the installed
+and the available version, the result of the last run and its log. "Update now" first backs up the database and files, then fetches the new
+code, builds the image and restarts Feuerix; the page shows the progress, Feuerix is unreachable for a few minutes meanwhile, and you may have to
+log in again afterwards. If the backup or fetching the code fails, nothing is changed; if the build fails, the previous version keeps running
+unchanged. A small service on the server does the work; an administrator sets it up once with `./scripts/update_einrichten.sh` (INSTALL.en.md,
+section 13); without it the page only shows these instructions. Every trigger is recorded in the audit trail. With the Portal administration, it
+updates the instances.
 
 ## 16. Data protection and security
 

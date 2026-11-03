@@ -64,6 +64,7 @@ BEREICHE = [
 # Nur fuer Superadministratoren (betrifft die Daten aller Vereine)
 SYSTEM = (_("System"), "bi-hdd-stack", [
     (_("Datensicherung"), "datensicherung", None, _("Sicherungen, externes Ziel, Wiederherstellung")),
+    (_("Software-Update"), "softwareupdate", None, _("Neue Feuerix-Version einspielen, Stand und Protokoll")),
 ])
 
 

@@ -18,6 +18,10 @@ paperless/consume/
 config/settings_sqlite.py
 _test_media/
 
+# Update per Weboberflaeche: Auftrag/Stand/Protokoll liegen nur lokal (der Ordner selbst bleibt per .gitkeep bestehen)
+update/*
+!update/.gitkeep
+
 # Claude Code: lokaler Gespraechsverlauf und persoenliche Hook-Einstellungen
 .claude/verlauf/
 .claude/settings.local.json
