@@ -67,8 +67,8 @@ class MitgliedAnonymisierenTests(TestCase):
                 services.mitglied_anonymisieren(self.verbindung, self.m)
 
     def test_ohne_mitgliedsnummer_faellt_auf_pk_zurueck(self):
+        # bewusst ohne save(): das vergibt automatisch die naechste freie Mitgliedsnummer
         self.m.mitgliedsnummer = None
-        self.m.save()
         with patch("apps.openslides.services.OSClient") as MockClient:
             instanz = MockClient.return_value
             services.mitglied_anonymisieren(self.verbindung, self.m)

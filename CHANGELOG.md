@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.92.5
+
+- **Codename „Saugleitungstest“.** Fix: Ein OpenSlides-Test nahm an, dass Mitglied-ID und automatisch vergebene Mitgliedsnummer gleich sind - nur auf SQLite wahr, auf PostgreSQL nicht.
+
 ## 1.92.4
 
 - **Codename „Druckprüfung“.** Fix: Ein Test legte eine zu lange Akzentfarbe an (`varchar(7)`), was nur PostgreSQL ablehnt - er nutzt jetzt einen ungültigen, aber 7 Zeichen langen Wert.
