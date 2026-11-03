@@ -15,7 +15,7 @@ class DocxExportTests(TestCase):
         self.assertTrue(daten.startswith(b"PK"))  # .docx ist ein ZIP-Container
 
     def test_ungueltige_akzentfarbe_faellt_auf_standard_zurueck(self):
-        v = Verein.objects.create(name="Test e.V.", kuerzel="test2", akzentfarbe="keine-farbe")
+        v = Verein.objects.create(name="Test e.V.", kuerzel="test2", akzentfarbe="#GGGGGG")
         s = Schriftstueck.objects.create(verein=v, titel="Test", art="brief", betreff="Betreff", text="Text.")
         daten = schriftstueck_docx(s)
         self.assertTrue(daten.startswith(b"PK"))

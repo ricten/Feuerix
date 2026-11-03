@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.92.4
+
+- **Codename „Druckprüfung“.** Fix: Ein Test legte eine zu lange Akzentfarbe an (`varchar(7)`), was nur PostgreSQL ablehnt - er nutzt jetzt einen ungültigen, aber 7 Zeichen langen Wert.
+
 ## 1.92.3
 
 - **Codename „Atemschutzprobe“.** Fix: Ein Wiederherstellungs-Test schloss auf PostgreSQL die Test-Datenbankverbindung (`connections.close_all()`), wodurch Folgetests im selben Worker abbrachen - der Aufruf ist im Test jetzt ersetzt.
