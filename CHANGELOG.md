@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.93.0
+
+- **Codename „Probealarm-Übung“.** Neu: `manage.py sicherheitstest_vorbereiten` legt auf einer Testinstanz zwei Vereine und Testkonten mit verschiedenen Rechten an, dazu die Anleitung `docs/SICHERHEITSTEST.md` (Test-VM, OWASP ZAP, Proxy-Prüfpunkte). Der Befehl verweigert sich bei fremden Vereinen, also auf echten Instanzen.
+
 ## 1.92.6
 
 - **Codename „Sicherheitsbegehung“.** Härtung nach Sicherheitsprüfung: Mindestversionen angehoben (`pypdf>=6.21.4`, `Pillow>=13.0.0`, bekannte CVEs), XML-Import (CAMT.053, E-Rechnung) über `defusedxml`, Bank-Challenge (FinTS) nur noch als Text statt `|safe`, und „Passwort vergessen“ sowie „2FA-Anfrage“ sind auf 5 Anfragen je IP und Stunde begrenzt.
