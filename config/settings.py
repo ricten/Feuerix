@@ -203,3 +203,11 @@ UPDATE_CHECK_INTERVALL_STUNDEN = int(os.environ.get("UPDATE_CHECK_INTERVALL_STUN
 # zu bringen. Nur aktiv bei "manage.py test" (nie in Produktion, da dort kein "test" in sys.argv steht).
 if "test" in sys.argv:
     PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+    # Medien und Sicherungen in ein temporaeres Verzeichnis: der Standard "/data/..." existiert ausserhalb des
+    # Containers (z. B. auf dem CI-Runner) nicht und ist dort nicht beschreibbar.
+    import tempfile
+    _TEST_VERZEICHNIS = Path(tempfile.mkdtemp(prefix="feuerix-test-"))
+    if "MEDIA_ROOT" not in os.environ:
+        MEDIA_ROOT = _TEST_VERZEICHNIS / "media"
+    if "BACKUP_DIR" not in os.environ:
+        BACKUP_DIR = _TEST_VERZEICHNIS / "backups"

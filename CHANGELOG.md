@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.92.2
+
+- **Codename „Stützpunktausstattung“.** Fix: Die CI-Tests brachen auf GitHub ab (`Permission denied: '/data'`), weil `MEDIA_ROOT`/`BACKUP_DIR` im Testlauf auf `/data/...` zeigten - bei `manage.py test` liegen sie jetzt in einem temporären Verzeichnis.
+
 ## 1.92.1
 
 - **Codename „Kupplungsschlüssel“.** Fix: Jede Seite brach mit „500“ ab (für Superuser), wenn `kombu` das Paket `packaging` vermisst - `requirements.txt` verlangt jetzt `celery[redis]` (neuere `kombu`-Versionen installieren `packaging` nur mit dieser Erweiterung), und ein nicht erreichbarer Update-Check im Seitenkopf lässt die Seite nicht mehr ausfallen.
