@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.92.3
+
+- **Codename „Atemschutzprobe“.** Fix: Ein Wiederherstellungs-Test schloss auf PostgreSQL die Test-Datenbankverbindung (`connections.close_all()`), wodurch Folgetests im selben Worker abbrachen - der Aufruf ist im Test jetzt ersetzt.
+
 ## 1.92.2
 
 - **Codename „Stützpunktausstattung“.** Fix: Die CI-Tests brachen auf GitHub ab (`Permission denied: '/data'`), weil `MEDIA_ROOT`/`BACKUP_DIR` im Testlauf auf `/data/...` zeigten - bei `manage.py test` liegen sie jetzt in einem temporären Verzeichnis.

@@ -121,6 +121,7 @@ class WiederherstellenTests(DatensicherungTestBasis):
     def _lauf(self, **kw):
         with patch("apps.core.datensicherung._db_dump", side_effect=_fake_dump), \
                 patch("apps.core.datensicherung.db_einspielen", **kw.get("db", {})) as db, \
+                patch("django.db.connections.close_all"), \
                 patch("django.core.management.call_command") as migrate:
             erg = datensicherung.wiederherstellen("db-20260101-030000.sql.gz", kw.get("media", ""), "root")
         return erg, db, migrate
