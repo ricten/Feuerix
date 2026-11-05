@@ -101,6 +101,24 @@ class AnfordernTests(Basis):
         self.assertEqual(daten["von"], "root")
         self.assertTrue(softwareupdate.laeuft())
 
+    def test_stand_steht_sofort_auf_laeuft_auch_wenn_der_server_den_auftrag_schon_angenommen_hat(self):
+        self.bereit()
+        softwareupdate.anfordern("root")
+        s = softwareupdate.status()
+        self.assertEqual(s["zustand"], "laeuft")
+        self.assertIn("Auftrag erteilt", s["schritt"])
+        (self.ordner / "auftrag").unlink()            # der Server hat angenommen, update.sh hat noch nichts geschrieben
+        self.assertTrue(softwareupdate.laeuft())
+        with self.assertRaises(softwareupdate.NichtMoeglich):
+            softwareupdate.anfordern("root")           # ein zweiter Klick startet keinen zweiten Lauf
+
+    def test_vorab_stand_ueberschreibt_keinen_fremden_zustand_bei_fehler(self):
+        self.bereit()
+        self.status_schreiben(zustand="ok", meldung="alt")
+        with override_settings(SOFTWAREUPDATE_PER_WEB=False), self.assertRaises(softwareupdate.NichtMoeglich):
+            softwareupdate.anfordern("root")
+        self.assertEqual(softwareupdate.status()["meldung"], "alt")                 # abgelehnt -> nichts angefasst
+
     def test_nicht_eingeschaltet(self):
         self.bereit()
         with override_settings(SOFTWAREUPDATE_PER_WEB=False), self.assertRaises(softwareupdate.NichtMoeglich):
@@ -191,6 +209,16 @@ class SeiteTests(Basis):
         self.assertEqual(eintrag.user_name, "root")
         self.assertIn("angefordert", eintrag.grund)
 
+    def test_zweiter_klick_nach_annahme_durch_den_server_wird_abgewiesen(self):
+        self.bereit()
+        self.client.force_login(self.root)
+        self.client.post(reverse("softwareupdate_starten"))
+        (self.ordner / "auftrag").unlink()            # der Server hat den Auftrag schon angenommen
+        antwort = self.client.post(reverse("softwareupdate_starten"), follow=True)
+        self.assertContains(antwort, "bereits")
+        self.assertFalse((self.ordner / "auftrag").exists())
+        self.assertEqual(AuditLog.objects.filter(modell="Software-Update").count(), 1)
+
     def test_starten_ohne_einrichtung_meldet_fehler_und_legt_nichts_an(self):
         self.client.force_login(self.root)
         antwort = self.client.post(reverse("softwareupdate_starten"), follow=True)
@@ -275,7 +303,7 @@ class UpdateSkriptTests(TestCase):
             "git": f'''#!/bin/bash
 {log.format("git")}
 case "$*" in
-  "rev-parse --abbrev-ref @{{u}}") echo origin/main ;;
+  "rev-parse --abbrev-ref @{{u}}") cp "{self.proj}/update/status.json" "{self.proj}/bei_erstem_git.json" 2>/dev/null; echo origin/main ;;
   "rev-parse HEAD") echo "${{FAKE_HEAD:-aaa}}" ;;
   "rev-parse origin/main") echo "${{FAKE_UP:-bbb}}" ;;
   "show origin/main:VERSION") echo 2.0.0 ;;
@@ -288,7 +316,7 @@ exit 0
 {log.format("docker")}
 case "$*" in
   *exec*backup*) exit ${{FAKE_BACKUP_RC:-0}} ;;
-  *build*) exit ${{FAKE_BUILD_RC:-0}} ;;
+  *build*) [ -n "$FAKE_BUILD_KILL" ] && kill -TERM $PPID; exit ${{FAKE_BUILD_RC:-0}} ;;
 esac
 exit 0
 ''',
@@ -329,6 +357,19 @@ exit ${{FAKE_CURL_RC:-0}}
         self.assertIn("Host: verein.example.org", befehle)                       # Erreichbarkeit mit dem ersten erlaubten Host
         self.assertIn("127.0.0.1:8123/login/", befehle)
         self.assertIn("Feuerix-Update gestartet", (self.proj / "update" / "update.log").read_text())
+
+    def test_status_laeuft_schon_vor_dem_ersten_git_befehl(self):
+        self.lauf()
+        daten = json.loads((self.proj / "bei_erstem_git.json").read_text())
+        self.assertEqual(daten["zustand"], "laeuft")                              # keine Luecke fuer die Oberflaeche
+        self.assertEqual(daten["schritt"], "Auftrag angenommen")
+
+    def test_unerwarteter_abbruch_laesst_den_stand_nicht_auf_laeuft(self):
+        erg = self.lauf(FAKE_BUILD_KILL=1)
+        self.assertNotEqual(erg.returncode, 0)
+        self.assertEqual(self.status()["zustand"], "fehler")
+        self.assertIn("unerwartet abgebrochen", self.status()["meldung"])
+        self.assertNotEqual(self.status()["beendet"], "")
 
     def test_nichts_neues_meldet_aktuell_und_baut_nicht(self):
         erg = self.lauf(FAKE_HEAD="gleich", FAKE_UP="gleich")

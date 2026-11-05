@@ -126,3 +126,19 @@ def anfordern(benutzername):
         os.chmod(verzeichnis() / "auftrag", 0o666)      # der Server-Benutzer muss die Datei wieder loeschen koennen
     except OSError:
         pass
+    _stand_vorab()
+
+
+def _stand_vorab():
+    """Der Server nimmt den Auftrag oft innerhalb von Millisekunden an und loescht die Datei, bevor update.sh den ersten Stand schreibt.
+    Damit die Seite in dieser Luecke nicht "kein Update" zeigt (und ein zweiter Klick nicht noch einen Lauf startet), steht
+    der Stand schon jetzt auf "laeuft"; update.sh ueberschreibt ihn sofort mit dem eigenen."""
+    from django.utils.translation import gettext as _
+    daten = {"zustand": "laeuft", "schritt": _("Auftrag erteilt – warte auf den Server"), "meldung": "", "von": "", "nach": "",
+             "gestartet": timezone.now().isoformat(), "beendet": ""}
+    tmp = verzeichnis() / ".status.vorab.tmp"
+    try:
+        tmp.write_text(json.dumps(daten), encoding="utf-8")
+        os.replace(tmp, verzeichnis() / "status.json")
+    except OSError:
+        pass                                           # nur die Anzeige leidet, der Auftrag liegt ja

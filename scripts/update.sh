@@ -23,6 +23,7 @@ LOG="$UPDATE_DIR/update.log"
 VON=""
 NACH=""
 GESTARTET=""
+ABGESCHLOSSEN=0
 jetzt() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 json_text() { printf '%s' "${1:-}" | tr -d '"\\' | tr '\n\r\t' '   ' | cut -c1-300; }
 status() { # status ZUSTAND SCHRITT [MELDUNG] [ENDE]
@@ -37,7 +38,13 @@ beginnen() {
   exec > >(tee -a "$LOG") 2>&1
   echo "=== Feuerix-Update gestartet: $GESTARTET ==="
 }
-fertig() { status "$1" "$2" "$3" "$(jetzt)"; echo "=== $3 ==="; sleep 0.3; }
+fertig() { ABGESCHLOSSEN=1; status "$1" "$2" "$3" "$(jetzt)"; echo "=== $3 ==="; sleep 0.3; }
+abbruch() { # unerwartetes Ende (Signal, Fehler im Skript): der Stand darf nicht auf "laeuft" stehen bleiben
+  if [ "$ABGESCHLOSSEN" = 0 ] && [ -n "$GESTARTET" ]; then
+    status fehler "Abgebrochen" "Das Update wurde unerwartet abgebrochen (Protokoll: update/update.log)." "$(jetzt)"
+  fi
+}
+trap abbruch EXIT
 fehler() { # fehler MELDUNG SCHRITT
   echo "FEHLER: $1"
   fertig fehler "$2" "$1"
@@ -46,6 +53,10 @@ fehler() { # fehler MELDUNG SCHRITT
 env_wert() { sed -n "s/^$1=//p" "$PROJ/.env" 2>/dev/null | tail -1 | tr -d "\"'"; }
 
 VON="$(cat "$PROJ/VERSION" 2>/dev/null)"
+if [ "$NUR_WENN_NEU" = 0 ]; then       # Knopf/von Hand: sofort melden, dass der Auftrag angenommen ist (keine Luecke fuer die Oberflaeche)
+  beginnen
+  status laeuft "Auftrag angenommen"
+fi
 UPSTREAM="$(git rev-parse --abbrev-ref '@{u}' 2>/dev/null || true)"
 
 if [ "$NUR_WENN_NEU" = 1 ]; then       # Timer: still bleiben, wenn es nichts zu tun gibt
@@ -54,7 +65,7 @@ if [ "$NUR_WENN_NEU" = 1 ]; then       # Timer: still bleiben, wenn es nichts zu
   [ "$(git rev-parse HEAD)" = "$(git rev-parse "$UPSTREAM")" ] && exit 0
 fi
 
-beginnen
+if [ "$NUR_WENN_NEU" = 1 ]; then beginnen; fi
 status laeuft "Prüfe auf eine neue Version"
 [ -n "$UPSTREAM" ] || fehler "Kein Branch mit Gegenstelle ausgecheckt (git status prüfen) - automatisches Aktualisieren nicht möglich." "Prüfung"
 git fetch --quiet origin || fehler "git fetch fehlgeschlagen (Netzwerk oder Zugangsdaten zum Repository prüfen)." "Prüfung"

@@ -6974,6 +6974,10 @@ msgstr "Feuerix is restarting – one moment …"
 msgid "Jetzt aktualisieren …"
 msgstr "Update now …"
 
+#: apps/core/softwareupdate.py
+msgid "Auftrag erteilt – warte auf den Server"
+msgstr "Request issued – waiting for the server"
+
 #~ msgid "Steuerbefreiung nach § 4 UStG (ideeller Bereich) - bitte prüfen"
 #~ msgstr "Tax exemption under § 4 UStG (non-profit sphere) - please verify"
 

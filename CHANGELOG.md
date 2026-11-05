@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.94.2
+
+- **Codename „Rückmeldeschleife“.** Fix, gefunden beim Test auf einem echten Server: Nach „Jetzt aktualisieren“ nimmt der Server den Auftrag in Millisekunden an und löscht die Datei, bevor `update.sh` den ersten Stand schreibt - in dieser Lücke zeigte die Seite „kein Update“, und ein zweiter Klick startete einen zweiten Lauf. Jetzt steht der Stand sofort auf „läuft“ (Seite und Skript), und bricht `update.sh` unerwartet ab, wird „Fehler“ eingetragen statt „läuft“. Migration: keine.
+
 ## 1.94.1
 
 - **Codename „Zündschloss“.** Fix: Die Skripte `scripts/update.sh` und `scripts/update_einrichten.sh` waren ohne Ausführungsrecht eingecheckt (auf dem Server „Permission denied“). Jetzt ausführbar; der systemd-Dienst startet das Update zusätzlich über `/bin/bash`, unabhängig vom Dateimodus. Migration: keine.
