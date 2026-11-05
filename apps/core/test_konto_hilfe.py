@@ -159,3 +159,14 @@ class RatenlimitTests(Basis):
         r = self.client.post(reverse("zf_anfrage"), {"benutzername": "max"})
         self.assertRedirects(r, reverse("zf_anfrage_fertig"))
         self.assertEqual(ZweiFaktorAnfrage.objects.count(), 0)
+
+
+class CacheAusfallTests(Basis):
+    def test_ausgefallener_cache_legt_die_seiten_nicht_lahm(self):
+        with patch("apps.core.konto_hilfe.cache.add", side_effect=ConnectionError("Redis nicht erreichbar")):
+            r = self.client.post(reverse("passwort_vergessen"), {"email": "max@example.org"})
+            self.assertRedirects(r, reverse("passwort_vergessen_gesendet"))
+            self.assertEqual(len(mail.outbox), 1)                          # ohne Ratenlimit, aber nicht kaputt
+            self.zf_an(self.max)
+            r = self.client.post(reverse("zf_anfrage"), {"benutzername": "max"})
+            self.assertRedirects(r, reverse("zf_anfrage_fertig"))

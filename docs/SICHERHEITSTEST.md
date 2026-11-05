@@ -58,6 +58,20 @@ lassen und dann *Active Scan* starten. Nur gegen die Test-VM.
 
 ## 5. Manuelle Prüfung mit Proxy (der wichtigste Teil)
 
+Ein Teil davon läuft automatisch: `scripts/sicherheitstest_pruefen.py` führt 92 Prüfungen zu den Punkten 1 bis 8 sowie zu Header, Eingaben,
+Django-Admin und Brute-Force-Schutz aus und meldet jede mit PASS oder FAIL. Das Skript weigert sich, wenn es Vereine außerhalb des
+Sicherheitstests gibt. Aufruf (Kopf des Skripts nennt die Befehle):
+
+```bash
+docker compose exec -T web python manage.py sicherheitstest_vorbereiten --testinstanz | tee /tmp/pt_out.txt
+docker compose cp /tmp/pt_out.txt web:/tmp/pt_out.txt
+docker compose exec -T web python manage.py shell < scripts/sicherheitstest_pruefen.py
+```
+
+Was das Skript nicht ersetzt: eigene Gedanken mit einem Proxy (ZAP/Burp) zu Besonderheiten, die nur ein Mensch erkennt. Zum ZAP-Baseline-Scan: Ein angemeldeter
+Lauf per Cookie-Ersetzung (`-z "-config replacer…"`) lieferte im Test nur Fehler 400 – für angemeldete Seiten ist der Weg über das Skript oder den
+ZAP-Desktop mit Anmelde-Kontext verlässlicher.
+
 Scanner verstehen die Rechte- und Mandantenlogik nicht. Browser über den Proxy (ZAP/Burp) auf die VM zeigen lassen und
 folgende Punkte durchgehen. Die ersten drei prüft schon `apps/core/test_sicherheitstest_vorbereiten.py` automatisch.
 

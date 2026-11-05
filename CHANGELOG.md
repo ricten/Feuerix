@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.94.3
+
+- **Codename „Schutzgitter“.** Sicherheit, Ergebnis eines Tests auf einer echten VM (92 Prüfungen und ZAP-Scan): **Das Ratenlimit der Anmeldehilfe („Passwort vergessen“, 2FA-Anfrage) galt je Gunicorn-Worker statt je Server** (25 Anfragen lösten 15 statt 5 Mails aus) - der Cache liegt jetzt gemeinsam in Redis (Datenbank 1, `cache.clear()` berührt die Celery-Warteschlange nie) und fällt bei einem Redis-Ausfall ohne Fehlerseite weg. Dazu Härtung: `Content-Security-Policy` (`frame-ancestors 'self'; base-uri 'self'`, nur auf HTML-Seiten), `Permissions-Policy`, statische Dateien nicht mehr mit `Access-Control-Allow-Origin: *`, Sprach-Cookie mit `SameSite`. Neu: `scripts/sicherheitstest_pruefen.py` für den Sicherheitstest. Migration: keine; `docker compose build && up -d` (Redis ist schon dabei).
+
 ## 1.94.2
 
 - **Codename „Rückmeldeschleife“.** Fix, gefunden beim Test auf einem echten Server: Nach „Jetzt aktualisieren“ nimmt der Server den Auftrag in Millisekunden an und löscht die Datei, bevor `update.sh` den ersten Stand schreibt - in dieser Lücke zeigte die Seite „kein Update“, und ein zweiter Klick startete einen zweiten Lauf. Jetzt steht der Stand sofort auf „läuft“ (Seite und Skript), und bricht `update.sh` unerwartet ab, wird „Fehler“ eingetragen statt „läuft“. Migration: keine.

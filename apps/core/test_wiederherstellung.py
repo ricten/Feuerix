@@ -138,6 +138,11 @@ class WiederherstellenTests(DatensicherungTestBasis):
         self.assertTrue(erg["ok"])
         self.assertEqual(erg["benutzer"], "root")
 
+    def test_ausgefallener_cache_macht_die_wiederherstellung_nicht_zum_fehlschlag(self):
+        with patch("django.core.cache.cache.clear", side_effect=ConnectionError("Redis nicht erreichbar")):
+            (ok, meldung), _db, _migrate = self._lauf(media="media-20260101-030000.tar.gz")
+        self.assertTrue(ok, meldung)
+
     def test_ohne_vorherige_sicherung_wird_nichts_veraendert(self):
         with patch("apps.core.datensicherung._db_dump", side_effect=datensicherung.SicherungFehler("kein pg_dump")), \
                 patch("apps.core.datensicherung.db_einspielen") as db:

@@ -12,6 +12,28 @@ from .models import Verein
 from .rechte import RechteKontext
 
 
+class SicherheitsHeaderMiddleware:
+    """Zusaetzliche Schutz-Header (Ergebnis des ZAP-Scans). Bewusst zurueckhaltend, damit nichts bricht:
+    * Content-Security-Policy nur auf HTML-Seiten und nur mit Direktiven, die Inline-Skripte/-Stile nicht einschraenken
+      (frame-ancestors 'self' passt zu den Vorschau-Seiten, die per xframe_options_sameorigin eingebettet werden; base-uri 'self'
+      verhindert ein untergeschobenes <base>). Nicht auf Dateien/PDF: ein CSP auf der PDF-Antwort kann den PDF-Betrachter blockieren.
+    * Permissions-Policy: Kamera, Mikrofon, Standort u. a. werden nicht gebraucht und fuer die Seite abgeschaltet.
+    Schon gesetzte Header (z. B. von einer einzelnen Ansicht) bleiben unveraendert."""
+
+    CSP = "frame-ancestors 'self'; base-uri 'self'"
+    PERMISSIONS = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        antwort = self.get_response(request)
+        if (antwort.get("Content-Type") or "").startswith("text/html"):
+            antwort.headers.setdefault("Content-Security-Policy", self.CSP)
+        antwort.headers.setdefault("Permissions-Policy", self.PERMISSIONS)
+        return antwort
+
+
 class WartungMiddleware:
     """Waehrend einer Wiederherstellung (Sperrdatei im Sicherungsordner, siehe datensicherung.py) beantwortet sie
     jede Anfrage mit einer Wartungsseite - sonst liefen Seitenaufrufe mitten in den Austausch der Datenbank. Greift

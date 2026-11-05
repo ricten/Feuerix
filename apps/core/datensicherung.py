@@ -10,6 +10,7 @@ import gzip
 import hashlib
 import io
 import json
+import logging
 import os
 import posixpath
 import re
@@ -480,7 +481,10 @@ def wiederherstellen(db_name="", media_name="", benutzer=""):
                                  % {"n": medien_einspielen(media_pfad), "name": media_name})
                 connections.close_all()
                 call_command("migrate", interactive=False, verbosity=0)   # Sicherung aus aelterer Version
-                cache.clear()
+                try:
+                    cache.clear()
+                except Exception:      # Cache (Redis) nicht erreichbar: die Daten sind trotzdem wiederhergestellt
+                    logging.getLogger(__name__).warning("Cache konnte nach der Wiederherstellung nicht geleert werden", exc_info=True)
                 teile.append(_("Der Stand vor der Wiederherstellung wurde gesichert (%(namen)s).")
                              % {"namen": namen})
                 ok, meldung = True, " ".join(str(t) for t in teile)

@@ -29,11 +29,14 @@ def zu_viele_anfragen(request, bereich):
     """Zaehlt eine POST-Anfrage je IP und Bereich; True, wenn das Limit ueberschritten ist (dann nichts tun, aber
     genauso antworten wie sonst - der Aufrufer verraet nichts)."""
     schluessel = f"konto_hilfe:{bereich}:{get_client_ip_address(request)}"
-    cache.add(schluessel, 0, 3600)
     try:
+        cache.add(schluessel, 0, 3600)
         return cache.incr(schluessel) > ANFRAGEN_JE_STUNDE
     except ValueError:      # Eintrag zwischenzeitlich abgelaufen
         cache.set(schluessel, 1, 3600)
+        return False
+    except Exception:       # Cache (Redis) nicht erreichbar: die Seite bleibt benutzbar, nur ohne Ratenlimit
+        log.warning("Ratenlimit der Anmeldehilfe nicht pruefbar (Cache nicht erreichbar)", exc_info=True)
         return False
 
 

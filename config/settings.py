@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "apps.core.middleware.SicherheitsHeaderMiddleware",
     "apps.core.middleware.WartungMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -127,10 +129,13 @@ SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_AGE = 60 * 60 * 12
 X_FRAME_OPTIONS = "DENY"
 SECURE_CONTENT_TYPE_NOSNIFF = True
+LANGUAGE_COOKIE_SAMESITE = "Lax"
+WHITENOISE_ALLOW_ALL_ORIGINS = False        # statische Dateien nicht fuer jede fremde Seite per CORS freigeben (Standard waere "*")
 if HTTPS:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    LANGUAGE_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -169,6 +174,18 @@ EMAIL_BACKEND = (
 # Celery
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+
+def _cache_url(redis_url):
+    """Redis-Adresse fuer den Cache: dieselbe Redis-Instanz wie der Celery-Broker, aber Datenbank 1. Ein cache.clear() (z. B. nach einer
+    Wiederherstellung) leert damit nie die Celery-Warteschlange in Datenbank 0."""
+    return re.sub(r"/\d+$", "", redis_url.rstrip("/")) + "/1"
+
+
+# Gemeinsamer Cache fuer alle Gunicorn-Worker (z. B. das Ratenlimit der Anmeldehilfe). Der Standard-Cache im Arbeitsspeicher waere je Worker
+# getrennt - ein Angreifer bekaeme dann das Vielfache des Limits. Bei "manage.py test" bleibt der schnelle Speicher-Cache.
+if "test" not in sys.argv:
+    CACHES = {"default": {"BACKEND": "django.core.cache.backends.redis.RedisCache", "LOCATION": _cache_url(CELERY_BROKER_URL)}}
 CELERY_TASK_ALWAYS_EAGER = _bool("CELERY_EAGER")
 
 # Datensicherung (Verwaltung > Datensicherung): lokaler Ablageort der Sicherungsdateien. Der Celery-Worker
