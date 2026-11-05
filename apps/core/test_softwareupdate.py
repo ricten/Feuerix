@@ -303,7 +303,7 @@ class UpdateSkriptTests(TestCase):
             "git": f'''#!/bin/bash
 {log.format("git")}
 case "$*" in
-  "rev-parse --abbrev-ref @{{u}}") cp "{self.proj}/update/status.json" "{self.proj}/bei_erstem_git.json" 2>/dev/null; echo origin/main ;;
+  "rev-parse --abbrev-ref @{{u}}") [ -n "$FAKE_NO_UPSTREAM" ] && exit 128; cp "{self.proj}/update/status.json" "{self.proj}/bei_erstem_git.json" 2>/dev/null; echo origin/main ;;
   "rev-parse HEAD") echo "${{FAKE_HEAD:-aaa}}" ;;
   "rev-parse origin/main") echo "${{FAKE_UP:-bbb}}" ;;
   "show origin/main:VERSION") echo 2.0.0 ;;
@@ -419,6 +419,15 @@ exit ${{FAKE_CURL_RC:-0}}
         self.assertEqual(self.status()["zustand"], "fehler")
         self.assertIn("antwortet nach dem Update nicht", self.status()["meldung"])
         self.assertTrue(self.status()["meldung"].rstrip().endswith("up -d."))      # Hinweis nicht abgeschnitten
+        self.assertIn("git reset --hard", self.status()["meldung"])                # Rueckweg behaelt den Branch (kein detached HEAD)
+        self.assertNotIn("git checkout", self.status()["meldung"])
+
+    def test_ohne_branch_sagt_die_meldung_den_weg_zurueck(self):
+        erg = self.lauf(FAKE_NO_UPSTREAM=1)
+        self.assertEqual(erg.returncode, 1)
+        self.assertEqual(self.status()["zustand"], "fehler")
+        self.assertIn("git checkout main", self.status()["meldung"])
+        self.assertNotIn("git pull", "\n".join(self.befehle()))                  # nichts veraendert
 
     def test_fehler_beim_holen_der_neuen_version(self):
         erg = self.lauf(FAKE_FETCH_RC=1)

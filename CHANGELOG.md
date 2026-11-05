@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.94.5
+
+- **Codename „Rückzugsweg“.** Fix aus dem Test der Update-Fehlerfälle auf einem echten Server: Der in der Fehlermeldung genannte Rückweg (`git checkout <Commit>`) ließ den Checkout ohne Branch zurück, und das nächste Update scheiterte mit „Kein Branch mit Gegenstelle“, ohne zu sagen, was zu tun ist. Jetzt lautet der Rat `git reset --hard <Commit>` (der Branch bleibt erhalten), und die Meldung bei fehlendem Branch nennt den Weg zurück (`git checkout main`). Migration: keine.
+
 ## 1.94.4
 
 - **Codename „Rückversicherung“.** Wichtiger Fix, gefunden beim Test des Update-Knopfs mit gestoppter Datenbank: `scripts/backup.sh` (die Sicherung per `docker compose exec web /app/scripts/backup.sh`, auch für Cron und vor jedem Update) meldete bei einem fehlgeschlagenen `pg_dump` **Erfolg** und schrieb eine leere Datenbank-Sicherung - in der Pipe `pg_dump | gzip` ging der Fehlercode verloren, und die Aufbewahrung (letzte 14) hätte nach vielen solchen Läufen gute Sicherungen verdrängen können. Jetzt schreibt das Skript den Dump zuerst in eine Temp-Datei, bricht bei Fehler oder leerem Dump mit Fehlercode ab, hinterlässt nichts und räumt nur nach einer gelungenen Sicherung auf. **Bitte prüfen:** Leere `db-*.sql.gz`-Dateien (ca. 20 Byte) im Sicherungsordner stammen von solchen Fehlläufen und sind keine Sicherung. Die Sicherung in der Weboberfläche (Datensicherung) war nicht betroffen. Migration: keine; `docker compose build && up -d`.

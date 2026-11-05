@@ -67,7 +67,7 @@ fi
 
 if [ "$NUR_WENN_NEU" = 1 ]; then beginnen; fi
 status laeuft "Prüfe auf eine neue Version"
-[ -n "$UPSTREAM" ] || fehler "Kein Branch mit Gegenstelle ausgecheckt (git status prüfen) - automatisches Aktualisieren nicht möglich." "Prüfung"
+[ -n "$UPSTREAM" ] || fehler "Kein Branch ausgecheckt (z. B. nach git checkout auf einen Commit) - automatisches Aktualisieren nicht möglich. Zurück auf den Branch: git checkout main, dann erneut aktualisieren." "Prüfung"
 git fetch --quiet origin || fehler "git fetch fehlgeschlagen (Netzwerk oder Zugangsdaten zum Repository prüfen)." "Prüfung"
 ALT_COMMIT="$(git rev-parse HEAD)"
 NACH="$(git show "$UPSTREAM:VERSION" 2>/dev/null | head -1)"
@@ -106,7 +106,7 @@ else
   echo "Hinweis: curl fehlt, die Erreichbarkeit wird nicht geprüft."
   oben=1
 fi
-[ "$oben" = 1 ] || fehler "Feuerix antwortet nach dem Update nicht (docker compose logs web). Sicherung: Menü Datensicherung. Zurück zur alten Version: git checkout $ALT_COMMIT, dann docker compose build und up -d." "Neustart"
+[ "$oben" = 1 ] || fehler "Feuerix antwortet nach dem Update nicht (docker compose logs web). Sicherung: Menü Datensicherung. Zurück zur alten Version: git reset --hard $ALT_COMMIT, dann docker compose build und up -d." "Neustart"
 
 NACH="$(cat "$PROJ/VERSION" 2>/dev/null)"
 docker image prune -f >/dev/null 2>&1 || true
