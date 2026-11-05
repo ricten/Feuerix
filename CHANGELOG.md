@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.94.4
+
+- **Codename „Rückversicherung“.** Wichtiger Fix, gefunden beim Test des Update-Knopfs mit gestoppter Datenbank: `scripts/backup.sh` (die Sicherung per `docker compose exec web /app/scripts/backup.sh`, auch für Cron und vor jedem Update) meldete bei einem fehlgeschlagenen `pg_dump` **Erfolg** und schrieb eine leere Datenbank-Sicherung - in der Pipe `pg_dump | gzip` ging der Fehlercode verloren, und die Aufbewahrung (letzte 14) hätte nach vielen solchen Läufen gute Sicherungen verdrängen können. Jetzt schreibt das Skript den Dump zuerst in eine Temp-Datei, bricht bei Fehler oder leerem Dump mit Fehlercode ab, hinterlässt nichts und räumt nur nach einer gelungenen Sicherung auf. **Bitte prüfen:** Leere `db-*.sql.gz`-Dateien (ca. 20 Byte) im Sicherungsordner stammen von solchen Fehlläufen und sind keine Sicherung. Die Sicherung in der Weboberfläche (Datensicherung) war nicht betroffen. Migration: keine; `docker compose build && up -d`.
+
 ## 1.94.3
 
 - **Codename „Schutzgitter“.** Sicherheit, Ergebnis eines Tests auf einer echten VM (92 Prüfungen und ZAP-Scan): **Das Ratenlimit der Anmeldehilfe („Passwort vergessen“, 2FA-Anfrage) galt je Gunicorn-Worker statt je Server** (25 Anfragen lösten 15 statt 5 Mails aus) - der Cache liegt jetzt gemeinsam in Redis (Datenbank 1, `cache.clear()` berührt die Celery-Warteschlange nie) und fällt bei einem Redis-Ausfall ohne Fehlerseite weg. Dazu Härtung: `Content-Security-Policy` (`frame-ancestors 'self'; base-uri 'self'`, nur auf HTML-Seiten), `Permissions-Policy`, statische Dateien nicht mehr mit `Access-Control-Allow-Origin: *`, Sprach-Cookie mit `SameSite`. Neu: `scripts/sicherheitstest_pruefen.py` für den Sicherheitstest. Migration: keine; `docker compose build && up -d` (Redis ist schon dabei).
