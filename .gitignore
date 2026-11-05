@@ -25,3 +25,4 @@ update/*
 # Claude Code: lokaler Gespraechsverlauf und persoenliche Hook-Einstellungen
 .claude/verlauf/
 .claude/settings.local.json
+.claude/settings.json
