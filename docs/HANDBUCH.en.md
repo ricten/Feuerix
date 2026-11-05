@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.94.5)
+# Handbook – Feuerix (Version 1.95.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -840,9 +840,30 @@ section 11, which also covers restoring).
 and the available version, the result of the last run and its log. "Update now" first backs up the database and files, then fetches the new
 code, builds the image and restarts Feuerix; the page shows the progress, Feuerix is unreachable for a few minutes meanwhile, and you may have to
 log in again afterwards. If the backup or fetching the code fails, nothing is changed; if the build fails, the previous version keeps running
-unchanged. A small service on the server does the work; an administrator sets it up once with `./scripts/update_einrichten.sh` (INSTALL.en.md,
+unchanged. If Feuerix does not respond after the restart and the database has not been migrated yet, the update **automatically rolls back to the
+previous version** (shown in yellow); if the database has already been migrated, only an error message with the way back remains, because the old
+code then no longer safely matches the database. A small service on the server does the work; an administrator sets it up once with `./scripts/update_einrichten.sh` (INSTALL.en.md,
 section 12); without it the page only shows these instructions. Every trigger is recorded in the audit trail. With the Portal administration, it
 updates the instances.
+
+**If an update fails:** The page shows the step and a message in red (or yellow for "rolled back"); the output of the whole run is under *Log of the last
+run*, on the server in `update/update.log` and in the journal (`journalctl -u feuerix-update`). Before changing anything the update creates a backup (under
+*Administration › Data backup*). Depending on the step:
+
+| Step in the message | What happened | What to do |
+| --- | --- | --- |
+| Check ("git fetch") | Nothing changed. The repository was not reachable. | Check the network and credentials for the repository (run `git fetch` on the server), then try again. |
+| Check ("No branch checked out") | Nothing changed. The folder is on a single commit instead of a branch. | On the server, in the Feuerix folder, run `git checkout main`, then try again. |
+| Backup | Nothing changed. Without a successful backup, nothing is ever updated. | Is the database running (`docker compose ps`), is there free space (`df -h`)? Fix the cause shown in the log, then try again. |
+| git pull | Nothing changed. Versioned files were modified on the server. | Look at `git status`, save your own changes and undo them (`git checkout -- file`). Configuration belongs only in `.env`. Then try again. |
+| Build | The code was reset to the old state, Feuerix keeps running unchanged. | Read the error at the end of the log; if it is caused by the new version, try again later. |
+| Rolled back (yellow) | Feuerix did not respond after the restart. The database had not been migrated yet, so the update **automatically went back to the previous version**, which is running again. | Look for the cause with `docker compose logs web` (e.g. a new required setting in `.env`, see `CHANGELOG.md`), update again later. |
+| Restart (red) | Feuerix does not respond, and the database was already migrated or its state could not be checked - therefore **no** automatic way back. | First look for the cause (`docker compose logs web`); often a fix in `.env` and `docker compose up -d` is enough. Way back only if necessary: `git reset --hard <commit from the message>`, `docker compose build`, `docker compose up -d`. If the old code does not run with the already migrated database, restore the backup from the start of the update (INSTALL.en.md, section 11, "Restoring Feuerix"). |
+| Rollback (red) | The automatic way back failed as well. | Look at `docker compose logs web`; when in doubt, restore the backup (INSTALL.en.md, section 11). |
+| Aborted | The update was ended unexpectedly (e.g. the server was restarted). | Check the state (`docker compose ps`, `git status`), then update again; when in doubt, restore the backup. |
+| "Waiting for the server" for more than five minutes | The service on the server has not accepted the request. | Check `systemctl status feuerix-update.path` and `journalctl -u feuerix-update`; if necessary run `./scripts/update_einrichten.sh` again. |
+
+The update never deletes data: on every error the database and uploaded files are kept, and the backup from the start is under *Administration › Data backup*.
 
 ## 16. Data protection and security
 

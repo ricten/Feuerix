@@ -16,7 +16,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
-ZUSTAENDE = ("laeuft", "ok", "fehler", "aktuell")
+ZUSTAENDE = ("laeuft", "ok", "fehler", "aktuell", "zurueckgesetzt")
 # Ein Update, das so lange "laeuft" meldet, gilt als abgebrochen (z. B. Server neu gestartet) und blockiert nichts mehr.
 LAUF_VERFALL = timedelta(hours=2)
 # So lange darf ein Auftrag unbearbeitet liegen, bevor die Seite vermutet, dass der Server-Dienst nicht reagiert.
@@ -39,7 +39,7 @@ def host_bereit():
     return (v / "host_bereit").is_file() and os.access(v, os.W_OK)
 
 
-def _text(wert, laenge=300):
+def _text(wert, laenge=500):
     return str(wert if wert is not None else "")[:laenge]
 
 

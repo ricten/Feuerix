@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.94.5)
+# Handbuch – Feuerix (Version 1.95.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -870,9 +870,31 @@ kopiert (INSTALL.md, Abschnitt 11, dort auch die Wiederherstellung).
 die verfügbare Version, das Ergebnis des letzten Laufs und dessen Protokoll. „Jetzt aktualisieren“ sichert zuerst Datenbank und Dateien,
 holt dann den neuen Code, baut das Image und startet Feuerix neu; die Seite zeigt den Fortschritt, Feuerix ist dabei einige Minuten nicht
 erreichbar, und Sie müssen sich danach ggf. neu anmelden. Schlägt die Sicherung oder das Holen des Codes fehl, wird nichts verändert; schlägt
-das Bauen fehl, läuft die bisherige Version unverändert weiter. Die Arbeit erledigt ein kleiner Dienst auf dem Server, den ein Administrator
+das Bauen fehl, läuft die bisherige Version unverändert weiter. Antwortet Feuerix nach dem Neustart nicht und ist die Datenbank noch nicht migriert,
+setzt das Update **automatisch auf die vorherige Version zurück** (Hinweis in gelb); ist die Datenbank schon migriert, bleibt es bei einer Fehlermeldung
+mit dem Rückweg, weil der alte Code dann nicht mehr sicher zur Datenbank passt. Die Arbeit erledigt ein kleiner Dienst auf dem Server, den ein Administrator
 einmalig mit `./scripts/update_einrichten.sh` einrichtet (INSTALL.md, Abschnitt 12); ohne Einrichtung zeigt die Seite nur diese Anleitung.
 Jedes Anstoßen steht im Änderungsprotokoll. Mit der Portalverwaltung aktualisiert diese die Instanzen.
+
+**Wenn ein Update fehlschlägt:** Die Seite zeigt rot (oder gelb bei „zurückgesetzt“) den Schritt und eine Meldung; die Ausgabe des ganzen Laufs steht
+unter *Protokoll des letzten Laufs*, auf dem Server in `update/update.log` und im Journal (`journalctl -u feuerix-update`). Vor jeder Änderung legt das
+Update eine Sicherung an (unter *Verwaltung › Datensicherung*). Je nach Schritt gilt:
+
+| Schritt in der Meldung | Was ist passiert | Was tun |
+| --- | --- | --- |
+| Prüfung („git fetch“) | Nichts verändert. Das Repository war nicht erreichbar. | Netzwerk und Zugangsdaten zum Repository prüfen (auf dem Server `git fetch`), dann erneut. |
+| Prüfung („Kein Branch ausgecheckt“) | Nichts verändert. Der Ordner steht auf einem einzelnen Commit statt auf einem Branch. | Auf dem Server im Feuerix-Ordner `git checkout main`, dann erneut. |
+| Sicherung | Nichts verändert. Ohne gelungene Sicherung wird nie aktualisiert. | Läuft die Datenbank (`docker compose ps`), ist Platz frei (`df -h`)? Ursache im Protokoll beheben, dann erneut. |
+| git pull | Nichts verändert. Versionierte Dateien wurden auf dem Server geändert. | `git status` ansehen, eigene Änderungen sichern und rückgängig machen (`git checkout -- Datei`). Konfiguration gehört nur in die `.env`. Dann erneut. |
+| Bauen | Der Code wurde auf den alten Stand zurückgesetzt, Feuerix läuft unverändert weiter. | Fehler am Ende des Protokolls lesen; liegt es an der neuen Version, später erneut versuchen. |
+| Zurückgesetzt (gelb) | Feuerix antwortete nach dem Neustart nicht. Die Datenbank war noch nicht migriert, deshalb ging das Update **automatisch auf die vorherige Version zurück**, die wieder läuft. | Ursache mit `docker compose logs web` suchen (z. B. neue Pflichteinstellung in der `.env`, siehe `CHANGELOG.md`), später erneut aktualisieren. |
+| Neustart (rot) | Feuerix antwortet nicht, und die Datenbank wurde schon migriert oder ihr Stand war nicht prüfbar - deshalb **kein** automatischer Rückweg. | Zuerst die Ursache suchen (`docker compose logs web`); oft genügt eine Korrektur in der `.env` und `docker compose up -d`. Rückweg nur wenn nötig: `git reset --hard <Commit aus der Meldung>`, `docker compose build`, `docker compose up -d`. Läuft der alte Code mit der schon migrierten Datenbank nicht, die Sicherung vom Beginn des Updates einspielen (INSTALL.md, Abschnitt 11, „Feuerix wiederherstellen“). |
+| Rollback (rot) | Auch der automatische Rückweg ist gescheitert. | `docker compose logs web` ansehen; im Zweifel die Sicherung einspielen (INSTALL.md, Abschnitt 11). |
+| Abgebrochen | Das Update wurde unerwartet beendet (z. B. Server neu gestartet). | Zustand prüfen (`docker compose ps`, `git status`), dann erneut aktualisieren; bei Zweifel die Sicherung einspielen. |
+| „Warte auf den Server“ länger als fünf Minuten | Der Dienst auf dem Server hat den Auftrag nicht angenommen. | `systemctl status feuerix-update.path` und `journalctl -u feuerix-update` prüfen; ggf. `./scripts/update_einrichten.sh` erneut ausführen. |
+
+Das Update löscht nie Daten: Bei jedem Fehler bleiben Datenbank und hochgeladene Dateien erhalten, und die Sicherung vom Beginn liegt unter
+*Verwaltung › Datensicherung*.
 
 ## 16. Datenschutz und Sicherheit
 

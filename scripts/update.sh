@@ -25,7 +25,7 @@ NACH=""
 GESTARTET=""
 ABGESCHLOSSEN=0
 jetzt() { date -u +%Y-%m-%dT%H:%M:%SZ; }
-json_text() { printf '%s' "${1:-}" | tr -d '"\\' | tr '\n\r\t' '   ' | cut -c1-300; }
+json_text() { printf '%s' "${1:-}" | tr -d '"\\' | tr '\n\r\t' '   ' | cut -c1-500; }
 status() { # status ZUSTAND SCHRITT [MELDUNG] [ENDE]
   local tmp="$UPDATE_DIR/.status.tmp"
   printf '{"zustand": "%s", "schritt": "%s", "meldung": "%s", "von": "%s", "nach": "%s", "gestartet": "%s", "beendet": "%s"}\n' \
@@ -51,6 +51,39 @@ fehler() { # fehler MELDUNG SCHRITT
   exit 1
 }
 env_wert() { sed -n "s/^$1=//p" "$PROJ/.env" 2>/dev/null | tail -1 | tr -d "\"'"; }
+migrationen_zaehlen() { # Anzahl der angewendeten Datenbank-Migrationen; leer, wenn sie sich nicht ermitteln laesst
+  local n
+  n="$(docker compose exec -T db sh -c 'psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -Atc "SELECT count(*) FROM django_migrations"' 2>/dev/null < /dev/null | tr -d '[:space:]')"
+  case "$n" in ''|*[!0-9]*) n="";; esac
+  echo "$n"
+}
+warten_bis_oben() { # 0 = Feuerix antwortet auf der Anmeldeseite
+  local port host
+  port="$(env_wert WEB_PORT)"; port="${port:-8000}"
+  host="$(env_wert ALLOWED_HOSTS | cut -d, -f1)"; host="${host:-localhost}"
+  if ! command -v curl >/dev/null 2>&1; then
+    echo "Hinweis: curl fehlt, die Erreichbarkeit wird nicht geprüft."
+    return 0
+  fi
+  for _ in $(seq 1 60); do
+    if curl -fsS -o /dev/null -m 5 -H "Host: $host" -H "X-Forwarded-Proto: https" "http://127.0.0.1:$port/login/" 2>/dev/null; then return 0; fi
+    sleep 3
+  done
+  return 1
+}
+zurueckrollen() { # Code und Container auf den Stand vor dem Update zuruecksetzen (nur aufrufen, wenn die Datenbank nicht migriert wurde)
+  local ziel="$NACH"
+  status laeuft "Rollback: zurück auf die vorherige Version"
+  echo "Feuerix antwortet nicht und die Datenbank wurde noch nicht migriert: setze automatisch auf den Stand vor dem Update zurück."
+  git reset --keep "$ALT_COMMIT" >/dev/null 2>&1 || fehler "Der automatische Rollback ist fehlgeschlagen (git reset). Rückweg: git reset --hard $ALT_COMMIT, dann docker compose build und up -d." "Rollback"
+  docker compose build || fehler "Der automatische Rollback ist fehlgeschlagen (Bauen). Rückweg: docker compose build und up -d; Sicherung: Menü Datensicherung." "Rollback"
+  docker compose up -d || fehler "Der automatische Rollback ist fehlgeschlagen (Neustart). Rückweg: docker compose up -d; Sicherung: Menü Datensicherung." "Rollback"
+  status laeuft "Rollback: warte, bis die vorherige Version antwortet"
+  warten_bis_oben || fehler "Auch die vorherige Version antwortet nach dem Rollback nicht (docker compose logs web). Sicherung: Menü Datensicherung." "Rollback"
+  NACH="$ziel"
+  fertig zurueckgesetzt "Zurückgesetzt" "Das Update auf $ziel ist fehlgeschlagen (Feuerix antwortete nicht). Es wurde automatisch auf $VON zurückgesetzt, die Datenbank war noch nicht migriert. Ursache: docker compose logs web."
+  exit 1
+}
 
 VON="$(cat "$PROJ/VERSION" 2>/dev/null)"
 if [ "$NUR_WENN_NEU" = 0 ]; then       # Knopf/von Hand: sofort melden, dass der Auftrag angenommen ist (keine Luecke fuer die Oberflaeche)
@@ -80,6 +113,8 @@ echo "Aktualisiere von $VON auf ${NACH:-?}."
 
 status laeuft "Sicherung von Datenbank und Medien"
 docker compose exec -T web /app/scripts/backup.sh || fehler "Die Sicherung vor dem Update ist fehlgeschlagen - es wurde nichts verändert." "Sicherung"
+MIG_VORHER="$(migrationen_zaehlen)"       # Stand der Datenbank vor dem Update: entscheidet spaeter, ob ein automatischer Rollback sicher ist
+echo "Angewendete Migrationen vor dem Update: ${MIG_VORHER:-unbekannt}"
 
 status laeuft "Neuen Code holen (git pull)"
 git pull --ff-only --quiet || fehler "git pull ist fehlgeschlagen (lokale Änderungen an versionierten Dateien? git status prüfen) - es wurde nichts verändert." "git pull"
@@ -94,19 +129,21 @@ status laeuft "Feuerix neu starten (Datenbank-Migrationen laufen beim Start)"
 docker compose up -d || fehler "docker compose up ist fehlgeschlagen. Sicherung: Menü Datensicherung; Fehlersuche: docker compose logs web." "Neustart"
 
 status laeuft "Warte, bis Feuerix antwortet"
-PORT="$(env_wert WEB_PORT)"; PORT="${PORT:-8000}"
-HOST="$(env_wert ALLOWED_HOSTS | cut -d, -f1)"; HOST="${HOST:-localhost}"
-oben=0
-if command -v curl >/dev/null 2>&1; then
-  for _ in $(seq 1 60); do
-    if curl -fsS -o /dev/null -m 5 -H "Host: $HOST" -H "X-Forwarded-Proto: https" "http://127.0.0.1:$PORT/login/" 2>/dev/null; then oben=1; break; fi
-    sleep 3
-  done
-else
-  echo "Hinweis: curl fehlt, die Erreichbarkeit wird nicht geprüft."
-  oben=1
+if ! warten_bis_oben; then
+  # Automatischer Rueckweg nur, wenn die Datenbank nachweislich noch nicht migriert wurde (gleiche Zahl angewendeter Migrationen wie
+  # vorher): Dann passt der alte Code noch zur Datenbank. Ist sie schon migriert oder nicht pruefbar, bleibt es bei der Meldung.
+  MIG_NACHHER="$(migrationen_zaehlen)"
+  echo "Angewendete Migrationen nach dem Fehlstart: ${MIG_NACHHER:-unbekannt}"
+  if [ -n "$MIG_VORHER" ] && [ "$MIG_VORHER" = "$MIG_NACHHER" ]; then
+    zurueckrollen
+  fi
+  if [ -z "$MIG_VORHER" ] || [ -z "$MIG_NACHHER" ]; then
+    GRUND="Der Migrationsstand war nicht prüfbar, deshalb kein automatischer Rückweg."
+  else
+    GRUND="Die Datenbank wurde schon migriert, deshalb kein automatischer Rückweg."
+  fi
+  fehler "Feuerix antwortet nach dem Update nicht (docker compose logs web). $GRUND Sicherung: Menü Datensicherung. Rückweg: git reset --hard $ALT_COMMIT, dann docker compose build und up -d." "Neustart"
 fi
-[ "$oben" = 1 ] || fehler "Feuerix antwortet nach dem Update nicht (docker compose logs web). Sicherung: Menü Datensicherung. Zurück zur alten Version: git reset --hard $ALT_COMMIT, dann docker compose build und up -d." "Neustart"
 
 NACH="$(cat "$PROJ/VERSION" 2>/dev/null)"
 docker image prune -f >/dev/null 2>&1 || true

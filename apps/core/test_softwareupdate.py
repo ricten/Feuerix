@@ -57,8 +57,14 @@ class StatusTests(Basis):
         self.status_schreiben(zustand="ok", meldung="x" * 1000, von="1.0.0", nach="1.2.0")
         s = softwareupdate.status()
         self.assertEqual((s["zustand"], s["von"], s["nach"]), ("ok", "1.0.0", "1.2.0"))
-        self.assertEqual(len(s["meldung"]), 300)
+        self.assertEqual(len(s["meldung"]), 500)
         self.assertIsNotNone(s["gestartet"])
+
+    def test_zustand_zurueckgesetzt_wird_uebernommen(self):
+        self.status_schreiben(zustand="zurueckgesetzt", meldung="automatisch zurueckgesetzt")
+        s = softwareupdate.status()
+        self.assertEqual(s["zustand"], "zurueckgesetzt")
+        self.assertFalse(softwareupdate.laeuft())
 
     def test_unbekannter_zustand_wird_nicht_uebernommen(self):
         self.status_schreiben(zustand="<script>")
@@ -190,6 +196,16 @@ class SeiteTests(Basis):
         self.assertIn("Die Sicherung ist fehlgeschlagen", html)
         self.assertIn("Feuerix-Update gestartet", html)
 
+    def test_seite_zeigt_zurueckgesetztes_update_als_warnung(self):
+        self.bereit()
+        self.status_schreiben(zustand="zurueckgesetzt", meldung="Das Update auf 2.0.0 ist fehlgeschlagen und wurde zurueckgesetzt")
+        self.client.force_login(self.root)
+        html = self.client.get(reverse("softwareupdate")).content.decode()
+        self.assertIn("wurde zurueckgesetzt", html)
+        self.assertRegex(html, r'alert alert-warning small" id="su-ergebnis"')
+        self.assertIn('id="su-form"', html)                       # nach dem Rollback darf man es erneut versuchen
+        self.assertNotRegex(html, r'id="su-form"[^>]*class="d-none"')
+
     def test_laufendes_update_blendet_knopf_aus_und_zeigt_schritt(self):
         self.bereit()
         self.status_schreiben(zustand="laeuft", schritt="Neues Image bauen")
@@ -316,12 +332,19 @@ exit 0
 {log.format("docker")}
 case "$*" in
   *exec*backup*) exit ${{FAKE_BACKUP_RC:-0}} ;;
-  *build*) [ -n "$FAKE_BUILD_KILL" ] && kill -TERM $PPID; exit ${{FAKE_BUILD_RC:-0}} ;;
+  *exec*psql*) n=$(cat "{self.proj}/mig_zaehler" 2>/dev/null || echo 0); echo $((n+1)) > "{self.proj}/mig_zaehler"
+               if [ "$n" = 0 ]; then echo "${{FAKE_MIG_VORHER-10}}"; else echo "${{FAKE_MIG_NACHHER-10}}"; fi; exit 0 ;;
+  *build*) [ -n "$FAKE_BUILD_KILL" ] && kill -TERM $PPID
+               b=$(cat "{self.proj}/build_zaehler" 2>/dev/null || echo 0); b=$((b+1)); echo $b > "{self.proj}/build_zaehler"
+               [ -n "$FAKE_BUILD_ZWEITER_FEHLER" ] && [ "$b" -ge 2 ] && exit 1
+               exit ${{FAKE_BUILD_RC:-0}} ;;
 esac
 exit 0
 ''',
             "curl": f'''#!/bin/bash
 {log.format("curl")}
+n=$(cat "{self.proj}/curl_zaehler" 2>/dev/null || echo 0); n=$((n+1)); echo $n > "{self.proj}/curl_zaehler"
+[ -n "$FAKE_CURL_FAIL_ANZAHL" ] && [ "$n" -le "$FAKE_CURL_FAIL_ANZAHL" ] && exit 1
 exit ${{FAKE_CURL_RC:-0}}
 ''',
             "sleep": "#!/bin/bash\nexit 0\n",
@@ -413,14 +436,64 @@ exit ${{FAKE_CURL_RC:-0}}
         self.assertIn("git reset --keep alt123", befehle)                        # zurueck auf den laufenden Stand
         self.assertNotIn("docker compose up -d", befehle)                        # laufende Container bleiben unangetastet
 
-    def test_antwortet_nach_dem_update_nicht(self):
-        erg = self.lauf(FAKE_CURL_RC=1)
+    def test_rollback_wenn_feuerix_nicht_antwortet_und_die_datenbank_nicht_migriert_wurde(self):
+        # die ersten 60 Abfragen (erste Wartezeit) scheitern, danach antwortet die alte Version wieder
+        erg = self.lauf(FAKE_CURL_FAIL_ANZAHL=60, FAKE_HEAD="alt123", FAKE_MIG_VORHER=10, FAKE_MIG_NACHHER=10)
+        self.assertEqual(erg.returncode, 1)                                          # das Update selbst ist gescheitert
+        s = self.status()
+        self.assertEqual(s["zustand"], "zurueckgesetzt")
+        self.assertIn("automatisch auf 1.0.0 zurückgesetzt", s["meldung"])
+        self.assertIn("2.0.0", s["meldung"])
+        befehle = self.befehle()
+        text = "\n".join(befehle)
+        self.assertIn("git reset --keep alt123", text)                               # Code zurueck (aenderungsschonend)
+        self.assertEqual(sum(1 for b in befehle if b == "docker compose up -d"), 2)    # erst neu, dann wieder alt
+        self.assertEqual(sum(1 for b in befehle if b == "docker compose build"), 2)
+        self.assertEqual(self.status()["beendet"] != "", True)
+
+    def test_kein_rollback_wenn_die_datenbank_schon_migriert_wurde(self):
+        erg = self.lauf(FAKE_CURL_RC=1, FAKE_HEAD="alt123", FAKE_MIG_VORHER=10, FAKE_MIG_NACHHER=12)
+        self.assertEqual(erg.returncode, 1)
+        s = self.status()
+        self.assertEqual(s["zustand"], "fehler")
+        self.assertIn("schon migriert", s["meldung"])
+        self.assertIn("kein automatischer Rückweg", s["meldung"])
+        text = "\n".join(self.befehle())
+        self.assertNotIn("git reset", text)                                          # der alte Code passt nicht mehr zur Datenbank
+        self.assertEqual(text.count("docker compose up -d"), 1)
+        self.assertTrue(s["meldung"].rstrip().endswith("up -d."))                    # Hinweis nicht abgeschnitten
+        self.assertIn("git reset --hard alt123", s["meldung"])
+
+    def test_kein_rollback_wenn_der_migrationsstand_nicht_pruefbar_ist(self):
+        for vorher, nachher in (("", ""), ("10", ""), ("", "10")):
+            self.setUp()
+            erg = self.lauf(FAKE_CURL_RC=1, FAKE_HEAD="alt123", FAKE_MIG_VORHER=vorher, FAKE_MIG_NACHHER=nachher)
+            self.assertEqual(erg.returncode, 1, (vorher, nachher))
+            self.assertEqual(self.status()["zustand"], "fehler", (vorher, nachher))
+            self.assertIn("nicht prüfbar", self.status()["meldung"], (vorher, nachher))
+            self.assertNotIn("git reset", "\n".join(self.befehle()), (vorher, nachher))
+
+    def test_auch_der_rollback_kann_scheitern_und_sagt_es(self):
+        erg = self.lauf(FAKE_CURL_RC=1, FAKE_HEAD="alt123", FAKE_MIG_VORHER=10, FAKE_MIG_NACHHER=10)
+        self.assertEqual(erg.returncode, 1)
+        s = self.status()
+        self.assertEqual(s["zustand"], "fehler")
+        self.assertIn("Auch die vorherige Version antwortet nach dem Rollback nicht", s["meldung"])
+        self.assertIn("git reset --keep alt123", "\n".join(self.befehle()))
+
+    def test_fehlgeschlagener_build_beim_rollback_wird_gemeldet(self):
+        # der erste Build (Update) gelingt, der zweite (Rollback) nicht
+        erg = self.lauf(FAKE_CURL_RC=1, FAKE_HEAD="alt123", FAKE_MIG_VORHER=10, FAKE_MIG_NACHHER=10, FAKE_BUILD_ZWEITER_FEHLER=1)
         self.assertEqual(erg.returncode, 1)
         self.assertEqual(self.status()["zustand"], "fehler")
-        self.assertIn("antwortet nach dem Update nicht", self.status()["meldung"])
-        self.assertTrue(self.status()["meldung"].rstrip().endswith("up -d."))      # Hinweis nicht abgeschnitten
-        self.assertIn("git reset --hard", self.status()["meldung"])                # Rueckweg behaelt den Branch (kein detached HEAD)
-        self.assertNotIn("git checkout", self.status()["meldung"])
+        self.assertIn("Rollback ist fehlgeschlagen (Bauen)", self.status()["meldung"])
+
+    def test_migrationsstand_wird_vor_dem_update_gemerkt_und_protokolliert(self):
+        erg = self.lauf(FAKE_MIG_VORHER=7)
+        self.assertEqual(erg.returncode, 0, erg.stdout + erg.stderr)
+        self.assertIn("Angewendete Migrationen vor dem Update: 7", (self.proj / "update" / "update.log").read_text())
+        self.assertEqual(self.status()["zustand"], "ok")                             # bei Erfolg kein zweiter Aufruf noetig
+        self.assertEqual((self.proj / "mig_zaehler").read_text().strip(), "1")
 
     def test_ohne_branch_sagt_die_meldung_den_weg_zurueck(self):
         erg = self.lauf(FAKE_NO_UPSTREAM=1)

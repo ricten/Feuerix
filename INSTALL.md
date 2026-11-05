@@ -415,7 +415,9 @@ aufbewahren).
 
   Danach steht unter *Verwaltung › Software-Update* (nur Superadministratoren) der Knopf „Jetzt aktualisieren“, und bei einer neuen Version zeigt der
   Hinweis oben einen Link dorthin. Das Skript `scripts/update.sh` sichert zuerst (schlägt das fehl, wird **nichts** verändert), holt den Code
-  (`git pull --ff-only`), baut das Image (bei Fehlern wird der Code zurückgesetzt, die laufende Version bleibt) und startet neu. Der Stand steht in
+  (`git pull --ff-only`), baut das Image (bei Fehlern wird der Code zurückgesetzt, die laufende Version bleibt) und startet neu. **Antwortet Feuerix danach nicht** und ist die
+  Datenbank noch nicht migriert (gleiche Zahl angewendeter Migrationen wie vorher), setzt das Skript automatisch auf die vorherige Version zurück; ist sie schon
+  migriert oder nicht prüfbar, bleibt es bei der Fehlermeldung mit dem Rückweg (`git reset --hard`, Sicherung). Der Stand steht in
   `update/status.json`, die Ausgabe in `update/update.log` und im Journal (`journalctl -u feuerix-update`). Der Container bekommt **keinen**
   Docker-Zugriff: Er legt nur die Auftragsdatei `update/auftrag` an, ein systemd-Pfad-Dienst (`feuerix-update.path`) startet das Skript. Der
   Ordner `update/` ist absichtlich für alle beschreibbar (nur Auftrag, Stand und Protokoll, nichts Geheimes). Von Hand geht dasselbe mit

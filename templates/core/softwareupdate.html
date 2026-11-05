@@ -34,7 +34,7 @@
     </div></div>
 
     {% if status.zustand %}
-    <div class="alert alert-{% if status.zustand == 'ok' %}success{% elif status.zustand == 'fehler' %}danger{% elif status.zustand == 'aktuell' %}secondary{% else %}info{% endif %} small" id="su-ergebnis">
+    <div class="alert alert-{% if status.zustand == 'ok' %}success{% elif status.zustand == 'fehler' %}danger{% elif status.zustand == 'zurueckgesetzt' %}warning{% elif status.zustand == 'aktuell' %}secondary{% else %}info{% endif %} small" id="su-ergebnis">
       <strong>{% trans "Letzter Lauf:" %}</strong>
       {% if status.gestartet %}{{ status.gestartet|date:"d.m.Y H:i" }}{% endif %}
       {% if status.von or status.nach %}· {{ status.von }} → {{ status.nach|default:"?" }}{% endif %}<br>

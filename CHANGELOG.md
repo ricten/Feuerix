@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.95.0
+
+- **Codename „Notbremse“.** Update mit **automatischem Rollback**: Antwortet Feuerix nach dem Neustart nicht und ist die Datenbank noch nicht migriert (`update.sh` zählt die angewendeten Migrationen vor dem Update und nach dem Fehlstart; gleiche Zahl = der alte Code passt noch), setzt das Skript Code und Container automatisch auf die vorherige Version zurück, wartet, bis sie antwortet, und meldet es als eigenen Zustand „zurückgesetzt“ (gelb). Ist die Datenbank schon migriert oder der Stand nicht prüfbar, gibt es **keinen** automatischen Rückweg, sondern wie bisher die Fehlermeldung mit `git reset --hard` und der Sicherung. Dazu: Meldungen bis 500 Zeichen, und das Handbuch beschreibt je Fehlermeldung, was passiert ist und was zu tun ist. Migration: keine.
+
 ## 1.94.5
 
 - **Codename „Rückzugsweg“.** Fix aus dem Test der Update-Fehlerfälle auf einem echten Server: Der in der Fehlermeldung genannte Rückweg (`git checkout <Commit>`) ließ den Checkout ohne Branch zurück, und das nächste Update scheiterte mit „Kein Branch mit Gegenstelle“, ohne zu sagen, was zu tun ist. Jetzt lautet der Rat `git reset --hard <Commit>` (der Branch bleibt erhalten), und die Meldung bei fehlendem Branch nennt den Weg zurück (`git checkout main`). Migration: keine.

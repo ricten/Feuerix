@@ -412,7 +412,9 @@ separately).
 
   Afterwards *Administration › Software update* (superadministrators only) offers the "Update now" button, and when a new version exists the notice at
   the top links to it. The script `scripts/update.sh` backs up first (if that fails, **nothing** is changed), fetches the code
-  (`git pull --ff-only`), builds the image (on errors the code is reset and the running version stays) and restarts. The status is in
+  (`git pull --ff-only`), builds the image (on errors the code is reset and the running version stays) and restarts. **If Feuerix does not respond afterwards** and the database
+  has not been migrated yet (same number of applied migrations as before), the script automatically rolls back to the previous version; if it has
+  been migrated or cannot be checked, only the error message with the way back remains (`git reset --hard`, backup). The status is in
   `update/status.json`, the output in `update/update.log` and in the journal (`journalctl -u feuerix-update`). The container gets **no** Docker
   access: it only creates the request file `update/auftrag`, and a systemd path service (`feuerix-update.path`) starts the script. The `update/`
   folder is deliberately writable for everyone (only request, status and log, nothing secret). The same works by hand with `./scripts/update.sh`.
