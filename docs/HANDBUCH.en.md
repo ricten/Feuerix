@@ -1,4 +1,4 @@
-# Handbook – Feuerix (Version 1.95.0)
+# Handbook – Feuerix (Version 1.96.0)
 
 This handbook describes how to use Feuerix, the club management software for fire brigade support
 associations ("Fördervereine"), for the board, treasurer, secretary and everyone else at the club. It
@@ -844,7 +844,8 @@ unchanged. If Feuerix does not respond after the restart and the database has no
 previous version** (shown in yellow); if the database has already been migrated, only an error message with the way back remains, because the old
 code then no longer safely matches the database. A small service on the server does the work; an administrator sets it up once with `./scripts/update_einrichten.sh` (INSTALL.en.md,
 section 12); without it the page only shows these instructions. Every trigger is recorded in the audit trail. With the Portal administration, it
-updates the instances.
+updates the instances. If the reverse proxy (Caddy) runs from this project, the update checks it as well and recreates it on a new image or changed proxy
+files (a short interruption for all domains behind the proxy; a note appears in the message, can be turned off with `PROXY_UPDATE=0`).
 
 **If an update fails:** The page shows the step and a message in red (or yellow for "rolled back"); the output of the whole run is under *Log of the last
 run*, on the server in `update/update.log` and in the journal (`journalctl -u feuerix-update`). Before changing anything the update creates a backup (under

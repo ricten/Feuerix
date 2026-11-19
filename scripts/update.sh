@@ -2,6 +2,8 @@
 # Feuerix auf dem Server aktualisieren (laeuft auf dem HOST, nicht im Container).
 #
 # Ablauf: Sicherung -> git pull -> docker compose build -> docker compose up -> warten, bis die Anmeldeseite antwortet.
+# Danach (und auch, wenn Feuerix schon aktuell ist): der Reverse Proxy Caddy, falls er aus deploy/docker-compose.proxy.yml dieses Projekts laeuft -
+# neues Image laden und den Proxy nur neu erzeugen, wenn sich das Image oder Dateien in deploy/ geaendert haben (abschaltbar: PROXY_UPDATE=0 in .env).
 # Gestartet wird es von Hand (./scripts/update.sh), vom systemd-Dienst feuerix-update (Knopf "Jetzt aktualisieren" im Admin legt dafuer
 # die Auftragsdatei update/auftrag an) oder vom optionalen Timer (--nur-wenn-neu: nichts tun, wenn es nichts Neues gibt).
 # Einrichtung: scripts/update_einrichten.sh. Der Stand steht in update/status.json, die Ausgabe in update/update.log.
@@ -25,7 +27,7 @@ NACH=""
 GESTARTET=""
 ABGESCHLOSSEN=0
 jetzt() { date -u +%Y-%m-%dT%H:%M:%SZ; }
-json_text() { printf '%s' "${1:-}" | tr -d '"\\' | tr '\n\r\t' '   ' | cut -c1-500; }
+json_text() { printf '%s' "${1:-}" | tr -d '"\\' | tr '\n\r\t' '   ' | cut -c1-500 | sed 's/ *$//'; }
 status() { # status ZUSTAND SCHRITT [MELDUNG] [ENDE]
   local tmp="$UPDATE_DIR/.status.tmp"
   printf '{"zustand": "%s", "schritt": "%s", "meldung": "%s", "von": "%s", "nach": "%s", "gestartet": "%s", "beendet": "%s"}\n' \
@@ -85,6 +87,56 @@ zurueckrollen() { # Code und Container auf den Stand vor dem Update zuruecksetze
   exit 1
 }
 
+PROXY_TEXT=""
+PROXY_FEHLER=0
+PROXY_GEAENDERT=0
+proxy_compose() { (cd "$PROJ/deploy" && docker compose --env-file ../.env -f docker-compose.proxy.yml "$@"); }
+proxy_antwortet() { # 0 = der Proxy beantwortet HTTPS fuer die Vereinsdomain (jede 2xx/3xx-Antwort der Anmeldeseite genuegt; Zertifikat egal)
+  local d code
+  d="$(env_wert VEREIN_DOMAIN)"
+  [ -n "$d" ] || return 0
+  command -v curl >/dev/null 2>&1 || return 0
+  for _ in $(seq 1 20); do
+    code="$(curl -sk -o /dev/null -m 5 -w '%{http_code}' --resolve "$d:443:127.0.0.1" "https://$d/login/" 2>/dev/null)"
+    case "$code" in 2??|3??) return 0;; esac
+    sleep 3
+  done
+  return 1
+}
+proxy_aktualisieren() { # setzt PROXY_TEXT (Hinweis fuer die Meldung), PROXY_FEHLER (1 = Proxy danach nicht erreichbar), PROXY_GEAENDERT
+  PROXY_TEXT=""; PROXY_FEHLER=0; PROXY_GEAENDERT=0
+  [ "$(env_wert PROXY_UPDATE)" = 0 ] && return 0
+  [ -f "$PROJ/deploy/docker-compose.proxy.yml" ] || return 0
+  [ -n "$(proxy_compose ps --status running -q 2>/dev/null < /dev/null)" ] || return 0      # kein Proxy aus diesem Projekt: nichts zu tun
+  local alt neu dateien=0
+  alt="$(docker image inspect caddy:2 --format '{{.Id}}' 2>/dev/null)"
+  if ! proxy_compose pull --quiet caddy < /dev/null; then
+    PROXY_TEXT="Proxy (Caddy): neues Image konnte nicht geladen werden (Netzwerk?), der Proxy bleibt unverändert."
+    return 0
+  fi
+  neu="$(docker image inspect caddy:2 --format '{{.Id}}' 2>/dev/null)"
+  git diff --quiet "$ALT_COMMIT" HEAD -- deploy 2>/dev/null || dateien=1
+  if [ "$alt" = "$neu" ] && [ "$dateien" = 0 ]; then return 0; fi        # nichts Neues: den Proxy in Ruhe lassen
+  PROXY_GEAENDERT=1
+  echo "Proxy (Caddy): wird neu erzeugt (neues Image: $([ "$alt" != "$neu" ] && echo ja || echo nein), geänderte Proxy-Dateien: $([ "$dateien" = 1 ] && echo ja || echo nein))."
+  if proxy_compose up -d --force-recreate < /dev/null && proxy_antwortet; then
+    PROXY_TEXT="Proxy (Caddy) wurde aktualisiert."
+    return 0
+  fi
+  echo "Der Proxy antwortet nach dem Neuerzeugen nicht."
+  # Nur das Image laesst sich sicher zurueckstellen; geaenderte Proxy-Dateien gehoeren zur neuen Version (nichts am Arbeitsordner aendern).
+  if [ "$dateien" = 0 ] && [ -n "$alt" ] && [ "$alt" != "$neu" ]; then
+    echo "Stelle das vorherige Proxy-Image wieder her."
+    docker tag "$alt" caddy:2
+    if proxy_compose up -d --force-recreate < /dev/null && proxy_antwortet; then
+      PROXY_TEXT="Proxy (Caddy): das neue Image funktionierte nicht, die vorherige Version läuft wieder."
+      return 0
+    fi
+  fi
+  PROXY_FEHLER=1
+  PROXY_TEXT="Proxy (Caddy) antwortet nicht mehr! Prüfen: cd deploy && docker compose --env-file ../.env -f docker-compose.proxy.yml logs caddy."
+}
+
 VON="$(cat "$PROJ/VERSION" 2>/dev/null)"
 if [ "$NUR_WENN_NEU" = 0 ]; then       # Knopf/von Hand: sofort melden, dass der Auftrag angenommen ist (keine Luecke fuer die Oberflaeche)
   beginnen
@@ -95,7 +147,17 @@ UPSTREAM="$(git rev-parse --abbrev-ref '@{u}' 2>/dev/null || true)"
 if [ "$NUR_WENN_NEU" = 1 ]; then       # Timer: still bleiben, wenn es nichts zu tun gibt
   [ -n "$UPSTREAM" ] || exit 1
   git fetch --quiet origin || exit 1
-  [ "$(git rev-parse HEAD)" = "$(git rev-parse "$UPSTREAM")" ] && exit 0
+  if [ "$(git rev-parse HEAD)" = "$(git rev-parse "$UPSTREAM")" ]; then
+    # Nichts Neues fuer Feuerix - aber ein neues Caddy-Image (Sicherheitsupdate) soll trotzdem ankommen. Still bleiben, wenn sich nichts aendert.
+    ALT_COMMIT="$(git rev-parse HEAD)"
+    proxy_aktualisieren
+    if [ "$PROXY_GEAENDERT" = 1 ] || [ "$PROXY_FEHLER" = 1 ]; then
+      beginnen
+      if [ "$PROXY_FEHLER" = 1 ]; then fertig fehler "Proxy" "$PROXY_TEXT"; exit 1; fi
+      fertig ok "Fertig" "$PROXY_TEXT"
+    fi
+    exit 0
+  fi
 fi
 
 if [ "$NUR_WENN_NEU" = 1 ]; then beginnen; fi
@@ -106,7 +168,10 @@ ALT_COMMIT="$(git rev-parse HEAD)"
 NACH="$(git show "$UPSTREAM:VERSION" 2>/dev/null | head -1)"
 if [ "$ALT_COMMIT" = "$(git rev-parse "$UPSTREAM")" ]; then
   NACH="$VON"
-  fertig aktuell "Prüfung" "Feuerix ist bereits auf dem neuesten Stand ($VON)."
+  status laeuft "Proxy (Caddy) prüfen"
+  proxy_aktualisieren
+  if [ "$PROXY_FEHLER" = 1 ]; then fertig fehler "Proxy" "Feuerix ist aktuell ($VON). $PROXY_TEXT"; exit 1; fi
+  fertig aktuell "Prüfung" "Feuerix ist bereits auf dem neuesten Stand ($VON). $PROXY_TEXT"
   exit 0
 fi
 echo "Aktualisiere von $VON auf ${NACH:-?}."
@@ -146,5 +211,8 @@ if ! warten_bis_oben; then
 fi
 
 NACH="$(cat "$PROJ/VERSION" 2>/dev/null)"
+status laeuft "Proxy (Caddy) prüfen"
+proxy_aktualisieren                       # vor dem Aufraeumen: das alte Proxy-Image wird fuer einen Rueckweg noch gebraucht
 docker image prune -f >/dev/null 2>&1 || true
-fertig ok "Fertig" "Feuerix wurde von $VON auf $NACH aktualisiert."
+if [ "$PROXY_FEHLER" = 1 ]; then fertig fehler "Proxy" "Feuerix wurde auf $NACH aktualisiert, aber: $PROXY_TEXT"; exit 1; fi
+fertig ok "Fertig" "Feuerix wurde von $VON auf $NACH aktualisiert. $PROXY_TEXT"

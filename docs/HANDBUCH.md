@@ -1,4 +1,4 @@
-# Handbuch – Feuerix (Version 1.95.0)
+# Handbuch – Feuerix (Version 1.96.0)
 
 Dieses Handbuch beschreibt die Bedienung von Feuerix, der Vereinsverwaltung für Feuerwehr-Fördervereine, für
 Vorstand, Kassenwart, Schriftführer und alle anderen Nutzer:innen im Verein. Es ergänzt die technischen Dokumente
@@ -874,7 +874,9 @@ das Bauen fehl, läuft die bisherige Version unverändert weiter. Antwortet Feue
 setzt das Update **automatisch auf die vorherige Version zurück** (Hinweis in gelb); ist die Datenbank schon migriert, bleibt es bei einer Fehlermeldung
 mit dem Rückweg, weil der alte Code dann nicht mehr sicher zur Datenbank passt. Die Arbeit erledigt ein kleiner Dienst auf dem Server, den ein Administrator
 einmalig mit `./scripts/update_einrichten.sh` einrichtet (INSTALL.md, Abschnitt 12); ohne Einrichtung zeigt die Seite nur diese Anleitung.
-Jedes Anstoßen steht im Änderungsprotokoll. Mit der Portalverwaltung aktualisiert diese die Instanzen.
+Jedes Anstoßen steht im Änderungsprotokoll. Mit der Portalverwaltung aktualisiert diese die Instanzen. Läuft der Reverse Proxy (Caddy) aus diesem Projekt,
+wird er beim Update mitgeprüft und bei einem neuen Image oder geänderten Proxy-Dateien neu erzeugt (kurze Unterbrechung aller Domains hinter dem Proxy; ein
+Hinweis dazu steht in der Meldung, abschaltbar mit `PROXY_UPDATE=0`).
 
 **Wenn ein Update fehlschlägt:** Die Seite zeigt rot (oder gelb bei „zurückgesetzt“) den Schritt und eine Meldung; die Ausgabe des ganzen Laufs steht
 unter *Protokoll des letzten Laufs*, auf dem Server in `update/update.log` und im Journal (`journalctl -u feuerix-update`). Vor jeder Änderung legt das

@@ -422,6 +422,11 @@ aufbewahren).
   Docker-Zugriff: Er legt nur die Auftragsdatei `update/auftrag` an, ein systemd-Pfad-Dienst (`feuerix-update.path`) startet das Skript. Der
   Ordner `update/` ist absichtlich für alle beschreibbar (nur Auftrag, Stand und Protokoll, nichts Geheimes). Von Hand geht dasselbe mit
   `./scripts/update.sh`. Wieder entfernen: `./scripts/update_einrichten.sh --entfernen`.
+  **Reverse Proxy (Caddy):** Läuft der Proxy aus `deploy/docker-compose.proxy.yml` dieses Projekts, prüft das Update ihn mit – auch wenn Feuerix selbst
+  schon aktuell ist, denn Caddy-Sicherheitsupdates kommen unabhängig von Feuerix-Versionen: Es lädt das Image `caddy:2` neu und erzeugt den Proxy nur
+  neu, wenn sich das Image oder Dateien in `deploy/` geändert haben (wenige Sekunden Unterbrechung aller Domains hinter dem Proxy). Danach wird die
+  Erreichbarkeit der Vereinsdomain geprüft; antwortet ein neues Image nicht, läuft das vorherige wieder. Abschalten mit `PROXY_UPDATE=0` in der `.env`.
+  Ohne Update-Knopf Caddy von Hand aktualisieren: `cd deploy && docker compose --env-file ../.env -f docker-compose.proxy.yml pull && docker compose --env-file ../.env -f docker-compose.proxy.yml up -d`.
 
 * **OpenSlides** (nur falls genutzt): `defaults.tag` in `config.yml` erhöhen, dann
   `./osmanage config --force --config config.yml --template docker-compose.yml.tmpl .`, `docker compose up --detach`,

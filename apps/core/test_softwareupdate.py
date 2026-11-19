@@ -311,7 +311,9 @@ class UpdateSkriptTests(TestCase):
         (self.proj / "update").mkdir()
         shutil.copy(WURZEL / "scripts" / "update.sh", self.proj / "scripts" / "update.sh")
         (self.proj / "VERSION").write_text("1.0.0\n")
-        (self.proj / ".env").write_text("WEB_PORT=8123\nALLOWED_HOSTS=verein.example.org,localhost\n")
+        (self.proj / ".env").write_text("WEB_PORT=8123\nALLOWED_HOSTS=verein.example.org,localhost\nVEREIN_DOMAIN=verein.example.org\n")
+        (self.proj / "deploy").mkdir()
+        (self.proj / "deploy" / "docker-compose.proxy.yml").write_text("services: {}\n")
         self.aufrufe = self.proj / "aufrufe.txt"
         log = f'echo "{{}} $*" >> "{self.aufrufe}"'
         stubs = {
@@ -323,6 +325,7 @@ case "$*" in
   "rev-parse HEAD") echo "${{FAKE_HEAD:-aaa}}" ;;
   "rev-parse origin/main") echo "${{FAKE_UP:-bbb}}" ;;
   "show origin/main:VERSION") echo 2.0.0 ;;
+  diff*) exit ${{FAKE_DEPLOY_GEAENDERT:-0}} ;;
   fetch*) exit ${{FAKE_FETCH_RC:-0}} ;;
   pull*) exit ${{FAKE_PULL_RC:-0}} ;;
 esac
@@ -331,6 +334,11 @@ exit 0
             "docker": f'''#!/bin/bash
 {log.format("docker")}
 case "$*" in
+  *docker-compose.proxy.yml*ps*) printf '%s' "${{FAKE_PROXY_LAEUFT:-}}"; exit 0 ;;
+  *docker-compose.proxy.yml*pull*) exit ${{FAKE_PROXY_PULL_RC:-0}} ;;
+  *docker-compose.proxy.yml*up*) exit ${{FAKE_PROXY_UP_RC:-0}} ;;
+  "image inspect caddy:2"*) n=$(cat "{self.proj}/img_zaehler" 2>/dev/null || echo 0); echo $((n+1)) > "{self.proj}/img_zaehler"
+               if [ "$n" = 0 ]; then echo "sha256:alt1"; else echo "${{FAKE_PROXY_NEU_ID:-sha256:alt1}}"; fi; exit 0 ;;
   *exec*backup*) exit ${{FAKE_BACKUP_RC:-0}} ;;
   *exec*psql*) n=$(cat "{self.proj}/mig_zaehler" 2>/dev/null || echo 0); echo $((n+1)) > "{self.proj}/mig_zaehler"
                if [ "$n" = 0 ]; then echo "${{FAKE_MIG_VORHER-10}}"; else echo "${{FAKE_MIG_NACHHER-10}}"; fi; exit 0 ;;
@@ -343,6 +351,11 @@ exit 0
 ''',
             "curl": f'''#!/bin/bash
 {log.format("curl")}
+case "$*" in *--resolve*)
+  pn=$(cat "{self.proj}/proxy_curl_zaehler" 2>/dev/null || echo 0); pn=$((pn+1)); echo $pn > "{self.proj}/proxy_curl_zaehler"
+  if [ -n "$FAKE_PROXY_CURL_FAIL_ANZAHL" ] && [ "$pn" -le "$FAKE_PROXY_CURL_FAIL_ANZAHL" ]; then echo 502; else echo "${{FAKE_PROXY_CODE:-200}}"; fi
+  exit 0 ;;
+esac
 n=$(cat "{self.proj}/curl_zaehler" 2>/dev/null || echo 0); n=$((n+1)); echo $n > "{self.proj}/curl_zaehler"
 [ -n "$FAKE_CURL_FAIL_ANZAHL" ] && [ "$n" -le "$FAKE_CURL_FAIL_ANZAHL" ] && exit 1
 exit ${{FAKE_CURL_RC:-0}}
@@ -380,6 +393,101 @@ exit ${{FAKE_CURL_RC:-0}}
         self.assertIn("Host: verein.example.org", befehle)                       # Erreichbarkeit mit dem ersten erlaubten Host
         self.assertIn("127.0.0.1:8123/login/", befehle)
         self.assertIn("Feuerix-Update gestartet", (self.proj / "update" / "update.log").read_text())
+
+    # ---- Reverse Proxy (Caddy)
+    def proxy_befehle(self):
+        return [b for b in self.befehle() if "docker-compose.proxy.yml" in b]
+
+    def test_ohne_laufenden_proxy_wird_nichts_geladen_oder_neu_erzeugt(self):
+        erg = self.lauf()
+        self.assertEqual(erg.returncode, 0, erg.stdout + erg.stderr)
+        arten = " ".join(self.proxy_befehle())
+        self.assertNotIn(" pull ", arten)
+        self.assertNotIn(" up ", arten)                                              # nur die Pruefung, ob er laeuft
+
+    def test_unveraenderter_proxy_wird_geladen_aber_nicht_neu_erzeugt(self):
+        erg = self.lauf(FAKE_PROXY_LAEUFT="abc123")
+        self.assertEqual(erg.returncode, 0, erg.stdout + erg.stderr)
+        arten = " ".join(self.proxy_befehle())
+        self.assertIn(" pull --quiet caddy", arten)
+        self.assertNotIn(" up ", arten)                                              # Image gleich, keine Dateien geaendert: in Ruhe lassen
+        self.assertEqual(self.status()["zustand"], "ok")
+        self.assertNotIn("Proxy", self.status()["meldung"])
+
+    def test_neues_proxy_image_erzeugt_den_proxy_neu(self):
+        erg = self.lauf(FAKE_PROXY_LAEUFT="abc123", FAKE_PROXY_NEU_ID="sha256:neu")
+        self.assertEqual(erg.returncode, 0, erg.stdout + erg.stderr)
+        ups = [b for b in self.proxy_befehle() if " up -d --force-recreate" in b]
+        self.assertEqual(len(ups), 1)
+        self.assertEqual(self.status()["zustand"], "ok")
+        self.assertIn("Proxy (Caddy) wurde aktualisiert.", self.status()["meldung"])
+        self.assertIn("aktualisiert. Proxy", self.status()["meldung"])               # nach dem Feuerix-Teil
+        self.assertIn("--resolve verein.example.org:443:127.0.0.1", "\n".join(self.befehle()))   # Erreichbarkeit ueber die Vereinsdomain
+
+    def test_geaenderte_proxy_dateien_erzeugen_den_proxy_neu(self):
+        erg = self.lauf(FAKE_PROXY_LAEUFT="abc123", FAKE_DEPLOY_GEAENDERT=1, FAKE_HEAD="alt123")
+        self.assertEqual(erg.returncode, 0, erg.stdout + erg.stderr)
+        self.assertEqual(len([b for b in self.proxy_befehle() if " up -d --force-recreate" in b]), 1)
+        self.assertIn("git diff --quiet alt123 HEAD -- deploy", "\n".join(self.befehle()))
+        self.assertIn("Proxy (Caddy) wurde aktualisiert.", self.status()["meldung"])
+
+    def test_schlechtes_neues_proxy_image_wird_durch_das_alte_ersetzt(self):
+        erg = self.lauf(FAKE_PROXY_LAEUFT="abc123", FAKE_PROXY_NEU_ID="sha256:neu", FAKE_PROXY_CURL_FAIL_ANZAHL=20)
+        self.assertEqual(erg.returncode, 0, erg.stdout + erg.stderr)                 # Feuerix selbst ist aktualisiert, der Proxy laeuft
+        befehle = self.befehle()
+        self.assertIn("docker tag sha256:alt1 caddy:2", befehle)                      # altes Image zurueck auf das Tag
+        self.assertEqual(len([b for b in self.proxy_befehle() if " up -d --force-recreate" in b]), 2)
+        self.assertEqual(self.status()["zustand"], "ok")
+        self.assertIn("die vorherige Version läuft wieder", self.status()["meldung"])
+
+    def test_wenn_auch_der_proxy_rueckweg_scheitert_ist_es_ein_fehler(self):
+        erg = self.lauf(FAKE_PROXY_LAEUFT="abc123", FAKE_PROXY_NEU_ID="sha256:neu", FAKE_PROXY_CURL_FAIL_ANZAHL=1000)
+        self.assertEqual(erg.returncode, 1)
+        s = self.status()
+        self.assertEqual(s["zustand"], "fehler")
+        self.assertIn("Proxy (Caddy) antwortet nicht mehr", s["meldung"])
+        self.assertIn("Feuerix wurde auf 1.0.0 aktualisiert, aber", s["meldung"])     # Feuerix-Teil bleibt erkennbar
+
+    def test_bei_geaenderten_proxy_dateien_wird_nur_gemeldet_nicht_zurueckgesetzt(self):
+        erg = self.lauf(FAKE_PROXY_LAEUFT="abc123", FAKE_DEPLOY_GEAENDERT=1, FAKE_HEAD="alt123", FAKE_PROXY_CURL_FAIL_ANZAHL=1000)
+        self.assertEqual(erg.returncode, 1)
+        self.assertEqual(self.status()["zustand"], "fehler")
+        self.assertNotIn("docker tag", "\n".join(self.befehle()))                    # Image war gleich: es gibt nichts zurueckzustellen
+        self.assertNotIn("git reset", "\n".join(self.befehle()))                     # der Arbeitsordner bleibt unberuehrt
+
+    def test_proxy_image_nicht_ladbar_ist_nur_ein_hinweis(self):
+        erg = self.lauf(FAKE_PROXY_LAEUFT="abc123", FAKE_PROXY_PULL_RC=1)
+        self.assertEqual(erg.returncode, 0, erg.stdout + erg.stderr)
+        self.assertEqual(self.status()["zustand"], "ok")
+        self.assertIn("konnte nicht geladen werden", self.status()["meldung"])
+        self.assertNotIn(" up ", " ".join(self.proxy_befehle()))
+
+    def test_proxy_update_laesst_sich_abschalten(self):
+        with open(self.proj / ".env", "a") as f:
+            f.write("PROXY_UPDATE=0\n")
+        erg = self.lauf(FAKE_PROXY_LAEUFT="abc123", FAKE_PROXY_NEU_ID="sha256:neu")
+        self.assertEqual(erg.returncode, 0, erg.stdout + erg.stderr)
+        self.assertEqual(self.proxy_befehle(), [])                                    # nicht einmal die Pruefung
+
+    def test_auch_wenn_feuerix_aktuell_ist_kommt_ein_neues_proxy_image_an(self):
+        erg = self.lauf(FAKE_HEAD="gleich", FAKE_UP="gleich", FAKE_PROXY_LAEUFT="abc123", FAKE_PROXY_NEU_ID="sha256:neu")
+        self.assertEqual(erg.returncode, 0, erg.stdout + erg.stderr)
+        self.assertEqual(self.status()["zustand"], "aktuell")
+        self.assertIn("Feuerix ist bereits auf dem neuesten Stand", self.status()["meldung"])
+        self.assertIn("Proxy (Caddy) wurde aktualisiert.", self.status()["meldung"])
+        self.assertNotIn("docker compose build", "\n".join(self.befehle()))          # Feuerix selbst wird nicht angefasst
+
+    def test_timer_bleibt_still_wenn_auch_der_proxy_unveraendert_ist(self):
+        erg = self.lauf("--nur-wenn-neu", FAKE_HEAD="gleich", FAKE_UP="gleich", FAKE_PROXY_LAEUFT="abc123")
+        self.assertEqual(erg.returncode, 0)
+        self.assertEqual(erg.stdout.strip(), "")
+        self.assertFalse((self.proj / "update" / "status.json").exists())
+
+    def test_timer_meldet_ein_neues_proxy_image(self):
+        erg = self.lauf("--nur-wenn-neu", FAKE_HEAD="gleich", FAKE_UP="gleich", FAKE_PROXY_LAEUFT="abc123", FAKE_PROXY_NEU_ID="sha256:neu")
+        self.assertEqual(erg.returncode, 0, erg.stdout + erg.stderr)
+        self.assertEqual(self.status()["zustand"], "ok")
+        self.assertIn("Proxy (Caddy) wurde aktualisiert.", self.status()["meldung"])
 
     def test_status_laeuft_schon_vor_dem_ersten_git_befehl(self):
         self.lauf()

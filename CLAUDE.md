@@ -41,7 +41,7 @@ verlinken.)
   (in `clean()` der jeweiligen Modelle eingebunden) - bei neuen Feldern mit frei einstellbarer Server-Adresse
   ebenso einbinden.
 * Software-Update per Weboberfläche (`apps/core/softwareupdate.py`, `update_views.py`, Host-Skripte `scripts/update.sh` und `update_einrichten.sh`): Der
-  Container legt nur die Auftragsdatei `update/auftrag` an, ein systemd-Pfad-Dienst auf dem Server startet das Skript. Dem Container **nie** Docker-Zugriff
+  Container legt nur die Auftragsdatei `update/auftrag` an, ein systemd-Pfad-Dienst auf dem Server startet das Skript. `update.sh` prüft auch den Caddy-Proxy (`PROXY_UPDATE`). Dem Container **nie** Docker-Zugriff
   (`docker.sock`) geben; Inhalt und Name der Auftragsdatei dürfen den Ablauf nicht beeinflussen. Nur mit `SOFTWAREUPDATE_PER_WEB=1` aktiv (Portal-Instanzen: aus).
 
 ## Befehle

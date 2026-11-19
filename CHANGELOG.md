@@ -3,6 +3,10 @@
 Alle nennenswerten Änderungen an Feuerix, neueste zuerst. Versionsnummern folgen Semantic Versioning
 (siehe CLAUDE.md). Rein redaktionelle/interne Commits ohne Nutzerwirkung sind nicht einzeln aufgeführt.
 
+## 1.96.0
+
+- **Codename „Hydrantenprüfung“.** Das Update prüft jetzt auch den Reverse Proxy **Caddy**, falls er aus `deploy/docker-compose.proxy.yml` dieses Projekts läuft (auch wenn Feuerix selbst aktuell ist, und im nächtlichen Timer-Lauf): neues Image `caddy:2` laden, den Proxy nur bei neuem Image oder geänderten Dateien in `deploy/` neu erzeugen, danach die Erreichbarkeit der Vereinsdomain prüfen und bei einem schlechten neuen Image das vorherige wiederherstellen. Bisher bekam Caddy keine Updates. Abschaltbar mit `PROXY_UPDATE=0` in der `.env`. Migration: keine.
+
 ## 1.95.0
 
 - **Codename „Notbremse“.** Update mit **automatischem Rollback**: Antwortet Feuerix nach dem Neustart nicht und ist die Datenbank noch nicht migriert (`update.sh` zählt die angewendeten Migrationen vor dem Update und nach dem Fehlstart; gleiche Zahl = der alte Code passt noch), setzt das Skript Code und Container automatisch auf die vorherige Version zurück, wartet, bis sie antwortet, und meldet es als eigenen Zustand „zurückgesetzt“ (gelb). Ist die Datenbank schon migriert oder der Stand nicht prüfbar, gibt es **keinen** automatischen Rückweg, sondern wie bisher die Fehlermeldung mit `git reset --hard` und der Sicherung. Dazu: Meldungen bis 500 Zeichen, und das Handbuch beschreibt je Fehlermeldung, was passiert ist und was zu tun ist. Migration: keine.

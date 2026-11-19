@@ -419,6 +419,11 @@ separately).
   access: it only creates the request file `update/auftrag`, and a systemd path service (`feuerix-update.path`) starts the script. The `update/`
   folder is deliberately writable for everyone (only request, status and log, nothing secret). The same works by hand with `./scripts/update.sh`.
   To remove: `./scripts/update_einrichten.sh --entfernen`.
+  **Reverse proxy (Caddy):** If the proxy runs from this project's `deploy/docker-compose.proxy.yml`, the update checks it as well – even when Feuerix itself is
+  already current, because Caddy security updates come independently of Feuerix versions: it pulls the `caddy:2` image again and recreates the proxy only if
+  the image or files in `deploy/` changed (a few seconds of interruption for all domains behind the proxy). It then checks that the club domain responds; if a
+  new image does not respond, the previous one runs again. Turn it off with `PROXY_UPDATE=0` in `.env`. Without the update button, update Caddy by hand:
+  `cd deploy && docker compose --env-file ../.env -f docker-compose.proxy.yml pull && docker compose --env-file ../.env -f docker-compose.proxy.yml up -d`.
 
 * **OpenSlides** (only if used): bump `defaults.tag` in `config.yml`, then
   `./osmanage config --force --config config.yml --template docker-compose.yml.tmpl .`,
